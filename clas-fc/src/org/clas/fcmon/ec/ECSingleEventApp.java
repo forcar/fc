@@ -69,7 +69,7 @@ public class ECSingleEventApp extends FCApplication {
       
       this.getDetIndices(dd);
 		
-      l.divide(3,6); ru.divide(3,3); mc1.divide(3,3); pi0.divide(1,1);
+      l.divide(3,6); ru.divide(3,3); mc1.divide(3,3); resid.divide(2,2); pi0.divide(1,1);
       l.setAxisFontSize(14);
       l.setStatBoxFontSize(12);
       
@@ -167,12 +167,19 @@ public class ECSingleEventApp extends FCApplication {
           h.setOptStat(Integer.parseInt("1100")); h.setTitle(" "); mc1.draw(h);
       }
       
+      String lab[] = {"Photon 1 - ECin (cm)","Photon 1 - ECout (cm)","Photon 2 - ECin (cm)","Photon 2 - ECout (cm)"};
+      for(ii=0; ii<4; ii++){
+          resid.cd(ii); resid.getPad(ii).getAxisX().setRange(-2.,40.);
+          h = ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,10,0).sliceY(ii) ; h.setTitleX(lab[ii]); h.setFillColor(2); 
+          h.setOptStat(Integer.parseInt("1100")); resid.draw(h);
+      }
+      
       ii=0;
       pi0.cd(ii); pi0.getPad(ii).getAxisX().setRange(0.,200.);
       h = ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,0).sliceY((int)5) ; h.setTitleX("Pizero Invariant Mass (MeV)"); h.setFillColor(2); 
       h.setOptStat(Integer.parseInt("1100")); pi0.draw(h);
             
-      l.repaint(); ru.repaint(); mc1.repaint(); pi0.repaint();
+      l.repaint(); ru.repaint(); mc1.repaint(); resid.repaint(); pi0.repaint();
    }
    
 }
