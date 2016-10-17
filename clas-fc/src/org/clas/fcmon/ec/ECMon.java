@@ -52,8 +52,8 @@ public class ECMon extends DetectorMonitor {
     public boolean             inMC = true;   //true=MC false=DATA
     public boolean            inCRT = false;  //true=CRT preinstallation CRT data
     public boolean            doRec = false ; //true=2.4 EC processor
-    public boolean            doEng = false;   //true=3.0 EC processor
-    public String            config = "muon"; //configs: phot,muon,elec
+    public boolean            doEng = true;  //true=3.0 EC processor
+    public String            config = "phot"; //configs: phot,muon,elec
     public int               calRun = 2;
     public int            inProcess = 0;      //0=init 1=processing 2=end-of-run 3=post-run
     int                       detID = 0;

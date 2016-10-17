@@ -22,9 +22,9 @@ public class JCSG {
    
     ECDetector    detector = new ECFactory().createDetectorCLAS(cp2);
     String name[]={"PCAL","ECin","ECout"};
-    int  isec[]={1,1,1};
+    int  isec[]={2,2,2};
     int  ilay[]={1,1,1};
-    int  istr[]={1,1,1}; //Perp. radius at {59,28}
+    int  istr[]={1,36,36}; //Perp. radius at {59,28}
     public JCSG() {};
     
     private void doCJVert(int unit) {

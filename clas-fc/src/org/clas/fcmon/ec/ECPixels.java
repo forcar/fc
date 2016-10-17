@@ -84,7 +84,7 @@ public class ECPixels {
     int[][] pthrPhot = {{18,18,18},{20,20,20},{15,15,15}};
     int[][] pthrElec = {{30,30,30},{30,30,30},{30,30,30}};
         
-    double[] cerrMuon = {5.5,5.5,5.5};
+    double[] cerrMuon = {5.5,10.,10.};
     double[] cerrPhot = {6.5,15.,20.};
     double[] cerrElec = {10.,10.,10.};
     
@@ -316,7 +316,7 @@ public class ECPixels {
             
             // Reco data
                 id="s"+Integer.toString(is)+"_l"+Integer.toString(4)+"_c";
-                H2_a_Hist.add(is, 4, 0, new H2F("a_reco_"+id+0, 1600, 0.,800., 5, 1., 6.));
+                H2_a_Hist.add(is, 4, 0, new H2F("a_reco_"+id+0, 1600, 5.,800., 6, 1., 7.));
                 id="s"+Integer.toString(is)+"_l"+Integer.toString(5)+"_c";
                 H2_a_Hist.add(is, 5, 0, new H2F("b_raw_"+id+0,  600, 0.,300., 3, 1., 4.));                
                 id="s"+Integer.toString(is)+"_l"+Integer.toString(6)+"_c";

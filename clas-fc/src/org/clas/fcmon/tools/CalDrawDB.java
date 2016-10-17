@@ -48,7 +48,7 @@ public class CalDrawDB{
 	private double angle;
 	private double anglewidth;
 	private double slightshift;
-	private int unit; //PCAL ==0, ECinner ==1, ECouter==2 
+	private    int unit; //PCAL ==0, ECinner ==1, ECouter==2 
 	private int[] numstrips = new int[3];
 	private int[][][] validoverlap; // 3,68,62 first number is 0,1,2
 	private int[][][] validpixel; //68,62,62 for pcal
@@ -61,8 +61,8 @@ public class CalDrawDB{
 	public CalDrawDB(String detector) {
 		     if(detector.contains("PCAL"))  unit = 0;
 		else if(detector.contains("ECin"))  unit = 1;
-		else if(detector.contains("EC"))    unit = 1;
 		else if(detector.contains("ECout")) unit = 2;
+        else if(detector.contains("EC"))    unit = 1;
 		else System.err.println("Must pass in PCAL, EC, ECin, or ECout");
 		
 		if(unit==0)

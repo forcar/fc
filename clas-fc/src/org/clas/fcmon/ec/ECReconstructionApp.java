@@ -7,11 +7,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.TreeMap;
 
+import org.clas.fcmon.tools.DetectorResponse;
+import org.clas.fcmon.tools.ECPart;
 //clas12
 import org.clas.fcmon.tools.FADCFitter;
 import org.clas.fcmon.tools.FCApplication;
 import org.jlab.clas.detector.DetectorCollection;
-
+//import org.jlab.clas.detector.DetectorResponse;
 import org.jlab.clas12.detector.FADCConfigLoader;
 //import org.root.histogram.H1D;
 //import org.root.histogram.H2D;
@@ -283,6 +285,10 @@ public class ECReconstructionApp extends FCApplication {
     
    public void processECRec(DataEvent event) {
        
+       double[] esum = {0,0,0,0,0,0};
+       int[][] nesum = {{0,0,0,0,0,0},{0,0,0,0,0,0},{0,0,0,0,0,0}};
+       int[]   iidet = {1,4,7};
+       
        if (app.isSingleEvent()) {
            for (int i=0; i<3; i++) app.getDetectorView().getView().removeLayer("L"+i);
            for (int i=0; i<3; i++) app.getDetectorView().getView().addLayer("L"+i);
@@ -336,51 +342,60 @@ public class ECReconstructionApp extends FCApplication {
         
       } 
       
-      if(event.hasBank("ECDetector::clusters")){
-          EvioDataBank bank = (EvioDataBank) event.getBank("ECDetector::clusters");
-          int sign[] = {-1,1,1}; double esum=0;
-          for(int i=0; i < bank.rows(); i++) {
-             int is = bank.getInt("sector",i);
-             int il = bank.getInt("layer",i);
-             double energy = bank.getDouble("energy",i);
-             double      X = bank.getDouble("X",i);
-             double      Y = bank.getDouble("Y",i);
-             double      Z = bank.getDouble("Z",i);
-             double    pcR = Math.sqrt(X*X+Y*Y+Z*Z);
-             double pcThet = Math.asin(Math.sqrt(X*X+Y*Y)/pcR)*180/3.14159;
-             double    mcR = Math.sqrt(pcx*pcx+pcy*pcy+pcz*pcz);
-             double mcThet = Math.asin(Math.sqrt(pcx*pcx+pcy*pcy)/mcR)*180/3.14159;
-            System.out.println("Cluster: "+X+" "+Y+" "+Z);
-            System.out.println("Cluster-target:"+pcR);
-            System.out.println("GEMC-target:"+0.1*mcR);
-            System.out.println("Cluster thet: "+pcThet);
-            System.out.println("GEMC thet: "+mcThet);
-            System.out.println(" ");
-            if(getDet(il)==0) {
-                ecPix[getDet(il)].strips.hmap2.get("H2_a_Hist").get(is,8,0).fill(0.1*pcx-X,1.);
-                ecPix[getDet(il)].strips.hmap2.get("H2_a_Hist").get(is,8,0).fill(0.1*pcy-Y,2.);
-                ecPix[getDet(il)].strips.hmap2.get("H2_a_Hist").get(is,8,0).fill(0.1*pcz-Z,3.);
-            }
-            ecPix[getDet(il)].strips.hmap2.get("H2_a_Hist").get(is,9,0).fill(25.0-mcThet,1.);
-            ecPix[getDet(il)].strips.hmap2.get("H2_a_Hist").get(is,9,0).fill(pcThet-mcThet,2.);
-            //Display uses tilted coordinates.  Must transform X,Y,Z from CLAS into tilted.
-             Point3D xyz = new Point3D(-X,Y,Z);
-             xyz.rotateZ(Math.toRadians(60*(is-1)));
-             xyz.rotateY(Math.toRadians(25));
-             xyz.translateXYZ(-333.1042, 0.0, 0.0);
-             xyz.rotateZ(Math.toRadians(-60*(is-1)));
-             double[] dum  = {xyz.x(),-xyz.y()}; 
-//             System.out.println("sector,layer="+is+" "+il);  
-//           System.out.println("Cluster: "+dum[0]+" "+dum[1]+" "+xyz.z());
-//           System.out.println("Cluster: "+X+" "+Y+" "+Z);
-             if (app.isSingleEvent()) ecPix[getDet(il)].clusterXY.get(is).add(dum);
-             ecPix[getDet(il)].strips.hmap2.get("H2_a_Hist").get(is,4,0).fill(energy*1e3,4,1.); 
-             ecPix[getDet(il)].strips.hmap2.get("H2_a_Hist").get(is,4,0).fill(energy*1e3,4,1.); 
-             esum=esum+energy*1e3;
+      ECPart part = new ECPart();
+      List<List<DetectorResponse>>   res = new ArrayList<List<DetectorResponse>>();
+      List<DetectorResponse>  ecClusters = part.readEC((EvioDataEvent)event);
+      
+      if (ecClusters.size()>0) {
+      for (int idet=0; idet<3; idet++) {
+          res.add(ECPart.getResponseForLayer(ecClusters, iidet[idet]));
+          for(int i = 0; i < res.get(idet).size(); i++){
+              int        is = res.get(idet).get(i).getDescriptor().getSector();
+              double energy = res.get(idet).get(i).getEnergy();
+              double      X = res.get(idet).get(i).getPosition().x();
+              double      Y = res.get(idet).get(i).getPosition().y();
+              double      Z = res.get(idet).get(i).getPosition().z();
+              double    pcR = Math.sqrt(X*X+Y*Y+Z*Z);
+              double pcThet = Math.asin(Math.sqrt(X*X+Y*Y)/pcR)*180/3.14159;
+              double    mcR = Math.sqrt(pcx*pcx+pcy*pcy+pcz*pcz);
+              double mcThet = Math.asin(Math.sqrt(pcx*pcx+pcy*pcy)/mcR)*180/3.14159;
+              System.out.println("Cluster: "+X+" "+Y+" "+Z);
+              System.out.println("Cluster-target:"+pcR);
+              System.out.println("GEMC-target:"+0.1*mcR);
+              System.out.println("Cluster thet: "+pcThet);
+              System.out.println("GEMC thet: "+mcThet);
+              System.out.println(" ");
+              if(idet==0) {
+                 ecPix[idet].strips.hmap2.get("H2_a_Hist").get(is,8,0).fill(0.1*pcx-X,1.);
+                 ecPix[idet].strips.hmap2.get("H2_a_Hist").get(is,8,0).fill(0.1*pcy-Y,2.);
+                 ecPix[idet].strips.hmap2.get("H2_a_Hist").get(is,8,0).fill(0.1*pcz-Z,3.);
+              }
+              ecPix[idet].strips.hmap2.get("H2_a_Hist").get(is,9,0).fill(25.0-mcThet,1.);
+              ecPix[idet].strips.hmap2.get("H2_a_Hist").get(is,9,0).fill(pcThet-mcThet,2.);
+              //Display uses tilted coordinates.  Must transform X,Y,Z from CLAS into tilted.
+              Point3D xyz = new Point3D(-X,Y,Z);
+              xyz.rotateZ(Math.toRadians(60*(is-1)));
+              xyz.rotateY(Math.toRadians(25));
+              xyz.translateXYZ(-333.1042, 0.0, 0.0);
+              xyz.rotateZ(Math.toRadians(-60*(is-1)));
+              double[] dum  = {xyz.x(),-xyz.y()}; 
+//              System.out.println("sector,layer="+is+" "+il);  
+//            System.out.println("Cluster: "+dum[0]+" "+dum[1]+" "+xyz.z());
+//            System.out.println("Cluster: "+X+" "+Y+" "+Z);
+              if (app.isSingleEvent()) ecPix[idet].clusterXY.get(is).add(dum);
+              ecPix[idet].strips.hmap2.get("H2_a_Hist").get(is,4,0).fill(energy*1e3,4,1.); // Layer Cluster Energy
+              if(energy*1e3>10) {esum[is-1]=esum[is-1]+energy*1e3; nesum[idet][is-1]++;}
           }
-         ecPix[0].strips.hmap2.get("H2_a_Hist").get(2,4,0).fill(esum,5,1.);            
+      }
+      for (int is=1; is<7; is++) {
+          if(nesum[0][is-1]==1 && nesum[1][is-1]==1 && nesum[2][is-1]==1) {
+              ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,0).fill(esum[is-1],5,1.); //Total Cluster Energy            
+          }
+      }
       }
       
+      ecPix[0].strips.hmap2.get("H2_a_Hist").get(2,4,0).fill((float)1e3*Math.sqrt(part.getTwoPhoton((EvioDataEvent)event)),6,1.);
+
       if(event.hasBank("ECDetector::calib")){
           double raw[] = new double[3];
           double rec[] = new double[3];
@@ -401,9 +416,7 @@ public class ECReconstructionApp extends FCApplication {
 //             System.out.println("X,Y,Z,energy="+X+" "+Y+" "+Z+" "+energy);  
 //             System.out.println(" ");
           }
-      }    
-        
- 
+      }            
    }
    
    private class toLocal {
