@@ -327,7 +327,9 @@ public class ECPixels {
                 id="s"+Integer.toString(is)+"_l"+Integer.toString(8)+"_c";
                 H2_a_Hist.add(is, 8, 0, new H2F("f_reco_"+id+0, 50, -10., 10., 3, 1., 4.));   
                 id="s"+Integer.toString(is)+"_l"+Integer.toString(9)+"_c";
-                H2_a_Hist.add(is, 9, 0, new H2F("f_reco_"+id+0, 50, -2., 2., 3, 1., 4.));   
+                H2_a_Hist.add(is, 9, 0, new H2F("g_reco_"+id+0, 50, -2., 2., 3, 1., 4.));   
+                id="s"+Integer.toString(is)+"_l"+Integer.toString(10)+"_c";
+                H2_a_Hist.add(is, 10, 0, new H2F("h_reco_"+id+0, 60, -2., 40., 4, 1., 5.));   
                 
             //Pixel based data
             for (int il=1; il<4 ; il++) { 
