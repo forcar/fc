@@ -352,8 +352,8 @@ public class FTOFReconstructionApp extends FCApplication {
            H1_a_Sevd = ftofPix[idet].strips.hmap1.get("H1_a_Sevd");
                for (int is=1;is<7;is++) {
                    for (int il=1 ; il<3 ; il++) {
-                       if (!app.isSingleEvent()) ftofPix[idet].Lmap_a.add(is,il,idet, toTreeMap(H2_a_Hist.get(is,il,0).projectionY().getData())); //Strip View ADC 
-                       if  (app.isSingleEvent()) ftofPix[idet].Lmap_a.add(is,il,idet, toTreeMap(H1_a_Sevd.get(is,il,0).getData()));           
+                       if (!app.isSingleEvent()) ftofPix[idet].Lmap_a.add(is,il,0, toTreeMap(H2_a_Hist.get(is,il,0).projectionY().getData())); //Strip View ADC 
+                       if  (app.isSingleEvent()) ftofPix[idet].Lmap_a.add(is,il,0, toTreeMap(H1_a_Sevd.get(is,il,0).getData()));           
                    }
                } 
            }

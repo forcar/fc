@@ -9,13 +9,9 @@ import org.clas.fcmon.tools.*;
 import org.jlab.clas.detector.DetectorCollection;
 import org.jlab.clas12.detector.FADCConfigLoader;
 import org.jlab.clasrec.utils.DatabaseConstantProvider;
-import org.root.histogram.H1D;
-import org.root.histogram.H2D;
 
 //clas12rec
 import org.jlab.detector.base.DetectorDescriptor;
-//import org.jlab.groot.data.H1F;
-//import org.jlab.groot.data.H2F;
 import org.jlab.io.evio.EvioDataEvent;
 import org.jlab.io.base.DataEvent;
 
@@ -39,7 +35,7 @@ public class FTOFMon extends DetectorMonitor {
     FTOFScalersApp        ftofScalers = null;
     FTOFHvApp                  ftofHv = null;
         
-    public boolean               inMC = true; //true=MC false=DATA
+    public boolean               inMC = false; //true=MC false=DATA
     public int              inProcess = 0;    //0=init 1=processing 2=end-of-run 3=post-run
     int                         detID = 0;
     int                           is1 = 2;    //All sectors: is1=1 is2=7  Single sector: is1=s is2=s+1
@@ -49,8 +45,6 @@ public class FTOFMon extends DetectorMonitor {
     double                 PCMon_zmax = 0;
     
     String mondet                     = "FTOF";
-	
-    DetectorCollection<TreeMap<Integer,Object>> Lmap_a = new DetectorCollection<TreeMap<Integer,Object>>();	 
 	
     TreeMap<String,Object> glob = new TreeMap<String,Object>();
 	   
@@ -141,13 +135,12 @@ public class FTOFMon extends DetectorMonitor {
     public void init( ) {       
         System.out.println("monitor.init()");   
         initApps();
-        ftofPix[0].initHistograms(" ");
-        ftofPix[1].initHistograms(" ");
-        ftofPix[2].initHistograms(" ");
+        for (int i=0; i<ftofPix.length; i++) ftofPix[i].initHistograms(" "); 
     }
 
     public void initApps() {
         System.out.println("monitor.initApps()");
+        for (int i=0; i<ftofPix.length; i++)   ftofPix[i].init();
         ftofRecon.init();
         if (app.doEpics) {
           ftofHv.init(is1,is2);        
@@ -217,14 +210,14 @@ public class FTOFMon extends DetectorMonitor {
         DetectorDescriptor dd = shape.getDescriptor();
         this.analyze(inProcess);       
         switch (app.getSelectedTabName()) {
-        case "Mode1":             ftofMode1.updateCanvas(dd); break;
-        case "ADC":                 ftofAdc.updateCanvas(dd); break;
-        case "TDC":                 ftofTdc.updateCanvas(dd); break;
-        case "Pedestal":       ftofPedestal.updateCanvas(dd); break;
-        case "MIP":                 ftofMip.updateCanvas(dd); break; 
-        case "HV":                   ftofHv.updateCanvas(dd); break;
-        case "Scalers":         ftofScalers.updateCanvas(dd);
-        } 
+        case "Mode1":                        ftofMode1.updateCanvas(dd); break;
+        case "ADC":                            ftofAdc.updateCanvas(dd); break;
+        case "TDC":                            ftofTdc.updateCanvas(dd); break;
+        case "Pedestal":                  ftofPedestal.updateCanvas(dd); break;
+        case "MIP":                            ftofMip.updateCanvas(dd); break; 
+        case "HV":         if(app.doEpics)      ftofHv.updateCanvas(dd); break;
+        case "Scalers":    if(app.doEpics) ftofScalers.updateCanvas(dd);
+       } 
     }
 
     @Override
@@ -258,7 +251,6 @@ public class FTOFMon extends DetectorMonitor {
           histofile.addToMap("H2_t_Hist",ftofPix[idet].strips.hmap2.get("H2_t_Hist"));
           histofile.writeHipoFile(hipoFileName);
         }
-       // histofile.browseFile(hipoFileName);     
     }
     
 }

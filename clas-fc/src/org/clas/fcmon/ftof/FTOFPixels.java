@@ -44,6 +44,12 @@ public class FTOFPixels {
         pixrot();
     }
 	
+    public void init() {
+        System.out.println("FTOFPixels.init():");
+        Lmap_a.clear();
+        Lmap_t.clear();
+    }
+    
     public void pixdef() {
         
         System.out.println("FTOFPixels.pixdef(): "+this.detName); 
