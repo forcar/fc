@@ -8,18 +8,19 @@ import java.util.List;
 import java.util.TreeMap;
 
 //clas12
-import org.clas.fcmon.tools.ECPixels;
+import org.clas.fcmon.ec.ECPixels;
 import org.clas.fcmon.tools.FADCFitter;
 import org.clas.fcmon.tools.FCApplication;
 import org.jlab.clas.detector.DetectorCollection;
 import org.jlab.clas12.detector.FADCConfigLoader;
-import org.root.histogram.H1D;
-import org.root.histogram.H2D;
+
 
 //clas12rec
 import org.jlab.detector.decode.CodaEventDecoder;
 import org.jlab.detector.decode.DetectorDataDgtz;
 import org.jlab.detector.decode.DetectorEventDecoder;
+import org.jlab.groot.data.H1F;
+import org.jlab.groot.data.H2F;
 import org.jlab.io.evio.EvioDataEvent;
 import org.jlab.io.evio.EvioDataBank;
 
@@ -38,11 +39,11 @@ public class CCReconstructionApp extends FCApplication {
    DetectorEventDecoder   detectorDecoder = new DetectorEventDecoder();
    List<DetectorDataDgtz>  detectorData   = new ArrayList<DetectorDataDgtz>();
   
-   DetectorCollection<H1D> H1_CCa_Sevd = new DetectorCollection<H1D>();
-   DetectorCollection<H1D> H1_CCt_Sevd = new DetectorCollection<H1D>();
-   DetectorCollection<H2D> H2_CCa_Hist = new DetectorCollection<H2D>();
-   DetectorCollection<H2D> H2_CCt_Hist = new DetectorCollection<H2D>();
-   DetectorCollection<H2D> H2_CCa_Sevd = new DetectorCollection<H2D>();
+   DetectorCollection<H1F> H1_CCa_Sevd = new DetectorCollection<H1F>();
+   DetectorCollection<H1F> H1_CCt_Sevd = new DetectorCollection<H1F>();
+   DetectorCollection<H2F> H2_CCa_Hist = new DetectorCollection<H2F>();
+   DetectorCollection<H2F> H2_CCt_Hist = new DetectorCollection<H2F>();
+   DetectorCollection<H2F> H2_CCa_Sevd = new DetectorCollection<H2F>();
    
    public DetectorCollection<TreeMap<Integer,Object>> Lmap_a = new DetectorCollection<TreeMap<Integer,Object>>();
    public DetectorCollection<TreeMap<Integer,Object>> Lmap_t = new DetectorCollection<TreeMap<Integer,Object>>();
@@ -295,10 +296,10 @@ public class CCReconstructionApp extends FCApplication {
        
    }
 
-   public TreeMap<Integer, Object> toTreeMap(double dat[]) {
+   public TreeMap<Integer, Object> toTreeMap(float dat[]) {
        TreeMap<Integer, Object> hcontainer = new TreeMap<Integer, Object>();
        hcontainer.put(1, dat);
-       double[] b = Arrays.copyOf(dat, dat.length);
+       float[] b = Arrays.copyOf(dat, dat.length);
        double min=100000,max=0;
        for (int i =0 ; i < b.length; i++){
            if (b[i] !=0 && b[i] < min) min=b[i];
@@ -319,8 +320,8 @@ public class CCReconstructionApp extends FCApplication {
        
        for (int is=1;is<7;is++) {
            for (int il=1 ; il<3 ; il++) {
-               if (!app.isSingleEvent()) Lmap_a.add(is,il,0, toTreeMap(H2_CCa_Hist.get(is,il,0).projectionY().getData())); //Strip View ADC 
-               if  (app.isSingleEvent()) Lmap_a.add(is,il,0, toTreeMap(H1_CCa_Sevd.get(is,il,0).getData()));           
+               if (!app.isSingleEvent()) ccPix.Lmap_a.add(is,il,0, toTreeMap(H2_CCa_Hist.get(is,il,0).projectionY().getData())); //Strip View ADC 
+               if  (app.isSingleEvent()) ccPix.Lmap_a.add(is,il,0, toTreeMap(H1_CCa_Sevd.get(is,il,0).getData()));           
            }
        }   
    }    

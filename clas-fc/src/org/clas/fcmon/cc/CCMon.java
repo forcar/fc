@@ -9,13 +9,12 @@ import org.clas.fcmon.tools.*;
 import org.jlab.clas.detector.DetectorCollection;
 import org.jlab.clas12.detector.FADCConfigLoader;
 import org.jlab.clasrec.utils.DatabaseConstantProvider;
-import org.root.histogram.H1D;
-import org.root.histogram.H2D;
+
 
 //clas12rec
 import org.jlab.detector.base.DetectorDescriptor;
-//import org.jlab.groot.data.H1F;
-//import org.jlab.groot.data.H2F;
+import org.jlab.groot.data.H1F;
+import org.jlab.groot.data.H2F;
 import org.jlab.io.evio.EvioDataEvent;
 import org.jlab.io.base.DataEvent;
 
@@ -48,11 +47,11 @@ public class CCMon extends DetectorMonitor {
     
     String mondet                   = "LTCC";
     
-    DetectorCollection<H1D> H1_CCa_Sevd = new DetectorCollection<H1D>();
-    DetectorCollection<H1D> H1_CCt_Sevd = new DetectorCollection<H1D>();
-    DetectorCollection<H2D> H2_CCa_Hist = new DetectorCollection<H2D>();
-    DetectorCollection<H2D> H2_CCt_Hist = new DetectorCollection<H2D>();
-    DetectorCollection<H2D> H2_CCa_Sevd = new DetectorCollection<H2D>();
+    DetectorCollection<H1F> H1_CCa_Sevd = new DetectorCollection<H1F>();
+    DetectorCollection<H1F> H1_CCt_Sevd = new DetectorCollection<H1F>();
+    DetectorCollection<H2F> H2_CCa_Hist = new DetectorCollection<H2F>();
+    DetectorCollection<H2F> H2_CCt_Hist = new DetectorCollection<H2F>();
+    DetectorCollection<H2F> H2_CCa_Sevd = new DetectorCollection<H2F>();
 	
     DetectorCollection<TreeMap<Integer,Object>> Lmap_a = new DetectorCollection<TreeMap<Integer,Object>>();	 
 	
@@ -94,7 +93,6 @@ public class CCMon extends DetectorMonitor {
         ccDet.setMonitoringClass(this);
         ccDet.setApplicationClass(app);
         ccDet.init(is1,is2);
-        ccDet.addLMaps("Lmap_a", ccRecon.Lmap_a); 	    
     }
 	
     public void makeApps() {
@@ -257,7 +255,6 @@ public class CCMon extends DetectorMonitor {
         histofile.addToMap("H2_CCa_Hist", this.H2_CCa_Hist);
         histofile.addToMap("H2_CCt_Hist", this.H2_CCt_Hist);
         histofile.writeHipoFile(hipoFileName);
-        histofile.browseFile(hipoFileName);     
     }
     
 }
