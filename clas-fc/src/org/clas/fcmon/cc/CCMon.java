@@ -67,6 +67,7 @@ public class CCMon extends DetectorMonitor {
         String det = "LTCC";
         CCMon monitor = new CCMon(det);	
         app.setPluginClass(monitor);
+        app.getEnv();
         app.makeGUI();
         app.mode7Emulation.init("/daq/fadc/ltcc",1, 18, 12);
         monitor.initGlob();
