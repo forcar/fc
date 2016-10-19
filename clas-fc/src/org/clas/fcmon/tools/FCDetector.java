@@ -40,6 +40,8 @@ public class FCDetector {
     public TreeMap<String,JPanel>  rbPanes = new TreeMap<String,JPanel>();
     public TreeMap<String,Integer>  bStore = new TreeMap<String,Integer>();
     
+    public DetectorCollection<TreeMap<Integer,Object>> Lmap_a = new DetectorCollection<TreeMap<Integer,Object>>();
+    
     public int is,layer,ic;
     public int panel,opt,io,of,lay,l1,l2;
     
@@ -51,7 +53,7 @@ public class FCDetector {
     double PCMon_zmax = 0;
     
     public FCDetector(ECPixels[] ecPix) {
-        this.ecPix = ecPix;     
+        this.ecPix = ecPix;    
     }
     
     public FCDetector(CCPixels ccPix) {
@@ -101,7 +103,7 @@ public class FCDetector {
         is    = dd.getSector();
         layer = dd.getLayer();
         ic    = dd.getComponent();   
-                
+
         panel = omap;
         lay   = 0;
         opt   = 0;
@@ -125,17 +127,17 @@ public class FCDetector {
         if (store=="Map")  app.getDetectorView().addMapStore(group, name, key);
     }
     
-    public void initViewButtons(int groupIndex, int nameIndex) {
-        DetectorPane2D.buttonMap map = app.getDetectorView().getViewButtonMap(groupIndex,nameIndex);
-        map.b.setSelected(true);        
-        viewButtonAction(map.group,map.name,map.key);
-     }
-    
     public void initMapButtons(int groupIndex, int nameIndex) {
         DetectorPane2D.buttonMap map = app.getDetectorView().getMapButtonMap(groupIndex,nameIndex);
         map.b.setSelected(true);        
         mapButtonAction(map.group,map.name,map.key);
      } 
+    
+    public void initViewButtons(int groupIndex, int nameIndex) {
+        DetectorPane2D.buttonMap map = app.getDetectorView().getViewButtonMap(groupIndex,nameIndex);
+        map.b.setSelected(true);        
+        viewButtonAction(map.group,map.name,map.key);
+     }
     
     public void mapButtonAction(String group, String name, int key) {
         this.bStore = app.getDetectorView().bStore;
@@ -186,13 +188,17 @@ public class FCDetector {
              if(layer<7) colorfraction = (double)ic/nStrips[ilmap]; 
             if(layer>=7) colorfraction = getcolor((TreeMap<Integer, Object>) ecPix[ilmap].Lmap_a.get(0,0,0), ic);  
         }
-        if (inProcess>0&&!peakShapes){   
-                         colorfraction = getcolor((TreeMap<Integer, Object>) ecPix[ilmap].Lmap_a.get(is,layer,opt), ic);
+        if (inProcess>0&&!peakShapes){ 
+            switch (appName){
+            case   "ECDet": colorfraction = getcolor((TreeMap<Integer, Object>)   ecPix[ilmap].Lmap_a.get(is,layer,opt), ic);break;
+            case "FTOFDet": colorfraction = getcolor((TreeMap<Integer, Object>) ftofPix[ilmap].Lmap_a.get(is,layer,opt), ic);break;
+            case   "CCDet": colorfraction = getcolor((TreeMap<Integer, Object>)          ccPix.Lmap_a.get(is,layer,opt), ic);
+            }
         }
         
         if (colorfraction<0.05) colorfraction = 0.05;
-        if (!app.isSingleEvent()) pal=palette3;
-        if ( app.isSingleEvent()&&!peakShapes) {
+        pal = palette3;
+        if (appName=="ECDet" && app.isSingleEvent() && !peakShapes) {
             shape.reset();
             pal=palette4;            
             List<double[]> clusterList = ecPix[ilmap].clusterXY.get(is);
