@@ -13,6 +13,8 @@ import org.jlab.io.evio.EvioDataEvent;
 import org.jlab.io.evio.EvioSource;
 
 public class ECPart {
+	
+	public static double distance11,distance12,distance21,distance22;
     
     public static List<DetectorResponse>  readEC(EvioDataEvent event){
         List<DetectorResponse>  ecResponse = new ArrayList<DetectorResponse>();
@@ -72,11 +74,13 @@ public class ECPart {
         List<DetectorResponse> rECIN  = ECPart.getResponseForLayer(ecResponses, 4);
         List<DetectorResponse> rECOUT = ECPart.getResponseForLayer(ecResponses, 7);
         
+        distance11=distance12=distance21=distance22=-10;
+        
         int index_ecin  = particles.get(0).getDetectorHitIndex(rECIN);
         
         if(index_ecin>=0&&index_ecin<rECIN.size()){
-            double distance = particles.get(0).getDistance(rECIN.get(index_ecin)).length();
-            if(distance<15.0){
+            distance11 = particles.get(0).getDistance(rECIN.get(index_ecin)).length();
+            if(distance11<15.0){
                 particles.get(0).addResponse(rECIN.get(index_ecin));
                 rECIN.remove(index_ecin);
             }
@@ -85,8 +89,8 @@ public class ECPart {
         int index_ecout  = particles.get(0).getDetectorHitIndex(rECOUT);
         
         if(index_ecout>=0&&index_ecout<rECOUT.size()){
-            double distance = particles.get(0).getDistance(rECOUT.get(index_ecout)).length();
-            if(distance<15.0){
+            distance12 = particles.get(0).getDistance(rECOUT.get(index_ecout)).length();
+            if(distance12<15.0){
                 particles.get(0).addResponse(rECOUT.get(index_ecout));
                 rECOUT.remove(index_ecout);
             }
@@ -95,8 +99,8 @@ public class ECPart {
         index_ecin  = particles.get(1).getDetectorHitIndex(rECIN);
         
         if(index_ecin>=0&&index_ecin<rECIN.size()){
-            double distance = particles.get(1).getDistance(rECIN.get(index_ecin)).length();
-            if(distance<15.0){
+            distance21 = particles.get(1).getDistance(rECIN.get(index_ecin)).length();
+            if(distance21<15.0){
                 particles.get(1).addResponse(rECIN.get(index_ecin));
                 rECIN.remove(index_ecin);
             }
@@ -105,8 +109,8 @@ public class ECPart {
         index_ecout  = particles.get(1).getDetectorHitIndex(rECOUT);
         
         if(index_ecout>=0&&index_ecout<rECOUT.size()){
-            double distance = particles.get(1).getDistance(rECOUT.get(index_ecout)).length();
-            if(distance<15.0){
+            distance22 = particles.get(1).getDistance(rECOUT.get(index_ecout)).length();
+            if(distance22<15.0){
                 particles.get(1).addResponse(rECOUT.get(index_ecout));
                 rECOUT.remove(index_ecout);
             }

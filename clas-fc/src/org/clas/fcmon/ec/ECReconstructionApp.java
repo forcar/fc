@@ -395,6 +395,11 @@ public class ECReconstructionApp extends FCApplication {
       }
       
       ecPix[0].strips.hmap2.get("H2_a_Hist").get(2,4,0).fill((float)1e3*Math.sqrt(part.getTwoPhoton((EvioDataEvent)event)),6,1.);
+      ecPix[0].strips.hmap2.get("H2_a_Hist").get(2,10,0).fill(part.distance11,1,1.);
+      ecPix[0].strips.hmap2.get("H2_a_Hist").get(2,10,0).fill(part.distance12,2,1.);
+      ecPix[0].strips.hmap2.get("H2_a_Hist").get(2,10,0).fill(part.distance21,3,1.);
+      ecPix[0].strips.hmap2.get("H2_a_Hist").get(2,10,0).fill(part.distance22,4,1.);
+      System.out.println(part.distance11+" "+part.distance12+" "+part.distance21+" "+part.distance22);
 
       if(event.hasBank("ECDetector::calib")){
           double raw[] = new double[3];
