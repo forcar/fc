@@ -34,6 +34,7 @@ public class CCHvApp extends FCEpics {
     }
     
     public void init(int is1, int is2) {
+        System.out.println("CCHvApp.init():");
         this.is1=is1;
         this.is2=is2;
         setPvNames(this.detName,0);
@@ -45,6 +46,7 @@ public class CCHvApp extends FCEpics {
         initFifos();
         fillFifos();
         fillHistos();
+        System.out.println("CCHvApp.init(): Starting timer");
         this.timer = new Timer(delay,action);  
         this.timer.setDelay(delay);
         this.timer.start();

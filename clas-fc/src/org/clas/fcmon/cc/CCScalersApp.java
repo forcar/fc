@@ -35,6 +35,7 @@ public class CCScalersApp extends FCEpics {
         }
         
         public void init(int is1, int is2) {
+            System.out.println("CCScalersApp.init():");
             this.is1=is1; 
             this.is2=is2;  
             setPvNames(this.detName,1);
@@ -48,6 +49,7 @@ public class CCScalersApp extends FCEpics {
             initFifos();
             fillFifos();
             fillHistos();
+            System.out.println("CCScalersApp.init(): Starting timer");
             this.timer = new Timer(delay,action);  
             this.timer.setDelay(delay);
             this.timer.start();
