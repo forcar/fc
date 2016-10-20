@@ -20,12 +20,13 @@ import org.jlab.io.base.DataEvent;
 
 public class CCMon extends DetectorMonitor {
 	
-    static MonitorApp           app = new MonitorApp("LTCCMon",1800,950);	
-    FADCConfigLoader           fadc = new FADCConfigLoader();
-    DatabaseConstantProvider   ccdb = new DatabaseConstantProvider(12,"default");
+    static MonitorApp           app = new MonitorApp("LTCCMon",1800,950);
+    
     CCPixels                  ccPix = new CCPixels();
+    FADCConfigLoader           fadc = new FADCConfigLoader();
   
-    CCDetector                ccDet = null;    
+    CCDetector                ccDet = null;  
+    
     CCReconstructionApp     ccRecon = null;
     CCMode1App              ccMode1 = null;
     CCOccupancyApp      ccOccupancy = null;
@@ -34,33 +35,35 @@ public class CCMon extends DetectorMonitor {
     CCCalibrationApp        ccCalib = null;
     CCScalersApp          ccScalers = null;
     CCHvApp                    ccHv = null;
+    
+    DatabaseConstantProvider   ccdb = null;
         
-    String                    myEnv = "home";
-    boolean                 doEpics = true;
-    String                 hipoPath = null;
     public boolean             inMC = false; //true=MC false=DATA
+    public int               calRun = 2;
     public int            inProcess = 0;     //0=init 1=processing 2=end-of-run 3=post-run
     int                       detID = 0;
     int                         is1 = 1 ;
-    int                         is2 = 7 ;  
-    int nsa,nsb,tet,p1,p2,pedref    = 0;
+    int                         is2 = 2 ;  
+    int    nsa,nsb,tet,p1,p2,pedref = 0;
+    double               PCMon_zmin = 0;
+    double               PCMon_zmax = 0;
     
-    String mondet                   = "LTCC";
+    String                   mondet = "LTCC";
     
     DetectorCollection<H1F> H1_CCa_Sevd = new DetectorCollection<H1F>();
     DetectorCollection<H1F> H1_CCt_Sevd = new DetectorCollection<H1F>();
     DetectorCollection<H2F> H2_CCa_Hist = new DetectorCollection<H2F>();
     DetectorCollection<H2F> H2_CCt_Hist = new DetectorCollection<H2F>();
     DetectorCollection<H2F> H2_CCa_Sevd = new DetectorCollection<H2F>();
-	
-    DetectorCollection<TreeMap<Integer,Object>> Lmap_a = new DetectorCollection<TreeMap<Integer,Object>>();	 
-	
+		
     TreeMap<String,Object> glob = new TreeMap<String,Object>();
 	   
     public CCMon(String det) {
         super("CCMON", "1.0", "lcsmith");
         mondet = det;
-        setEnv();
+        ccdb = new DatabaseConstantProvider(calRun,"default");
+        ccdb.loadTable("/calibration/ltcc/gain");
+        ccdb.disconnect();
     }
 
     public static void main(String[] args){		
@@ -79,17 +82,8 @@ public class CCMon extends DetectorMonitor {
         monitor.ccDet.initButtons();
     }
     
-    public void setEnv() {
-        if (myEnv=="hallb") {
-            doEpics = true;
-           hipoPath = "/home/lcsmith";
-        } else {
-            doEpics = false;
-          hipoPath  = "/Users/colesmith";
-        }
-    }
-    
     public void initDetector() {
+        System.out.println("monitor.initDetector()"); 
         ccDet = new CCDetector("CCDet",ccPix);
         ccDet.setMonitoringClass(this);
         ccDet.setApplicationClass(app);
@@ -97,7 +91,9 @@ public class CCMon extends DetectorMonitor {
     }
 	
     public void makeApps() {
-        System.out.println("makeApps()"); 
+        
+        System.out.println("monitor.makeApps()");  
+        
         ccRecon = new CCReconstructionApp("CCREC",ccPix);        
         ccRecon.setMonitoringClass(this);
         ccRecon.setApplicationClass(app);	
@@ -133,7 +129,7 @@ public class CCMon extends DetectorMonitor {
     }
 	
     public void addCanvas() {
-        System.out.println("addCanvas()"); 
+        System.out.println("monitor.addCanvas()"); 
         app.addCanvas(ccMode1.getName(),         ccMode1.getCanvas());
         app.addCanvas(ccOccupancy.getName(), ccOccupancy.getCanvas());          
         app.addCanvas(ccPedestal.getName(),   ccPedestal.getCanvas());
@@ -144,24 +140,23 @@ public class CCMon extends DetectorMonitor {
     }
     
     public void init( ) {       
-        System.out.println("init()");   
+        System.out.println("monitor.init()");   
         initApps();
         ccPix.initHistograms(" ");
-        H2_CCa_Hist = ccPix.strips.hmap2.get("H2_CCa_Hist");
-        H2_CCt_Hist = ccPix.strips.hmap2.get("H2_CCt_Hist");
     }
 
     public void initApps() {
-        System.out.println("initApps()");
+        System.out.println("monitor.initApps()");
+        ccPix.init();
         ccRecon.init();
-        if (doEpics) {
+        if (app.doEpics) {
             ccHv.init(is1,is2);        
             ccScalers.init(is1,is2); 
         }
     }
     
     public void initGlob() {
-        System.out.println("initGlob()");
+        System.out.println("monitor.initGlob()");
         putGlob("inProcess", inProcess);
         putGlob("detID", detID);
         putGlob("inMC", inMC);
@@ -169,13 +164,14 @@ public class CCMon extends DetectorMonitor {
         putGlob("nsb", nsb);
         putGlob("tet", tet);        
         putGlob("ccdb", ccdb);
-//        putGlob("zmin", zmin);
-//        putGlob("zmax", zmax);
+        putGlob("PCMon_zmin", PCMon_zmin);
+        putGlob("PCMon_zmax", PCMon_zmax);
         putGlob("fadc",fadc);
         putGlob("mondet",mondet);
         putGlob("is1",is1);
         putGlob("is2",is2);
-    }
+        putGlob("calRun",calRun);
+   }
     
     @Override
     public TreeMap<String,Object> getGlob(){
@@ -198,7 +194,7 @@ public class CCMon extends DetectorMonitor {
 	
     @Override
     public void dataEventAction(DataEvent de) {
-        ccRecon.addEvent((EvioDataEvent) de);	
+        ccRecon.addEvent(de);	
     }
 
     @Override
@@ -222,12 +218,12 @@ public class CCMon extends DetectorMonitor {
         DetectorDescriptor dd = shape.getDescriptor();
         this.analyze(inProcess);        
         switch (app.getSelectedTabName()) {
-        case "Mode1":             ccMode1.updateCanvas(dd); break;
-        case "Occupancy":     ccOccupancy.updateCanvas(dd); break;
-        case "Pedestal":       ccPedestal.updateCanvas(dd); break;
-        case "SPE":                 ccSpe.updateCanvas(dd); break; 
-        case "HV":                   ccHv.updateCanvas(dd); break;
-        case "Scalers":         ccScalers.updateCanvas(dd);
+        case "Mode1":                ccMode1.updateCanvas(dd); break;
+        case "Occupancy":        ccOccupancy.updateCanvas(dd); break;
+        case "Pedestal":          ccPedestal.updateCanvas(dd); break;
+        case "SPE":                    ccSpe.updateCanvas(dd); break; 
+        case "HV":      if(app.doEpics) ccHv.updateCanvas(dd); break;
+        case "Scalers": if(app.doEpics) ccScalers.updateCanvas(dd);
         }                       
     }
 
@@ -241,7 +237,8 @@ public class CCMon extends DetectorMonitor {
     
     @Override
     public void readHipoFile() {        
-        String hipoFileName = hipoPath+"/"+mondet+".hipo";
+        System.out.println("monitor.readHipoFile()");
+        String hipoFileName = app.hipoPath+"/"+mondet+"_"+app.calibRun+".hipo";
         System.out.println("Loading Histograms from "+hipoFileName);
         ccPix.initHistograms(hipoFileName);
         ccOccupancy.analyze();
@@ -250,7 +247,8 @@ public class CCMon extends DetectorMonitor {
     
     @Override
     public void saveToFile() {
-        String hipoFileName = hipoPath+"/"+mondet+".hipo";
+        System.out.println("monitor.saveToFile()");
+        String hipoFileName = app.hipoPath+"/"+mondet+"_"+app.calibRun+".hipo";
         System.out.println("Saving Histograms to "+hipoFileName);
         HipoFile histofile = new HipoFile(hipoFileName);
         histofile.addToMap("H2_CCa_Hist", this.H2_CCa_Hist);

@@ -22,6 +22,7 @@ import org.jlab.detector.decode.DetectorEventDecoder;
 import org.jlab.groot.data.H1F;
 import org.jlab.groot.data.H2F;
 import org.jlab.io.evio.EvioDataEvent;
+import org.jlab.io.base.DataEvent;
 import org.jlab.io.evio.EvioDataBank;
 
 import org.clas.fcmon.jroot.*;
@@ -95,7 +96,7 @@ public class CCReconstructionApp extends FCApplication {
       this.pedref = app.mode7Emulation.pedref;
    }
    
-   public void addEvent(EvioDataEvent event) {
+   public void addEvent(DataEvent event) {
       
       if(event.hasBank("EC"+"::dgtz")==true) {
           this.updateSimulatedData(event);
@@ -115,7 +116,7 @@ public class CCReconstructionApp extends FCApplication {
        return "LTCC";
    }
    
-   public void updateRealData(EvioDataEvent event){
+   public void updateRealData(DataEvent event){
 
       int adc,ped,npk;
       double tdc=0,tdcf=0;
@@ -188,7 +189,7 @@ public class CCReconstructionApp extends FCApplication {
       }
    }
    
-   public void updateSimulatedData(EvioDataEvent event) {
+   public void updateSimulatedData(DataEvent event) {
        
       float tdcmax=100000;
       int nrows, adc, fac;
