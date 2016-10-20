@@ -149,7 +149,7 @@ public class CCMon extends DetectorMonitor {
         System.out.println("monitor.initApps()");
         ccPix.init();
         ccRecon.init();
-        if (app.doEpics) {
+        if (!app.doEpics) {
             ccHv.init(is1,is2);        
             ccScalers.init(is1,is2); 
         }
