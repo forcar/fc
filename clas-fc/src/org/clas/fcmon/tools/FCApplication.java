@@ -1,16 +1,20 @@
   package org.clas.fcmon.tools;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JTabbedPane;
 
 import org.clas.fcmon.cc.CCPixels;
 import org.clas.fcmon.detector.view.DetectorShape2D;
@@ -301,5 +305,50 @@ public class FCApplication implements ActionListener  {
         canvas.getPad(num).getAxisZ().setAutoScale(true);
         canvas.getPad(num).getAxisFrame().getAxisZ().setLog(linlog);
         return canvas;
-    }    
+    } 
+    
+    public class EmbeddedCanvasTabbed extends JPanel {
+        
+        private JTabbedPane   tabbedPane = null; 
+        private JPanel       actionPanel = null;  
+        
+        private Map<String,EmbeddedCanvas>  tabbedCanvases = new LinkedHashMap<String,EmbeddedCanvas>();
+       
+        public EmbeddedCanvasTabbed(String name){
+            super();
+            this.setLayout(new BorderLayout());
+            initUI(name);
+        }
+        
+        public void initUI(String name){
+            
+            tabbedPane  = new JTabbedPane();
+            actionPanel = new JPanel();
+            actionPanel.setLayout(new FlowLayout());
+            
+            this.add(tabbedPane,BorderLayout.CENTER);
+            this.add(actionPanel,BorderLayout.PAGE_END);
+            this.addCanvas(name);
+            
+        }
+        
+        public void addCanvas(String name){        
+            EmbeddedCanvas canvas = new EmbeddedCanvas();
+            this.tabbedCanvases.put(name, canvas);
+            tabbedPane.addTab(name, canvas);
+        }  
+        
+        public EmbeddedCanvas getCanvas(){
+            int    index = tabbedPane.getSelectedIndex();
+            String title = tabbedPane.getTitleAt(index);
+            return this.tabbedCanvases.get(title);
+        }
+        
+        public EmbeddedCanvas getCanvas(String title){
+            return this.tabbedCanvases.get(title);
+        }
+        
+   }
+    
+    
 }

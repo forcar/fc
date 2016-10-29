@@ -28,6 +28,7 @@ import org.jlab.io.evio.EvioFactory;
 public class ECEngine extends ReconstructionEngine {
 
     Detector ecDetector = null;
+    public Boolean debug = false;
     
     public ECEngine(){
         super("EC","gavalian","1.0");
@@ -36,23 +37,17 @@ public class ECEngine extends ReconstructionEngine {
     @Override
     public boolean processDataEvent(DataEvent de) {
            
+        ECCommon.debug = this.debug;
+        
         List<ECStrip>  ecStrips = ECCommon.initEC(de, ecDetector, this.getConstantsManager(), 2);        
-        System.out.println(" STRIPS SIZE = " + ecStrips.size());
-        for(ECStrip strip : ecStrips) System.out.println(strip);
         List<ECPeak> ecPeaksALL = ECCommon.createPeaks(ecStrips);
         List<ECPeak>    ecPeaks = ECCommon.processPeaks(ecPeaksALL);
         int       peaksOriginal = ecPeaks.size();
-        System.out.println(" ORIGINAL PEAKS  SIZE = " + ecPeaksALL.size());
-        for(ECPeak p : ecPeaksALL){ System.out.println(p);}
         
         ECPeakAnalysis.splitPeaks(ecPeaks);
         int peaksOriginalSplit = ecPeaks.size();
-        System.out.println(String.format("SPLIT PROCEDURE %8d %8d",peaksOriginal,peaksOriginalSplit));
-               
-        for(ECPeak p : ecPeaks){
-            p.redoPeakLine();
-//            System.out.println(p);
-        }
+        
+        for(ECPeak p : ecPeaks) p.redoPeakLine();
                 
         List<ECCluster>  cPCAL  = ECCommon.createClusters(ecPeaks,1);
         List<ECCluster>  cECIN  = ECCommon.createClusters(ecPeaks,4);
@@ -60,17 +55,18 @@ public class ECEngine extends ReconstructionEngine {
         
         List<ECCluster>     cEC = new ArrayList<ECCluster>();
         
-        cEC.addAll(cPCAL);
-        cEC.addAll(cECIN);
-        cEC.addAll(cECOUT);
+        cEC.addAll(cPCAL); cEC.addAll(cECIN); cEC.addAll(cECOUT);
         
         ECCommon.shareClustersEnergy(cEC);  
         
-        System.out.println("\n\n\n\n\nEC CLUSTERS SIZE = " + cEC.size());
-        if(cEC.size()==2){
-            for(ECCluster c : cEC){            
-                 System.out.println(c);
-            }
+        if (debug) {
+            System.out.println(" STRIPS SIZE = " + ecStrips.size());
+            for(ECStrip strip : ecStrips) System.out.println(strip);
+            System.out.println(" ORIGINAL PEAKS  SIZE = " + ecPeaksALL.size());
+            for(ECPeak p : ecPeaksALL) System.out.println(p);
+            System.out.println(String.format("SPLIT PROCEDURE %8d %8d",peaksOriginal,peaksOriginalSplit));
+            System.out.println("\n\n\n\n\nEC CLUSTERS SIZE = " + cEC.size());
+            if(cEC.size()==2) {for(ECCluster c : cEC) System.out.println(c);}
         }
         
         writeBanks(de,ecStrips,ecPeaks,cEC);

@@ -32,7 +32,7 @@ public class ECCommon {
     public static int[]  stripThreshold = new int[3];
     public static int[]   peakThreshold = new int[3]; 
     public static float[]  clusterError = new float[3];
-    
+    public static Boolean debug;
     public static DetectorCollection<H1F> H1_ecEng = new DetectorCollection<H1F>();
     
     static int ind[]  = {0,0,0,1,1,1,2,2,2}; 

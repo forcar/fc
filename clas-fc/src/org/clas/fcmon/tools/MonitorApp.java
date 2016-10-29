@@ -2,6 +2,8 @@ package org.clas.fcmon.tools;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -16,6 +18,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
@@ -34,7 +37,7 @@ import org.jlab.groot.graphics.EmbeddedCanvas;
  */
 
 @SuppressWarnings("serial")
-public class MonitorApp extends JFrame implements ActionListener {
+public class MonitorApp extends JFrame implements ActionListener,ItemListener {
     
     DetectorPane2D detectorView;  
     int      selectedTabIndex = 0;  
@@ -47,6 +50,7 @@ public class MonitorApp extends JFrame implements ActionListener {
     JPanel  canvasPane = null;
     JPanel  buttonPane = null;
     JTextField   runno = new JTextField(4);
+    JTextField      sf = new JTextField(4);
     
     TreeMap<String,EmbeddedCanvas>  paneCanvas = new TreeMap<String,EmbeddedCanvas>();
 	
@@ -67,6 +71,8 @@ public class MonitorApp extends JFrame implements ActionListener {
     public boolean    doEpics = false;
     public String    hipoPath = null;
     public String    calibRun = "100";
+    public boolean      debug = false;
+    public String        geom = "0.27";
     
 //    Miscellaneous    extra = new Miscellaneous();
        
@@ -116,6 +122,15 @@ public class MonitorApp extends JFrame implements ActionListener {
 // Canvas buttons
 		
         buttonPane.setLayout(new FlowLayout());
+                
+        buttonPane.add(new JLabel("SF:"));
+        sf.setActionCommand("SF"); sf.addActionListener(this); sf.setText(geom);  
+        buttonPane.add(sf); 
+        
+        JCheckBox debugBtn = new JCheckBox("Debug");
+        debugBtn.addItemListener(this); debugBtn.setSelected(false);
+        buttonPane.add(debugBtn);
+        
         JButton resetBtn = new JButton("Clear Histos");
         resetBtn.addActionListener(this);
         buttonPane.add(resetBtn);	
@@ -126,7 +141,8 @@ public class MonitorApp extends JFrame implements ActionListener {
         
         JButton loadBtn = new JButton("Load Histos");
         loadBtn.addActionListener(this);
-        buttonPane.add(loadBtn);  
+        buttonPane.add(loadBtn); 
+
         
         buttonPane.add(new JLabel("Run:"));
         runno.setActionCommand("RUN"); runno.addActionListener(this); runno.setText(calibRun);  
@@ -251,6 +267,10 @@ public class MonitorApp extends JFrame implements ActionListener {
          }
       });
     }
+    public void itemStateChanged(ItemEvent e) {
+       if (e.getStateChange()==ItemEvent.DESELECTED) this.debug=false;
+       if (e.getStateChange()==ItemEvent.SELECTED)   this.debug=true;          
+    }
     
     @Override
     public void actionPerformed(ActionEvent e) {
@@ -258,5 +278,6 @@ public class MonitorApp extends JFrame implements ActionListener {
         if(e.getActionCommand().compareTo("Save Histos")==0)  monitoringClass.saveToFile();
         if(e.getActionCommand().compareTo("Load Histos")==0)  monitoringClass.readHipoFile();
         if(e.getActionCommand().compareTo("RUN")==0)          calibRun=runno.getText();
+        if(e.getActionCommand().compareTo("SF")==0)           geom = sf.getText();
     }      
 }

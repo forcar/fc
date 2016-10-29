@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.TreeMap;
 
 import org.clas.fcmon.tools.DetectorResponse;
-import org.clas.fcmon.tools.ECPart;
+
 //clas12
 import org.clas.fcmon.tools.FADCFitter;
 import org.clas.fcmon.tools.FCApplication;
@@ -49,11 +49,14 @@ public class ECReconstructionApp extends FCApplication {
    String BankType        = null;
    int              detID = 0;
    double pcx,pcy,pcz;
+   double refE=1;
+   double refTH=25;
    
    CodaEventDecoder            newdecoder = new CodaEventDecoder();
    DetectorEventDecoder   detectorDecoder = new DetectorEventDecoder();
    List<DetectorDataDgtz>  detectorData   = new ArrayList<DetectorDataDgtz>();
- 
+   EvioDataBank            mcData,genData = null;
+   
    public DetectorCollection<TreeMap<Integer,Object>> Lmap_a = new DetectorCollection<TreeMap<Integer,Object>>();
    public DetectorCollection<TreeMap<Integer,Object>> Lmap_t = new DetectorCollection<TreeMap<Integer,Object>>();
    
@@ -237,19 +240,27 @@ public class ECReconstructionApp extends FCApplication {
       for (int idet=0; idet<detlen; idet++) {
           
           fac = (inCRT==true) ? 6:1;
+          if(event.hasBank("GenPart::true")==true) {
+              genData = (EvioDataBank) event.getBank("GenPart::true");
+              double ppx = genData.getDouble("px",0);
+              double ppy = genData.getDouble("py",0);
+              double ppz = genData.getDouble("pz",0);
+              refE  = Math.sqrt(ppx*ppx+ppy*ppy+ppz*ppz);
+              refTH = Math.acos(ppz/refE)*180/3.14159;
+          }
           
           if(event.hasBank(det[idet]+"::true")==true) {
-              EvioDataBank bank = (EvioDataBank) event.getBank(det[idet]+"::true");
-              for(int i=0; i < bank.rows(); i++) {
+              mcData = (EvioDataBank) event.getBank(det[idet]+"::true");
+              for(int i=0; i < mcData.rows(); i++) {
                   if(idet==0) {
-                     double pcX = bank.getDouble("avgX",i);
-                     double pcY = bank.getDouble("avgY",i);
-                     double pcZ = bank.getDouble("avgZ",i);
-                     double pcT = bank.getDouble("avgT",i);
+                     double pcX = mcData.getDouble("avgX",i);
+                     double pcY = mcData.getDouble("avgY",i);
+                     double pcZ = mcData.getDouble("avgZ",i);
+                     double pcT = mcData.getDouble("avgT",i);
                      if(pcT<tmax){pcx=pcX; pcy=pcY; pcz=pcZ ; tmax = pcT;}
                   }
               }
-              if ((doRec||doEng)&&idet==0) System.out.println("PCAL x,y,z,t="+pcx+" "+pcy+" "+pcz+" "+tmax);
+              if ((doRec||doEng)&&idet==0&&app.debug) System.out.println("PCAL x,y,z,t="+pcx+" "+pcy+" "+pcz+" "+tmax);
           }
           
           inMC = true; mon.putGlob("inMC",true); 
@@ -295,7 +306,6 @@ public class ECReconstructionApp extends FCApplication {
        }
        
       int ipp = 0;
-      
       if(event.hasBank("ECDetector::peaks")){
          EvioDataBank bank = (EvioDataBank) event.getBank("ECDetector::peaks");
          for(int i=0; i < bank.rows(); i++) {
@@ -342,9 +352,11 @@ public class ECReconstructionApp extends FCApplication {
         
       } 
       
-      ECPart part = new ECPart();
+      ECPart                        part = new ECPart();
       List<List<DetectorResponse>>   res = new ArrayList<List<DetectorResponse>>();
       List<DetectorResponse>  ecClusters = part.readEC((EvioDataEvent)event);
+      
+      part.geom = app.geom;
       
       if (ecClusters.size()>0) {
       for (int idet=0; idet<3; idet++) {
@@ -359,12 +371,14 @@ public class ECReconstructionApp extends FCApplication {
               double pcThet = Math.asin(Math.sqrt(X*X+Y*Y)/pcR)*180/3.14159;
               double    mcR = Math.sqrt(pcx*pcx+pcy*pcy+pcz*pcz);
               double mcThet = Math.asin(Math.sqrt(pcx*pcx+pcy*pcy)/mcR)*180/3.14159;
+              if (app.debug) {
               System.out.println("Cluster: "+X+" "+Y+" "+Z);
               System.out.println("Cluster-target:"+pcR);
               System.out.println("GEMC-target:"+0.1*mcR);
               System.out.println("Cluster thet: "+pcThet);
               System.out.println("GEMC thet: "+mcThet);
               System.out.println(" ");
+              }
               if(idet==0) {
                  ecPix[idet].strips.hmap2.get("H2_a_Hist").get(is,8,0).fill(0.1*pcx-X,1.);
                  ecPix[idet].strips.hmap2.get("H2_a_Hist").get(is,8,0).fill(0.1*pcy-Y,2.);
@@ -372,7 +386,7 @@ public class ECReconstructionApp extends FCApplication {
               }
               ecPix[idet].strips.hmap2.get("H2_a_Hist").get(is,9,0).fill(25.0-mcThet,1.);
               ecPix[idet].strips.hmap2.get("H2_a_Hist").get(is,9,0).fill(pcThet-mcThet,2.);
-              //Display uses tilted coordinates.  Must transform X,Y,Z from CLAS into tilted.
+              //Transform X,Y,Z from CLAS into tilted for detector view
               Point3D xyz = new Point3D(-X,Y,Z);
               xyz.rotateZ(Math.toRadians(60*(is-1)));
               xyz.rotateY(Math.toRadians(25));
@@ -383,23 +397,39 @@ public class ECReconstructionApp extends FCApplication {
 //            System.out.println("Cluster: "+dum[0]+" "+dum[1]+" "+xyz.z());
 //            System.out.println("Cluster: "+X+" "+Y+" "+Z);
               if (app.isSingleEvent()) ecPix[idet].clusterXY.get(is).add(dum);
-              ecPix[idet].strips.hmap2.get("H2_a_Hist").get(is,4,0).fill(energy*1e3,4,1.); // Layer Cluster Energy
+              ecPix[idet].strips.hmap2.get("H2_a_Hist").get(is,4,0).fill(energy*1e3,4,1.);          // Layer Cluster Energy
+              ecPix[idet].strips.hmap2.get("H2_a_Hist").get(is,4,1).fill(1e-3*refE,energy/refE,1.); // Layer Cluster Normalized Energy
               if(energy*1e3>10) {esum[is-1]=esum[is-1]+energy*1e3; nesum[idet][is-1]++;}
           }
       }
       for (int is=1; is<7; is++) {
-          if(nesum[0][is-1]==1 && nesum[1][is-1]==1 && nesum[2][is-1]==1) {
-              ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,0).fill(esum[is-1],5,1.); //Total Cluster Energy            
+          if(nesum[0][is-1]==1 ) {
+              ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,0).fill(esum[is-1],5,1.);                    // Total Single Cluster Energy   
+              ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,2).fill(1e-3*refE,esum[is-1]/refE,1.);       // S.F. vs. true photon energy            
+              ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,3).fill(1e-3*esum[is-1],esum[is-1]/refE,1.); // S.F. vs. meas.photon energy            
+          }
+//          if(nesum[0][is-1]>1 && nesum[1][is-1]>0) {
+          if(nesum[1][is-1]>0 && nesum[2][is-1]>0) {
+              ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,0).fill(esum[is-1],7,1.); //Total Cluster Energy            
+              ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,7,2).fill(Math.acos(part.cth)*180/3.14159,part.e1c*part.e2c,1.); //E1*E2 vs opening angle            
           }
       }
       }
+      double invmass = 1e3*Math.sqrt(part.getTwoPhoton((EvioDataEvent)event));
+      ecPix[0].strips.hmap2.get("H2_a_Hist").get(2,4,0).fill((float)invmass,6,1.); //Two-photon invariant mass
       
-      ecPix[0].strips.hmap2.get("H2_a_Hist").get(2,4,0).fill((float)1e3*Math.sqrt(part.getTwoPhoton((EvioDataEvent)event)),6,1.);
-      ecPix[0].strips.hmap2.get("H2_a_Hist").get(2,10,0).fill(part.distance11,1,1.);
-      ecPix[0].strips.hmap2.get("H2_a_Hist").get(2,10,0).fill(part.distance12,2,1.);
-      ecPix[0].strips.hmap2.get("H2_a_Hist").get(2,10,0).fill(part.distance21,3,1.);
-      ecPix[0].strips.hmap2.get("H2_a_Hist").get(2,10,0).fill(part.distance22,4,1.);
-      System.out.println(part.distance11+" "+part.distance12+" "+part.distance21+" "+part.distance22);
+      if (invmass>60 && invmass<200) {
+          ecPix[0].strips.hmap1.get("H1_a_Hist").get(2,4,0).fill((float)1e3*(Math.sqrt(part.tpi2)-2.0));  //Pizero total energy error
+          ecPix[0].strips.hmap1.get("H1_a_Hist").get(2,4,1).fill(Math.acos(part.cpi0)*180/3.14159-refTH); //Pizero theta angle error
+          ecPix[0].strips.hmap1.get("H1_a_Hist").get(2,4,2).fill((float)part.X);                          //Pizero energy asymmetry
+      }
+      
+      ecPix[0].strips.hmap2.get("H2_a_Hist").get(2,9,1).fill(part.distance11,1,1.); //Pizero photon 1 PCAL-ECinner cluster error
+      ecPix[0].strips.hmap2.get("H2_a_Hist").get(2,9,1).fill(part.distance12,2,1.); //Pizero photon 2 PCAL-ECinner cluster error
+      ecPix[0].strips.hmap2.get("H2_a_Hist").get(2,9,1).fill(part.distance21,3,1.); //Pizero photon 1 PCAL-ECouter cluster error
+      ecPix[0].strips.hmap2.get("H2_a_Hist").get(2,9,1).fill(part.distance22,4,1.); //Pizero photon 2 PCAL-ECouter cluster error
+      
+      if (app.debug) System.out.println(part.distance11+" "+part.distance12+" "+part.distance21+" "+part.distance22);
 
       if(event.hasBank("ECDetector::calib")){
           double raw[] = new double[3];
@@ -415,8 +445,9 @@ public class ECReconstructionApp extends FCApplication {
              rec[1] = bank.getDouble("recEV",i);
              rec[2] = bank.getDouble("recEW",i);
              
-             for (int k=1; k<4; k++) ecPix[getDet(il)].strips.hmap2.get("H2_a_Hist").get(is,5,0).fill(raw[k-1]*1e3,k,1.);            
-             for (int k=1; k<4; k++) ecPix[getDet(il)].strips.hmap2.get("H2_a_Hist").get(is,6,0).fill(rec[k-1]*1e3,k,1.);            
+             for (int k=1; k<4; k++) ecPix[getDet(il)].strips.hmap2.get("H2_a_Hist").get(is,5,0).fill(raw[k-1]*1e3,k,1.);        // raw peak energies          
+             for (int k=1; k<4; k++) ecPix[getDet(il)].strips.hmap2.get("H2_a_Hist").get(is,6,0).fill(rec[k-1]*1e3,k,1.);        // reconstructed peak energies          
+             for (int k=1; k<4; k++) ecPix[getDet(il)].strips.hmap2.get("H2_a_Hist").get(is,6,k).fill(1e-3*refE,rec[k-1]/refE);  // sampling fraction vs. energy          
 //             System.out.println("sector,layer ="+is+" "+il);  
 //             System.out.println("X,Y,Z,energy="+X+" "+Y+" "+Z+" "+energy);  
 //             System.out.println(" ");

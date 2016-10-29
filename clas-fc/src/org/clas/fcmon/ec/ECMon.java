@@ -51,9 +51,9 @@ public class ECMon extends DetectorMonitor {
    
     public boolean             inMC = true;   //true=MC false=DATA
     public boolean            inCRT = false;  //true=CRT preinstallation CRT data
-    public boolean            doRec = false ; //true=2.4 EC processor
+    public boolean            doRec = false; //true=2.4 EC processor
     public boolean            doEng = true;  //true=3.0 EC processor
-    public String            config = "phot"; //configs: phot,muon,elec
+    public String            config = "phot"; //configs: pi0,phot,muon,elec
     public int               calRun = 2;
     public int            inProcess = 0;      //0=init 1=processing 2=end-of-run 3=post-run
     int                       detID = 0;
@@ -111,8 +111,8 @@ public class ECMon extends DetectorMonitor {
     public void makeApps() {
         System.out.println("monitor.makeApps()");   
         
-        ecEng   = new ECEngine();
-        ecRec   = new ECDetectorReconstruction();
+        if (doEng) ecEng   = new ECEngine();
+        if (doRec) ecRec   = new ECDetectorReconstruction();
         
         ecRecon = new ECReconstructionApp("ECREC",ecPix);        
         ecRecon.setMonitoringClass(this);
@@ -180,7 +180,8 @@ public class ECMon extends DetectorMonitor {
         System.out.println("monitor.initApps()");
         System.out.println("Configuration: "+config);
         for (int i=0; i<ecPix.length; i++)   ecPix[i].init();
-        ecRecon.init();      
+        ecRecon.init(); 
+        if (doEng) {
         ecEng.init();
         ecEng.setStripThresholds(ecPix[0].getStripThr(config, 1),
                                  ecPix[1].getStripThr(config, 1),
@@ -192,6 +193,8 @@ public class ECMon extends DetectorMonitor {
                                ecPix[1].getClusterErr(config),
                                ecPix[2].getClusterErr(config));
         putGlob("ecEng",ecEng.getHist());
+        }
+        if (doRec) {
         ecRec.init();
         ecRec.setStripThresholds(ecPix[0].getStripThr(config, 1),
                                  ecPix[1].getStripThr(config, 1),
@@ -199,6 +202,7 @@ public class ECMon extends DetectorMonitor {
         ecRec.setPeakThresholds(ecPix[0].getPeakThr(config, 1),
                                 ecPix[1].getPeakThr(config, 1),
                                 ecPix[2].getPeakThr(config, 1));  
+        }
         for (int i=0; i<ecPix.length; i++)   ecPix[i].Lmap_a.add(0,0,0, ecRecon.toTreeMap(ecPix[i].ec_cmap));
         for (int i=0; i<ecPix.length; i++)   ecPix[i].Lmap_a.add(0,0,1, ecRecon.toTreeMap(ecPix[i].ec_zmap));
         if (app.doEpics) {
@@ -251,7 +255,7 @@ public class ECMon extends DetectorMonitor {
 
     @Override
     public void dataEventAction(DataEvent de) {        
-      if(doEng) ecEng.processDataEvent(de); 
+      if(doEng) ecEng.debug = app.debug ; ecEng.processDataEvent(de); 
       if(doRec) ecRec.processEvent((EvioDataEvent)de);
                 ecRecon.addEvent(de);
     }
@@ -324,6 +328,7 @@ public class ECMon extends DetectorMonitor {
             System.out.println("Saving Histograms to "+hipoFileName);
             HipoFile histofile = new HipoFile(hipoFileName);
             histofile.addToMap("H2_a_Hist", ecPix[idet].strips.hmap2.get("H2_a_Hist")); 
+            histofile.addToMap("H1_a_Hist", ecPix[idet].strips.hmap1.get("H1_a_Hist")); 
             histofile.addToMap("H1_a_Maps", ecPix[idet].pixels.hmap1.get("H1_a_Maps"));
             histofile.addToMap("H2_t_Hist", ecPix[idet].strips.hmap2.get("H2_t_Hist"));
             histofile.addToMap("H1_t_Maps", ecPix[idet].pixels.hmap1.get("H1_t_Maps"));

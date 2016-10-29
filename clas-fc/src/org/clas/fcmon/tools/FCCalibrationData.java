@@ -40,8 +40,8 @@ public class FCCalibrationData {
         String obj_label ="";
         H1F h_1d; 
         H2F h_2d;
-
         GraphErrors g_err;
+        
         if(obj instanceof H1F){
                 h_1d = (H1F) obj;
                 obj_label = h_1d.getName();
