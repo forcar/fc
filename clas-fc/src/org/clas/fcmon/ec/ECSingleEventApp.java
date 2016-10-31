@@ -1,8 +1,11 @@
 package org.clas.fcmon.ec;
 
 import java.awt.BorderLayout;
+import java.awt.event.MouseEvent;
 
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 
@@ -27,6 +30,7 @@ public class ECSingleEventApp extends FCApplication {
    public ECSingleEventApp(String name, ECPixels[] ecPix) {
       super(name,ecPix);
       initCanvas();
+      createPopupMenu();
    }
    
    public JPanel getCalibPane() {        
@@ -49,6 +53,12 @@ public class ECSingleEventApp extends FCApplication {
        mc.addCanvas("PI0");
        return engineView;       
    }  
+   private void createPopupMenu(){
+       strips.popup = new JPopupMenu();
+       JMenuItem itemCopy = new JMenuItem("Copy Canvas");
+       itemCopy.addActionListener(strips.getCanvas("Strips"));
+       strips.popup.add(itemCopy);
+   } 
    
    public void initCanvas() {
        c.setAxisFontSize(14);
@@ -62,6 +72,14 @@ public class ECSingleEventApp extends FCApplication {
    public void fillHistos() {
        
    }
+   
+   public static double getSF(String geom, double e) {
+       switch (geom) {
+       case "2.4": return 0.268*(1.0151  - 0.0104/e - 0.00008/e/e); 
+       case "2.5": return 0.250*(1.0286  - 0.0150/e + 0.00012/e/e);
+       }
+       return Double.parseDouble(geom);
+   }   
    
    public void updateCanvas(DetectorDescriptor dd) {
 	  
@@ -127,9 +145,11 @@ public class ECSingleEventApp extends FCApplication {
           h2 = ecPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,6,0).sliceY(il-1) ; h2.setFillColor(32);
           h2.setOptStat(Integer.parseInt("1100"));
           h.setTitleX(dtab[ilm]+otab[il-1]+"Peak Energy (MeV)");          
+          h2.setTitleX(dtab[ilm]+otab[il-1]+"Peak Energy (MeV)");          
           c.cd(ii); c.getPad(ii).getAxisX().setRange(0.,xmx1); ii++;
-          c.draw(h); c.draw(h1,"same"); c.draw(h2,"same");
-      }
+          if(!app.isSingleEvent()){c.draw(h); c.draw(h1,"same"); c.draw(h2,"same");}
+          if( app.isSingleEvent()) c.draw(h2);
+       }
 	  }
       
 	  c.repaint();
@@ -205,11 +225,15 @@ public class ECSingleEventApp extends FCApplication {
       
       ii=0;
       
-      c = mc.getCanvas("SF"); c.divide(1,1); 
+      c = mc.getCanvas("SF"); c.divide(2,1); 
       h2f = ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,3);
       h2f.setTitleX("Measured Photon Energy (GeV)"); h2f.setTitleY("Sampling Fraction");  
-      F1D f4 = new F1D("SF",app.geom,0.,1.0); f4.setLineColor(0) ; f4.setLineWidth(2);
-      c.cd(ii); c.draw(h2f); c.draw(f4,"same"); ii++;      
+      c.cd(ii); c.draw(h2f); ii++;
+      h2f = ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,2);
+      h2f.setTitleX("Measured Photon Energy (GeV)"); h2f.setTitleY("Sampling Fraction");  
+      c.cd(ii); c.draw(h2f); ii++;
+//      F1D f4 = new F1D("SF",app.geom,0.,1.0); f4.setLineColor(0) ; f4.setLineWidth(2);
+//      c.cd(ii); c.draw(h2f); c.draw(f4,"same"); ii++;      
       
       c.repaint();
       
@@ -226,9 +250,12 @@ public class ECSingleEventApp extends FCApplication {
       
       h2f = ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,7,2) ; 
       h2f.setTitleX("Two Photon Opening Angle (deg)"); h2f.setTitleY("E1*E2 (GeV^2)");      
-      c.cd(ii); c.getPad(ii).getAxisZ().setLog(true) ;c.draw(h2f);
+      c.cd(ii); c.getPad(ii).getAxisZ().setLog(true);
+      c.getPad(ii).getAxisZ().setAutoScale(true);
+      if(app.isSingleEvent()) c.getPad(ii).getAxisZ().setRange(0.,3.2);
+      c.draw(h2f);
       F1D f1 = new F1D("E1*E2/2/(1-COS(x))","0.13495*0.13495/2/(1-cos(x*3.14159/180.))",7.,20.); f1.setLineColor(1); f1.setLineWidth(2);
-      F1D f2 = new F1D("E1*E2/2/(1-COS(x))","0.12495*0.12495/2/(1-cos(x*3.14159/180.))",7.,20.); f2.setLineColor(5); f2.setLineWidth(2);
+      F1D f2 = new F1D("E1*E2/2/(1-COS(x))","0.12495*0.12495/2/(1-cos(x*3.14159/180.))",7.,20.); f2.setLineColor(5); f2.setLineWidth(1);
       F1D f3 = new F1D("E1*E2/2/(1-COS(x))","0.14495*0.14495/2/(1-cos(x*3.14159/180.))",7.,20.); f3.setLineColor(5); f3.setLineWidth(2);
       c.draw(f1,"same"); c.draw(f2,"same"); c.draw(f3,"same"); ii++;
  
@@ -243,10 +270,6 @@ public class ECSingleEventApp extends FCApplication {
       
       c.repaint();
       
-   }
-   
-   private class getSF {
-       
    }
    
 }

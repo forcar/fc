@@ -53,7 +53,7 @@ public class ECMon extends DetectorMonitor {
     public boolean            inCRT = false;  //true=CRT preinstallation CRT data
     public boolean            doRec = false; //true=2.4 EC processor
     public boolean            doEng = true;  //true=3.0 EC processor
-    public String            config = "phot"; //configs: pi0,phot,muon,elec
+    public String            config = "phot"; //configs: pizero,phot,muon,elec
     public int               calRun = 2;
     public int            inProcess = 0;      //0=init 1=processing 2=end-of-run 3=post-run
     int                       detID = 0;
@@ -255,9 +255,9 @@ public class ECMon extends DetectorMonitor {
 
     @Override
     public void dataEventAction(DataEvent de) {        
-      if(doEng) ecEng.debug = app.debug ; ecEng.processDataEvent(de); 
-      if(doRec) ecRec.processEvent((EvioDataEvent)de);
-                ecRecon.addEvent(de);
+      if(doEng) ecEng.singleEvent=app.isSingleEvent() ; ecEng.debug = app.debug; ecEng.processDataEvent(de); 
+      if(doRec) ecRec.processEvent((EvioDataEvent)de);      
+      ecRecon.addEvent(de);
     }
     
     @Override    

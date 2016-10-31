@@ -42,12 +42,12 @@ public class EventControl extends JPanel implements ActionListener, ChangeListen
     
     EvioETSource                     etReader;
     String         ethost=null,etfile = null;
-    public Boolean isEtFileOpen = false;
-    public Boolean     isRemote = false;
-    Boolean             running = false;
+    public Boolean  isEtFileOpen = false;
+    public Boolean      isRemote = false;
+    public Boolean isSingleEvent = false;
+    Boolean              running = false;
     
     int               nEtEvents = 0;
-    public Boolean isSingleEvent     = false;
     
     File          eviofile = null;
     String    eviofilename = null;	 

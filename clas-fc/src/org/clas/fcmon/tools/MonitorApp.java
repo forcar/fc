@@ -73,7 +73,7 @@ public class MonitorApp extends JFrame implements ActionListener,ItemListener {
     public String    calibRun = "100";
     public boolean      debug = false;
     public String        geom = "0.27";
-    
+        
 //    Miscellaneous    extra = new Miscellaneous();
        
     DetectorMonitor   monitoringClass = null;

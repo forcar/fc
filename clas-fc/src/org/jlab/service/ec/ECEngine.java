@@ -28,7 +28,8 @@ import org.jlab.io.evio.EvioFactory;
 public class ECEngine extends ReconstructionEngine {
 
     Detector ecDetector = null;
-    public Boolean debug = false;
+    public Boolean       debug = false;
+    public Boolean singleEvent = false;
     
     public ECEngine(){
         super("EC","gavalian","1.0");
@@ -37,7 +38,8 @@ public class ECEngine extends ReconstructionEngine {
     @Override
     public boolean processDataEvent(DataEvent de) {
            
-        ECCommon.debug = this.debug;
+        ECCommon.debug       = this.debug;
+        ECCommon.singleEvent = this.singleEvent;
         
         List<ECStrip>  ecStrips = ECCommon.initEC(de, ecDetector, this.getConstantsManager(), 2);        
         List<ECPeak> ecPeaksALL = ECCommon.createPeaks(ecStrips);

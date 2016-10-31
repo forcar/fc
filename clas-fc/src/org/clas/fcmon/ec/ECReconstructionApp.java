@@ -13,6 +13,8 @@ import org.clas.fcmon.tools.DetectorResponse;
 import org.clas.fcmon.tools.FADCFitter;
 import org.clas.fcmon.tools.FCApplication;
 import org.jlab.clas.detector.DetectorCollection;
+import org.jlab.clas.physics.GenericKinematicFitter;
+import org.jlab.clas.physics.PhysicsEvent;
 //import org.jlab.clas.detector.DetectorResponse;
 import org.jlab.clas12.detector.FADCConfigLoader;
 //import org.root.histogram.H1D;
@@ -54,7 +56,7 @@ public class ECReconstructionApp extends FCApplication {
    
    CodaEventDecoder            newdecoder = new CodaEventDecoder();
    DetectorEventDecoder   detectorDecoder = new DetectorEventDecoder();
-   List<DetectorDataDgtz>  detectorData   = new ArrayList<DetectorDataDgtz>();
+   List<DetectorDataDgtz>   detectorData  = new ArrayList<DetectorDataDgtz>();
    EvioDataBank            mcData,genData = null;
    
    public DetectorCollection<TreeMap<Integer,Object>> Lmap_a = new DetectorCollection<TreeMap<Integer,Object>>();
@@ -84,6 +86,7 @@ public class ECReconstructionApp extends FCApplication {
        doRec  =          (Boolean) mon.getGlob().get("doRec");
        doEng  =          (Boolean) mon.getGlob().get("doEng");
        config =           (String) mon.getGlob().get("config");
+       DetectorCollection<H1F> ecEngHist = (DetectorCollection<H1F>) mon.getGlob().get("ecEng");
    }
    
    public void clearHistograms() {
@@ -121,7 +124,7 @@ public class ECReconstructionApp extends FCApplication {
       if (doRec||doEng) this.processECRec(event);
       
       if (app.isSingleEvent()) {
-//         for (int idet=0; idet<ecPix.length; idet++) findPixels(idet);     // Process all pixels for SED
+//         for (int idet=0; idet<ecPix.length; idet++) findPixels(idet);  // Process all pixels for SED
          for (int idet=0; idet<ecPix.length; idet++) processSED(idet);
       } else {
          for (int idet=0; idet<ecPix.length; idet++) processPixels(idet); // Process only single pixels 
@@ -299,18 +302,35 @@ public class ECReconstructionApp extends FCApplication {
        double[] esum = {0,0,0,0,0,0};
        int[][] nesum = {{0,0,0,0,0,0},{0,0,0,0,0,0},{0,0,0,0,0,0}};
        int[]   iidet = {1,4,7};
+       int       ipp = 0;
        
        if (app.isSingleEvent()) {
            for (int i=0; i<3; i++) app.getDetectorView().getView().removeLayer("L"+i);
            for (int i=0; i<3; i++) app.getDetectorView().getView().addLayer("L"+i);
+           for (int is=1; is<7; is++ ) {
+               for (int ilm=0; ilm<3; ilm++) {
+                   ecPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,4,0).reset();
+                   ecPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,5,0).reset();
+                   ecPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,6,0).reset();
+                   ecPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,9,0).reset();
+               }
+               ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,3).reset(); //Sampling fraction vs energy
+               ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,7,2).reset(); //E1*E2 vs opening angle
+               ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,8,0).reset(); //Cluster X,Y,X - MC
+               ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,9,1).reset(); //Photon 1,2, errors
+               ecPix[0].strips.hmap1.get("H1_a_Hist").get(is,4,0).reset(); //Pizero energy error
+               ecPix[0].strips.hmap1.get("H1_a_Hist").get(is,4,1).reset(); //Pizero theta error
+               ecPix[0].strips.hmap1.get("H1_a_Hist").get(is,4,2).reset(); //X:(E1-E2)/(E1+E2)
+           }
        }
        
-      int ipp = 0;
+       //Monitor EC peak data
+       
       if(event.hasBank("ECDetector::peaks")){
          EvioDataBank bank = (EvioDataBank) event.getBank("ECDetector::peaks");
          for(int i=0; i < bank.rows(); i++) {
-            int   is  = bank.getInt("sector",i);
-            int   il  = bank.getInt("layer",i);
+            int    is = bank.getInt("sector",i);
+            int    il = bank.getInt("layer",i);
             double en = bank.getDouble("energy",i);
             ecPix[getDet(il)].strips.hmap2.get("H2_a_Hist").get(is,4,0).fill(en*1e3,getLay(il),1.);  
             if (app.isSingleEvent()) {
@@ -352,11 +372,18 @@ public class ECReconstructionApp extends FCApplication {
         
       } 
       
-      ECPart                        part = new ECPart();
-      List<List<DetectorResponse>>   res = new ArrayList<List<DetectorResponse>>();
+      ECPart                        part = new ECPart(); part.geom = app.geom;
+      GenericKinematicFitter      fitter = new GenericKinematicFitter(11);
+      PhysicsEvent                   gen = fitter.getGeneratedEvent((EvioDataEvent)event);
+
       List<DetectorResponse>  ecClusters = part.readEC((EvioDataEvent)event);
       
-      part.geom = app.geom;
+      double invmass = 1e3*Math.sqrt(part.getTwoPhoton(gen, ecClusters));
+      ecPix[0].strips.hmap2.get("H2_a_Hist").get(2,4,0).fill((float)invmass,6,1.); //Two-photon invariant mass
+      
+      // Monitor EC cluster data
+      
+      List<List<DetectorResponse>>   res = new ArrayList<List<DetectorResponse>>();      
       
       if (ecClusters.size()>0) {
       for (int idet=0; idet<3; idet++) {
@@ -398,25 +425,22 @@ public class ECReconstructionApp extends FCApplication {
 //            System.out.println("Cluster: "+X+" "+Y+" "+Z);
               if (app.isSingleEvent()) ecPix[idet].clusterXY.get(is).add(dum);
               ecPix[idet].strips.hmap2.get("H2_a_Hist").get(is,4,0).fill(energy*1e3,4,1.);          // Layer Cluster Energy
-              ecPix[idet].strips.hmap2.get("H2_a_Hist").get(is,4,1).fill(1e-3*refE,energy/refE,1.); // Layer Cluster Normalized Energy
+              ecPix[idet].strips.hmap2.get("H2_a_Hist").get(is,4,1).fill(refE*1e-3,energy/refE,1.); // Layer Cluster Normalized Energy
               if(energy*1e3>10) {esum[is-1]=esum[is-1]+energy*1e3; nesum[idet][is-1]++;}
           }
       }
       for (int is=1; is<7; is++) {
-          if(nesum[0][is-1]==1 ) {
+          if(nesum[0][is-1]==1 && nesum[1][is-1]==1 ) {
               ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,0).fill(esum[is-1],5,1.);                    // Total Single Cluster Energy   
-              ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,2).fill(1e-3*refE,esum[is-1]/refE,1.);       // S.F. vs. true photon energy            
               ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,3).fill(1e-3*esum[is-1],esum[is-1]/refE,1.); // S.F. vs. meas.photon energy            
           }
-//          if(nesum[0][is-1]>1 && nesum[1][is-1]>0) {
-          if(nesum[1][is-1]>0 && nesum[2][is-1]>0) {
-              ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,0).fill(esum[is-1],7,1.); //Total Cluster Energy            
+          if(nesum[0][is-1]>1 && nesum[1][is-1]>1) {
+              ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,0).fill(esum[is-1],7,1.);     //Total Cluster Energy            
+              ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,2).fill(part.e1,part.SF1,1.); // S.F. vs. meas. photon energy            
               ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,7,2).fill(Math.acos(part.cth)*180/3.14159,part.e1c*part.e2c,1.); //E1*E2 vs opening angle            
           }
       }
       }
-      double invmass = 1e3*Math.sqrt(part.getTwoPhoton((EvioDataEvent)event));
-      ecPix[0].strips.hmap2.get("H2_a_Hist").get(2,4,0).fill((float)invmass,6,1.); //Two-photon invariant mass
       
       if (invmass>60 && invmass<200) {
           ecPix[0].strips.hmap1.get("H1_a_Hist").get(2,4,0).fill((float)1e3*(Math.sqrt(part.tpi2)-2.0));  //Pizero total energy error

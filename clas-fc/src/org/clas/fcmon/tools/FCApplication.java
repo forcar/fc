@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -13,12 +14,16 @@ import java.util.TreeMap;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JRadioButton;
 import javax.swing.JTabbedPane;
+import javax.swing.SwingUtilities;
 
 import org.clas.fcmon.cc.CCPixels;
 import org.clas.fcmon.detector.view.DetectorShape2D;
 import org.clas.fcmon.ec.ECPixels;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import org.clas.fcmon.ftof.FTOFPixels;
 import org.jlab.clas.detector.DetectorCollection;
 import org.jlab.detector.base.DetectorDescriptor;
@@ -307,10 +312,12 @@ public class FCApplication implements ActionListener  {
         return canvas;
     } 
     
-    public class EmbeddedCanvasTabbed extends JPanel {
+    public class EmbeddedCanvasTabbed extends JPanel implements MouseMotionListener, MouseListener {
         
         private JTabbedPane   tabbedPane = null; 
         private JPanel       actionPanel = null;  
+        public JPopupMenu         popup = null;
+        private int             popupPad = 0;
         
         private Map<String,EmbeddedCanvas>  tabbedCanvases = new LinkedHashMap<String,EmbeddedCanvas>();
        
@@ -318,6 +325,12 @@ public class FCApplication implements ActionListener  {
             super();
             this.setLayout(new BorderLayout());
             initUI(name);
+            initMouse();
+        }
+        
+        public final void initMouse(){
+            this.addMouseMotionListener(this);
+            this.addMouseListener(this);
         }
         
         public void initUI(String name){
@@ -336,6 +349,7 @@ public class FCApplication implements ActionListener  {
             EmbeddedCanvas canvas = new EmbeddedCanvas();
             this.tabbedCanvases.put(name, canvas);
             tabbedPane.addTab(name, canvas);
+            tabbedPane.addMouseListener(this);
         }  
         
         public EmbeddedCanvas getCanvas(){
@@ -346,6 +360,52 @@ public class FCApplication implements ActionListener  {
         
         public EmbeddedCanvas getCanvas(String title){
             return this.tabbedCanvases.get(title);
+        }
+
+        
+        @Override
+        public void mousePressed(MouseEvent e) {
+             if (SwingUtilities.isRightMouseButton(e)) {
+                 //System.out.println("POP-UP coordinates = " + e.getX() + " " + e.getY() + "  pad = " + popupPad);
+                 System.out.println("Mouse clicked");
+                 popup.show(this, e.getX(), e.getY());                 
+             }
+        }  
+        
+        @Override
+        public void mouseClicked(MouseEvent e) {
+            // TODO Auto-generated method stub
+            
+        }
+
+        @Override
+        public void mouseReleased(MouseEvent e) {
+            // TODO Auto-generated method stub
+            
+        }
+
+        @Override
+        public void mouseEntered(MouseEvent e) {
+            // TODO Auto-generated method stub
+            
+        }
+
+        @Override
+        public void mouseExited(MouseEvent e) {
+            // TODO Auto-generated method stub
+            
+        }
+
+        @Override
+        public void mouseDragged(MouseEvent e) {
+            // TODO Auto-generated method stub
+            
+        }
+
+        @Override
+        public void mouseMoved(MouseEvent e) {
+            // TODO Auto-generated method stub
+            
         }
         
    }

@@ -32,7 +32,8 @@ public class ECCommon {
     public static int[]  stripThreshold = new int[3];
     public static int[]   peakThreshold = new int[3]; 
     public static float[]  clusterError = new float[3];
-    public static Boolean debug;
+    public static Boolean         debug = false;
+    public static Boolean   singleEvent = false;
     public static DetectorCollection<H1F> H1_ecEng = new DetectorCollection<H1F>();
     
     static int ind[]  = {0,0,0,1,1,1,2,2,2}; 
@@ -46,7 +47,17 @@ public class ECCommon {
         }
     }
     
+    public static void resetHistos() {
+        for (int is=1; is<7; is++){
+            for (int il=1; il<4; il++) {             
+                H1_ecEng.get(is,il,0).reset();
+                H1_ecEng.get(is,il,1).reset();
+            }
+        }       
+    }
+    
     public static List<ECStrip>  initEC(DataEvent event, Detector detector, ConstantsManager manager, int run){
+        if (singleEvent) resetHistos();
         List<ECStrip>  ecStrips = ECCommon.readStrips(event);
         Collections.sort(ecStrips);
         IndexedTable   atten  = manager.getConstants(run, "/calibration/ec/attenuation");

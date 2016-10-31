@@ -319,7 +319,7 @@ public class ECPixels {
                 id="s"+Integer.toString(is)+"_l"+Integer.toString(4)+"_c";
                 H2_a_Hist.add(is, 4, 0, new H2F("a_reco_"+id+0, 1600, 5.,800., 9, 1., 10.));
                 H2_a_Hist.add(is, 4, 1, new H2F("a_reco_"+id+1, 50, 0., 3.5, 40, 0.15, 0.35));
-                H2_a_Hist.add(is, 4, 2, new H2F("a_reco_"+id+2, 50, 0., 3.5, 40, 0.15, 0.35));
+                H2_a_Hist.add(is, 4, 2, new H2F("a_reco_"+id+2, 50, 0., 1.0, 40, 0.15, 0.35));
                 H2_a_Hist.add(is, 4, 3, new H2F("a_reco_"+id+3, 50, 0., 1.0, 40, 0.15, 0.35));
                 H1_a_Hist.add(is, 4, 0, new H1F("b_reco_"+id+0, 50, -300, 300.));
                 H1_a_Hist.add(is, 4, 1, new H1F("b_reco_"+id+1, 50, -2.0, 2.0));
