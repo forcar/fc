@@ -94,6 +94,7 @@ public class ECSingleEventApp extends FCApplication {
       double   zmax = (double) mon.getGlob().get("PCMon_zmax");
       String config = (String) mon.getGlob().get("config");
       DetectorCollection<H1F> ecEngHist = (DetectorCollection<H1F>) mon.getGlob().get("ecEng");
+      Boolean                      doEng =                (Boolean) mon.getGlob().get("doEng");
       
       this.getDetIndices(dd);
             
@@ -125,6 +126,8 @@ public class ECSingleEventApp extends FCApplication {
 	  }
 	  
 	  c.repaint();
+	  
+	  if (!doEng) return;
 	  
 	  double xmx1=40.,xmx2=100.;
 	  switch (config) {

@@ -162,7 +162,7 @@ public class ECHvApp extends FCEpics {
         int lr = layerSelected+3*app.detectorIndex;
         int ip = channelSelected; 
         
-        if (lr==0||lr>layMap.get(detName).length) return;
+        if (layerSelected>3||lr==0||lr>layMap.get(detName).length) return;
         
         canvas.divide(2, 1);
         
@@ -193,7 +193,7 @@ public class ECHvApp extends FCEpics {
         int is = sectorSelected;
         int lr = layerSelected+3*app.detectorIndex;
         
-        if (lr==0||lr>layMap.get(detName).length) return;
+        if (layerSelected>3||lr==0||lr>layMap.get(detName).length) return;
         
         //Don't redraw unless timer fires or new layer selected
         if (flag==0&&lr==isCurrentLayer) return;  

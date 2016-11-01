@@ -43,8 +43,8 @@ public class ECTdcApp extends FCApplication {
     
     public void stripCanvas() {
        
-        F1D f1 = new F1D("p0","[a]",1300.,1420.); 
-        F1D f2 = new F1D("p0","[a]",1300.,1420.); 
+        F1D f1 = new F1D("p0","[a]",1300.,1500.); 
+        F1D f2 = new F1D("p0","[a]",1300.,1500.); 
         f1.setParameter(0,ic+1); f1.setLineColor(2);
         f2.setParameter(0,ic+2); f2.setLineColor(2);
 
@@ -56,7 +56,7 @@ public class ECTdcApp extends FCApplication {
         
         for (int il=1; il<4; il++) {
             h2 = dc2a.get(is,il,0); h2.setTitleY("Sector "+is+otab[ilm][il-1]) ; h2.setTitleX("TDC");
-            canvasConfig(c,il-1,1300.,1420.,1.,ecPix[ilm].ec_nstr[il-1]+1.,true).draw(h2);
+            canvasConfig(c,il-1,1300.,1500.,1.,ecPix[ilm].ec_nstr[il-1]+1.,true).draw(h2);
         }
        
         c.cd(la-1); c.draw(f1,"same"); c.draw(f2,"same");
@@ -86,10 +86,10 @@ public class ECTdcApp extends FCApplication {
                   
         for (int il=1; il<4; il++) {
             h2 = dc2a.get(is,il,1); h2.setTitleY("Sector "+is+otab[ilm][il-1]) ; h2.setTitleX("TDC");
-            canvasConfig(c,il-1,1300.,1420.,1.,ecPix[ilm].ec_nstr[il-1]+1.,true).draw(h2);
+            canvasConfig(c,il-1,1300.,1500.,1.,ecPix[ilm].ec_nstr[il-1]+1.,true).draw(h2);
             int strip = ecPix[ilm].pixels.getStrip(il,ic+1);
-            F1D f1 = new F1D("p0","[a]",1300.,1420.); f1.setLineColor(2); f1.setParameter(0,strip);
-            F1D f2 = new F1D("p0","[a]",1300.,1420.); f2.setLineColor(2); f2.setParameter(0,strip+1);
+            F1D f1 = new F1D("p0","[a]",1300.,1500.); f1.setLineColor(2); f1.setParameter(0,strip);
+            F1D f2 = new F1D("p0","[a]",1300.,1500.); f2.setLineColor(2); f2.setParameter(0,strip+1);
             c.draw(f1,"same");
             c.draw(f2,"same");  
             h1 = dc2a.get(is,il,1).sliceY(strip-1); h1.setTitleX("Sector "+is+otab[ilm][il-1]+strip+" TDC");  

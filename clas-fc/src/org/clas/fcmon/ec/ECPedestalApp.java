@@ -31,7 +31,7 @@ public class ECPedestalApp extends FCApplication {
       int  ic = dd.getComponent();   
       int ilm = ilmap;
       
-      if (la>4) return;
+      if (la>3) return;
 		
       Boolean inMC = (Boolean) mon.getGlob().get("inMC");		
       if (inMC) return;

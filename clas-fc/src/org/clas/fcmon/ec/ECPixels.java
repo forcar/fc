@@ -300,8 +300,8 @@ public class ECPixels {
                 id="s"+Integer.toString(is)+"_l"+Integer.toString(il)+"_c";
                 H2_a_Hist.add(is, il, 0, new H2F("a_raw_"+id+0, 125,   0., 250., nstr, 1., nend));
                 H2_a_Hist.add(is, il, 1, new H2F("b_pix_"+id+1, 125,   0., 250., nstr, 1., nend));
-                H2_t_Hist.add(is, il, 0, new H2F("a_raw_"+id+0, 100,1300.,1420., nstr, 1., nend));
-                H2_t_Hist.add(is, il, 1, new H2F("b_pix_"+id+1, 100,1300.,1420., nstr, 1., nend));
+                H2_t_Hist.add(is, il, 0, new H2F("a_raw_"+id+0, 100,1300.,1500., nstr, 1., nend));
+                H2_t_Hist.add(is, il, 1, new H2F("b_pix_"+id+1, 100,1300.,1500., nstr, 1., nend));
                 // Pedestal Noise  
                 H2_Peds_Hist.add(is, il, 0, new H2F("a_ped_"+id+0,  20, -10.,  10., nstr, 1., nend)); 
                 // Mode1  

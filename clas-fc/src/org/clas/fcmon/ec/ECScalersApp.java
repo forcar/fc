@@ -62,6 +62,7 @@ public class ECScalersApp extends FCEpics {
     } 
     
     public void initHistos() {       
+        System.out.println("ECScalersApp.initHistos():");
         for (int is=is1; is<is2 ; is++) {
             for (int il=1 ; il<layMap.get(detName).length+1 ; il++){
                 int nb=nlayMap.get(detName)[il-1]; int mx=nb+1;
@@ -74,6 +75,7 @@ public class ECScalersApp extends FCEpics {
     }
         
     public void initFifos() {
+        System.out.println("ECScalersApp.initFifos():");
         for (int is=is1; is<is2 ; is++) {
             for (int il=1; il<layMap.get(detName).length+1 ; il++) {
                 for (int ic=1; ic<nlayMap.get(detName)[il-1]+1; ic++) {
@@ -151,7 +153,7 @@ public class ECScalersApp extends FCEpics {
         int lr = layerSelected+3*app.detectorIndex;
         int ip = channelSelected; 
         
-        if (lr==0||lr>layMap.get(detName).length) return;
+        if (layerSelected>3||lr==0||lr>layMap.get(detName).length) return;
         
         canvas.divide(2, 1);
         
@@ -182,7 +184,7 @@ public class ECScalersApp extends FCEpics {
         int is = sectorSelected;
         int lr = layerSelected+3*app.detectorIndex;
         
-        if (lr==0||lr>layMap.get(detName).length) return;
+        if (layerSelected>3||lr==0||lr>layMap.get(detName).length) return;
         
         //Don't redraw unless timer fires or new sector selected
         if (flag==0&&lr==isCurrentLayer) return;  
