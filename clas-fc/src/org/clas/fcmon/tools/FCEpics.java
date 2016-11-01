@@ -51,12 +51,10 @@ public class FCEpics  {
     String   grps[] = {"HV","DISC","FADC"};
     String   ltcc[] = {"L","R"};
     String   ftof[] = {"PANEL1A_L","PANEL1A_R","PANEL1B_L","PANEL1B_R","PANEL2_L","PANEL2_R"};
-    String   pcal[] = {"U","V","W"};
-    String   ecal[] = {"UI","VI","WI","UO","VO","WO"};
+    String     ec[] = {"U","V","W","UI","VI","WI","UO","VO","WO"};
     int     nltcc[] = {18,18};
     int     nftof[] = {23,23,62,62,5,5};
-    int     npcal[] = {68,62,62};
-    int     necal[] = {36,36,36,36,36,36};
+    int       nec[] = {68,62,62,36,36,36,36,36,36};
     
     public int is1,is2;
     public int sectorSelected, layerSelected, channelSelected;
@@ -69,8 +67,7 @@ public class FCEpics  {
 	    this.context = new Context(); //org.epics.ca
         this.layMap.put("LTCC",ltcc); this.nlayMap.put("LTCC", nltcc);
         this.layMap.put("FTOF",ftof); this.nlayMap.put("FTOF", nftof);
-        this.layMap.put("PCAL",pcal); this.nlayMap.put("PCAL", npcal);
-        this.layMap.put("ECAL",ecal); this.nlayMap.put("ECAL", necal);
+        this.layMap.put("EC",ec);     this.nlayMap.put("EC", nec);
 	}
 	
     public void setApplicationClass(MonitorApp app) {
@@ -189,7 +186,6 @@ public class FCEpics  {
     public void setPvActionNames(String det, int grp, String action) {
       
         IndexedList<String> map = new IndexedList<String>(4);
-
         for (int is=is1; is<is2 ; is++) {
             for (int il=1; il<layMap.get(det).length+1 ; il++) {
                 for (int ic=1; ic<nlayMap.get(det)[il-1]+1; ic++) {
@@ -208,8 +204,17 @@ public class FCEpics  {
 	    return (channel<10 ? "0"+Integer.toString(channel):Integer.toString(channel));
 	}
 	
+	public String detAlias(String det, int layer) {
+	    switch (det) {
+	    case "LTCC": return det;
+	    case "FTOF": return det;
+	    case   "EC": return (layer<4) ? "PCAL":"ECAL";
+	    }
+	    return "";
+	}
+	
 	public String getPvString(String det, int grp, int sector, int layer, int channel, String action) {
-	    String pv = "B_DET_"+det+"_"+grps[grp]+"_SEC"+sector+"_"+layToStr(det,layer)+"_E"+chanToStr(channel);
+	    String pv = "B_DET_"+detAlias(det,layer)+"_"+grps[grp]+"_SEC"+sector+"_"+layToStr(det,layer)+"_E"+chanToStr(channel);
 	    return pv+":"+action;
 	}
 	     

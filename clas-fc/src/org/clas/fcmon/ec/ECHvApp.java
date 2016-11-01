@@ -59,7 +59,8 @@ public class ECHvApp extends FCEpics {
             update2DScalers(scaler2DView,1);        }
     } 
     
-    public void initHistos() {       
+    public void initHistos() {  
+        System.out.println("ECHvApp.initHistos():");
         for (int is=is1; is<is2 ; is++) {
             for (int il=1 ; il<layMap.get(detName).length+1 ; il++){
                 int nb=nlayMap.get(detName)[il-1]; int mx=nb+1;
@@ -74,6 +75,7 @@ public class ECHvApp extends FCEpics {
     }
         
     public void initFifos() {
+        System.out.println("ECHvApp.initFifos():");
         for (int is=is1; is<is2 ; is++) {
             for (int il=1; il<layMap.get(detName).length+1 ; il++) {
                 for (int ic=1; ic<nlayMap.get(detName)[il-1]+1; ic++) {
@@ -140,7 +142,7 @@ public class ECHvApp extends FCEpics {
     
     public void updateCanvas(DetectorDescriptor dd) {
         
-        sectorSelected  = dd.getSector()+1; //temporary until refactor
+        sectorSelected  = dd.getSector();
         layerSelected   = dd.getLayer();
         channelSelected = dd.getComponent(); 
         
@@ -157,7 +159,7 @@ public class ECHvApp extends FCEpics {
         H1F c = new H1F();
         
         int is = sectorSelected;
-        int lr = layerSelected;
+        int lr = layerSelected+3*app.detectorIndex;
         int ip = channelSelected; 
         
         if (lr==0||lr>layMap.get(detName).length) return;
@@ -180,7 +182,8 @@ public class ECHvApp extends FCEpics {
         c = H1_HV.get(is, lr, 2).histClone("Copy"); c.reset() ; 
         c.setBinContent(ip, H1_HV.get(is, lr, 2).getBinContent(ip));
         c.setFillColor(2);  canvas.cd(1); canvas.draw(c,"same");
-               
+         
+        canvas.repaint();
     }
     
     public void update2DScalers(EmbeddedCanvas canvas, int flag) {
@@ -188,7 +191,7 @@ public class ECHvApp extends FCEpics {
         H2F h = new H2F();
         
         int is = sectorSelected;
-        int lr = layerSelected;
+        int lr = layerSelected+3*app.detectorIndex;
         
         if (lr==0||lr>layMap.get(detName).length) return;
         
@@ -206,6 +209,7 @@ public class ECHvApp extends FCEpics {
         h = H2_HV.get(is, lr, 2); h.setTitleX(tit); h.setTitleY("TIME");
         canvas.cd(1); canvas.draw(h);
 
+        canvas.repaint();
         
         isCurrentSector = is;
         isCurrentLayer  = lr;

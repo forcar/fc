@@ -131,7 +131,7 @@ public class ECScalersApp extends FCEpics {
     
     public void updateCanvas(DetectorDescriptor dd) {
         
-        sectorSelected  = dd.getSector()+1; //temporary until refactor
+        sectorSelected  = dd.getSector(); 
         layerSelected   = dd.getLayer();
         channelSelected = dd.getComponent(); 
         
@@ -148,7 +148,7 @@ public class ECScalersApp extends FCEpics {
         H1F c = new H1F();
         
         int is = sectorSelected;
-        int lr = layerSelected;
+        int lr = layerSelected+3*app.detectorIndex;
         int ip = channelSelected; 
         
         if (lr==0||lr>layMap.get(detName).length) return;
@@ -172,6 +172,7 @@ public class ECScalersApp extends FCEpics {
         c.setBinContent(ip, H1_HV.get(is, lr, 1).getBinContent(ip));
         c.setFillColor(2);  canvas.cd(1); canvas.draw(c,"same");
                
+        canvas.repaint();
     }
     
     public void update2DScalers(EmbeddedCanvas canvas, int flag) {
@@ -179,7 +180,7 @@ public class ECScalersApp extends FCEpics {
         H2F h = new H2F();
         
         int is = sectorSelected;
-        int lr = layerSelected;
+        int lr = layerSelected+3*app.detectorIndex;
         
         if (lr==0||lr>layMap.get(detName).length) return;
         
@@ -195,6 +196,7 @@ public class ECScalersApp extends FCEpics {
         h = H2_HV.get(is, lr, 1); h.setTitleX(tit); h.setTitleY("TIME");
         canvas.cd(1); canvas.draw(h);
 
+        canvas.repaint();
         
         isCurrentSector = is;
         isCurrentLayer  = lr;
