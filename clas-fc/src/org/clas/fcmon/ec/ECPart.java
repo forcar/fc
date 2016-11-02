@@ -1,7 +1,10 @@
-package org.clas.fcmon.tools;
+package org.clas.fcmon.ec;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import org.clas.fcmon.tools.DetectorParticle;
+import org.clas.fcmon.tools.DetectorResponse;
 import org.jlab.clas.physics.GenericKinematicFitter;
 import org.jlab.clas.physics.Particle;
 import org.jlab.clas.physics.PhysicsEvent;
@@ -15,8 +18,13 @@ import org.jlab.io.evio.EvioSource;
 public class ECPart {
 	
 	public static double distance11,distance12,distance21,distance22;
+	public static double e1,e2,e1c,e2c,cth,cth1,cth2,X,tpi2,cpi0;
+	static double mpi0 = 0.1349764;
+	public static String geom = "2.4";
+    public static double SF1 = 0.27;
+    public static double SF2 = 0.27;
     
-    public static List<DetectorResponse>  readEC(EvioDataEvent event){
+    public List<DetectorResponse>  readEC(EvioDataEvent event){
         List<DetectorResponse>  ecResponse = new ArrayList<DetectorResponse>();
         if(event.hasBank("ECDetector::clusters")==true){
             EvioDataBank ecCL = (EvioDataBank) event.getBank("ECDetector::clusters");
@@ -51,10 +59,9 @@ public class ECPart {
         return ecr;        
     }
     
-    public static double getTwoPhoton(EvioDataEvent event){
-        List<DetectorResponse>  ecResponses = ECPart.readEC(event);
+    public double getTwoPhoton(PhysicsEvent gen, List<DetectorResponse> ecResponses){
         
-        List<DetectorResponse>  rPCAL = ECPart.getResponseForLayer(ecResponses, 1);
+        List<DetectorResponse>        rPCAL = ECPart.getResponseForLayer(ecResponses, 1);
         
         if(rPCAL.size()!=2) return   0.0;
         List<DetectorParticle>  particles = new ArrayList<DetectorParticle>();
@@ -127,25 +134,33 @@ public class ECPart {
         
         Vector3 n1 = particles.get(0).getCrossDir();
         Vector3 n2 = particles.get(1).getCrossDir();
-        double  e1 = particles.get(0).getEnergy(DetectorType.EC);
-        double  e2 = particles.get(1).getEnergy(DetectorType.EC);
+        
+        e1 = particles.get(0).getEnergy(DetectorType.EC);
+        e2 = particles.get(1).getEnergy(DetectorType.EC);
+        
         n1.unit();
         n2.unit();
         
+        SF1 = getSF(geom,e1); e1c=e1/SF1;
         Particle g1 = new Particle(22,
-                n1.x()*e1/0.27,
-                n1.y()*e1/0.27,
-                n1.z()*e1/0.27
+                n1.x()*e1c,
+                n1.y()*e1c,
+                n1.z()*e1c
         );
         
+        SF2 = getSF(geom,e2); e2c = e2/SF2;
         Particle g2 = new Particle(22,
-                n2.x()*e2/0.27,
-                n2.y()*e2/0.27,
-                n2.z()*e2/0.27
+                n2.x()*e2c,
+                n2.y()*e2c,
+                n2.z()*e2c
         );
         
-        GenericKinematicFitter fitter = new GenericKinematicFitter(11);
-        PhysicsEvent gen = fitter.getGeneratedEvent(event);
+        X    =  1e3;
+        tpi2 =  1e9;
+        cpi0 =  -1;
+        cth1 = Math.cos(g1.theta());
+        cth2 = Math.cos(g2.theta());
+         cth = g1.cosTheta(g2);
         
         if(particles.get(0).getResponse(DetectorType.EC, 1)!=null&&
            particles.get(0).getResponse(DetectorType.EC, 4)!=null&&
@@ -157,6 +172,9 @@ public class ECPart {
             System.out.println(particles.get(0));
             System.out.println(particles.get(1));
             System.out.println(gen);*/
+            X = (e1c-e2c)/(e1c+e2c);
+            tpi2 = 2*mpi0*mpi0/(1-cth)/(1-X*X);
+            cpi0 = (e1c*cth1+e2c*cth2)/Math.sqrt(e1c*e1c+e2c*e2c+2*e1c*e2c*cth);
             g1.combine(g2, +1);
             return g1.vector().mass2();
         }
@@ -169,10 +187,16 @@ public class ECPart {
         //System.out.println(gen);
     }
     
+    public static double getSF(String geom, double e) {
+        switch (geom) {
+        case "2.4": return 0.268*(1.0510 - 0.0104/e - 0.00008/e/e); 
+        case "2.5": return 0.250*(1.0286 - 0.0150/e + 0.00012/e/e);
+        }
+        return Double.parseDouble(geom);
+    }    
     
-    public static void getPhoton(EvioDataEvent event){
-        
-        List<DetectorResponse>  ecResponses = ECPart.readEC(event);        
+    public static void getPhoton(PhysicsEvent gen, List<DetectorResponse>  ecResponses){
+
         List<DetectorResponse>  rPCAL  = ECPart.getResponseForLayer(ecResponses, 1);
         List<DetectorResponse>  rECIN  = ECPart.getResponseForLayer(ecResponses, 4);
         List<DetectorResponse>  rECOUT = ECPart.getResponseForLayer(ecResponses, 7);
@@ -205,9 +229,6 @@ public class ECPart {
         
         //System.out.println(g);
         
-        GenericKinematicFitter fitter = new GenericKinematicFitter(11);
-        PhysicsEvent gen = fitter.getGeneratedEvent(event);
-        //System.out.println(gen);
         Particle gamma = gen.getParticle("[22]");
         System.out.println(String.format("%8.5f %8.5f %8.5f %8.5f %8.5f %8.5f", energy,
                 dir.theta()*57.29,dir.phi()*57.29,gamma.vector().p(),
@@ -225,7 +246,7 @@ public class ECPart {
         while(reader.hasEvent()){
             EvioDataEvent event = (EvioDataEvent) reader.getNextEvent();
             //ECPion.getPion(event);
-            ECPart.getPhoton(event);
+           // ECPart.getPhoton(event);
             
             //PhysicsEvent gen = fitter.getGeneratedEvent(event);
             //Particle pion = gen.getParticle("[22]+[22,1]");
