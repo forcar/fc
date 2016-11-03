@@ -35,8 +35,8 @@ public class ECMode1App extends FCApplication  {
       
       switch (ilmap) {
       case 0: c.divide(4,6); max=24 ; if (ic>23) {min=24; max=48;} if (ic>47) {min=48; max=nstr;} break;
-      case 1: c.divide(6,6); break;
-      case 2: c.divide(6,6);
+      case 1: c.divide(4,3); max=12 ; if (ic>11) {min=12; max=24;} if (ic>23) {min=24; max=nstr;} break;
+      case 2: c.divide(4,3); max=12 ; if (ic>11) {min=12; max=24;} if (ic>23) {min=24; max=nstr;}   
       }   
       
       c.setAxisFontSize(14);
@@ -52,17 +52,18 @@ public class ECMode1App extends FCApplication  {
       f2.setLineColor(4); f2.setLineStyle(2);	
 		
       H1F h ;
-      String otab[][]={{" U PMT ","V PMT ","W PMT "},
-              {" U Inner PMT","V Inner PMT","W Inner PMT"},
-              {" U Outer PMT","V Outer PMT","W Outer PMT"}};
+      String otab[][]={{" U PMT "," V PMT "," W PMT "},
+              {" U Inner PMT "," V Inner PMT "," W Inner PMT "},
+              {" U Outer PMT "," V Outer PMT "," W Outer PMT "}};
       
       for(int ip=min;ip<max;ip++){
           c.cd(ip-min); 
           c.getPad(ip-min).setOptStat(Integer.parseInt("0"));
           c.getPad(ip-min).getAxisX().setRange(0.,100.);
           c.getPad(ip-min).getAxisY().setRange(-100.,4000*app.displayControl.pixMax);
-          h = ecPix[idet].strips.hmap2.get("H2_Mode1_Sevd").get(is,la,0).sliceY(ip); h.setTitleX("Samples (4 ns)"); h.setTitleY("Counts");
-          h.setTitle("Sector "+is+otab[idet][la-1]+(ip+1)); h.setFillColor(4); c.draw(h);
+          h = ecPix[idet].strips.hmap2.get("H2_Mode1_Sevd").get(is,la,0).sliceY(ip); 
+          h.setTitleX("Sector "+is+otab[idet][la-1]+(ip+1)+"  (4 ns/ch)"); h.setTitleY("Counts");
+          h.setFillColor(4); c.draw(h);
           h = ecPix[idet].strips.hmap2.get("H2_Mode1_Sevd").get(is,la,1).sliceY(ip); h.setFillColor(2); c.draw(h,"same");
           c.draw(f1,"same"); c.draw(f2,"same");
           }  
