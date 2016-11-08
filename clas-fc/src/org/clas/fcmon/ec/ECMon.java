@@ -49,9 +49,9 @@ public class ECMon extends DetectorMonitor {
     ECDetectorReconstruction  ecRec = null;
     DatabaseConstantProvider   ccdb = null;
    
-    public boolean             inMC = false;   //true=MC false=DATA
-    public boolean            inCRT = false;  //true=CRT preinstallation CRT data
-    public boolean            doRec = false; //true=2.4 EC processor
+    public boolean             inMC = true;  //true=MC false=DATA
+    public boolean            inCRT = false;  //true=CRT pre-installation CRT data
+    public boolean            doRec = false;  //true=2.4 EC processor
     public boolean            doEng = false;  //true=3.0 EC processor
     public String            config = "muon"; //configs: pizero,phot,muon,elec
     public int               calRun = 2;

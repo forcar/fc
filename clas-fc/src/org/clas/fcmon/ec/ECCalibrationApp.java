@@ -20,6 +20,7 @@ import org.jlab.detector.base.DetectorDescriptor;
 import org.jlab.detector.calib.utils.CalibrationConstants;
 import org.jlab.detector.calib.utils.CalibrationConstantsListener;
 import org.jlab.detector.calib.utils.CalibrationConstantsView;
+import org.jlab.groot.base.GStyle;
 import org.jlab.groot.data.GraphErrors;
 import org.jlab.groot.data.H1F;
 import org.jlab.groot.data.H2F;
@@ -30,8 +31,7 @@ import org.jlab.rec.ecn.ECCommon;
 public class ECCalibrationApp extends FCApplication implements CalibrationConstantsListener,ChangeListener {
     
     JPanel                    engineView = new JPanel();
-    EmbeddedCanvas             leftCanvas = new EmbeddedCanvas();
-    EmbeddedCanvas            rightCanvas = new EmbeddedCanvas();
+    JSplitPane                enginePane = new JSplitPane(JSplitPane.VERTICAL_SPLIT); 
     CalibrationConstantsView      ccview = new CalibrationConstantsView();
     ArrayList<CalibrationConstants> list = new ArrayList<CalibrationConstants>();
 
@@ -63,20 +63,12 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
     
     public JPanel getCalibPane() {        
         engineView.setLayout(new BorderLayout());
-        JSplitPane enginePane = new JSplitPane(JSplitPane.VERTICAL_SPLIT); 
-        JSplitPane   viewPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT); 
-        ccview.getTabbedPane().addChangeListener(this);
-        
+        ccview.getTabbedPane().addChangeListener(this);        
         for (int i=0; i < engines.length; i++) {
             ccview.addConstants(engines[i].getCalibrationConstants().get(0),this);
         }   
-
-        viewPane.setLeftComponent(leftCanvas);
-        viewPane.setRightComponent(rightCanvas);
-        viewPane.setResizeWeight(0.5);
-        enginePane.setTopComponent(viewPane);
         enginePane.setBottomComponent(ccview);       
-        enginePane.setResizeWeight(0.8);
+        enginePane.setResizeWeight(0.9);
         engineView.add(enginePane);
         return engineView;       
     }  
@@ -97,26 +89,35 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
     
     public class ECAttenEventListener extends ECCalibrationEngine {
         
-        public final int[][] PARAM = {{100,100,100,100,100,100,160,160,160},
-                                      {360,360,360,360,360,360,360,360,360},
-                                      {50,50,50,50,50,50,50,50,50}};
-        public final int[][] DELTA =  {{10,10,10,10,10,10,16,16,16},
-                                       {60,60,60,60,60,60,60,60,60},
-                                       {50,50,50,50,50,50,50,50,50}};
+        EmbeddedCanvasTabbed   fitPix = new EmbeddedCanvasTabbed("Pixel Fits");
+        EmbeddedCanvasTabbed   fitADC = new EmbeddedCanvasTabbed("ADC");
+        EmbeddedCanvasTabbed   fitCh2 = new EmbeddedCanvasTabbed("Chi^2");
+        EmbeddedCanvasTabbed   fitCof = new EmbeddedCanvasTabbed("COEF");
+        
+        public final double[][] PARAM = {{0.75,0.75,0.75,1,1,1,1,1,1},
+                                         {360,360,360,360,360,360,360,360,360},
+                                         {0.25,0.25,0.25,0,0,0,0,0,0}};
+        public final double[][] DELTA = {{0.25,0.25,0.25,0.2,0.2,0.2,0.2,0.2,0.2},
+                                         {60,60,60,60,60,60,60,60,60},
+                                         {0.25,0.25,0.25,0,0,0,0,0,0}};
+        public final        int[] MIP = {100,100,100,100,100,100,160,160,160};
         
         int is1,is2;
         
         ECAttenEventListener(){};
         
         public void init(int is1, int is2) {
-            
             System.out.println("ECCalibrationApp:ECAttenEventListener.init");
+            
+            setCalibPane();
+
             this.is1=is1;
             this.is2=is2;
             
             calib = new CalibrationConstants(3,"A/F:Aerr/F:B/F:Berr/F:C/F:Cerr/F");
             calib.setName("/calibration/ec/atten");
             calib.setPrecision(3);
+            
             int kk=0;
             for (int k=0; k<3; k++) {
             for (int i=0; i<9; i++) {  
@@ -147,6 +148,23 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
         }
         
         @Override
+        public void setCalibPane() {
+            JSplitPane    hPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT); 
+            JSplitPane   vPaneL = new JSplitPane(JSplitPane.VERTICAL_SPLIT); 
+            JSplitPane   vPaneR = new JSplitPane(JSplitPane.VERTICAL_SPLIT); 
+            hPane.setLeftComponent(vPaneL);
+            hPane.setRightComponent(vPaneR);
+            vPaneL.setTopComponent(fitPix);
+            vPaneL.setBottomComponent(fitADC);
+            vPaneR.setTopComponent(fitCh2);
+            vPaneR.setBottomComponent(fitCof);
+            hPane.setResizeWeight(0.5);
+            vPaneL.setResizeWeight(0.7);
+            vPaneR.setResizeWeight(0.25);
+            enginePane.setTopComponent(hPane);            
+        }
+        
+        @Override
         public void analyze() {
             for (int sector = is1; sector < is2; sector++) {
                 for (int layer = 1; layer < 4; layer++) {
@@ -166,7 +184,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
             boolean doCalibration=false;
             int npix = ecPix[idet].pixels.getNumPixels();
             double  meanerr[] = new double[npix];
-            boolean status[] = new boolean[npix];
+            boolean  status[] = new boolean[npix];
                       
             for (int is=is1 ; is<is2 ; is++) {
                for (int il=il1 ; il<il2 ; il++) { 
@@ -193,23 +211,26 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
                   float  meanmap[] = (float[]) map.get(1);
                   double distmap[] = (double[]) ecPix[idet].pixels.getDist(il);
                       
-                  for (int ip=0 ; ip<ecPix[idet].ec_nstr[il-1] ; ip++) {
+                  for (int ip=1 ; ip<ecPix[idet].ec_nstr[il-1]+1 ; ip++) {
                      if (doCalibration) {
-                        fits = new CalibrationData(is+idet*10,il,ip+1);
+                        fits = new CalibrationData(is,il,ip);
                         fits.getDescriptor().setType(DetectorType.EC);
-                        fits.addGraph(ecPix[idet].strips.getpixels(il,ip+1,cnts),
-                                      ecPix[idet].strips.getpixels(il,ip+1,distmap),
-                                      ecPix[idet].strips.getpixels(il,ip+1,meanmap),
-                                      ecPix[idet].strips.getpixels(il,ip+1,meanerr),
-                                      ecPix[idet].strips.getpixels(il,ip+1,status));
+                        fits.addGraph(ecPix[idet].strips.getpixels(il,ip,cnts),
+                                      ecPix[idet].strips.getpixels(il,ip,distmap),
+                                      ecPix[idet].strips.getpixels(il,ip,meanmap),
+                                      ecPix[idet].strips.getpixels(il,ip,meanerr),
+                                      ecPix[idet].strips.getpixels(il,ip,status));
+                        fits.addFitFunction(idet);
                         fits.analyze();
-                        calib.addEntry(is, il+idet*3, ip+1);
-                        calib.setDoubleValue(fits.getFunc(0).parameter(0).value(), "A",    is, il+idet*3, ip+1);
-                        calib.setDoubleValue(fits.getFunc(0).parameter(1).value(), "B",    is, il+idet*3, ip+1);
-                        calib.setDoubleValue(fits.getFunc(0).parameter(2).value(), "C",    is, il+idet*3, ip+1);
-                        calib.setDoubleValue(fits.getFunc(0).parameter(0).error(), "Aerr", is, il+idet*3, ip+1);
-                        calib.setDoubleValue(fits.getFunc(0).parameter(1).error(), "Berr", is, il+idet*3, ip+1);
-                        calib.setDoubleValue(fits.getFunc(0).parameter(2).error(), "Cerr", is, il+idet*3, ip+1);
+                        int sl = il+idet*3;  // Superlayer PCAL:1-3 ECinner: 4-6 ECouter: 7-9
+                        calib.addEntry(is, sl, ip);
+                        calib.setDoubleValue(fits.getFunc(0).parameter(0).value()/MIP[sl-1], "A",    is, sl, ip);
+                        calib.setDoubleValue(fits.getFunc(0).parameter(1).value(),           "B",    is, sl, ip);
+                        calib.setDoubleValue(fits.getFunc(0).parameter(2).value()/MIP[sl-1], "C",    is, sl, ip);
+                        calib.setDoubleValue(fits.getFunc(0).parameter(0).error()/MIP[sl-1], "Aerr", is, sl, ip);
+                        calib.setDoubleValue(fits.getFunc(0).parameter(1).error(),           "Berr", is, sl, ip);
+                        calib.setDoubleValue(fits.getFunc(0).parameter(2).error()/MIP[sl-1], "Cerr", is, sl, ip);
+                       
                         ecPix[idet].collection.add(fits.getDescriptor(),fits);
                      }
                   }
@@ -239,11 +260,12 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
         }    
               
         @Override
-        public void drawPlots(int is, int layer, int ic, EmbeddedCanvas cl, EmbeddedCanvas cr) {
+        public void drawPlots(int is, int layer, int ic) {
             
             DetectorCollection<CalibrationData> fit = ecPix[ilmap].collection;
-            DatabaseConstantProvider ccdb = (DatabaseConstantProvider) mon.getGlob().get("ccdb");
-            DetectorCollection<H2F>  dc2a = ecPix[ilmap].strips.hmap2.get("H2_a_Hist");    
+            DatabaseConstantProvider           ccdb = (DatabaseConstantProvider) mon.getGlob().get("ccdb");
+            DetectorCollection<H2F>            dc2a = ecPix[ilmap].strips.hmap2.get("H2_a_Hist");    
+            EmbeddedCanvas                        c = new EmbeddedCanvas();    
             
             Boolean   isPix = false;
             Boolean   isStr = false;
@@ -256,15 +278,32 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
               
             double[] xp     = new double[nstr];
             double[] xpe    = new double[nstr];
+            double[] parA   = new double[nstr];
+            double[] parAe  = new double[nstr];
+            double[] parB   = new double[nstr];
+            double[] parBe  = new double[nstr];
+            double[] parC   = new double[nstr];
+            double[] parCe  = new double[nstr];
+            double[] parAC  = new double[nstr];
+            double[] parACe = new double[nstr];
+            double[] vchi2  = new double[nstr];
+            double[] vchi2e = new double[nstr]; 
+            double[] ccdbA  = new double[nstr];
+            double[] ccdbB  = new double[nstr];
+            double[] ccdbC  = new double[nstr];
+            double[] ccdbAC = new double[nstr];
+            double[] ccdbAe = new double[nstr];
+            double[] ccdbBe = new double[nstr];
+            double[] ccdbCe = new double[nstr];
+            double[] ccdbACe= new double[nstr];
+            
+            
             double[] vgain  = new double[nstr];
             double[] vgaine = new double[nstr]; 
             double[] vatt   = new double[nstr];
             double[] vatte  = new double[nstr]; 
             double[] vattdb = new double[nstr];
             double[] vattdbe= new double[nstr];
-            double[] vchi2  = new double[nstr];
-            double[] vchi2e = new double[nstr]; 
-            double[] mip    = {100.,100.,160.};
             double[] xpix   = new double[1];
             double[] ypix   = new double[1];
             double[] xerr   = new double[1];
@@ -278,11 +317,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
             isStr = layer <  7;  
             il    = layer;
             pixStrip = ic+1;
-            
-            if (isStr) cl.divide(1,1);
-            if (isPix) cl.divide(1,2);
-                       cr.divide(1,3); 
-                            
+                                        
             if (isPix) {
                float meanmap[] = (float[]) ecPix[ilmap].Lmap_a.get(is, layer, 0).get(1);
                il = layer-10;
@@ -292,97 +327,122 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
                yerr[0] = 0.;
                pixStrip = ecPix[ilmap].pixels.getStrip(il,ic+1);
                  pixADC = dc2a.get(is,il,2).sliceY(ic) ; pixADC.setFillColor(2);
+                 pixADC.setTitleX("Sector "+is+otab[ilmap][il-1]+pixStrip+" Pixel "+(ic+1)+" ADC");
             }
-              
+            
+            if (isStr) {
+                pixADC = dc2a.get(is,il,0).sliceY(ic) ; pixADC.setFillColor(2);                
+                pixADC.setTitleX("Sector "+is+otab[ilmap][il-1]+pixStrip+" Strip "+(ic+1)+" ADC");
+            }           
+                         
             if (isStr||isPix) {
                if (inProcess>0) {
                      nstr = ecPix[ilmap].ec_nstr[il-1];
                      if (inProcess==1)  {analyze(ilmap,is,is+1,il,il+1);}
-                     if (fit.hasEntry(is+ilmap*10, il, pixStrip)) {
-                                          
+                     if (fit.hasEntry(is, il, pixStrip)) {
+                     int sl = il+ilmap*3;  // Superlayer PCAL:1-3 ECinner: 4-6 ECouter: 7-9
+                                                                   
                      for (int ip=0; ip<nstr ; ip++) {
-                        double gain  = fit.get(is+ilmap*10,il,ip+1).getFunc(0).parameter(0).value();
-                        double gaine = fit.get(is+ilmap*10,il,ip+1).getFunc(0).parameter(0).error();    
-                        double att   = fit.get(is+ilmap*10,il,ip+1).getFunc(0).parameter(1).value();
-                        double atte  = fit.get(is+ilmap*10,il,ip+1).getFunc(0).parameter(1).error();
-                        double chi2  = fit.get(is+ilmap*10,il,ip+1).getChi2(0);
-                        int index = ECCommon.getCalibrationIndex(is,il+ilmap*3,ip+1);
-                        double attdb = ccdb.getDouble("/calibration/ec/attenuation/B",index);
-                           xp[ip] = ip+1 ;     xpe[ip] = 0.; 
-                        vgain[ip] = gain ;  vgaine[ip] = gaine;
-                         vatt[ip] = att  ;   vatte[ip] = atte;
-                       vattdb[ip] = attdb; vattdbe[ip] = 0.;
-                        vchi2[ip] = Math.min(4, chi2) ; vchi2e[ip]=0.;   
+                         xp[ip]    = ip+1;     
+                         xpe[ip]   = 0.; 
+                         parA[ip]  = fit.get(is,il,ip+1).getFunc(0).parameter(0).value()/MIP[sl-1];
+                         parAe[ip] = fit.get(is,il,ip+1).getFunc(0).parameter(0).error()/MIP[sl-1];
+                         parB[ip]  = fit.get(is,il,ip+1).getFunc(0).parameter(1).value();
+                         parBe[ip] = fit.get(is,il,ip+1).getFunc(0).parameter(1).error();
+                         parC[ip]  = fit.get(is,il,ip+1).getFunc(0).parameter(2).value()/MIP[sl-1];
+                         parCe[ip] = fit.get(is,il,ip+1).getFunc(0).parameter(2).error()/MIP[sl-1];
+                         parAC[ip] = parA[ip]+parC[ip];
+                         parACe[ip]= Math.sqrt(parAe[ip]*parAe[ip]+parCe[ip]*parCe[ip]);
+                         vchi2[ip] = Math.min(4, fit.get(is,il,ip+1).getChi2(0)); 
+                         vchi2e[ip]= 0.;                                                          
+                         int index = ECCommon.getCalibrationIndex(is,sl,ip+1);
+                         ccdbA[ip] = ccdb.getDouble("/calibration/ec/attenuation/A",index);
+                         ccdbB[ip] = ccdb.getDouble("/calibration/ec/attenuation/B",index);
+                         ccdbC[ip] = ccdb.getDouble("/calibration/ec/attenuation/C",index);
+                         ccdbAC[ip]= ccdbA[ip]+ccdbC[ip];
+                         ccdbAe[ip]  = 0.;
+                         ccdbBe[ip]  = 0.;
+                         ccdbCe[ip]  = 0.;
+                         ccdbACe[ip] = 0.;
                      }
-                      
-                     GraphErrors   gainGraph = new GraphErrors("gain",xp,vgain,xpe,vgaine);
-                     GraphErrors    attGraph = new GraphErrors("att",xp,vatt,xpe,vatte);
-                     GraphErrors  attdbGraph = new GraphErrors("attdb",xp,vattdb,xpe,vattdbe);
-                     GraphErrors   chi2Graph = new GraphErrors("chi2",xp,vchi2,xpe,vchi2e);
-                     GraphErrors    pixGraph = new GraphErrors("pix",xpix,ypix,xerr,yerr);
-                  
-                     gainGraph.getAttributes().setMarkerStyle(1);   
-                     gainGraph.getAttributes().setMarkerSize(3);   
-                     gainGraph.getAttributes().setMarkerColor(2);
-                     gainGraph.getAttributes().setFillStyle(1);
-                     gainGraph.getAttributes().setLineWidth(1);;
-                     gainGraph.getAttributes().setLineColor(2);
-                      attGraph.getAttributes().setMarkerStyle(1);    
-                      attGraph.getAttributes().setMarkerSize(3);    
-                      attGraph.getAttributes().setMarkerColor(2);
-                      attGraph.getAttributes().setLineWidth(1);;
-                      attGraph.getAttributes().setLineColor(2);
-                    attdbGraph.getAttributes().setMarkerStyle(1);  
-                    attdbGraph.getAttributes().setMarkerSize(3);  
-                    attdbGraph.getAttributes().setFillStyle(1);
-                    attdbGraph.getAttributes().setMarkerColor(1);
-                    attdbGraph.getAttributes().setLineWidth(1);;
-                     chi2Graph.getAttributes().setMarkerStyle(1);   
-                     chi2Graph.getAttributes().setFillStyle(2);                       
-                     chi2Graph.getAttributes().setMarkerSize(3);   
-                     chi2Graph.getAttributes().setMarkerColor(2);
-                      pixGraph.getAttributes().setMarkerStyle(1); 
-                      pixGraph.getAttributes().setFillStyle(1);                       
-                      pixGraph.getAttributes().setMarkerSize(3);    
-                      pixGraph.getAttributes().setMarkerColor(2); 
+                     GStyle.getGraphErrorsAttributes().setMarkerStyle(1);
+                     GStyle.getGraphErrorsAttributes().setMarkerColor(2);
+                     GStyle.getGraphErrorsAttributes().setMarkerSize(3);
+                     GStyle.getGraphErrorsAttributes().setLineColor(2);
+                     GStyle.getGraphErrorsAttributes().setLineWidth(1);
+                     GStyle.getGraphErrorsAttributes().setFillStyle(1);                     
+                     GraphErrors  parAGraph = new GraphErrors("A",xp,parA,xpe,parAe); 
+                     GraphErrors  parBGraph = new GraphErrors("B",xp,parB,xpe,parBe); 
+                     GraphErrors  parCGraph = new GraphErrors("C",xp,parC,xpe,parCe); 
+                     GraphErrors parACGraph = new GraphErrors("A+C",xp,parAC,xpe,parACe); 
+                     GraphErrors   pixGraph = new GraphErrors("pix",xpix,ypix,xerr,yerr);
+                     GStyle.getGraphErrorsAttributes().setMarkerColor(1);
+                     GStyle.getGraphErrorsAttributes().setFillStyle(0);
+                     GraphErrors ccdbAGraph = new GraphErrors("dbA",xp,ccdbA,xpe,ccdbAe); 
+                     GraphErrors ccdbBGraph = new GraphErrors("dbB",xp,ccdbB,xpe,ccdbBe); 
+                     GraphErrors ccdbCGraph = new GraphErrors("dbC",xp,ccdbC,xpe,ccdbCe); 
+                     GraphErrors ccdbACGraph = new GraphErrors("dbAC",xp,ccdbAC,xpe,ccdbACe); 
+                     GStyle.getGraphErrorsAttributes().setMarkerColor(2);
+                     GStyle.getGraphErrorsAttributes().setFillStyle(2);
+                     GraphErrors  chi2Graph = new GraphErrors("chi2",xp,vchi2,xpe,vchi2e);
                        
-                     gainGraph.getAttributes().setTitleX(otab[ilmap][il-1]) ;  
-                     gainGraph.getAttributes().setTitleY("PMT GAIN")  ; 
-                     gainGraph.getAttributes().setTitle(" ");
-                    attdbGraph.getAttributes().setTitleX(otab[ilmap][il-1]) ; 
-                    attdbGraph.getAttributes().setTitleY("ATTENUATION (CM)") ; 
-                    attdbGraph.getAttributes().setTitle(" ");
+                     parAGraph.getAttributes().setTitleX(otab[ilmap][il-1]) ;  ccdbAGraph.getAttributes().setTitleX(otab[ilmap][il-1]) ; 
+                     parAGraph.getAttributes().setTitleY("A")  ;               ccdbAGraph.getAttributes().setTitleY("A")  ;
+                     parAGraph.getAttributes().setTitle(" ");
+                     parBGraph.getAttributes().setTitleX(otab[ilmap][il-1]) ; ccdbBGraph.getAttributes().setTitleX(otab[ilmap][il-1]) ;
+                     parBGraph.getAttributes().setTitleY("B") ;               ccdbBGraph.getAttributes().setTitleY("B")  ;
+                     parBGraph.getAttributes().setTitle(" ");
+                     parCGraph.getAttributes().setTitleX(otab[ilmap][il-1]) ; ccdbCGraph.getAttributes().setTitleX(otab[ilmap][il-1]) ;
+                     parCGraph.getAttributes().setTitleY("C") ;               ccdbCGraph.getAttributes().setTitleY("C")  ;
+                     parCGraph.getAttributes().setTitle(" ");
+                     parACGraph.getAttributes().setTitleX(otab[ilmap][il-1]) ; ccdbACGraph.getAttributes().setTitleX(otab[ilmap][il-1]) ;
+                     parACGraph.getAttributes().setTitleY("A+C") ;             ccdbACGraph.getAttributes().setTitleY("A+C")  ;
+                     parACGraph.getAttributes().setTitle(" ");
                      chi2Graph.getAttributes().setTitleX(otab[ilmap][il-1]) ;  
                      chi2Graph.getAttributes().setTitleY("REDUCED CHI^2"); 
                      chi2Graph.getAttributes().setTitle(" ");
                       
-                     F1D f1 = new F1D("p0","[a]",0,nstr+1); f1.setParameter(0,mip[ilmap]); f1.setLineWidth(1);
+                     F1D f1 = new F1D("p0","[a]",0,nstr+1); f1.setParameter(0,MIP[sl-1]); f1.setLineWidth(1);
                                
-                     double ymax=200; if(!inMC) ymax=350;
-                     cl.cd(0);
-                     cl.getPad(0).getAxisX().setRange(0.,400.);cl.getPad(0).getAxisY().setRange(0.,ymax); 
-                     cl.getPad(0).setTitle("Sector "+is+otab[ilmap][il-1]+pixStrip+" - Fit to pixels");
-                     cl.draw(fit.get(is+ilmap*10,il,pixStrip).getRawGraph(0));                 
-                     if(fit.get(is+ilmap*10,il,pixStrip).getFitGraph(0).getDataSize(0)>0) 
-                     cl.draw(fit.get(is+ilmap*10,il,pixStrip).getFitGraph(0),"same");                      
-                     cl.draw(fit.get(is+ilmap*10,il,pixStrip).getFunc(0),"same");
-
-                     if (isPix) {                                 
-                         cl.draw(pixGraph,"same");                     
-                         pixADC.setTitleX("Sector "+is+otab[ilmap][il-1]+pixStrip+" Pixel "+(ic+1)+" ADC");
-                         cl.cd(1); pixADC.setOptStat(Integer.parseInt("110")); pixADC.setTitle(""); cl.draw(pixADC);
+                     double ymax=2.; 
+                     
+                     c = fitPix.getCanvas("Pixel Fits"); 
+                     
+                     c.getPad(0).getAxisX().setRange(0.,400.);c.getPad(0).getAxisY().setRange(0.,300.); 
+                     c.getPad(0).setTitle("Sector "+is+otab[ilmap][il-1]+pixStrip+" - Fit to pixels");
+                     c.draw(fit.get(is,il,pixStrip).getRawGraph(0));  
+                     c.getPad(0).setOptStat(11111);
+                     if(fit.get(is,il,pixStrip).getFitGraph(0).getDataSize(0)>0) {
+                         c.draw(fit.get(is,il,pixStrip).getFitGraph(0),"same");                         
+                         c.draw(fit.get(is,il,pixStrip).getFitGraph(0).getFunction() ,"same");
                      }
-                      
+                     if (isPix) c.draw(pixGraph,"same");
+                     c.repaint();
+
+                     c = fitADC.getCanvas("ADC"); 
+                     
+                     c.cd(0); pixADC.setOptStat(Integer.parseInt("110")); pixADC.setTitle(""); c.draw(pixADC);                    
+                     c.repaint();
+                     
+                     c = fitCh2.getCanvas("Chi^2"); 
+                     
                      double xmax = ecPix[ilmap].ec_nstr[il-1]+1;
-                     cr.cd(0); cr.getPad(0).getAxisX().setRange(0.,xmax);cr.getPad(0).getAxisY().setRange(0.,4.);
-                     cr.draw(chi2Graph) ; 
-                     cr.cd(1); cr.getPad(1).getAxisX().setRange(0.,xmax);cr.getPad(1).getAxisY().setRange(0.,ymax);
-                     cr.draw(gainGraph) ; cr.draw(f1,"same"); 
-                     cr.cd(2); cr.getPad(2).getAxisX().setRange(0.,xmax);cr.getPad(2).getAxisY().setRange(0.,600.);
-                     cr.draw(attdbGraph); cr.draw(attGraph,"same");   
-                    
-                     cl.repaint();
-                     cr.repaint();
+                     
+                     c.getPad(0).getAxisX().setRange(0.,xmax);c.getPad(0).getAxisY().setRange(0.,4.);
+                     c.draw(chi2Graph) ;
+                     c.repaint();
+                     
+                     c = fitCof.getCanvas("COEF"); c.divide(2,2);
+                     
+                     c.cd(0); c.getPad(0).getAxisX().setRange(0.,xmax);c.getPad(0).getAxisY().setRange(0.,2.);
+                     c.draw(ccdbAGraph) ; c.draw(parAGraph,"same"); 
+                     c.cd(1); c.getPad(1).getAxisX().setRange(0.,xmax);c.getPad(1).getAxisY().setRange(0.,600.);
+                     c.draw(ccdbBGraph); c.draw(parBGraph,"same");                       
+                     c.cd(2); c.getPad(2).getAxisX().setRange(0.,xmax);c.getPad(2).getAxisY().setRange(0.,2.);
+                     c.draw(ccdbCGraph) ; c.draw(parCGraph,"same"); 
+                     c.cd(3); c.getPad(3).getAxisX().setRange(0.,xmax);c.getPad(3).getAxisY().setRange(0.,2.);
+                     c.draw(ccdbACGraph) ; c.draw(parACGraph,"same"); 
+                     c.repaint();
                       
                   }
                }
@@ -525,14 +585,13 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
         selectedSector = Integer.parseInt(str_sector);
         selectedLayer  = Integer.parseInt(str_layer);
         selectedPaddle = Integer.parseInt(str_component);
-
     }
     
     public void updateCanvas(DetectorDescriptor dd) {
         
         ECCalibrationEngine engine = getSelectedEngine();
         this.getDetIndices(dd);
-        engine.drawPlots(is,lay,ic,leftCanvas,rightCanvas);
+        engine.drawPlots(is,lay,ic);
         
     }
         

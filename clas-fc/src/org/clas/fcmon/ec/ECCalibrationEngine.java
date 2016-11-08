@@ -2,6 +2,8 @@ package org.clas.fcmon.ec;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.swing.JSplitPane;
+
 import org.jlab.detector.calib.tasks.CalibrationEngine;
 import org.jlab.detector.calib.utils.CalibrationConstants;
 import org.jlab.groot.graphics.EmbeddedCanvas;
@@ -12,7 +14,6 @@ import org.jlab.utils.groups.IndexedList;
 
 public class ECCalibrationEngine extends CalibrationEngine {
    
-
         public final static int[]       NUM_PADDLES = {23,62,5};
         public final static String[]    LAYER_NAME = {"LEFT","RIGHT"};
         
@@ -23,6 +24,10 @@ public class ECCalibrationEngine extends CalibrationEngine {
 
         public ECCalibrationEngine() {
             // controlled by calibration application class
+        }
+        
+        public void setCalibPane() {
+            JSplitPane    hPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT); 
         }
         
         @Override
@@ -97,7 +102,7 @@ public class ECCalibrationEngine extends CalibrationEngine {
         public void analyze(int idet, int is1, int is2, int il1, int il2) {
         }  
         
-        public void drawPlots(int sector, int layer, int component, EmbeddedCanvas cl, EmbeddedCanvas cr) {
+        public void drawPlots(int sector, int layer, int component) {
             
         }
         
