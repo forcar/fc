@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.TreeMap;
 
-import org.clas.fcmon.tools.DetectorResponse;
+import org.jlab.service.ec.DetectorResponse;
 
 //clas12
 import org.clas.fcmon.tools.FADCFitter;
@@ -33,6 +33,7 @@ import org.jlab.detector.base.DetectorType;
 import org.jlab.geom.prim.Line3D;
 import org.jlab.geom.prim.Point3D;
 import org.jlab.io.evio.EvioDataEvent;
+import org.jlab.service.ec.ECPart;
 import org.jlab.io.base.DataEvent;
 import org.jlab.io.evio.EvioDataBank;
 import org.clas.fcmon.detector.view.DetectorShape2D;

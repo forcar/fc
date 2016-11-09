@@ -142,7 +142,6 @@ public class CalibrationData {
             			ch   = ch + Math.pow((ydat-yfit)/yerr,2);
             		}
             		ch = ch/(fitSize-func.getNPars()-1);
-            		//func.getAttributes().setOptStat("11111");
                     this.fitgraphs.get(loop).setFunction(func);                   
                     this.fitgraphs.get(loop).getFunction().getAttributes().setOptStat("11111");                   
                     this.chi2.add(ch);

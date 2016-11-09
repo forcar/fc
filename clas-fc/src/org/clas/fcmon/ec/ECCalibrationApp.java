@@ -411,10 +411,8 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
                      c.getPad(0).getAxisX().setRange(0.,400.);c.getPad(0).getAxisY().setRange(0.,300.); 
                      c.getPad(0).setTitle("Sector "+is+otab[ilmap][il-1]+pixStrip+" - Fit to pixels");
                      c.draw(fit.get(is,il,pixStrip).getRawGraph(0));  
-                     c.getPad(0).setOptStat(11111);
                      if(fit.get(is,il,pixStrip).getFitGraph(0).getDataSize(0)>0) {
-                         c.draw(fit.get(is,il,pixStrip).getFitGraph(0),"same");                         
-                         c.draw(fit.get(is,il,pixStrip).getFitGraph(0).getFunction() ,"same");
+                         c.draw(fit.get(is,il,pixStrip).getFitGraph(0),"same");                                                 
                      }
                      if (isPix) c.draw(pixGraph,"same");
                      c.repaint();

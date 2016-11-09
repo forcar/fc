@@ -1,24 +1,16 @@
 package org.clas.fcmon.ec;
 
 import org.clas.fcmon.detector.view.DetectorShape2D;
-import org.clas.fcmon.ftof.FTOFCalibrationApp;
 import org.clas.fcmon.tools.*;
 
 //clas12
-import org.jlab.clas.detector.DetectorCollection;
 import org.jlab.clas12.detector.FADCConfigLoader;
 import org.jlab.clasrec.utils.DatabaseConstantProvider;
-import org.root.histogram.*;
 
 //clas12rec
 import org.jlab.detector.base.DetectorDescriptor;
-import org.jlab.io.evio.EvioDataBank;
 import org.jlab.io.evio.EvioDataEvent;
 import org.jlab.io.base.DataEvent;
-
-//groot
-import org.jlab.groot.data.H1F;
-import org.jlab.groot.data.H2F;
 
 import org.jlab.service.ec.*;
 import org.jlab.rec.ecn.*;
@@ -52,8 +44,8 @@ public class ECMon extends DetectorMonitor {
     public boolean             inMC = true;  //true=MC false=DATA
     public boolean            inCRT = false;  //true=CRT pre-installation CRT data
     public boolean            doRec = false;  //true=2.4 EC processor
-    public boolean            doEng = false;  //true=3.0 EC processor
-    public String            config = "muon"; //configs: pizero,phot,muon,elec
+    public boolean            doEng = true;  //true=3.0 EC processor
+    public String            config = "phot"; //configs: pizero,phot,muon,elec
     public int               calRun = 2;
     public int            inProcess = 0;      //0=init 1=processing 2=end-of-run 3=post-run
     int                       detID = 0;
