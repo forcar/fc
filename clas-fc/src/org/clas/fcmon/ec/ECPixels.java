@@ -35,11 +35,11 @@ import math.geom2d.polygon.SimplePolygon2D;
 
 public class ECPixels {
 	
-	CalDrawDB         calDB  = null;
-	ECLayer          ecLayer = null;
-	ECDetector      detector = null;
+    CalDrawDB         calDB  = null;
+    ECLayer          ecLayer = null;
+    ECDetector      detector = null;
     PrintWriter       writer = null;
-	DetectorShape2D    shape = new DetectorShape2D();
+    DetectorShape2D    shape = new DetectorShape2D();
 	
     public TreeMap<Integer,List<double[]>>          clusterXY = new TreeMap<Integer, List<double[]>>();
     public TreeMap<Integer,List<double[]>>             peakXY = new TreeMap<Integer, List<double[]>>();
@@ -48,17 +48,18 @@ public class ECPixels {
     public DetectorCollection<CalibrationData>     collection = new DetectorCollection<CalibrationData>();  
 
     public Pixels     pixels = new Pixels();
-	public Strips     strips = new Strips();
-	public Pixel       pixel = null;
+    public Strips     strips = new Strips();
+    public Pixel       pixel = null;
  
-	public double ec_xpix[][][]   = new double[10][6916][7];
-	public double ec_ypix[][][]   = new double[10][6916][7];
-	public double ec_xstr[][][][] = new double[8][68][3][7];
-	public double ec_ystr[][][][] = new double[8][68][3][7];
-	public  float ec_cmap[]       = new float[6916];
-	public  float ec_zmap[]       = new float[6916];
-	public    int ec_nvrt[]       = new int[6916];
-	public    int ec_nstr[]       = {36,36,36};
+
+    public double ec_xpix[][][]   = new double[10][6916][7];
+    public double ec_ypix[][][]   = new double[10][6916][7];
+    public double ec_xstr[][][][] = new double[8][68][3][7];
+    public double ec_ystr[][][][] = new double[8][68][3][7];
+    public  float ec_cmap[]       = new float[6916];
+    public  float ec_zmap[]       = new float[6916];
+    public    int ec_nvrt[]       = new int[6916];
+    public    int ec_nstr[]       = {36,36,36};
 	
     double      uvwa[] = new double[6];
     double      uvwt[] = new double[6];
@@ -88,36 +89,44 @@ public class ECPixels {
     double[] cerrPhot = {6.5,15.,20.};
     double[] cerrElec = {10.,10.,10.};
     
-	public int id=0;
+    public int id=0;
     public String detName = null;
 	
-	public ECPixels(String det) {		
-	  detector  = new ECFactory().createDetectorTilted(DataBaseLoader.getGeometryConstants(DetectorType.EC, 10, "default"));
-	  if (det=="PCAL")   id=0;
-	  if (det=="ECin")   id=1;
-	  if (det=="ECout")  id=2;
-	  for (int suplay=id ; suplay<id+1; suplay++) {
-  	    for (int layer=0; layer<3; layer++) {
-  		  ecLayer = detector.getSector(0).getSuperlayer(suplay).getLayer(layer);
-  		  ec_nstr[layer] = ecLayer.getAllComponents().size();
-  	    }
-  	  }
-	  for (int is=1; is<7; is++) {
-          clusterXY.put(is, new ArrayList<double[]>());
-             peakXY.put(is, new ArrayList<double[]>());
-	  }
-	  detName = det;
-	  pixdef();
-      pixrot();
-      System.out.println("ECPixels("+det+") is done");
+    public ECPixels(String det) {		
+        detector  = new ECFactory().createDetectorTilted(DataBaseLoader.getGeometryConstants(DetectorType.EC, 10, "default"));
+        if (det=="PCAL")   id=0;
+        if (det=="ECin")   id=1;
+        if (det=="ECout")  id=2;
+        for (int suplay=id ; suplay<id+1; suplay++) {
+            for (int layer=0; layer<3; layer++) {
+                ecLayer = detector.getSector(0).getSuperlayer(suplay).getLayer(layer);
+                ec_nstr[layer] = ecLayer.getAllComponents().size();
+            }
+        }
+        for (int is=1; is<7; is++) {
+            clusterXY.put(is, new ArrayList<double[]>());
+            peakXY.put(is, new ArrayList<double[]>());
+        }
+        detName = det;
+        pixdef();
+        pixrot();
+        System.out.println("ECPixels("+det+") is done");
 //    pixHistos();
 //    this.writeFPGALookupTable("/Users/colesmith/pcal_att376_DB.dat",376.,1); 
 //    this.testStrips();
 //    this.testPixels();
-	}
+        
+    }
     
     public static void main(String[] args) {
         ECPixels pix = new ECPixels("PCAL");        
+    }
+    
+    public void init() {
+        System.out.println("ECPixels.init(): "+this.detName);
+        Lmap_a.clear();
+        Lmap_t.clear();
+        collection.clear();    
     }
     
     public int getStripThr(String config, int layer) {
@@ -147,108 +156,101 @@ public class ECPixels {
         return 0;
      }
     
-    
-	public void pixdef() {
+    public void pixdef() {
         System.out.println("ECPixels.pixdef(): "+this.detName); 
-	    calDB = new CalDrawDB(detName);
-	    GetStripsDB();
-	    GetPixelsDB();
-	}
-	
-	public void init() {
-	    System.out.println("ECPixels.init(): "+this.detName);
-	    Lmap_a.clear();
-	    Lmap_t.clear();
-	    collection.clear();
-	}
-	
-	public void GetStripsDB() {
+        calDB = new CalDrawDB(detName);
+        GetStripsDB();
+        GetPixelsDB();    
+    }
+
+    public void GetStripsDB() {
+        
+        System.out.println("ECPixels:GetStripsDB()");	
 		
-		System.out.println("ECPixels:GetStripsDB()");	
-		
-	 	for(int sector = 0; sector < 1; sector++) {
-	        System.out.println("pcGetStripsDB: Processing Sector "+sector);
-	 		for(int layer=0; layer<3 ; layer++) {
-	 			for(int strip = 0; strip < ec_nstr[layer] ; strip++) {
-		 			shape = calDB.getStripShape(sector, layer, strip);	            
-	        		for(int i = 0; i < shape.getShapePath().size(); ++i) {
-	                	ec_xstr[i][strip][layer][6] = shape.getShapePath().point(i).x();
-	                	ec_ystr[i][strip][layer][6] = shape.getShapePath().point(i).y();
-	        		}
-	 			}
-	 		}
-    	}						
-	}
+        for(int sector = 0; sector < 1; sector++) {
+            System.out.println("pcGetStripsDB: Processing Sector "+sector);
+            for(int layer=0; layer<3 ; layer++) {
+                for(int strip = 0; strip < ec_nstr[layer] ; strip++) {
+                    shape = calDB.getStripShape(sector, layer, strip);	            
+                    for(int i = 0; i < shape.getShapePath().size(); ++i) {
+                        ec_xstr[i][strip][layer][6] = shape.getShapePath().point(i).x();
+                        ec_ystr[i][strip][layer][6] = shape.getShapePath().point(i).y();    
+                    }    
+                }    
+            }    
+        }						    
+    }
 	
-	public void GetPixelsDB() {
+    public void GetPixelsDB() {
 		
         System.out.println("ECPixels:GetPixelsDB()");
 		
-		DetectorShape2D shape = new DetectorShape2D();
+        DetectorShape2D shape = new DetectorShape2D();
 
-		for(int sector=0; sector<1 ; sector++) {
-    	int pix = 0; double maxPixArea=0;
-    	for(int uStrip = 0; uStrip < ec_nstr[0]; uStrip++) {	 
-    		for(int vStrip = 0; vStrip < ec_nstr[1]; vStrip++) {    			        		 			 
-	            for(int wStrip = 0; wStrip < ec_nstr[2]; wStrip++) {  
-	            	shape = calDB.getPixelShape(0, uStrip, vStrip, wStrip);
-	              	if(shape!=null) {	
-	            		pix++;
-	            	    double [] xtemp2 = new double [shape.getShapePath().size()];
-	            		double [] ytemp2 = new double [shape.getShapePath().size()];
-	            		for(int i = 0; i < shape.getShapePath().size(); ++i) {
-	            			xtemp2[i] = shape.getShapePath().point(i).x();
-	            			ytemp2[i] = shape.getShapePath().point(i).y();
-		                	ec_xpix[i][pix-1][6] = xtemp2[i];
-		                	ec_ypix[i][pix-1][6] = ytemp2[i];
-	            		}
-		        		SimplePolygon2D pol1 = new SimplePolygon2D(xtemp2,ytemp2);
-	            		double uDist = calDB.getUPixelDistance(uStrip, vStrip, wStrip);
-	            		double vDist = calDB.getVPixelDistance(uStrip, vStrip, wStrip);
-	            		double wDist = calDB.getWPixelDistance(uStrip, vStrip, wStrip);
-	            		shape.setColor(130,(int)(255*vStrip/ec_nstr[1]),(int)(255*wStrip/ec_nstr[2]));	            		
-	            		ec_zmap[pix-1] = 1;
-	            		ec_nvrt[pix-1] = shape.getShapePath().size();
-                        pixel = new Pixel();
-                        pixel.setIndex(pix);
-	            		pixel.setShape(shape);
-                        pixel.setArea(pol1.area());
-                        pixel.setReadout(uStrip+1, vStrip+1, wStrip+1);
-                        pixel.setReadoutDist(uDist,vDist,wDist);    
-                        pixel.setStatus(calDB.isEdgePixel(uStrip,vStrip,wStrip));
-                        pixels.addPixel(pixel,pix,uStrip+1,vStrip+1,wStrip+1);
-	            	    strips.addPixel(sector, 1, uStrip+1, pix);
-	            		strips.addPixel(sector, 2, vStrip+1, pix);
-	            		strips.addPixel(sector, 3, wStrip+1, pix);
-	            	    strips.addPixDist(sector, 1, uStrip+1, (int) (uDist*100));
-	            		strips.addPixDist(sector, 2, vStrip+1, (int) (vDist*100));
-	            		strips.addPixDist(sector, 3, wStrip+1, (int) (wDist*100));
-	            	}
-	            }
-    		}
-    	}
-    	// Sort pixels in each strip according to distance from readout edge
-    	for (int lay=0; lay<3 ; lay++ ){
-    		System.out.println("ECPixels: Sorting pixels in layer "+lay);
-    		for(int strip = 0; strip < ec_nstr[lay]; strip++) {
-    			strips.getSortedPixels(0, lay+1, strip+1);
-    		}
-    	}   	
-    	}
-	}
+        for(int sector=0; sector<1 ; sector++) {
+            int pix = 0; double maxPixArea=0;
+            for(int uStrip = 0; uStrip < ec_nstr[0]; uStrip++) {	 
+                for(int vStrip = 0; vStrip < ec_nstr[1]; vStrip++) {
+                    for(int wStrip = 0; wStrip < ec_nstr[2]; wStrip++) {
+                        shape = calDB.getPixelShape(0, uStrip, vStrip, wStrip);
+                        if(shape!=null) {
+                            pix++;
+                            double [] xtemp2 = new double [shape.getShapePath().size()];
+                            double [] ytemp2 = new double [shape.getShapePath().size()];
+                            for(int i = 0; i < shape.getShapePath().size(); ++i) {
+                                xtemp2[i] = shape.getShapePath().point(i).x();
+                                ytemp2[i] = shape.getShapePath().point(i).y();
+                                ec_xpix[i][pix-1][6] = xtemp2[i];
+                                ec_ypix[i][pix-1][6] = ytemp2[i];    
+                            }
+                            SimplePolygon2D pol1 = new SimplePolygon2D(xtemp2,ytemp2);
+                            double uDist = calDB.getUPixelDistance(uStrip, vStrip, wStrip);
+                            double vDist = calDB.getVPixelDistance(uStrip, vStrip, wStrip);
+                            double wDist = calDB.getWPixelDistance(uStrip, vStrip, wStrip);
+                            shape.setColor(130,(int)(255*vStrip/ec_nstr[1]),(int)(255*wStrip/ec_nstr[2]));
+                            ec_zmap[pix-1] = 1;
+                            ec_nvrt[pix-1] = shape.getShapePath().size();
+                            pixel = new Pixel();
+                            pixel.setIndex(pix);
+                            pixel.setShape(shape);
+                            pixel.setArea(pol1.area());
+                            pixel.setReadout(uStrip+1, vStrip+1, wStrip+1);
+                            pixel.setReadoutDist(uDist,vDist,wDist);    
+                            pixel.setStatus(calDB.isEdgePixel(uStrip,vStrip,wStrip));
+                            pixels.addPixel(pixel,pix,uStrip+1,vStrip+1,wStrip+1);
+                            strips.addPixel(sector, 1, uStrip+1, pix);
+                            strips.addPixel(sector, 2, vStrip+1, pix);
+                            strips.addPixel(sector, 3, wStrip+1, pix);
+                            strips.addPixDist(sector, 1, uStrip+1, (int) (uDist*100));
+                            strips.addPixDist(sector, 2, vStrip+1, (int) (vDist*100));
+                            strips.addPixDist(sector, 3, wStrip+1, (int) (wDist*100));    
+                        }    
+                    }    
+                }    
+            }            
+            // Sort pixels in each strip according to distance from readout edge
+            for (int lay=0; lay<3 ; lay++ ) {
+                System.out.println("ECPixels: Sorting pixels in layer "+lay);
+                for(int strip = 0; strip < ec_nstr[lay]; strip++) {
+                    strips.getSortedPixels(0, lay+1, strip+1);    
+                }    
+            }   	    
+        }    
+    }
 	
-	public void pixHistos() {
-	    
-        JFrame frame = new JFrame("pixHistos");
-        EmbeddedCanvas canvas = new EmbeddedCanvas();
+    public void pixHistos() {
+        
+	    JFrame frame = new JFrame("pixHistos");
+	    EmbeddedCanvas canvas = new EmbeddedCanvas();
         int ic;
 
         frame.setSize(800,500);
         canvas.divide(2, 2);
         
-	    H1F h[] = new H1F[4];
+        H1F h[] = new H1F[4];
         PaveText label[] = new PaveText[4];
-	    for (int i=0; i<4 ; i++) h[i] = new H1F("Pix Area Zone "+i, 50,0.,1.1);
+        
+        for (int i=0; i<4 ; i++) h[i] = new H1F("Pix Area Zone "+i, 50,0.,1.1);
 	    
         for (int ipix=0; ipix<pixels.getNumPixels(); ipix++) {
             h[pixels.getZone(ipix+1)].fill(pixels.getZoneNormalizedArea(ipix+1));
@@ -268,7 +270,7 @@ public class ECPixels {
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
         
-	}
+    }
 	
     public void initHistograms(String hipoFile) {
         
@@ -410,52 +412,52 @@ public class ECPixels {
     }	
 
     public void pixrot() {
+        
         System.out.println("ECPixels.pixrot(): "+this.detName);
     	double[] theta={0.0,60.0,120.0,180.0,240.0,300.0};
-	    	
-		for(int is=0; is<6; is++) {
-			double thet=theta[is]*3.14159/180.;
-    		double ct=Math.cos(thet) ; double st=Math.sin(thet);
-			// Rotate strips
-			for (int lay=0; lay<3 ; lay++) {
-				for (int istr=0; istr<ec_nstr[lay]; istr++) {
-					for (int k=0;k<4;k++){
-						ec_xstr[k][istr][lay][is]= -(ec_xstr[k][istr][lay][6]*ct+ec_ystr[k][istr][lay][6]*st);
-						ec_ystr[k][istr][lay][is]=  -ec_xstr[k][istr][lay][6]*st+ec_ystr[k][istr][lay][6]*ct;
-					}
-				}
-			}
-		    // Rotate pixels	   		    	   
-			for (int ipix=0; ipix<pixels.getNumPixels(); ipix++) {
-                ec_cmap[ipix] = 255*ipix/pixels.getNumPixels();
-				for (int k=0;k<ec_nvrt[ipix];k++) {
-					ec_xpix[k][ipix][is]= -(ec_xpix[k][ipix][6]*ct+ec_ypix[k][ipix][6]*st); 
-					ec_ypix[k][ipix][is]=  -ec_xpix[k][ipix][6]*st+ec_ypix[k][ipix][6]*ct;
-				}
-			}	
-		}	    	
-	 }
+	    	for(int is=0; is<6; is++) {
+	    	    double thet=theta[is]*3.14159/180.;
+	    	    double ct=Math.cos(thet) ; double st=Math.sin(thet);
+	    	    // Rotate strips
+	    	    for (int lay=0; lay<3 ; lay++) {
+	    	        for (int istr=0; istr<ec_nstr[lay]; istr++) {
+	    	            for (int k=0;k<4;k++){
+	    	                ec_xstr[k][istr][lay][is]= -(ec_xstr[k][istr][lay][6]*ct+ec_ystr[k][istr][lay][6]*st);
+	    	                ec_ystr[k][istr][lay][is]=  -ec_xstr[k][istr][lay][6]*st+ec_ystr[k][istr][lay][6]*ct;    
+	    	            }    
+	    	        }    
+	    	    }
+	    	    // Rotate pixels
+	    	    for (int ipix=0; ipix<pixels.getNumPixels(); ipix++) {
+	    	        ec_cmap[ipix] = 255*ipix/pixels.getNumPixels();
+	    	        for (int k=0;k<ec_nvrt[ipix];k++) {
+	    	            ec_xpix[k][ipix][is]= -(ec_xpix[k][ipix][6]*ct+ec_ypix[k][ipix][6]*st); 
+	    	            ec_ypix[k][ipix][is]=  -ec_xpix[k][ipix][6]*st+ec_ypix[k][ipix][6]*ct;    
+	    	        }    
+	    	    }	    
+	    	}	    	    	
+    }
 				
-     public float uvw_dalitz(int ic, int il, int ip) {
-			float uvw=0;
-			switch (ic) {
-			case 0: //PCAL
-				if (il==1&&ip<=52) uvw=(float)ip/84;
-				if (il==1&&ip>52)  uvw=(float)(52+(ip-52)*2)/84;
-				if (il==2&&ip<=15) uvw=(float) 2*ip/77;
-				if (il==2&&ip>15)  uvw=(float)(30+(ip-15))/77;
-				if (il==3&&ip<=15) uvw=(float) 2*ip/77;
-				if (il==3&&ip>15)  uvw=(float)(30+(ip-15))/77;
-				break;
-			case 1: //ECALinner
-				uvw=(float)ip/36;
-				break;
-			case 2: //ECALouter
-				uvw=(float)ip/36;
-				break;
-			}
-			return uvw;
-     }
+    public float uvw_dalitz(int ic, int il, int ip) {
+        float uvw=0;
+        switch (ic) {
+        case 0: //PCAL
+            if (il==1&&ip<=52) uvw=(float)ip/84;
+            if (il==1&&ip>52)  uvw=(float)(52+(ip-52)*2)/84;
+            if (il==2&&ip<=15) uvw=(float) 2*ip/77;
+            if (il==2&&ip>15)  uvw=(float)(30+(ip-15))/77;
+            if (il==3&&ip<=15) uvw=(float) 2*ip/77;
+            if (il==3&&ip>15)  uvw=(float)(30+(ip-15))/77;
+            break;
+        case 1: //ECALinner
+            uvw=(float)ip/36;
+            break;    
+        case 2: //ECALouter
+            uvw=(float)ip/36;
+            break;    
+        }
+        return uvw;    
+    }
 
      /*    
      public void testPixels() {
