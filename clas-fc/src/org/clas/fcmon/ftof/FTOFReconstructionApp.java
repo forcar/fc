@@ -254,6 +254,7 @@ public class FTOFReconstructionApp extends FCApplication {
                for (int il=0 ; il<2 ; il++) {
                     ftofPix[idet].strips.hmap1.get("H1_a_Sevd").get(is+1,il+1,0).reset();
                     ftofPix[idet].strips.hmap2.get("H2_a_Sevd").get(is+1,il+1,0).reset();
+                    ftofPix[idet].strips.hmap2.get("H2_a_Hist").get(is+1,il+1,5).reset();
                     ftofPix[idet].strips.hmap2.get("H2_a_Sevd").get(is+1,il+1,1).reset();
                }
            }

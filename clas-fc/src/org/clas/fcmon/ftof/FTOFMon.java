@@ -122,7 +122,7 @@ public class FTOFMon extends DetectorMonitor {
 	
     public void addCanvas() {
         System.out.println("monitor.addCanvas()"); 
-        app.addCanvas(ftofMode1.getName(),         ftofMode1.getCanvas());
+        app.addFrame(ftofMode1.getName(),          ftofMode1.getPanel());
         app.addCanvas(ftofAdc.getName(),             ftofAdc.getCanvas());          
         app.addCanvas(ftofTdc.getName(),             ftofTdc.getCanvas());          
         app.addCanvas(ftofPedestal.getName(),   ftofPedestal.getCanvas());
