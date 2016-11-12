@@ -17,7 +17,7 @@ import org.jlab.groot.data.H2F;
 
 public class Strips {
 
-	public  DetectorCollection<List<Integer>>  pixNmbr = null;
+    public  DetectorCollection<List<Integer>>  pixNmbr = null;
     public  DetectorCollection<List<Integer>>  pixDist = null;
     private DetectorCollection<List<H1F>>     stripH1D = null;
     private DetectorCollection<List<H2F>>     stripH2D = null;

@@ -218,7 +218,8 @@ public class FCDetector {
         
         double color=0;
         double smax=4000.;
-        
+
+        if (!map.containsKey(1)) return color;
         float val[] = (float[]) map.get(1); 
         double rmin = (double)   map.get(2);
         double rmax = (double)   map.get(3);

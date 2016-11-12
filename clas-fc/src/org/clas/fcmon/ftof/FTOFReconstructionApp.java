@@ -134,7 +134,7 @@ public class FTOFReconstructionApp extends FCApplication {
             int iil = strip.getDescriptor().getLayer();  
             int ip  = strip.getDescriptor().getComponent();
             int iord= strip.getDescriptor().getOrder(); 
-            
+
             app.currentCrate = icr;
             app.currentSlot  = isl;
             app.currentChan  = ich;

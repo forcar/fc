@@ -134,6 +134,7 @@ public class FTOFMon extends DetectorMonitor {
     
     public void init( ) {       
         System.out.println("monitor.init()");   
+        inProcess = 0; putGlob("inProcess", inProcess);
         initApps();
         for (int i=0; i<ftofPix.length; i++) ftofPix[i].initHistograms(" "); 
     }

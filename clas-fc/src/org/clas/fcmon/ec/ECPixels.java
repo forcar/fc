@@ -50,7 +50,6 @@ public class ECPixels {
     public Pixels     pixels = new Pixels();
     public Strips     strips = new Strips();
     public Pixel       pixel = null;
- 
 
     public double ec_xpix[][][]   = new double[10][6916][7];
     public double ec_ypix[][][]   = new double[10][6916][7];
@@ -105,7 +104,7 @@ public class ECPixels {
         }
         for (int is=1; is<7; is++) {
             clusterXY.put(is, new ArrayList<double[]>());
-            peakXY.put(is, new ArrayList<double[]>());
+               peakXY.put(is, new ArrayList<double[]>());
         }
         detName = det;
         pixdef();
@@ -240,9 +239,8 @@ public class ECPixels {
 	
     public void pixHistos() {
         
-	    JFrame frame = new JFrame("pixHistos");
-	    EmbeddedCanvas canvas = new EmbeddedCanvas();
-        int ic;
+        JFrame          frame = new JFrame("pixHistos");
+        EmbeddedCanvas canvas = new EmbeddedCanvas();
 
         frame.setSize(800,500);
         canvas.divide(2, 2);
@@ -261,7 +259,7 @@ public class ECPixels {
             System.out.println("Pixel number= "+pixels.getPixelNumber(str[0],str[1],str[2]));
             System.out.println(" ");
         }
-        for (ic=0; ic<4; ic++) {h[ic].setOptStat(Integer.parseInt("1"));
+        for (int ic=0; ic<4; ic++) {h[ic].setOptStat(Integer.parseInt("1"));
           String val=String.format("Max Area: %1$.3f",pixels.maxZonePixelArea[ic]);
           h[ic].setName(String.format("Max Area: %1$.1f cm^2",pixels.maxZonePixelArea[ic]));
           canvas.cd(ic); canvas.draw(h[ic]);

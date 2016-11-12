@@ -18,6 +18,8 @@ import javax.swing.JPopupMenu;
 import javax.swing.JRadioButton;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import org.clas.fcmon.cc.CCPixels;
 import org.clas.fcmon.detector.view.DetectorShape2D;
@@ -316,8 +318,9 @@ public class FCApplication implements ActionListener  {
         
         private JTabbedPane   tabbedPane = null; 
         private JPanel       actionPanel = null;  
-        public JPopupMenu         popup = null;
+        public JPopupMenu          popup = null;
         private int             popupPad = 0;
+        public String     selectedCanvas = null;
         
         private Map<String,EmbeddedCanvas>  tabbedCanvases = new LinkedHashMap<String,EmbeddedCanvas>();
        
@@ -338,7 +341,13 @@ public class FCApplication implements ActionListener  {
             tabbedPane  = new JTabbedPane();
             actionPanel = new JPanel();
             actionPanel.setLayout(new FlowLayout());
-            
+            tabbedPane.addChangeListener(new ChangeListener() {
+                public void stateChanged(ChangeEvent e) {
+                     JTabbedPane tabbedPane = (JTabbedPane) e.getSource();
+                     int index = tabbedPane.getSelectedIndex();
+                     selectedCanvas = tabbedPane.getTitleAt(index);
+                }
+            });            
             this.add(tabbedPane,BorderLayout.CENTER);
             this.add(actionPanel,BorderLayout.PAGE_END);
             this.addCanvas(name);
@@ -350,18 +359,12 @@ public class FCApplication implements ActionListener  {
             this.tabbedCanvases.put(name, canvas);
             tabbedPane.addTab(name, canvas);
             tabbedPane.addMouseListener(this);
+
         }  
-        
-        public EmbeddedCanvas getCanvas(){
-            int    index = tabbedPane.getSelectedIndex();
-            String title = tabbedPane.getTitleAt(index);
-            return this.tabbedCanvases.get(title);
-        }
         
         public EmbeddedCanvas getCanvas(String title){
             return this.tabbedCanvases.get(title);
         }
-
         
         @Override
         public void mousePressed(MouseEvent e) {

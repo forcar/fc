@@ -33,7 +33,8 @@ public class ECSingleEventApp extends FCApplication {
       createPopupMenu();
    }
    
-   public JPanel getCalibPane() {        
+
+   public JPanel getPanel() {        
        engineView.setLayout(new BorderLayout());
        JSplitPane    hPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT); 
        JSplitPane   vPaneL = new JSplitPane(JSplitPane.VERTICAL_SPLIT); 

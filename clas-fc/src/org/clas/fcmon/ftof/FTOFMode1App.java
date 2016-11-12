@@ -54,6 +54,8 @@ public class FTOFMode1App extends FCApplication {
         F1D f2 = new F1D("p0","[a]",0.,100.); f2.setParameter(0,app.mode7Emulation.CCDB_tet);
         f2.setLineColor(4);f2.setLineStyle(2);
        
+        c.clear();
+        
         for(int ip=min;ip<max;ip++){
             c.cd(ip-min); 
             c.getPad(ip-min).setOptStat(Integer.parseInt("0"));

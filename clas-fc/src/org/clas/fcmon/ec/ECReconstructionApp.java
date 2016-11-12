@@ -524,6 +524,7 @@ public class ECReconstructionApp extends FCApplication {
             for (int il=0 ; il<3 ; il++) {
                 ecPix[idet].strips.hmap1.get("H1_Stra_Sevd").get(is+1,il+1,0).reset();
                 ecPix[idet].strips.hmap1.get("H1_Stra_Sevd").get(is+1,il+1,1).reset();
+                ecPix[idet].strips.hmap2.get("H2_Mode1_Hist").get(is+1,il+1,0).reset();
                 ecPix[idet].strips.hmap2.get("H2_Mode1_Sevd").get(is+1,il+1,0).reset();
                 ecPix[idet].strips.hmap2.get("H2_Mode1_Sevd").get(is+1,il+1,1).reset();
                 for (int ip=0; ip<ecPix[idet].pixels.getNumPixels() ; ip++) {

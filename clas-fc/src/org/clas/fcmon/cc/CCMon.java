@@ -141,6 +141,7 @@ public class CCMon extends DetectorMonitor {
     
     public void init( ) {       
         System.out.println("monitor.init()");   
+        inProcess = 0; putGlob("inProcess", inProcess);
         initApps();
         ccPix.initHistograms(" ");
     }

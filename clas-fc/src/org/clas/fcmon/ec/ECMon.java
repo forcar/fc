@@ -41,11 +41,11 @@ public class ECMon extends DetectorMonitor {
     ECDetectorReconstruction  ecRec = null;
     DatabaseConstantProvider   ccdb = null;
    
-    public boolean             inMC = true;  //true=MC false=DATA
+    public boolean             inMC = false;  //true=MC false=DATA
     public boolean            inCRT = false;  //true=CRT pre-installation CRT data
     public boolean            doRec = false;  //true=2.4 EC processor
-    public boolean            doEng = true;  //true=3.0 EC processor
-    public String            config = "phot"; //configs: pizero,phot,muon,elec
+    public boolean            doEng = false;  //true=3.0 EC processor
+    public String            config = "muon"; //configs: pizero,phot,muon,elec
     public int               calRun = 2;
     public int            inProcess = 0;      //0=init 1=processing 2=end-of-run 3=post-run
     int                       detID = 0;
@@ -151,8 +151,8 @@ public class ECMon extends DetectorMonitor {
     
     public void addCanvas() {
         System.out.println("monitor.addCanvas()"); 
-        app.addCanvas(ecMode1.getName(),            ecMode1.getCanvas());
-        app.addFrame(ecSingleEvent.getName(), ecSingleEvent.getCalibPane());
+        app.addFrame(ecMode1.getName(),             ecMode1.getPanel());
+        app.addFrame(ecSingleEvent.getName(), ecSingleEvent.getPanel());
         app.addCanvas(ecAdc.getName(),                ecAdc.getCanvas());          
         app.addCanvas(ecTdc.getName(),                ecTdc.getCanvas());          
         app.addCanvas(ecPedestal.getName(),      ecPedestal.getCanvas());         
@@ -164,6 +164,7 @@ public class ECMon extends DetectorMonitor {
 	
     public void init( ) {	    
         System.out.println("monitor.init()");	
+        inProcess = 0; putGlob("inProcess", inProcess);
         initApps();
         for (int i=0; i<ecPix.length; i++) ecPix[i].initHistograms(" ");
     }
@@ -181,9 +182,9 @@ public class ECMon extends DetectorMonitor {
         ecEng.setPeakThresholds(ecPix[0].getPeakThr(config, 1),
                                 ecPix[1].getPeakThr(config, 1),
                                 ecPix[2].getPeakThr(config, 1));  
-        ecEng.setClusterErrors(ecPix[0].getClusterErr(config),
-                               ecPix[1].getClusterErr(config),
-                               ecPix[2].getClusterErr(config));
+        ecEng.setClusterCuts(ecPix[0].getClusterErr(config),
+                             ecPix[1].getClusterErr(config),
+                             ecPix[2].getClusterErr(config));
         putGlob("ecEng",ecEng.getHist());
         }
         if (doRec) {
@@ -206,7 +207,6 @@ public class ECMon extends DetectorMonitor {
 	
     public void initGlob() {
         System.out.println("monitor.initGlob()");
-        putGlob("inProcess", inProcess);
         putGlob("detID", detID);
         putGlob("inMC", inMC);
         putGlob("inCRT",inCRT);

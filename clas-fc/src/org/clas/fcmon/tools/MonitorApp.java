@@ -101,12 +101,12 @@ public class MonitorApp extends JFrame implements ActionListener,ItemListener {
             if(hostname.substring(0,4).equals("clon")) {
               System.out.println("Running on "+hostname);
               doEpics = true;
-              hipoPath = "/home/lcsmith";
+              hipoPath = "/home/lcsmith/PCAL";
             }
         } else {
             System.out.println("Running on "+ostype);
             doEpics = false;
-            hipoPath  = "/Users/colesmith";
+            hipoPath  = "/Users/colesmith/PCAL/fc";
         }
     }    
     
