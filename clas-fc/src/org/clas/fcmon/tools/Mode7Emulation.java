@@ -14,14 +14,14 @@ import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 
 import org.clas.fcmon.detector.view.DetectorPane2D;
-import org.jlab.clas12.detector.FADCConfig;
-import org.jlab.clas12.detector.FADCConfigLoader;
+import org.jlab.detector.calib.utils.ConstantsManager;
+import org.jlab.utils.groups.IndexedTable;
 
 public class Mode7Emulation extends JPanel implements ActionListener,ItemListener {
 	
    DetectorPane2D detectorView = null;
-   FADCConfigLoader            fadc  = new FADCConfigLoader();
-	
+   IndexedTable      fadc = null;
+   
    ButtonGroup       bG3  = new ButtonGroup();
    JRadioButton      bG3a = new JRadioButton("CCDB"); 
    JRadioButton      bG3b = new JRadioButton("User");
@@ -62,11 +62,10 @@ public class Mode7Emulation extends JPanel implements ActionListener,ItemListene
    }
 	
    public void configMode7(int cr, int sl, int ch) {    
-      FADCConfig config = fadc.getMap().get(cr,sl,ch);
-      this.nsa    = (int) config.getNSA();
-      this.nsb    = (int) config.getNSB();
-      this.tet    = (int) config.getTET();
-      this.pedref = (int) config.getPedestal();
+      this.nsa    = (int) fadc.getIntValue("nsa",     cr,sl,ch);
+      this.nsb    = (int) fadc.getIntValue("nsb",     cr,sl,ch);
+      this.tet    = (int) fadc.getIntValue("tet",     cr,sl,ch);
+      this.pedref = (int) fadc.getIntValue("pedestal",cr,sl,ch);
       CCDB_tet=this.tet;
       CCDB_nsa=this.nsa;
       CCDB_nsb=this.nsb;
@@ -75,12 +74,18 @@ public class Mode7Emulation extends JPanel implements ActionListener,ItemListene
       if (User_nsb>0) this.nsb=User_nsb;
    }
 	   
-   public void init(String path, int cr, int sl, int ch) {   
-      fadc.load(path,10,"default");
+   public void init(ConstantsManager ccdb, String table, int cr, int sl, int ch) {   
+      System.out.println("Mode7Emulation:init("+table+", "+cr+", "+sl+", "+ch+")");
+      this.fadc = ccdb.getConstants(10, table);
       configMode7(cr,sl,ch);
+      updateGUI();
+   }
+   
+   public void updateGUI() {
       ttet.setText(Integer.toString(this.tet)); 
       tnsa.setText(Integer.toString(this.nsa));
       tnsb.setText(Integer.toString(this.nsb));
+      detectorView.repaint();
    }
 
    @Override

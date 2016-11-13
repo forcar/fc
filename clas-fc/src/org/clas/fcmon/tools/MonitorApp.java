@@ -64,8 +64,8 @@ public class MonitorApp extends JFrame implements ActionListener,ItemListener {
     public Mode7Emulation   mode7Emulation = null;
     
     public String currentView = null;
-    public int   currentCrate = 0;
-    public int   currentSlot  = 0;
+    public int   currentCrate = 1;
+    public int   currentSlot  = 3;
     public int   currentChan  = 0;
     public int  detectorIndex = 0;
     public boolean    doEpics = false;

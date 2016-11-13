@@ -190,24 +190,32 @@ public class ECReconstructionApp extends FCApplication {
                AdcType = strip.getADCData(0).getPulseSize()>0 ? "ADCPULSE":"ADCFPGA";
                
                if(AdcType=="ADCFPGA") { // FADC MODE 7
+                   
                   adc = strip.getADCData(0).getIntegral();
                   ped = strip.getADCData(0).getPedestal();
                   npk = strip.getADCData(0).getHeight();
-                 tdcf = strip.getADCData(0).getTime();            
-                  getMode7(icr,isl,ich);
+                 tdcf = strip.getADCData(0).getTime();  
+                 
+                  getMode7(icr,isl,ich); 
+
                   if (app.mode7Emulation.User_pedref==0) adc = (adc-ped*(this.nsa+this.nsb))/10;
                   if (app.mode7Emulation.User_pedref==1) adc = (adc-this.pedref*(this.nsa+this.nsb))/10;
                }   
                
                if (AdcType=="ADCPULSE") { // FADC MODE 1
+                   
                   for (int i=0 ; i<strip.getADCData(0).getPulseSize();i++) {               
                      pulse[i] = (short) strip.getADCData(0).getPulseValue(i);
                   }
-                  getMode7(icr,isl,ich);
+                  
+                  getMode7(icr,isl,ich); 
+                  
                   if (app.mode7Emulation.User_pedref==0) fitter.fit(this.nsa,this.nsb,this.tet,0,pulse);                  
-                  if (app.mode7Emulation.User_pedref==1) fitter.fit(this.nsa,this.nsb,this.tet,pedref,pulse);                    
+                  if (app.mode7Emulation.User_pedref==1) fitter.fit(this.nsa,this.nsb,this.tet,pedref,pulse);   
+                  
                   adc = fitter.adc/10;
                   ped = fitter.pedsum;
+                  
                   for (int i=0 ; i< pulse.length ; i++) {
                      ecPix[idet].strips.hmap2.get("H2_Mode1_Hist").get(is,ilay,0).fill(i,ip,pulse[i]-this.pedref);
                      if (app.isSingleEvent()) {

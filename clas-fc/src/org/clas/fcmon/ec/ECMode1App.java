@@ -72,7 +72,11 @@ public class ECMode1App extends FCApplication  {
       }   
       
       c.setAxisFontSize(14);
-		
+      
+//      System.out.println("cr,sl,ch="+app.currentCrate+" "+app.currentSlot+" "+app.currentChan);
+//      app.mode7Emulation.configMode7(app.currentCrate, app.currentSlot, app.currentChan);
+//      app.mode7Emulation.updateGUI();
+      
       int tet = app.mode7Emulation.tet;
       
       if (app.mode7Emulation.User_tet>0)  tet=app.mode7Emulation.User_tet;

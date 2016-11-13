@@ -15,24 +15,27 @@ import org.clas.fcmon.tools.CalibrationData;
 import org.clas.fcmon.tools.FCApplication;
 import org.jlab.clas.detector.DetectorCollection;
 import org.jlab.clas.detector.DetectorType;
-import org.jlab.clasrec.utils.DatabaseConstantProvider;
+//import org.jlab.clasrec.utils.DatabaseConstantProvider;
 import org.jlab.detector.base.DetectorDescriptor;
 import org.jlab.detector.calib.utils.CalibrationConstants;
 import org.jlab.detector.calib.utils.CalibrationConstantsListener;
 import org.jlab.detector.calib.utils.CalibrationConstantsView;
+import org.jlab.detector.calib.utils.ConstantsManager;
 import org.jlab.groot.base.GStyle;
 import org.jlab.groot.data.GraphErrors;
 import org.jlab.groot.data.H1F;
 import org.jlab.groot.data.H2F;
 import org.jlab.groot.graphics.EmbeddedCanvas;
 import org.jlab.groot.math.F1D;
-import org.jlab.rec.ecn.ECCommon;
+//import org.jlab.rec.ecn.ECCommon;
+import org.jlab.utils.groups.IndexedTable;
 
 public class ECCalibrationApp extends FCApplication implements CalibrationConstantsListener,ChangeListener {
     
     JPanel                    engineView = new JPanel();
     JSplitPane                enginePane = new JSplitPane(JSplitPane.VERTICAL_SPLIT); 
     CalibrationConstantsView      ccview = new CalibrationConstantsView();
+    ConstantsManager                ccdb = new ConstantsManager();
     ArrayList<CalibrationConstants> list = new ArrayList<CalibrationConstants>();
 
     public ECCalibrationEngine[] engines = {
@@ -45,7 +48,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
     public final int   GAIN  = 1;
     public final int STATUS  = 2;
     
-    String[] names = {"/calibration/ec/atten","/calibration/ec/gain","/calibration/ec/status"};
+    String[] names = {"/calibration/ec/attenuation","/calibration/ec/gain","/calibration/ec/status"};
 
     String selectedDir = names[ATTEN];
        
@@ -73,6 +76,10 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
         return engineView;       
     }  
     
+    public void setConstantsManager(ConstantsManager ccdb) {
+        this.ccdb = ccdb;
+    }
+    
     public ECCalibrationEngine getSelectedEngine() {
         
         ECCalibrationEngine engine = engines[ATTEN];
@@ -93,6 +100,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
         EmbeddedCanvasTabbed   fitADC = new EmbeddedCanvasTabbed("ADC");
         EmbeddedCanvasTabbed   fitCh2 = new EmbeddedCanvasTabbed("Chi^2");
         EmbeddedCanvasTabbed   fitCof = new EmbeddedCanvasTabbed("COEF");
+        IndexedTable            atten = null; 
         
         public final double[][] PARAM = {{0.75,0.75,0.75,1,1,1,1,1,1},
                                          {360,360,360,360,360,360,360,360,360},
@@ -114,8 +122,9 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
             this.is1=is1;
             this.is2=is2;
             
+            atten = ccdb.getConstants(10, names[ATTEN]);
             calib = new CalibrationConstants(3,"A/F:Aerr/F:B/F:Berr/F:C/F:Cerr/F");
-            calib.setName("/calibration/ec/atten");
+            calib.setName(names[ATTEN]);
             calib.setPrecision(3);
             
             int kk=0;
@@ -263,7 +272,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
         public void drawPlots(int is, int layer, int ic) {
             
             DetectorCollection<CalibrationData> fit = ecPix[ilmap].collection;
-            DatabaseConstantProvider           ccdb = (DatabaseConstantProvider) mon.getGlob().get("ccdb");
+//            DatabaseConstantProvider           ccdb = (DatabaseConstantProvider) mon.getGlob().get("ccdb");
             DetectorCollection<H2F>            dc2a = ecPix[ilmap].strips.hmap2.get("H2_a_Hist");    
             EmbeddedCanvas                        c = new EmbeddedCanvas();    
             
@@ -355,10 +364,13 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
                          parACe[ip]= Math.sqrt(parAe[ip]*parAe[ip]+parCe[ip]*parCe[ip]);
                          vchi2[ip] = Math.min(4, fit.get(is,il,ip+1).getChi2(0)); 
                          vchi2e[ip]= 0.;                                                          
-                         int index = ECCommon.getCalibrationIndex(is,sl,ip+1);
-                         ccdbA[ip] = ccdb.getDouble("/calibration/ec/attenuation/A",index);
-                         ccdbB[ip] = ccdb.getDouble("/calibration/ec/attenuation/B",index);
-                         ccdbC[ip] = ccdb.getDouble("/calibration/ec/attenuation/C",index);
+//                       int index = ECCommon.getCalibrationIndex(is,sl,ip+1);
+//                       ccdbA[ip] = ccdb.getDouble("/calibration/ec/attenuation/A",index);
+//                       ccdbB[ip] = ccdb.getDouble("/calibration/ec/attenuation/B",index);
+//                       ccdbC[ip] = ccdb.getDouble("/calibration/ec/attenuation/C",index);
+                         ccdbA[ip] = atten.getDoubleValue("A",is,sl,ip+1);
+                         ccdbB[ip] = atten.getDoubleValue("B",is,sl,ip+1);
+                         ccdbC[ip] = atten.getDoubleValue("C",is,sl,ip+1);
                          ccdbAC[ip]= ccdbA[ip]+ccdbC[ip];
                          ccdbAe[ip]  = 0.;
                          ccdbBe[ip]  = 0.;
@@ -454,6 +466,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
         
         public final int[]      PARAM = {100,100,100,100,100,100,160,160,160};
         public final int        DELTA = 10;        
+        IndexedTable             gain = null; 
         
         int is1,is2;
         
@@ -465,6 +478,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
             this.is1=is1;
             this.is2=is2;
             
+            gain = ccdb.getConstants(10, names[GAIN]);
             calib = new CalibrationConstants(3,"gain/F");
             calib.setName("/calibration/ec/gain");
             calib.setPrecision(3);
@@ -516,12 +530,15 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
         
         public final int[]   PARAM = {0,0,0,0,0,0,0,0,0};
         public final int     DELTA = 1;
+        IndexedTable        status = null; 
         
         ECStatusEventListener(){};
         
         public void init(int is1, int is2){
             
             System.out.println("ECCalibrationApp:ECStatusEventListener.init");
+            
+            status = ccdb.getConstants(10, names[STATUS]);
             calib = new CalibrationConstants(3,"status/I");
             calib.setName("/calibration/ec/status");
             calib.setPrecision(3);

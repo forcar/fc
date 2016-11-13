@@ -5,11 +5,11 @@ import org.clas.fcmon.tools.FCDetector;
 import org.jlab.detector.base.DetectorType;
 import org.jlab.geom.prim.Path3D;
 
-public class ECDetector extends FCDetector {
+public class ECDet extends FCDetector {
     
     DetectorType[] detNames = {DetectorType.PCAL, DetectorType.ECIN, DetectorType.ECOUT};
     
-    public ECDetector(String name , ECPixels[] ecPix) {
+    public ECDet(String name , ECPixels[] ecPix) {
         super(name, ecPix);       
      }    
     

@@ -91,8 +91,10 @@ public class ECPixels {
     public int id=0;
     public String detName = null;
 	
-    public ECPixels(String det) {		
-        detector  = new ECFactory().createDetectorTilted(DataBaseLoader.getGeometryConstants(DetectorType.EC, 10, "default"));
+    public ECPixels(String det, ECDetector ecdet) {		
+        System.out.println(" "); System.out.println("ECPixels("+det+")");
+        this.detName = det;
+        this.detector = ecdet;
         if (det=="PCAL")   id=0;
         if (det=="ECin")   id=1;
         if (det=="ECout")  id=2;
@@ -106,7 +108,6 @@ public class ECPixels {
             clusterXY.put(is, new ArrayList<double[]>());
                peakXY.put(is, new ArrayList<double[]>());
         }
-        detName = det;
         pixdef();
         pixrot();
         System.out.println("ECPixels("+det+") is done");
@@ -118,11 +119,12 @@ public class ECPixels {
     }
     
     public static void main(String[] args) {
-        ECPixels pix = new ECPixels("PCAL");        
+        ECDetector ecdet  = new ECFactory().createDetectorTilted(DataBaseLoader.getGeometryConstants(DetectorType.EC, 10, "default"));
+        ECPixels pix = new ECPixels("PCAL",ecdet);        
     }
     
     public void init() {
-        System.out.println("ECPixels.init(): "+this.detName);
+        System.out.println("ECPixels.init()");
         Lmap_a.clear();
         Lmap_t.clear();
         collection.clear();    
@@ -156,8 +158,8 @@ public class ECPixels {
      }
     
     public void pixdef() {
-        System.out.println("ECPixels.pixdef(): "+this.detName); 
-        calDB = new CalDrawDB(detName);
+        System.out.println("ECPixels.pixdef()"); 
+        calDB = new CalDrawDB(detName,detector);
         GetStripsDB();
         GetPixelsDB();    
     }
@@ -411,7 +413,7 @@ public class ECPixels {
 
     public void pixrot() {
         
-        System.out.println("ECPixels.pixrot(): "+this.detName);
+        System.out.println("ECPixels.pixrot()");
     	double[] theta={0.0,60.0,120.0,180.0,240.0,300.0};
 	    	for(int is=0; is<6; is++) {
 	    	    double thet=theta[is]*3.14159/180.;

@@ -2,19 +2,23 @@ package org.clas.fcmon.ec;
 
 import org.clas.fcmon.detector.view.DetectorShape2D;
 import org.clas.fcmon.tools.*;
-
+import org.jlab.clas.detector.DetectorType;
 //clas12
-import org.jlab.clas12.detector.FADCConfigLoader;
-import org.jlab.clasrec.utils.DatabaseConstantProvider;
+//import org.jlab.clas12.detector.FADCConfigLoader;
+import org.jlab.clasrec.utils.DataBaseLoader;
 
 //clas12rec
 import org.jlab.detector.base.DetectorDescriptor;
+import org.jlab.detector.calib.utils.ConstantsManager;
+import org.jlab.geom.detector.ec.ECDetector;
+import org.jlab.geom.detector.ec.ECFactory;
 import org.jlab.io.evio.EvioDataEvent;
 import org.jlab.io.base.DataEvent;
 
 import org.jlab.service.ec.*;
 import org.jlab.rec.ecn.*;
- 
+
+import java.util.Arrays;
 import java.util.TreeMap;
 
 public class ECMon extends DetectorMonitor {
@@ -22,9 +26,9 @@ public class ECMon extends DetectorMonitor {
     static MonitorApp           app = new MonitorApp("ECMon",1800,950);	
     
     ECPixels                ecPix[] = new ECPixels[3];
-    FADCConfigLoader          fadc  = new FADCConfigLoader();
+    ConstantsManager           ccdb = new ConstantsManager();
  
-    ECDetector                ecDet = null;
+    ECDet                     ecDet = null;
     
     ECReconstructionApp     ecRecon = null;
     ECMode1App              ecMode1 = null;
@@ -39,7 +43,6 @@ public class ECMon extends DetectorMonitor {
     
     ECEngine                  ecEng = null;
     ECDetectorReconstruction  ecRec = null;
-    DatabaseConstantProvider   ccdb = null;
    
     public boolean             inMC = false;  //true=MC false=DATA
     public boolean            inCRT = false;  //true=CRT pre-installation CRT data
@@ -63,12 +66,10 @@ public class ECMon extends DetectorMonitor {
     public ECMon(String det) {
         super("ECMON","1.0","lcsmith");
         mondet = det;
-        ecPix[0] = new ECPixels("PCAL");
-        ecPix[1] = new ECPixels("ECin");
-        ecPix[2] = new ECPixels("ECout");
-        ccdb = new DatabaseConstantProvider(calRun,"default");
-        ccdb.loadTable("/calibration/ec/attenuation");
-        ccdb.disconnect();
+        ECDetector ecdet  = new ECFactory().createDetectorTilted(DataBaseLoader.getGeometryConstants(DetectorType.EC, 10, "default"));
+        ecPix[0] = new ECPixels("PCAL",ecdet);
+        ecPix[1] = new ECPixels("ECin",ecdet);
+        ecPix[2] = new ECPixels("ECout",ecdet);
     }
 	
     public static void main(String[] args){
@@ -77,8 +78,8 @@ public class ECMon extends DetectorMonitor {
         app.setPluginClass(monitor);
         app.getEnv();
         app.makeGUI();
-        app.mode7Emulation.init("/daq/fadc/ec",3, 3, 1);
         monitor.initConstants();
+        monitor.initCCDB();
         monitor.initGlob();
         monitor.makeApps();
         monitor.addCanvas();
@@ -91,10 +92,17 @@ public class ECMon extends DetectorMonitor {
     public void initConstants() {
         ECConstants.setSectors(is1,is2);
     }
+    
+    public void initCCDB() {
+        ccdb.init(Arrays.asList(new String[]{
+                "/daq/fadc/ec",
+                "/calibration/ec/attenuation","/calibration/ec/gain","/calibration/ec/status"}));
+        app.mode7Emulation.init(ccdb, "/daq/fadc/ec", 3,3,1);        
+    }
 	
     public void initDetector() {
         System.out.println("monitor.initDetector()"); 
-        ecDet = new ECDetector("ECDet",ecPix);
+        ecDet = new ECDet("ECDet",ecPix);
         ecDet.setMonitoringClass(this);
         ecDet.setApplicationClass(app);
         ecDet.init();
@@ -136,7 +144,8 @@ public class ECMon extends DetectorMonitor {
 
         ecCalib = new ECCalibrationApp("Calibration", ecPix);
         ecCalib.setMonitoringClass(this);
-        ecCalib.setApplicationClass(app);  
+        ecCalib.setApplicationClass(app);
+        ecCalib.setConstantsManager(ccdb);
         ecCalib.init(is1,is2);    
                 
         ecHv = new ECHvApp("HV","EC");
@@ -215,10 +224,8 @@ public class ECMon extends DetectorMonitor {
         putGlob("nsa", nsa);
         putGlob("nsb", nsb);
         putGlob("tet", tet);		
-        putGlob("ccdb", ccdb);
         putGlob("PCMon_zmin", PCMon_zmin);
         putGlob("PCMon_zmax", PCMon_zmax);
-        putGlob("fadc",fadc);
         putGlob("mondet",mondet);
         putGlob("is1",ECConstants.IS1);
         putGlob("config",config);
