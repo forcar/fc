@@ -16,7 +16,6 @@ import org.jlab.clas.detector.DetectorCollection;
 import org.jlab.clas.physics.GenericKinematicFitter;
 import org.jlab.clas.physics.PhysicsEvent;
 //import org.jlab.clas.detector.DetectorResponse;
-import org.jlab.clas12.detector.FADCConfigLoader;
 //import org.root.histogram.H1D;
 //import org.root.histogram.H2D;
 
@@ -37,11 +36,10 @@ import org.jlab.service.ec.ECPart;
 import org.jlab.io.base.DataEvent;
 import org.jlab.io.evio.EvioDataBank;
 import org.clas.fcmon.detector.view.DetectorShape2D;
-import org.clas.fcmon.jroot.*;
+//import org.clas.fcmon.jroot.*;
 
 public class ECReconstructionApp extends FCApplication {
     
-   FADCConfigLoader fadc  = new FADCConfigLoader();
    FADCFitter     fitter  = new FADCFitter(1,15);
    String          mondet = null;
    Boolean           inMC = null;
@@ -80,7 +78,6 @@ public class ECReconstructionApp extends FCApplication {
    
    public void init() {
        System.out.println("ECReconstruction.init()");
-       fadc.load("/daq/fadc/ec",10,"default");
        mondet =           (String) mon.getGlob().get("mondet");
        inMC   =          (Boolean) mon.getGlob().get("inMC");
        inCRT  =          (Boolean) mon.getGlob().get("inCRT");

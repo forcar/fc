@@ -58,7 +58,7 @@ public class CalDrawDB{
 	private static double[][][][] xPoint = new double [6][3][68][4];
 	private static double[][][][] yPoint = new double [6][3][68][4];
 
-	public CalDrawDB(String detector) {
+	public CalDrawDB(String detector, ECDetector ecdet) {
 		     if(detector.contains("PCAL"))  unit = 0;
 		else if(detector.contains("ECin"))  unit = 1;
 		else if(detector.contains("ECout")) unit = 2;
@@ -67,7 +67,7 @@ public class CalDrawDB{
 		
 		if(unit==0)
 		{
-			initPCALVert();
+			initPCALVert(ecdet);
 			validoverlap = new int[3][68][62];
 			//[0=uw,1=uv,2=vw][first layer strip][second layer strip]
 			validpixel = new int[68][62][62];
@@ -75,7 +75,7 @@ public class CalDrawDB{
 		}
 		if(unit>0)   
 		{
-			initECVert();
+			initECVert(ecdet);
 			validoverlap = new int[3][36][36];
 			//[0=uw,1=uv,2=vw][first layer strip][second layer strip]
 			validpixel = new int[36][36][36];
@@ -1369,13 +1369,13 @@ public class CalDrawDB{
 		
 	}
 	
-	private void initPCALVert() {
+	private void initPCALVert(ECDetector detector) {
 		ECLayer  ecLayer;
 		Point3D point1 = new Point3D();
 		int[] vertices = {0,4,5,1};
 		int suplay = unit; //PCAL ==0, ECinner ==1, ECouter==2 
 		
-        ECDetector detector  = new ECFactory().createDetectorTilted(DataBaseLoader.getGeometryConstants(DetectorType.EC, 10, "default"));
+//        ECDetector detector  = new ECFactory().createDetectorTilted(DataBaseLoader.getGeometryConstants(DetectorType.EC, 10, "default"));
         
         for(int sector = 0; sector < 6; ++sector) {
 		    for(int l = 0; l<3; l++) {    	
@@ -1396,7 +1396,7 @@ public class CalDrawDB{
         }
 	}
 		
-	private void initECVert()
+	private void initECVert(ECDetector detector)
 	// Projective geometry means U,V,W strips get progressively larger with depth.  For
 	// display purposes V,W vertices are projected back to the first U strip plane.
 	{
@@ -1419,7 +1419,7 @@ public class CalDrawDB{
 		DetectorShape2D shape = new DetectorShape2D();
 		DetectorShape2D shape2 = new DetectorShape2D();
 		ScintillatorPaddle paddle = null;
-        ECDetector detector  = new ECFactory().createDetectorTilted(DataBaseLoader.getGeometryConstants(DetectorType.EC, 10, "default"));
+//        ECDetector detector  = new ECFactory().createDetectorTilted(DataBaseLoader.getGeometryConstants(DetectorType.EC, 10, "default"));
         for(sector = 0; sector < 6; ++sector)
         {
         	//loop through u, v, w layers
@@ -1830,7 +1830,8 @@ public class CalDrawDB{
 
 	public static void main(String[] args){ 
 		
-		CalDrawDB pcaltest = new CalDrawDB("PCAL");
+        ECDetector ecdet  = new ECFactory().createDetectorTilted(DataBaseLoader.getGeometryConstants(DetectorType.EC, 10, "default"));
+		CalDrawDB pcaltest = new CalDrawDB("PCAL",ecdet);
 		TEmbeddedCanvas         shapeCanvas= new TEmbeddedCanvas();
 		DetectorShapeTabView  view= new DetectorShapeTabView();
 		

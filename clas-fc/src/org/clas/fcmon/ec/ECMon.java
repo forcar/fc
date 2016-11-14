@@ -44,7 +44,7 @@ public class ECMon extends DetectorMonitor {
     ECEngine                  ecEng = null;
     ECDetectorReconstruction  ecRec = null;
    
-    public boolean             inMC = false;  //true=MC false=DATA
+    public boolean             inMC = true;  //true=MC false=DATA
     public boolean            inCRT = false;  //true=CRT pre-installation CRT data
     public boolean            doRec = false;  //true=2.4 EC processor
     public boolean            doEng = false;  //true=3.0 EC processor
@@ -97,7 +97,7 @@ public class ECMon extends DetectorMonitor {
         ccdb.init(Arrays.asList(new String[]{
                 "/daq/fadc/ec",
                 "/calibration/ec/attenuation","/calibration/ec/gain","/calibration/ec/status"}));
-        app.mode7Emulation.init(ccdb, "/daq/fadc/ec", 3,3,1);        
+        app.mode7Emulation.init(ccdb,calRun,"/daq/fadc/ec", 3,3,1);        
     }
 	
     public void initDetector() {
@@ -145,7 +145,7 @@ public class ECMon extends DetectorMonitor {
         ecCalib = new ECCalibrationApp("Calibration", ecPix);
         ecCalib.setMonitoringClass(this);
         ecCalib.setApplicationClass(app);
-        ecCalib.setConstantsManager(ccdb);
+        ecCalib.setConstantsManager(ccdb,calRun);
         ecCalib.init(is1,is2);    
                 
         ecHv = new ECHvApp("HV","EC");

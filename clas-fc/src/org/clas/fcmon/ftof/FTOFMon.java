@@ -1,17 +1,14 @@
 package org.clas.fcmon.ftof;
 
+import java.util.Arrays;
 import java.util.TreeMap;
 
 import org.clas.fcmon.detector.view.DetectorShape2D;
 import org.clas.fcmon.tools.*;
 
-//clas12
-import org.jlab.clas.detector.DetectorCollection;
-import org.jlab.clas12.detector.FADCConfigLoader;
-import org.jlab.clasrec.utils.DatabaseConstantProvider;
-
 //clas12rec
 import org.jlab.detector.base.DetectorDescriptor;
+import org.jlab.detector.calib.utils.ConstantsManager;
 import org.jlab.io.evio.EvioDataEvent;
 import org.jlab.io.base.DataEvent;
 
@@ -20,9 +17,8 @@ public class FTOFMon extends DetectorMonitor {
     static MonitorApp             app = new MonitorApp("FTOFMon",1800,950);	
     
     FTOFPixels              ftofPix[] = new FTOFPixels[3];
-    FADCConfigLoader             fadc = new FADCConfigLoader();
-    DatabaseConstantProvider     ccdb = new DatabaseConstantProvider(12,"default");
-  
+    ConstantsManager             ccdb = new ConstantsManager();
+      
     FTOFDetector              ftofDet = null;  
     
     FTOFReconstructionApp   ftofRecon = null;
@@ -40,6 +36,7 @@ public class FTOFMon extends DetectorMonitor {
     int                         detID = 0;
     int                           is1 = 2;    //All sectors: is1=1 is2=7  Single sector: is1=s is2=s+1
     int                           is2 = 3; 
+    int                        calrun = 2;
     int      nsa,nsb,tet,p1,p2,pedref = 0;
     double                 PCMon_zmin = 0;
     double                 PCMon_zmax = 0;
@@ -62,7 +59,7 @@ public class FTOFMon extends DetectorMonitor {
         app.setPluginClass(monitor);
         app.getEnv();
         app.makeGUI();
-        app.mode7Emulation.init("/daq/fadc/ftof",5, 3, 1);
+        monitor.initCCDB();
         monitor.initGlob();
         monitor.makeApps();
         monitor.addCanvas();
@@ -70,6 +67,13 @@ public class FTOFMon extends DetectorMonitor {
         monitor.initDetector();
         app.init();
         monitor.ftofDet.initButtons();
+    }
+    
+    public void initCCDB() {
+        ccdb.init(Arrays.asList(new String[]{
+                "/daq/fadc/ftof",
+                "/calibration/ftof/attenuation","/calibration/ftof/gain_balance","/calibration/ftof/status"}));
+        app.mode7Emulation.init(ccdb, calrun, "/daq/fadc/ftof", 5,3,1);        
     }
     
     public void initDetector() {
@@ -160,7 +164,6 @@ public class FTOFMon extends DetectorMonitor {
         putGlob("ccdb", ccdb);
         putGlob("zmin", PCMon_zmin);
         putGlob("zmax", PCMon_zmax);
-        putGlob("fadc",fadc);
         putGlob("mondet",mondet);
         putGlob("is1",is1);
         putGlob("is2",is2);

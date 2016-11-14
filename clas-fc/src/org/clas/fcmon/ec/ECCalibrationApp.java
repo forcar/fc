@@ -56,6 +56,8 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
     int selectedLayer = 1;
     int selectedPaddle = 1;
     
+    int calrun = 1;
+    
     public ECCalibrationApp(String name , ECPixels[] ecPix) {
         super(name, ecPix);       
      } 
@@ -76,8 +78,9 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
         return engineView;       
     }  
     
-    public void setConstantsManager(ConstantsManager ccdb) {
+    public void setConstantsManager(ConstantsManager ccdb, int run) {
         this.ccdb = ccdb;
+        this.calrun = run;
     }
     
     public ECCalibrationEngine getSelectedEngine() {
@@ -122,7 +125,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
             this.is1=is1;
             this.is2=is2;
             
-            atten = ccdb.getConstants(10, names[ATTEN]);
+            atten = ccdb.getConstants(calrun, names[ATTEN]);
             calib = new CalibrationConstants(3,"A/F:Aerr/F:B/F:Berr/F:C/F:Cerr/F");
             calib.setName(names[ATTEN]);
             calib.setPrecision(3);
@@ -478,7 +481,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
             this.is1=is1;
             this.is2=is2;
             
-            gain = ccdb.getConstants(10, names[GAIN]);
+            gain = ccdb.getConstants(calrun, names[GAIN]);
             calib = new CalibrationConstants(3,"gain/F");
             calib.setName("/calibration/ec/gain");
             calib.setPrecision(3);
@@ -538,7 +541,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
             
             System.out.println("ECCalibrationApp:ECStatusEventListener.init");
             
-            status = ccdb.getConstants(10, names[STATUS]);
+            status = ccdb.getConstants(calrun, names[STATUS]);
             calib = new CalibrationConstants(3,"status/I");
             calib.setName("/calibration/ec/status");
             calib.setPrecision(3);

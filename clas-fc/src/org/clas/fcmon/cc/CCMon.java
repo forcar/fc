@@ -1,5 +1,6 @@
 package org.clas.fcmon.cc;
 
+import java.util.Arrays;
 import java.util.TreeMap;
 
 import org.clas.fcmon.detector.view.DetectorShape2D;
@@ -7,12 +8,10 @@ import org.clas.fcmon.tools.*;
 
 //clas12
 import org.jlab.clas.detector.DetectorCollection;
-import org.jlab.clas12.detector.FADCConfigLoader;
-import org.jlab.clasrec.utils.DatabaseConstantProvider;
-
 
 //clas12rec
 import org.jlab.detector.base.DetectorDescriptor;
+import org.jlab.detector.calib.utils.ConstantsManager;
 import org.jlab.groot.data.H1F;
 import org.jlab.groot.data.H2F;
 import org.jlab.io.evio.EvioDataEvent;
@@ -23,8 +22,8 @@ public class CCMon extends DetectorMonitor {
     static MonitorApp           app = new MonitorApp("LTCCMon",1800,950);
     
     CCPixels                  ccPix = new CCPixels();
-    FADCConfigLoader           fadc = new FADCConfigLoader();
-  
+    ConstantsManager           ccdb = new ConstantsManager();  
+    
     CCDetector                ccDet = null;  
     
     CCReconstructionApp     ccRecon = null;
@@ -36,14 +35,13 @@ public class CCMon extends DetectorMonitor {
     CCScalersApp          ccScalers = null;
     CCHvApp                    ccHv = null;
     
-    DatabaseConstantProvider   ccdb = null;
-        
     public boolean             inMC = false; //true=MC false=DATA
     public int               calRun = 2;
     public int            inProcess = 0;     //0=init 1=processing 2=end-of-run 3=post-run
     int                       detID = 0;
     int                         is1 = 1 ;
-    int                         is2 = 2 ;  
+    int                         is2 = 2 ; 
+    int                      calrun = 2;
     int    nsa,nsb,tet,p1,p2,pedref = 0;
     double               PCMon_zmin = 0;
     double               PCMon_zmax = 0;
@@ -61,9 +59,6 @@ public class CCMon extends DetectorMonitor {
     public CCMon(String det) {
         super("CCMON", "1.0", "lcsmith");
         mondet = det;
-        ccdb = new DatabaseConstantProvider(calRun,"default");
-        ccdb.loadTable("/calibration/ltcc/gain");
-        ccdb.disconnect();
     }
 
     public static void main(String[] args){		
@@ -72,7 +67,7 @@ public class CCMon extends DetectorMonitor {
         app.setPluginClass(monitor);
         app.getEnv();
         app.makeGUI();
-        app.mode7Emulation.init("/daq/fadc/ltcc",1, 18, 12);
+        monitor.initCCDB();
         monitor.initGlob();
         monitor.makeApps();
         monitor.addCanvas();
@@ -80,6 +75,13 @@ public class CCMon extends DetectorMonitor {
         monitor.initDetector();
         app.init();
         monitor.ccDet.initButtons();
+    }
+    
+    public void initCCDB() {
+        ccdb.init(Arrays.asList(new String[]{
+                "/daq/fadc/ltcc",
+                "/calibration/ltcc/gain","/calibration/ltcc/timing_offset","/calibration/ltcc/status"}));
+        app.mode7Emulation.init(ccdb, calrun, "/daq/fadc/ltcc", 1,18,12);        
     }
     
     public void initDetector() {
@@ -167,7 +169,6 @@ public class CCMon extends DetectorMonitor {
         putGlob("ccdb", ccdb);
         putGlob("PCMon_zmin", PCMon_zmin);
         putGlob("PCMon_zmax", PCMon_zmax);
-        putGlob("fadc",fadc);
         putGlob("mondet",mondet);
         putGlob("is1",is1);
         putGlob("is2",is2);
