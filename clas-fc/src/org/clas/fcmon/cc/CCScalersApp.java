@@ -7,7 +7,7 @@ import java.util.LinkedList;
 import javax.swing.Timer;
 
 import org.clas.fcmon.tools.FCEpics;
-import org.jlab.clas.detector.DetectorCollection;
+import org.jlab.detector.base.DetectorCollection;
 import org.jlab.detector.base.DetectorDescriptor;
 import org.jlab.groot.data.H1F;
 import org.jlab.groot.data.H2F;

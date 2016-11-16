@@ -8,7 +8,7 @@ package org.clas.fcmon.tools;
 import static java.lang.Integer.parseInt;
 import java.util.ArrayList;
 import java.util.TreeMap;
-import org.jlab.clas.detector.DetectorCollection;
+import org.jlab.detector.base.DetectorCollection;
 import org.jlab.groot.data.H1F;
 import org.jlab.groot.data.H2F;
 import org.jlab.groot.data.GraphErrors;

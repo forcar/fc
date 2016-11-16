@@ -17,7 +17,7 @@ import org.clas.fcmon.detector.view.DetectorPane2D;
 import org.clas.fcmon.detector.view.DetectorShape2D;
 import org.clas.fcmon.ec.ECPixels;
 import org.clas.fcmon.ftof.FTOFPixels;
-import org.jlab.clas.detector.DetectorCollection;
+import org.jlab.detector.base.DetectorCollection;
 import org.jlab.detector.base.DetectorDescriptor;
 //import org.root.attr.ColorPalette;
 

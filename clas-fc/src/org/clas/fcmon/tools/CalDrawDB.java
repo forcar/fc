@@ -1,46 +1,17 @@
 package org.clas.fcmon.tools;
 
-import java.awt.BorderLayout;
-import java.awt.Polygon;
-import java.awt.Shape;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.geom.Area;
-import java.awt.geom.Path2D;
-import java.awt.geom.PathIterator;
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
-import java.util.Arrays;
-import java.util.List;
-
-import javax.swing.JFrame;
-import javax.swing.JSplitPane;
-
 import math.geom2d.*;
 import math.geom2d.polygon.Polygon2D;
 import math.geom2d.polygon.Polygons2D;
 import math.geom2d.polygon.SimplePolygon2D;
 
-import org.jlab.clas.detector.DetectorDescriptor;
-import org.jlab.clas.detector.DetectorType;
-import org.jlab.clas12.basic.IDetectorProcessor;
-import org.jlab.clas12.calib.DetectorShape2D;
-//import org.jlab.clas12.calib.DetectorShapeTabView;
-//import org.jlab.clas12.calib.DetectorShapeView2D;
-import org.jlab.clas12.calib.IDetectorListener;
-import org.jlab.clasrec.main.DetectorEventProcessorDialog;
-import org.jlab.clasrec.utils.CLASGeometryLoader;
-import org.jlab.clasrec.utils.DataBaseLoader;
-import org.jlab.data.io.DataEvent;
+import org.jlab.detector.base.DetectorType;
+
+import org.clas.fcmon.detector.view.DetectorShape2D;
 import org.jlab.geom.component.ScintillatorPaddle;
 import org.jlab.geom.detector.ec.ECDetector;
-import org.jlab.geom.detector.ec.ECFactory;
 import org.jlab.geom.detector.ec.ECLayer;
 import org.jlab.geom.prim.Point3D;
-import org.root.attr.TStyle;
-import org.root.func.F1D;
-import org.root.histogram.GraphErrors;
-import org.root.pad.TEmbeddedCanvas;
 
 public class CalDrawDB{
 	
@@ -91,7 +62,7 @@ public class CalDrawDB{
 	public CalDrawDB() {
 	    
 	}
-
+/*
 	//collects all possible pixels into a DetectorShapeView2D
 	public DetectorShapeView2D drawAllPixels(int sector)
 	{
@@ -185,7 +156,7 @@ public class CalDrawDB{
 		    return Wmap;
 	}
 	
-
+*/
 	
 	//calls getPixelVerticies
 	//uses those 3 verticies to make a shape
@@ -1830,247 +1801,6 @@ public class CalDrawDB{
 
 	public static void main(String[] args){ 
 		
-        ECDetector ecdet  = new ECFactory().createDetectorTilted(DataBaseLoader.getGeometryConstants(DetectorType.EC, 10, "default"));
-		CalDrawDB pcaltest = new CalDrawDB("PCAL",ecdet);
-		TEmbeddedCanvas         shapeCanvas= new TEmbeddedCanvas();
-		DetectorShapeTabView  view= new DetectorShapeTabView();
-		
-		char stripLetter[] = {'u','v','w'};
-		char stripLetter2[] = {'w','u','u'};
-		String cstring1 = ""+stripLetter[0];//Character.toString(stripLetter[0]);
-		String cstring2 = ""+stripLetter2[0];//Character.toString(stripLetter2[0]);
-		int strip = 38;
-		int crossStrip = 31;
-		double x,y;
-		
-		//x: 360.9626941103118 y: 240.25231320773017 z: 625.7122498447577
-		//x rot: 0.3838074126117121
-		//y rot: -0.21291414121808772
-		//Point3D testp = new Point3D(388.5459536110259, -192.47670631413644, 625.7122498447577);
-		//testp.rotateX(0.3838074126117121);
-		//testp.rotateY(-0.43633231299858166);
-		//System.out.println("x: " + testp.x() + " y: " + testp.y() + " z: " + testp.z());
-		
-		
-		//System.out.println("pad1: " + strip + " pad2: " + crossStrip);
-		//double x = pcaltest.getOverlapDistance(cstring1,strip,cstring2,crossStrip);
-		//System.out.println("x: " + x);
-		
-		
-		//x = pcaltest.CalcDistinStrips('u',32)[0];
-		//x = pcaltest.CalcDistance('u',x,0)[0];
-		//System.out.println("x: " + x);
-		
-	
-		
-		
-		
-		
-		//draw U strips
-		/*
-		double areasum = 0.0;
-		DetectorShape2D shape = new DetectorShape2D();
-	 	DetectorShapeView2D Umap= new DetectorShapeView2D("PCAL U");
-	 	for(int sector = 0; sector < 1; sector++)
-    	{
-	 		for(int uPaddle = 0; uPaddle < 62; uPaddle++)
-	 		{
-	            shape = pcaltest.getStripShape(sector, "w", uPaddle);
-	            
-		            double [] xtemp2 = new double [shape.getShapePath().size()];
-	        		double [] ytemp2 = new double [shape.getShapePath().size()];
-	        		
-	        		for(int i = 0; i < shape.getShapePath().size(); ++i)
-	        		{
-	        			xtemp2[i] = shape.getShapePath().point(i).x();
-	        			ytemp2[i] = shape.getShapePath().point(i).y();
-	        			//if(shape.getShapePath().size() > 3) 
-	        			//System.out.println("x: " + xtemp2[i] + " y: " + ytemp2[i]);
-	        		}
-	        		SimplePolygon2D pol1 = new SimplePolygon2D(xtemp2,ytemp2);
-	        		areasum += pol1.area();
-	        		
-	        		if(uPaddle == 35)
-	        			System.out.println("area: " + areasum);
-        		
-	            
-	            for(int i = 0; i < shape.getShapePath().size(); ++i)
-        		{
-	            	
-	            	//if(vPaddle == 0)System.out.println(shape.getShapePath().point(i).x());
-	            	//if(vPaddle == 0)System.out.println(xPoint[sector][1][vPaddle][i]);
-	            	
-        			//if(vPaddle == 0)System.out.println(shape.getShapePath().point(i).y());
-	            	
-	            	x = shape.getShapePath().point(i).x();
-	            	y = shape.getShapePath().point(i).y();
-        			shape.getShapePath().point(i).set(x, y, 0.0);
-        			//if(i == 0 && uPaddle == 67)System.out.println(shape.getShapePath().point(i).x());
-        			
-        		}
-	            Umap.addShape(shape);
-	 		}
-    	}
-	    view.addDetectorLayer(Umap);
-		*/
-		
-		/*
-		Object[] obj = pcaltest.getOverlapVerticies(2, "u", 67, "w", 42);
-		int numpoints = (int)obj[0];
-		double[] x = new double[numpoints];
-		double[] y = new double[numpoints];
-		System.arraycopy( (double[])obj[1], 0, x, 0, numpoints);
-		System.arraycopy( (double[])obj[2], 0, y, 0, numpoints);
-		System.out.println("numpoints: " + numpoints);
-		*/
-		
-		
-		//draw UW pane
-		/*
-	    DetectorShape2D shape = new DetectorShape2D();
-	 	DetectorShapeView2D UWmap= new DetectorShapeView2D("PCAL UW");
-	 	for(int sector = 0; sector < 1; sector++)
-    	{
-	    	for(int uPaddle = 0; uPaddle < 68; uPaddle++)
-	    	{
-	    		for(int vPaddle = 0; vPaddle < 62; vPaddle++)
-	            {
-		            	if(pcaltest.isValidOverlap(sector, 0, uPaddle, 1, vPaddle))
-		            	{
-		            		
-		            		//System.out.println("u: " + uPaddle + " v: " + vPaddle);
-		            		shape = pcaltest.getOverlapShape(sector, 0, uPaddle, 1, vPaddle);
-		            		for(int i = 0; i < shape.getShapePath().size(); ++i)
-	        				{
-		        				x = shape.getShapePath().point(i).x();// * 1000.0;
-				            	y = shape.getShapePath().point(i).y();// * 1000.0;
-				            	
-				            	//if(sector == 0){ x += 302.0; y += 0.0;}
-				            	//if(sector == 1){ x += 140.0; y += 260.0;}
-				            	//if(sector == 2){ x += -140.0; y += 260.0;}
-				            	//if(sector == 3){ x += -302.0; y += 0.0;}
-				            	//if(sector == 4){ x += -140.0; y += -260.0;}
-				            	//if(sector == 5){ x += 140.0; y += -260.0;}
-				            	//x *= 1000.0;
-				            	//y *= 1000.0;
-				            	
-	        					shape.getShapePath().point(i).set(x, y, 0.0);
-	        					//if(i == 0 && vPaddle == 67 && wPaddle == 30)System.out.println(shape.getShapePath().point(i).x());
-	        				}
-		            		shape.setColor(130,(int)(255.0*uPaddle/68.0),(int)(255.0*vPaddle/62.0));
-		            		UWmap.addShape(shape);
-		            	}
-	            }
-	    	}
-    	}
-	    view.addDetectorLayer(UWmap);
-	    */
-		
-		
-		
-		//Draw pixels
-	    
-		PrintWriter writer = null;
-		try 
-		{
-			writer = new PrintWriter("uvwpix.dat");
-		} 
-		catch (FileNotFoundException e) 
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		int num1, num2, num3;
-		int pixel=0;
-		//double total;
-		
-		
-		DetectorShape2D shape = new DetectorShape2D();
-    	 	DetectorShapeView2D UWmap= new DetectorShapeView2D("PCAL Pixel");
-    	 	for(int sector = 0; sector < 1; sector++)
-	    	{
-	    	for(int uPaddle = 0; uPaddle < 68; uPaddle++)
-	    	{
-	    		for(int vPaddle = 0; vPaddle < 62; vPaddle++)
-	            {
-		            for(int wPaddle = 0; wPaddle < 62; wPaddle++)
-		            {
-		            	//System.out.println("u: " + uPaddle + " v: " + vPaddle + " w: " + wPaddle);
-		            	if(pcaltest.isValidPixel(sector, uPaddle, vPaddle, wPaddle))
-		            	{
-		            		//System.out.println("                       ");
-		            		//System.out.println("u: " + uPaddle + " v: " + vPaddle + " w: " + wPaddle);
-		            		shape = pcaltest.getPixelShape(sector, uPaddle, vPaddle, wPaddle);
-		            	//if(shape != null)
-		            	//{
-		            		
-		            		
-		            		double [] xtemp2 = new double [shape.getShapePath().size()];
-		            		double [] ytemp2 = new double [shape.getShapePath().size()];
-		            		
-		            		
-		            		for(int i = 0; i < shape.getShapePath().size(); ++i)
-		            		{
-		            			xtemp2[i] = shape.getShapePath().point(i).x();
-		            			ytemp2[i] = shape.getShapePath().point(i).y();
-		            			//if(shape.getShapePath().size() > 3) 
-		            			//System.out.println("x: " + xtemp2[i] + " y: " + ytemp2[i]);
-		            		}
-		            		SimplePolygon2D pol1 = new SimplePolygon2D(xtemp2,ytemp2);
-		            		/////////////////////////////////////////////////////////////
-		            		
-		            		
-		            		num1 = uPaddle + 1;
-		            		num2 = vPaddle + 1;
-		            		num3 = wPaddle + 1;
-		            		//total = pcaltest.getUPixelDistance(uPaddle, vPaddle, wPaddle) + pcaltest.getVPixelDistance(uPaddle, vPaddle, wPaddle) + pcaltest.getWPixelDistance(uPaddle, vPaddle, wPaddle);
-		            		
-		            		//if(pcaltest.unit != 0 && shape.getShapePath().size() == 4)
-		            		//	System.out.println("4 vertex: " + num1  + "   " + num2 + "   " + num3);
-		            		//if(pcaltest.unit != 0 && shape.getShapePath().size() == 5)
-		            		//	System.out.println("5 vertex: " + num1  + "   " + num2 + "   " + num3);
-		            		
-		            		//System.out.println(num1  + "   " + num2 + "   " + num3);
-		            		writer.println(num1  + "   " + num2 + "   " + num3 + "   "
-									+ pcaltest.getUPixelDistance(uPaddle, vPaddle, wPaddle) + "   " 
-									+ pcaltest.getVPixelDistance(uPaddle, vPaddle, wPaddle) + "   "
-									+ pcaltest.getWPixelDistance(uPaddle, vPaddle, wPaddle) 
-		            				+ "   "	+ Polygons2D.computeArea(pol1));
-		            		pixel++;
-		            		for(int i = 0; i < shape.getShapePath().size(); ++i)
-	        				{
-		            			x = shape.getShapePath().point(i).x();
-				            	y = shape.getShapePath().point(i).y();
-	        					shape.getShapePath().point(i).set(x, y, 0.0);
-	                			//System.out.println("i,u,v,w,pix,x,y= "+i+" "+uPaddle+" "+vPaddle+" "+wPaddle+" "+pixel+" "+x+" "+y);
-	        				}
-		            		shape.setColor(130,(int)(255*vPaddle/62.),(int)(255*wPaddle/62.));
-		            		UWmap.addShape(shape);
-		            	}
-		            	//}
-		            }
-	            }
-
-	    	}
-	    	}
-	    	view.addDetectorLayer(UWmap);
-	    	
-	    	writer.close();
-	    	
-	    
-	    	
-	       // return UWmap;
-	    	JFrame hi = new JFrame();
-			hi.setLayout(new BorderLayout());
-		    JSplitPane  splitPane = new JSplitPane();
-		    splitPane.setLeftComponent(view);
-		    splitPane.setRightComponent(shapeCanvas);
-		    hi.add(splitPane,BorderLayout.CENTER);
-		    hi.pack();
-		    hi.setVisible(true);
-    	 
-	    	System.out.println("Done!");
-	
 	}
 
 

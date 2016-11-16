@@ -5,7 +5,7 @@ import java.awt.BorderLayout;
 import javax.swing.JPanel;
 
 import org.clas.fcmon.tools.FCApplication;
-import org.jlab.clas.detector.DetectorCollection;
+import org.jlab.detector.base.DetectorCollection;
 import org.jlab.detector.base.DetectorDescriptor;
 //import org.root.basic.EmbeddedCanvas;
 //import org.root.func.F1D;

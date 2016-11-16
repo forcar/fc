@@ -1,7 +1,7 @@
 package org.clas.fcmon.ftof;
 
 import org.clas.fcmon.tools.FCApplication;
-import org.jlab.clas.detector.DetectorCollection;
+import org.jlab.detector.base.DetectorCollection;
 import org.jlab.detector.base.DetectorDescriptor;
 //import org.root.basic.EmbeddedCanvas;
 //import org.root.func.F1D;

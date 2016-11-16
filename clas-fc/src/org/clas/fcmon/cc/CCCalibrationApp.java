@@ -15,7 +15,7 @@ import org.jlab.detector.base.DetectorDescriptor;
 import org.jlab.detector.calib.utils.CalibrationConstants;
 import org.jlab.detector.calib.utils.CalibrationConstantsListener;
 import org.jlab.detector.calib.utils.CalibrationConstantsView;
-import org.root.basic.EmbeddedCanvas;
+import org.jlab.groot.graphics.EmbeddedCanvas;
 
 public class CCCalibrationApp extends FCApplication implements CalibrationConstantsListener,ChangeListener {
     

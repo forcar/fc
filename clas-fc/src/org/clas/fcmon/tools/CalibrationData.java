@@ -3,7 +3,7 @@ package org.clas.fcmon.tools;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jlab.clas.detector.DetectorDescriptor;
+import org.jlab.detector.base.DetectorDescriptor;
 import org.jlab.groot.data.GraphErrors;
 import org.jlab.groot.fitter.DataFitter;
 import org.jlab.groot.math.F1D;

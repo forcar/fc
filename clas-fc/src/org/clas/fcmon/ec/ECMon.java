@@ -2,12 +2,7 @@ package org.clas.fcmon.ec;
 
 import org.clas.fcmon.detector.view.DetectorShape2D;
 import org.clas.fcmon.tools.*;
-import org.jlab.clas.detector.DetectorType;
-//clas12
-//import org.jlab.clas12.detector.FADCConfigLoader;
-import org.jlab.clasrec.utils.DataBaseLoader;
-
-//clas12rec
+import org.jlab.detector.base.DetectorType;
 import org.jlab.detector.base.DetectorDescriptor;
 import org.jlab.detector.calib.utils.ConstantsManager;
 import org.jlab.geom.detector.ec.ECDetector;
@@ -16,7 +11,6 @@ import org.jlab.io.evio.EvioDataEvent;
 import org.jlab.io.base.DataEvent;
 
 import org.jlab.service.ec.*;
-import org.jlab.rec.ecn.*;
 
 import java.util.Arrays;
 import java.util.TreeMap;
@@ -42,14 +36,13 @@ public class ECMon extends DetectorMonitor {
     ECHvApp                    ecHv = null;   
     
     ECEngine                  ecEng = null;
-    ECDetectorReconstruction  ecRec = null;
    
     public boolean             inMC = true;  //true=MC false=DATA
     public boolean            inCRT = false;  //true=CRT pre-installation CRT data
     public boolean            doRec = false;  //true=2.4 EC processor
     public boolean            doEng = false;  //true=3.0 EC processor
     public String            config = "muon"; //configs: pizero,phot,muon,elec
-    public int               calRun = 2;
+    public int               calRun = 12;
     public int            inProcess = 0;      //0=init 1=processing 2=end-of-run 3=post-run
     int                       detID = 0;
     int                         is1 = 2 ;
@@ -112,7 +105,6 @@ public class ECMon extends DetectorMonitor {
         System.out.println("monitor.makeApps()");   
         
         if (doEng) ecEng   = new ECEngine();
-        if (doRec) ecRec   = new ECDetectorReconstruction();
         
         ecRecon = new ECReconstructionApp("ECREC",ecPix);        
         ecRecon.setMonitoringClass(this);
@@ -196,15 +188,7 @@ public class ECMon extends DetectorMonitor {
                              ecPix[2].getClusterErr(config));
         putGlob("ecEng",ecEng.getHist());
         }
-        if (doRec) {
-        ecRec.init();
-        ecRec.setStripThresholds(ecPix[0].getStripThr(config, 1),
-                                 ecPix[1].getStripThr(config, 1),
-                                 ecPix[2].getStripThr(config, 1));  
-        ecRec.setPeakThresholds(ecPix[0].getPeakThr(config, 1),
-                                ecPix[1].getPeakThr(config, 1),
-                                ecPix[2].getPeakThr(config, 1));  
-        }
+
         for (int i=0; i<ecPix.length; i++)   ecPix[i].Lmap_a.add(0,0,0, ecRecon.toTreeMap(ecPix[i].ec_cmap));
         for (int i=0; i<ecPix.length; i++)   ecPix[i].Lmap_a.add(0,0,1, ecRecon.toTreeMap(ecPix[i].ec_zmap));
         if (app.doEpics) {
@@ -256,7 +240,6 @@ public class ECMon extends DetectorMonitor {
     @Override
     public void dataEventAction(DataEvent de) {        
       if(doEng) {ecEng.singleEvent=app.isSingleEvent() ; ecEng.debug = app.debug; ecEng.processDataEvent(de);} 
-      if(doRec) ecRec.processEvent((EvioDataEvent)de);      
       ecRecon.addEvent(de);
     }
     

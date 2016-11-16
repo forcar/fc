@@ -13,8 +13,8 @@ import javax.swing.event.ChangeListener;
 import org.clas.fcmon.detector.view.DetectorShape2D;
 import org.clas.fcmon.tools.CalibrationData;
 import org.clas.fcmon.tools.FCApplication;
-import org.jlab.clas.detector.DetectorCollection;
-import org.jlab.clas.detector.DetectorType;
+import org.jlab.detector.base.DetectorCollection;
+import org.jlab.detector.base.DetectorType;
 //import org.jlab.clasrec.utils.DatabaseConstantProvider;
 import org.jlab.detector.base.DetectorDescriptor;
 import org.jlab.detector.calib.utils.CalibrationConstants;
@@ -27,7 +27,6 @@ import org.jlab.groot.data.H1F;
 import org.jlab.groot.data.H2F;
 import org.jlab.groot.graphics.EmbeddedCanvas;
 import org.jlab.groot.math.F1D;
-//import org.jlab.rec.ecn.ECCommon;
 import org.jlab.utils.groups.IndexedTable;
 
 public class ECCalibrationApp extends FCApplication implements CalibrationConstantsListener,ChangeListener {

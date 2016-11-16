@@ -12,7 +12,7 @@ import org.jlab.service.ec.DetectorResponse;
 //clas12
 import org.clas.fcmon.tools.FADCFitter;
 import org.clas.fcmon.tools.FCApplication;
-import org.jlab.clas.detector.DetectorCollection;
+import org.jlab.detector.base.DetectorCollection;
 import org.jlab.clas.physics.GenericKinematicFitter;
 import org.jlab.clas.physics.PhysicsEvent;
 //import org.jlab.clas.detector.DetectorResponse;

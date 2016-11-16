@@ -3,8 +3,7 @@ package org.clas.fcmon.tools;
 import java.util.TreeMap;
 
 import org.clas.fcmon.detector.view.DetectorListener;
-import org.jlab.clas12.calib.IDetectorListener;
-import org.jlab.data.io.DataEvent;
+import org.jlab.io.base.DataEvent;
 import org.jlab.io.task.IDataEventListener;
 
 public abstract class DetectorMonitor implements IDataEventListener, DetectorListener{

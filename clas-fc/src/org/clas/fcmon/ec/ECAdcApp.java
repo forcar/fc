@@ -1,21 +1,12 @@
 package org.clas.fcmon.ec;
 
 import org.clas.fcmon.tools.FCApplication;
-import org.jlab.clas.detector.DetectorCollection;
+import org.jlab.detector.base.DetectorCollection;
 import org.jlab.detector.base.DetectorDescriptor;
-//import org.root.basic.EmbeddedCanvas;
-//import org.root.func.F1D;
-//import org.root.histogram.H1D;
-//import org.root.histogram.H2D;
-
-//groot
 import org.jlab.groot.graphics.EmbeddedCanvas;
 import org.jlab.groot.math.F1D;
-import org.root.histogram.H1D;
-import org.root.histogram.H2D;
 import org.jlab.groot.data.H1F;
 import org.jlab.groot.data.H2F;
-
 
 public class ECAdcApp extends FCApplication {
 

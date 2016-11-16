@@ -1,6 +1,5 @@
 package org.clas.fcmon.tools;
 
-import org.jlab.clasrec.utils.DataBaseLoader;
 import org.jlab.detector.base.DetectorType;
 import org.jlab.detector.base.GeometryFactory;
 import eu.mihosoft.vrl.v3d.Vector3d;
@@ -13,7 +12,6 @@ import org.jlab.geom.detector.ec.ECDetector;
 import org.jlab.geom.detector.ec.ECFactory;
 import org.jlab.geom.detector.ec.ECLayer;
 import org.jlab.geom.prim.Point3D;
-import org.jlab.clasrec.utils.DataBaseLoader;
 
 public class JCSG {
     

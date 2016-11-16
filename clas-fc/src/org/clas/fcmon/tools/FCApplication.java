@@ -27,12 +27,12 @@ import org.clas.fcmon.ec.ECPixels;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import org.clas.fcmon.ftof.FTOFPixels;
-import org.jlab.clas.detector.DetectorCollection;
+import org.jlab.detector.base.DetectorCollection;
 import org.jlab.detector.base.DetectorDescriptor;
 import org.jlab.detector.calib.tasks.CalibrationEngine;
 import org.jlab.detector.calib.tasks.CalibrationEngineView;
-import org.jlab.evio.clas12.EvioDataBank;
-import org.root.attr.ColorPalette;
+
+//import org.root.attr.ColorPalette
 //import org.root.basic.EmbeddedCanvas;
 //import org.root.histogram.H1D;
 //import org.root.histogram.H2D;
@@ -151,10 +151,6 @@ public class FCApplication implements ActionListener  {
 	
 	public void addLMaps(String name, DetectorCollection<TreeMap<Integer,Object>> map) {
 		this.Lmap_a=map;
-	}
-	
-	public void process(EvioDataBank bank) {
-	    
 	}
 	
 	public void analyze() {

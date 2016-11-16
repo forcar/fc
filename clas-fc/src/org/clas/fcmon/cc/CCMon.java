@@ -7,7 +7,7 @@ import org.clas.fcmon.detector.view.DetectorShape2D;
 import org.clas.fcmon.tools.*;
 
 //clas12
-import org.jlab.clas.detector.DetectorCollection;
+import org.jlab.detector.base.DetectorCollection;
 
 //clas12rec
 import org.jlab.detector.base.DetectorDescriptor;

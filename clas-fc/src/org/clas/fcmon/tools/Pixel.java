@@ -2,7 +2,7 @@ package org.clas.fcmon.tools;
 
 import java.util.TreeMap;
 
-import org.jlab.clas12.calib.DetectorShape2D;
+import org.clas.fcmon.detector.view.DetectorShape2D;
 import org.jlab.groot.data.H1F;
 import org.jlab.groot.data.H2F;
 //import org.root.histogram.H1D;

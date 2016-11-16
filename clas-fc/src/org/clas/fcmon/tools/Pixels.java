@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.TreeMap;
 
 import org.clas.containers.FTHashCollection;
-import org.jlab.clas.detector.DetectorCollection;
-import org.jlab.clas12.calib.DetectorShape2D;
+import org.jlab.detector.base.DetectorCollection;
+import org.clas.fcmon.detector.view.DetectorShape2D;
 import org.jlab.groot.data.H1F;
 import org.jlab.groot.data.H2F;
 //import org.root.histogram.H1F;

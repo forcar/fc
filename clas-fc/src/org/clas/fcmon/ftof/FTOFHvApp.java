@@ -7,7 +7,7 @@ import java.util.LinkedList;
 import javax.swing.Timer;
 
 import org.clas.fcmon.tools.FCEpics;
-import org.jlab.clas.detector.DetectorCollection;
+import org.jlab.detector.base.DetectorCollection;
 import org.jlab.detector.base.DetectorDescriptor;
 //import org.root.basic.EmbeddedCanvas;
 //import org.root.histogram.H1D;
