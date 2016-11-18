@@ -10,6 +10,7 @@ import org.clas.fcmon.tools.*;
 import org.jlab.detector.base.DetectorDescriptor;
 import org.jlab.detector.calib.utils.ConstantsManager;
 import org.jlab.io.evio.EvioDataEvent;
+import org.jlab.utils.groups.IndexedTable;
 import org.jlab.io.base.DataEvent;
 
 public class FTOFMon extends DetectorMonitor {
@@ -47,6 +48,11 @@ public class FTOFMon extends DetectorMonitor {
 	   
     public FTOFMon(String det) {
         super("FTOFMON", "1.0", "lcsmith");
+        ccdb.init(Arrays.asList(new String[]{
+                "/daq/fadc/ftof",
+                "/calibration/ftof/attenuation",
+                "/calibration/ftof/gain_balance",
+                "/calibration/ftof/status"}));
         mondet = det;
         ftofPix[0] = new FTOFPixels("PANEL1A");
         ftofPix[1] = new FTOFPixels("PANEL1B");
@@ -59,7 +65,6 @@ public class FTOFMon extends DetectorMonitor {
         app.setPluginClass(monitor);
         app.getEnv();
         app.makeGUI();
-        monitor.initCCDB();
         monitor.initGlob();
         monitor.makeApps();
         monitor.addCanvas();
@@ -67,13 +72,6 @@ public class FTOFMon extends DetectorMonitor {
         monitor.initDetector();
         app.init();
         monitor.ftofDet.initButtons();
-    }
-    
-    public void initCCDB() {
-        ccdb.init(Arrays.asList(new String[]{
-                "/daq/fadc/ftof",
-                "/calibration/ftof/attenuation","/calibration/ftof/gain_balance","/calibration/ftof/status"}));
-        app.mode7Emulation.init(ccdb, calrun, "/daq/fadc/ftof", 5,3,1);        
     }
     
     public void initDetector() {
@@ -146,6 +144,7 @@ public class FTOFMon extends DetectorMonitor {
     public void initApps() {
         System.out.println("monitor.initApps()");
         for (int i=0; i<ftofPix.length; i++)   ftofPix[i].init();
+        app.mode7Emulation.init(ccdb, calrun, "/daq/fadc/ftof", 5,3,1);        
         ftofRecon.init();
         if (app.doEpics) {
           ftofHv.init(is1,is2);        

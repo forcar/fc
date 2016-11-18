@@ -7,20 +7,15 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.TreeMap;
 
-//clas12
 import org.clas.fcmon.tools.FADCFitter;
 import org.clas.fcmon.tools.FCApplication;
-import org.jlab.clas.detector.DetectorCollection;
-import org.jlab.clas12.detector.FADCConfigLoader;
-//import org.root.histogram.H1D;
-//import org.root.histogram.H2D;
 
 //groot
-//import org.jlab.groot.graphics.EmbeddedCanvas;
 import org.jlab.groot.data.H1F;
 import org.jlab.groot.data.H2F;
 
 //clas12rec
+import org.jlab.detector.base.DetectorCollection;
 import org.jlab.detector.decode.CodaEventDecoder;
 import org.jlab.detector.decode.DetectorDataDgtz;
 import org.jlab.detector.decode.DetectorEventDecoder;
@@ -31,7 +26,6 @@ import org.jlab.io.evio.EvioDataBank;
 
 public class FTOFReconstructionApp extends FCApplication {
     
-   FADCConfigLoader fadc  = new FADCConfigLoader();
    FADCFitter     fitter  = new FADCFitter(1,15);
    String          mondet = null;
    Boolean           inMC = null;
@@ -57,9 +51,8 @@ public class FTOFReconstructionApp extends FCApplication {
    
    public void init() {
        System.out.println("FTOFReconstruction.init()");
-       fadc.load("/daq/fadc/ftof",10,"default");
-       mondet =           (String) mon.getGlob().get("mondet");
-       inMC   =          (Boolean) mon.getGlob().get("inMC");
+       mondet = (String) mon.getGlob().get("mondet");
+         inMC = (Boolean) mon.getGlob().get("inMC");
 //       detID  =              (int) mon.getGlob().get("detID"); 
    } 
    

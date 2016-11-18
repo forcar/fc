@@ -1,14 +1,15 @@
 package org.clas.fcmon.ftof;
 
+import java.util.Arrays;
 import java.util.TreeMap;
 
 import org.clas.fcmon.tools.FCCalibrationData;
 import org.clas.fcmon.tools.Strips;
-import org.jlab.clas.detector.DetectorCollection;
-import org.jlab.clasrec.utils.DatabaseConstantProvider;
+import org.jlab.detector.base.DetectorCollection;
+import org.jlab.detector.calib.utils.DatabaseConstantProvider;
 import org.jlab.groot.data.H1F;
 import org.jlab.groot.data.H2F;
-
+import org.jlab.utils.groups.IndexedTable;
 
 public class FTOFPixels {
 	
@@ -49,11 +50,11 @@ public class FTOFPixels {
         Lmap_a.clear();
         Lmap_t.clear();
     }
-    
+
     public void pixdef() {
         
         System.out.println("FTOFPixels.pixdef(): "+this.detName); 
-        
+        IndexedTable itab = null;
         double geom[] = new double[nstr];
         double zoff[] = {50.,50.,420.};
         String table=null;
