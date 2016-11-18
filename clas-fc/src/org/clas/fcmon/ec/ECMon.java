@@ -7,7 +7,6 @@ import org.jlab.detector.base.DetectorDescriptor;
 import org.jlab.detector.calib.utils.ConstantsManager;
 import org.jlab.geom.detector.ec.ECDetector;
 import org.jlab.geom.detector.ec.ECFactory;
-import org.jlab.io.evio.EvioDataEvent;
 import org.jlab.io.base.DataEvent;
 
 import org.jlab.service.ec.*;
@@ -39,8 +38,7 @@ public class ECMon extends DetectorMonitor {
    
     public boolean             inMC = true;  //true=MC false=DATA
     public boolean            inCRT = false;  //true=CRT pre-installation CRT data
-    public boolean            doRec = false;  //true=2.4 EC processor
-    public boolean            doEng = false;  //true=3.0 EC processor
+    public boolean            doEng = true;  //true=3.0 EC processor
     public String            config = "muon"; //configs: pizero,phot,muon,elec
     public int               calRun = 12;
     public int            inProcess = 0;      //0=init 1=processing 2=end-of-run 3=post-run
@@ -203,7 +201,6 @@ public class ECMon extends DetectorMonitor {
         putGlob("detID", detID);
         putGlob("inMC", inMC);
         putGlob("inCRT",inCRT);
-        putGlob("doRec",doRec);
         putGlob("doEng",doEng);
         putGlob("nsa", nsa);
         putGlob("nsb", nsb);

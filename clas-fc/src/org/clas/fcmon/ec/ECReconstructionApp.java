@@ -7,17 +7,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.TreeMap;
 
-import org.jlab.service.ec.DetectorResponse;
-
 //clas12
 import org.clas.fcmon.tools.FADCFitter;
 import org.clas.fcmon.tools.FCApplication;
 import org.jlab.detector.base.DetectorCollection;
 import org.jlab.clas.physics.GenericKinematicFitter;
 import org.jlab.clas.physics.PhysicsEvent;
-//import org.jlab.clas.detector.DetectorResponse;
-//import org.root.histogram.H1D;
-//import org.root.histogram.H2D;
+import org.jlab.clas.detector.DetectorResponse;
 
 //groot
 //import org.jlab.groot.graphics.EmbeddedCanvas;

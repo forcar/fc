@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.jlab.clas.detector.DetectorCollection;
+import org.jlab.detector.base.DetectorCollection;
 import org.jlab.clas.reco.ReconstructionEngine;
 import org.jlab.detector.base.DetectorType;
 import org.jlab.detector.base.GeometryFactory;
@@ -27,7 +27,7 @@ import org.jlab.io.evio.EvioFactory;
  */
 public class ECEngine extends ReconstructionEngine {
 
-    Detector ecDetector = null;
+    Detector        ecDetector = null;
     public Boolean       debug = false;
     public Boolean singleEvent = false;
     
@@ -195,6 +195,11 @@ public class ECEngine extends ReconstructionEngine {
         requireConstants(Arrays.asList(ecTables));
         
         ecDetector =  GeometryFactory.getDetector(DetectorType.EC);
+        
+        setStripThresholds(10,9,8);
+        setPeakThresholds(18,20,15);
+        setClusterCuts(7,15,20);
+        
         ECCommon.initHistos();
         return true;
         //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
