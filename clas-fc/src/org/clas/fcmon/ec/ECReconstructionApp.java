@@ -77,7 +77,6 @@ public class ECReconstructionApp extends FCApplication {
        mondet =           (String) mon.getGlob().get("mondet");
        inMC   =          (Boolean) mon.getGlob().get("inMC");
        inCRT  =          (Boolean) mon.getGlob().get("inCRT");
-       doRec  =          (Boolean) mon.getGlob().get("doRec");
        doEng  =          (Boolean) mon.getGlob().get("doEng");
        config =           (String) mon.getGlob().get("config");
        DetectorCollection<H1F> ecEngHist = (DetectorCollection<H1F>) mon.getGlob().get("ecEng");
@@ -87,13 +86,15 @@ public class ECReconstructionApp extends FCApplication {
      
        for (int idet=0; idet<ecPix.length; idet++) {
            for (int is=1 ; is<7 ; is++) {
-               ecPix[idet].strips.hmap2.get("H2_a_Hist").get(is,0,0).reset();
-               ecPix[idet].strips.hmap2.get("H2_t_Hist").get(is,0,0).reset();
-               for (int il=1 ; il<3 ; il++) {
+               for (int il=1 ; il<4 ; il++) {
                    ecPix[idet].strips.hmap2.get("H2_a_Hist").get(is,il,0).reset();
-                   ecPix[idet].strips.hmap2.get("H2_a_Hist").get(is,il,3).reset();
-                   ecPix[idet].strips.hmap2.get("H2_a_Hist").get(is,il,5).reset();
+                   ecPix[idet].strips.hmap2.get("H2_a_Hist").get(is,il,1).reset();
+                   ecPix[idet].strips.hmap2.get("H2_a_Hist").get(is,il,2).reset();
                    ecPix[idet].strips.hmap2.get("H2_t_Hist").get(is,il,0).reset();
+                   ecPix[idet].strips.hmap2.get("H2_t_Hist").get(is,il,1).reset();
+                   ecPix[idet].strips.hmap2.get("H2_t_Hist").get(is,il,2).reset();
+                   ecPix[idet].strips.hmap2.get("H2_Peds_Hist").get(is,il,0).reset();
+                   ecPix[idet].strips.hmap2.get("H2_Mode1_Hist").get(is,il,0).reset();
                }
            }       
        } 
@@ -115,7 +116,7 @@ public class ECReconstructionApp extends FCApplication {
           this.updateRealData(event);         
       }
       
-      if (doRec||doEng) this.processECRec(event);
+      if (doEng) this.processECRec(event);
       
       if (app.isSingleEvent()) {
 //         for (int idet=0; idet<ecPix.length; idet++) findPixels(idet);  // Process all pixels for SED
