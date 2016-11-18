@@ -68,7 +68,10 @@ public class ECPart {
         
         List<DetectorResponse>        rPCAL = ECPart.getResponseForLayer(ecResponses, 1);
         
+        distance11=distance12=distance21=distance22=-10;
+        
         if(rPCAL.size()!=2) return   0.0;
+        
         List<DetectorParticle>  particles = new ArrayList<DetectorParticle>();
         
         for(int i = 0; i < rPCAL.size(); i++){
@@ -85,9 +88,7 @@ public class ECPart {
         
         List<DetectorResponse> rECIN  = ECPart.getResponseForLayer(ecResponses, 4);
         List<DetectorResponse> rECOUT = ECPart.getResponseForLayer(ecResponses, 7);
-        
-        distance11=distance12=distance21=distance22=-10;
-        
+                
         int index_ecin  = particles.get(0).getDetectorHitIndex(rECIN);
         
         if(index_ecin>=0&&index_ecin<rECIN.size()){
