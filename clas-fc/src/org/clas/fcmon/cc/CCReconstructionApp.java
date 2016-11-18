@@ -7,15 +7,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.TreeMap;
 
-//clas12
-import org.clas.fcmon.ec.ECPixels;
 import org.clas.fcmon.tools.FADCFitter;
 import org.clas.fcmon.tools.FCApplication;
-import org.jlab.clas.detector.DetectorCollection;
-import org.jlab.clas12.detector.FADCConfigLoader;
-
 
 //clas12rec
+import org.jlab.detector.base.DetectorCollection;
 import org.jlab.detector.decode.CodaEventDecoder;
 import org.jlab.detector.decode.DetectorDataDgtz;
 import org.jlab.detector.decode.DetectorEventDecoder;
@@ -25,11 +21,8 @@ import org.jlab.io.evio.EvioDataEvent;
 import org.jlab.io.base.DataEvent;
 import org.jlab.io.evio.EvioDataBank;
 
-import org.clas.fcmon.jroot.*;
-
 public class CCReconstructionApp extends FCApplication {
     
-   FADCConfigLoader fadc  = new FADCConfigLoader();
    String          mondet ;
    Boolean           inMC ;
    int              detID=0 ;
@@ -71,7 +64,6 @@ public class CCReconstructionApp extends FCApplication {
    
    public void init() {
        System.out.println("CCReconstruction.init()");
-       fadc.load("/daq/fadc/ltcc",10,"default");
        mondet =           (String) mon.getGlob().get("mondet");
        inMC   =          (Boolean) mon.getGlob().get("inMC");
 //       detID  =              (int) mon.getGlob().get("detID"); 
