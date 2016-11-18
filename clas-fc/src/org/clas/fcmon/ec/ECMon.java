@@ -36,9 +36,9 @@ public class ECMon extends DetectorMonitor {
     
     ECEngine                  ecEng = null;
    
-    public boolean             inMC = true;  //true=MC false=DATA
+    public boolean             inMC = false;  //true=MC false=DATA
     public boolean            inCRT = false;  //true=CRT pre-installation CRT data
-    public boolean            doEng = true;  //true=3.0 EC processor
+    public boolean            doEng = false;  //true=3.0 EC processor
     public String            config = "muon"; //configs: pizero,phot,muon,elec
     public int               calRun = 12;
     public int            inProcess = 0;      //0=init 1=processing 2=end-of-run 3=post-run
@@ -226,7 +226,7 @@ public class ECMon extends DetectorMonitor {
 
     @Override
     public void reset() {
-		
+		ecRecon.clearHistograms();
     }
 	
     @Override
