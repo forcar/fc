@@ -266,7 +266,7 @@ public class ECReconstructionApp extends FCApplication {
                      if(pcT<tmax){pcx=pcX; pcy=pcY; pcz=pcZ ; tmax = pcT;}
                   }
               }
-              if ((doRec||doEng)&&idet==0&&app.debug) System.out.println("PCAL x,y,z,t="+pcx+" "+pcy+" "+pcz+" "+tmax);
+              if ((doEng)&&idet==0&&app.debug) System.out.println("PCAL x,y,z,t="+pcx+" "+pcy+" "+pcz+" "+tmax);
           }
           
           inMC = true; mon.putGlob("inMC",true); 
