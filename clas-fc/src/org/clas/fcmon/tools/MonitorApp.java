@@ -14,11 +14,13 @@ import java.awt.GridBagLayout;
 import java.util.TreeMap;
  
 import javax.swing.BorderFactory;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
@@ -34,7 +36,7 @@ import org.jlab.groot.graphics.EmbeddedCanvas;
  */
 
 @SuppressWarnings("serial")
-public class MonitorApp extends JFrame implements ActionListener,ItemListener {
+public class MonitorApp extends JFrame implements ActionListener {
     
     DetectorPane2D detectorView;  
     int      selectedTabIndex = 0;  
@@ -48,6 +50,12 @@ public class MonitorApp extends JFrame implements ActionListener,ItemListener {
     JPanel  buttonPane = null;
     JTextField   runno = new JTextField(4);
     JTextField      sf = new JTextField(4);
+    JComboBox       cb = null;
+    JCheckBox debugBtn = null;
+    JCheckBox    mcBtn = null;
+    JCheckBox   engBtn = null;
+    JCheckBox   crtBtn = null;
+    
     
     TreeMap<String,EmbeddedCanvas>  paneCanvas = new TreeMap<String,EmbeddedCanvas>();
 	
@@ -67,9 +75,13 @@ public class MonitorApp extends JFrame implements ActionListener,ItemListener {
     public int  detectorIndex = 0;
     public boolean    doEpics = false;
     public String    hipoPath = null;
-    public String    calibRun = "100";
+    public String     hipoRun = "100";
     public boolean      debug = false;
+    public boolean       isMC = true;
+    public boolean      isCRT = false;
+    public boolean      doEng = false;
     public String        geom = "0.27";
+    public String      config = "muon";
         
 //    Miscellaneous    extra = new Miscellaneous();
        
@@ -120,13 +132,84 @@ public class MonitorApp extends JFrame implements ActionListener,ItemListener {
 		
         buttonPane.setLayout(new FlowLayout());
                 
+        cb = new JComboBox();
+        DefaultComboBoxModel model = (DefaultComboBoxModel) cb.getModel();
+        model.addElement("photon");
+        model.addElement("electron");
+        model.addElement("muon");
+        model.addElement("pizero");
+        cb.setModel(model);
+        cb.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                String s = (String) cb.getSelectedItem();
+                switch (s) {
+                case   "photon": config="phot"; break;
+                case "electron": config="elec"; break;
+                case     "muon": config="muon"; break;
+                case   "pizero": config="pi0";
+                }
+                monitoringClass.initEngine();
+            }
+        });
+        
+        buttonPane.add(new JLabel("Config:"));
+        buttonPane.add(cb);
+        
         buttonPane.add(new JLabel("SF:"));
         sf.setActionCommand("SF"); sf.addActionListener(this); sf.setText(geom);  
         buttonPane.add(sf); 
         
-        JCheckBox debugBtn = new JCheckBox("Debug");
-        debugBtn.addItemListener(this); debugBtn.setSelected(false);
+        debugBtn = new JCheckBox("Debug");
+        debugBtn.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                if(e.getStateChange() == ItemEvent.SELECTED) {
+                    debug = true;
+                } else {
+                    debug = false;
+                };
+            }
+        }); 
+        debugBtn.setSelected(false);
         buttonPane.add(debugBtn);
+        
+        mcBtn = new JCheckBox("MC");
+        mcBtn.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                if(e.getStateChange() == ItemEvent.SELECTED) {
+                    isMC = true;
+                } else {
+                    isMC = false;
+                };
+            }
+        });         
+        mcBtn.setSelected(true);
+        buttonPane.add(mcBtn);
+        
+        engBtn = new JCheckBox("ECEngine");
+        engBtn.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                if(e.getStateChange() == ItemEvent.SELECTED) {
+                    doEng = true;
+                } else {
+                    doEng = false;
+                };
+            }
+        });           
+        engBtn.setSelected(false);
+        buttonPane.add(engBtn);
+        
+        crtBtn = new JCheckBox("CRT");
+        crtBtn.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                if(e.getStateChange() == ItemEvent.SELECTED) {
+                    isCRT = true;
+                } else {
+                    isCRT = false;
+                };
+            }
+        });         
+        crtBtn.setSelected(false);
+        buttonPane.add(crtBtn);
         
         JButton resetBtn = new JButton("Clear Histos");
         resetBtn.addActionListener(this);
@@ -142,7 +225,7 @@ public class MonitorApp extends JFrame implements ActionListener,ItemListener {
 
         
         buttonPane.add(new JLabel("Run:"));
-        runno.setActionCommand("RUN"); runno.addActionListener(this); runno.setText(calibRun);  
+        runno.setActionCommand("RUN"); runno.addActionListener(this); runno.setText(hipoRun);  
         buttonPane.add(runno); 
         
 // Control Panels
@@ -264,17 +347,13 @@ public class MonitorApp extends JFrame implements ActionListener,ItemListener {
          }
       });
     }
-    public void itemStateChanged(ItemEvent e) {
-       if (e.getStateChange()==ItemEvent.DESELECTED) this.debug=false;
-       if (e.getStateChange()==ItemEvent.SELECTED)   this.debug=true;          
-    }
     
     @Override
     public void actionPerformed(ActionEvent e) {
         if(e.getActionCommand().compareTo("Clear Histos")==0) monitoringClass.reset();
         if(e.getActionCommand().compareTo("Save Histos")==0)  monitoringClass.saveToFile();
         if(e.getActionCommand().compareTo("Load Histos")==0)  monitoringClass.readHipoFile();
-        if(e.getActionCommand().compareTo("RUN")==0)          calibRun=runno.getText();
-        if(e.getActionCommand().compareTo("SF")==0)           geom = sf.getText();
+        if(e.getActionCommand().compareTo("RUN")==0)           hipoRun = runno.getText();
+        if(e.getActionCommand().compareTo("SF")==0)               geom = sf.getText();
     }      
 }

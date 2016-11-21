@@ -240,7 +240,7 @@ public class CCMon extends DetectorMonitor {
     @Override
     public void readHipoFile() {        
         System.out.println("monitor.readHipoFile()");
-        String hipoFileName = app.hipoPath+"/"+mondet+"_"+app.calibRun+".hipo";
+        String hipoFileName = app.hipoPath+"/"+mondet+"_"+app.hipoRun+".hipo";
         System.out.println("Loading Histograms from "+hipoFileName);
         ccPix.initHistograms(hipoFileName);
         ccOccupancy.analyze();
@@ -250,12 +250,18 @@ public class CCMon extends DetectorMonitor {
     @Override
     public void saveToFile() {
         System.out.println("monitor.saveToFile()");
-        String hipoFileName = app.hipoPath+"/"+mondet+"_"+app.calibRun+".hipo";
+        String hipoFileName = app.hipoPath+"/"+mondet+"_"+app.hipoRun+".hipo";
         System.out.println("Saving Histograms to "+hipoFileName);
         HipoFile histofile = new HipoFile(hipoFileName);
         histofile.addToMap("H2_CCa_Hist", this.H2_CCa_Hist);
         histofile.addToMap("H2_CCt_Hist", this.H2_CCt_Hist);
         histofile.writeHipoFile(hipoFileName);
+    }
+
+    @Override
+    public void initEngine() {
+        // TODO Auto-generated method stub
+        
     }
     
 }

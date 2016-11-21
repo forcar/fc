@@ -132,8 +132,9 @@ public class ECPixels {
     
     public int getStripThr(String config, int layer) {
         switch (config) {
-        case    "phot": return sthrPhot[id][layer-1] ;  
-        case    "muon": return sthrMuon[id][layer-1] ; 
+        case     "pi0": return sthrPhot[id][layer-1] ;  
+        case    "phot": return sthrPhot[id][layer-1] ; 
+        case    "muon": return sthrMuon[id][layer-1] ;  
         case    "elec": return sthrElec[id][layer-1] ;
         }
         return 0;
@@ -141,6 +142,7 @@ public class ECPixels {
     
     public int getPeakThr(String config, int layer) {
         switch (config) {
+        case     "pi0": return pthrPhot[id][layer-1] ;  
         case    "phot": return pthrPhot[id][layer-1] ;  
         case    "muon": return pthrMuon[id][layer-1] ; 
         case    "elec": return pthrElec[id][layer-1] ;
@@ -150,6 +152,7 @@ public class ECPixels {
     
     public float getClusterErr(String config) {
         switch (config) {
+        case     "pi0": return (float) cerrPhot[id] ;  
         case    "phot": return (float) cerrPhot[id] ;  
         case    "muon": return (float) cerrMuon[id] ; 
         case    "elec": return (float) cerrElec[id] ;

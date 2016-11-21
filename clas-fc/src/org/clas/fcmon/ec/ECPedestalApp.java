@@ -33,8 +33,7 @@ public class ECPedestalApp extends FCApplication {
       
       if (la>3) return;
 		
-      Boolean inMC = (Boolean) mon.getGlob().get("inMC");		
-      if (inMC) return;
+      if (app.isMC) return;
 		
       H1F h;      
       String otab[][]={{" U PMT "," V PMT "," W PMT "},

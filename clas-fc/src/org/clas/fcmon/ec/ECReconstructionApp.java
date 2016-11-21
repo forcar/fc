@@ -38,11 +38,7 @@ public class ECReconstructionApp extends FCApplication {
     
    FADCFitter     fitter  = new FADCFitter(1,15);
    String          mondet = null;
-   Boolean           inMC = null;
-   Boolean          inCRT = null;
-   Boolean          doRec = null;
-   Boolean          doEng = null;
-   String          config = null;
+
    String BankType        = null;
    int              detID = 0;
    double pcx,pcy,pcz;
@@ -75,10 +71,7 @@ public class ECReconstructionApp extends FCApplication {
    public void init() {
        System.out.println("ECReconstruction.init()");
        mondet =           (String) mon.getGlob().get("mondet");
-       inMC   =          (Boolean) mon.getGlob().get("inMC");
-       inCRT  =          (Boolean) mon.getGlob().get("inCRT");
-       doEng  =          (Boolean) mon.getGlob().get("doEng");
-       config =           (String) mon.getGlob().get("config");
+
        DetectorCollection<H1F> ecEngHist = (DetectorCollection<H1F>) mon.getGlob().get("ecEng");
    }
    
@@ -110,13 +103,13 @@ public class ECReconstructionApp extends FCApplication {
    
    public void addEvent(DataEvent event) {
        
-      if(inMC==true) {
+      if(app.isMC==true) {
           this.updateSimulatedData(event);
       } else {
           this.updateRealData(event);         
       }
       
-      if (doEng) this.processECRec(event);
+      if (app.doEng) this.processECRec(event);
       
       if (app.isSingleEvent()) {
 //         for (int idet=0; idet<ecPix.length; idet++) findPixels(idet);  // Process all pixels for SED
@@ -231,7 +224,7 @@ public class ECReconstructionApp extends FCApplication {
        
       float tdcmax=2000000;
       double tmax = 30;
-      int adc, tdcc, fac, detlen=0;
+      int adc, tdcc, detlen=0;
       double mc_t=0.,tdc=0,tdcf=0;
       boolean goodstrip = true;
       
@@ -245,7 +238,7 @@ public class ECReconstructionApp extends FCApplication {
       
       for (int idet=0; idet<detlen; idet++) {
           
-          fac = (inCRT==true) ? 6:1;
+          double fac = (app.isCRT==true) ? 1.4:1;
           if(event.hasBank("GenPart::true")==true) {
               genData = (EvioDataBank) event.getBank("GenPart::true");
               double ppx = genData.getDouble("px",0);
@@ -266,10 +259,8 @@ public class ECReconstructionApp extends FCApplication {
                      if(pcT<tmax){pcx=pcX; pcy=pcY; pcz=pcZ ; tmax = pcT;}
                   }
               }
-              if ((doEng)&&idet==0&&app.debug) System.out.println("PCAL x,y,z,t="+pcx+" "+pcy+" "+pcz+" "+tmax);
+              if ((app.doEng)&&idet==0&&app.debug) System.out.println("PCAL x,y,z,t="+pcx+" "+pcy+" "+pcz+" "+tmax);
           }
-          
-          inMC = true; mon.putGlob("inMC",true); 
           
           if(event.hasBank(det[idet]+"::dgtz")==true) {            
               EvioDataBank bank = (EvioDataBank) event.getBank(det[idet]+"::dgtz");
@@ -284,14 +275,14 @@ public class ECReconstructionApp extends FCApplication {
                   int ip  = bank.getInt("strip",i);
                   int ic  = bank.getInt("stack",i);     
                   int il  = bank.getInt("view",i);  
-                      adc = bank.getInt("ADC",i)/fac;
+                      adc = (int) (bank.getInt("ADC",i)/fac);
                      tdcc = bank.getInt("TDC",i);
                      tdcf = tdcc;
                   if (idet>0&&ic==1) idet=1;
                   if (idet>0&&ic==2) idet=2;
                   //System.out.println("Sector "+is+" Stack "+ic+" View "+il+" Strip "+ip+" Det "+idet+" ADC "+adc);
                   goodstrip= true;
-                  if(inCRT&&il==2&&ip==53) goodstrip=false;
+                  if(app.isCRT&&il==2&&ip==53) goodstrip=false;
                   tdc = ((float)tdcc-tdcmax+1364000)/1000; 
                   if (goodstrip) fill(idet, is, il, ip, adc, tdc, tdcf); 
               }
@@ -559,7 +550,7 @@ public class ECReconstructionApp extends FCApplication {
        
        ecPix[idet].strips.hmap1.get("H1_Stra_Sevd").get(is,il,1).fill(ip,0.1*adc);
        
-       if(adc>ecPix[idet].getStripThr(config,il)){
+       if(adc>ecPix[idet].getStripThr(app.config,il)){
            ecPix[idet].uvwa[is-1]=ecPix[idet].uvwa[is-1]+ecPix[idet].uvw_dalitz(idet,il,ip); //Dalitz adc
            ecPix[idet].nha[is-1][il-1]++; int inh = ecPix[idet].nha[is-1][il-1];
            if (inh>nstr) inh=nstr;

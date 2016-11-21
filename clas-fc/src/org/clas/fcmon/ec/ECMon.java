@@ -8,7 +8,6 @@ import org.jlab.detector.calib.utils.ConstantsManager;
 import org.jlab.geom.detector.ec.ECDetector;
 import org.jlab.geom.detector.ec.ECFactory;
 import org.jlab.io.base.DataEvent;
-
 import org.jlab.service.ec.*;
 
 import java.util.Arrays;
@@ -36,10 +35,6 @@ public class ECMon extends DetectorMonitor {
     
     ECEngine                  ecEng = null;
    
-    public boolean             inMC = false;  //true=MC false=DATA
-    public boolean            inCRT = false;  //true=CRT pre-installation CRT data
-    public boolean            doEng = false;  //true=3.0 EC processor
-    public String            config = "muon"; //configs: pizero,phot,muon,elec
     public int               calRun = 12;
     public int            inProcess = 0;      //0=init 1=processing 2=end-of-run 3=post-run
     int                       detID = 0;
@@ -102,7 +97,7 @@ public class ECMon extends DetectorMonitor {
     public void makeApps() {
         System.out.println("monitor.makeApps()");   
         
-        if (doEng) ecEng   = new ECEngine();
+        ecEng   = new ECEngine();
         
         ecRecon = new ECReconstructionApp("ECREC",ecPix);        
         ecRecon.setMonitoringClass(this);
@@ -170,38 +165,40 @@ public class ECMon extends DetectorMonitor {
 
     public void initApps() {
         System.out.println("monitor.initApps()");
-        System.out.println("Configuration: "+config);
         for (int i=0; i<ecPix.length; i++)   ecPix[i].init();
-        ecRecon.init(); 
-        if (doEng) {
-        ecEng.init();
-        ecEng.setStripThresholds(ecPix[0].getStripThr(config, 1),
-                                 ecPix[1].getStripThr(config, 1),
-                                 ecPix[2].getStripThr(config, 1));  
-        ecEng.setPeakThresholds(ecPix[0].getPeakThr(config, 1),
-                                ecPix[1].getPeakThr(config, 1),
-                                ecPix[2].getPeakThr(config, 1));  
-        ecEng.setClusterCuts(ecPix[0].getClusterErr(config),
-                             ecPix[1].getClusterErr(config),
-                             ecPix[2].getClusterErr(config));
-        putGlob("ecEng",ecEng.getHist());
-        }
-
+        initEngine();
         for (int i=0; i<ecPix.length; i++)   ecPix[i].Lmap_a.add(0,0,0, ecRecon.toTreeMap(ecPix[i].ec_cmap));
         for (int i=0; i<ecPix.length; i++)   ecPix[i].Lmap_a.add(0,0,1, ecRecon.toTreeMap(ecPix[i].ec_zmap));
-        if (app.doEpics) {
-            System.out.println("monitor.initApps():Intializing scalers");
-            ecHv.init();        
-            ecScalers.init(); 
-        }          
+        if (app.doEpics) initEPICS();
+    }
+    
+    public void initEngine() {
+        System.out.println("monitor.initEngine():Initializing ecEngine");
+        System.out.println("Configuration: "+app.config);       
+        ecRecon.init(); 
+        ecEng.init();
+        ecEng.setStripThresholds(ecPix[0].getStripThr(app.config, 1),
+                                 ecPix[1].getStripThr(app.config, 1),
+                                 ecPix[2].getStripThr(app.config, 1));  
+        ecEng.setPeakThresholds(ecPix[0].getPeakThr(app.config, 1),
+                                ecPix[1].getPeakThr(app.config, 1),
+                                ecPix[2].getPeakThr(app.config, 1));  
+        ecEng.setClusterCuts(ecPix[0].getClusterErr(app.config),
+                             ecPix[1].getClusterErr(app.config),
+                             ecPix[2].getClusterErr(app.config));
+        putGlob("ecEng",ecEng.getHist());
+        
+    }
+    
+    public void initEPICS() {
+        System.out.println("monitor.initScalers():Initializing EPICS Channel Access");
+        ecHv.init();        
+        ecScalers.init();         
     }
 	
     public void initGlob() {
         System.out.println("monitor.initGlob()");
         putGlob("detID", detID);
-        putGlob("inMC", inMC);
-        putGlob("inCRT",inCRT);
-        putGlob("doEng",doEng);
         putGlob("nsa", nsa);
         putGlob("nsb", nsb);
         putGlob("tet", tet);		
@@ -209,7 +206,6 @@ public class ECMon extends DetectorMonitor {
         putGlob("PCMon_zmax", PCMon_zmax);
         putGlob("mondet",mondet);
         putGlob("is1",ECConstants.IS1);
-        putGlob("config",config);
         putGlob("calRun",calRun);
     }
     
@@ -236,7 +232,7 @@ public class ECMon extends DetectorMonitor {
 
     @Override
     public void dataEventAction(DataEvent de) {        
-      if(doEng) {ecEng.singleEvent=app.isSingleEvent() ; ecEng.debug = app.debug; ecEng.processDataEvent(de);} 
+      if(app.doEng) {ecEng.singleEvent=app.isSingleEvent() ; ecEng.debug = app.debug; ecEng.processDataEvent(de);} 
       ecRecon.addEvent(de);
     }
     
@@ -293,7 +289,7 @@ public class ECMon extends DetectorMonitor {
     public void readHipoFile() {        
         System.out.println("monitor.readHipoFile()");
         for (int idet=0; idet<3; idet++) {
-            String hipoFileName = app.hipoPath+"/"+mondet+idet+"_"+app.calibRun+".hipo";
+            String hipoFileName = app.hipoPath+"/"+mondet+idet+"_"+app.hipoRun+".hipo";
             System.out.println("Loading Histograms from "+hipoFileName);
             ecPix[idet].initHistograms(hipoFileName);
             ecRecon.makeMaps(idet);
@@ -304,7 +300,7 @@ public class ECMon extends DetectorMonitor {
     @Override
     public void saveToFile() {
         for (int idet=0; idet<3; idet++) {
-            String hipoFileName = app.hipoPath+"/"+mondet+idet+"_"+app.calibRun+".hipo";
+            String hipoFileName = app.hipoPath+"/"+mondet+idet+"_"+app.hipoRun+".hipo";
             System.out.println("Saving Histograms to "+hipoFileName);
             HipoFile histofile = new HipoFile(hipoFileName);
             histofile.addToMap("H2_a_Hist", ecPix[idet].strips.hmap2.get("H2_a_Hist")); 

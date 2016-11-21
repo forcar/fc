@@ -93,9 +93,7 @@ public class ECSingleEventApp extends FCApplication {
       int ilm = ilmap;
         
       double   zmax = (double) mon.getGlob().get("PCMon_zmax");
-      String config = (String) mon.getGlob().get("config");
       DetectorCollection<H1F> ecEngHist = (DetectorCollection<H1F>) mon.getGlob().get("ecEng");
-      Boolean                      doEng =                (Boolean) mon.getGlob().get("doEng");
       
       this.getDetIndices(dd);
             
@@ -107,10 +105,10 @@ public class ECSingleEventApp extends FCApplication {
 	  for(ilm=0; ilm<3; ilm++) {
       for(int il=1;il<4;il++) {
          F1D f1 = new F1D("p0","[a]",0.,ecPix[ilm].ec_nstr[il-1]+1); 
-         f1.setParameter(0,0.1*ecPix[ilm].getStripThr(config,il));
+         f1.setParameter(0,0.1*ecPix[ilm].getStripThr(app.config,il));
          f1.setLineColor(4);
          F1D f2 = new F1D("p0","[a]",0.,ecPix[ilm].ec_nstr[il-1]+1); 
-         f2.setParameter(0,0.1*ecPix[ilm].getPeakThr(config,il));
+         f2.setParameter(0,0.1*ecPix[ilm].getPeakThr(app.config,il));
          f2.setLineColor(2);
          h1 = ecPix[ilm].strips.hmap1.get("H1_Stra_Sevd").get(is,il,1); h1.setFillColor(0);
          h2 = ecPix[ilm].strips.hmap1.get("H1_Stra_Sevd").get(is,il,0); h2.setFillColor(4); 
@@ -128,10 +126,10 @@ public class ECSingleEventApp extends FCApplication {
 	  
 	  c.repaint();
 	  
-	  if (!doEng) return;
+	  if (!app.doEng) return;
 	  
 	  double xmx1=40.,xmx2=100.;
-	  switch (config) {
+	  switch (app.config) {
 	  case "muon": xmx1=40. ; xmx2=100.; break;
 	  case "phot": xmx1=200.; xmx2=500.; break;
 	  case "elec": xmx1=100.; xmx2=400.;

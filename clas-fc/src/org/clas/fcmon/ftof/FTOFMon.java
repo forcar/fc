@@ -235,7 +235,7 @@ public class FTOFMon extends DetectorMonitor {
     public void readHipoFile() {        
         System.out.println("monitor.readHipoFile()");
         for (int idet=0; idet<3; idet++) {
-          String hipoFileName = app.hipoPath+"/"+mondet+idet+"_"+app.calibRun+".hipo";
+          String hipoFileName = app.hipoPath+"/"+mondet+idet+"_"+app.hipoRun+".hipo";
           System.out.println("Loading Histograms from "+hipoFileName);
           ftofPix[idet].initHistograms(hipoFileName);
           ftofRecon.makeMaps();
@@ -247,13 +247,19 @@ public class FTOFMon extends DetectorMonitor {
     public void saveToFile() {
         System.out.println("monitor.saveToFile()");
         for (int idet=0; idet<3; idet++) {
-          String hipoFileName = app.hipoPath+"/"+mondet+idet+"_"+app.calibRun+".hipo";
+          String hipoFileName = app.hipoPath+"/"+mondet+idet+"_"+app.hipoRun+".hipo";
           System.out.println("Saving Histograms to "+hipoFileName);
           HipoFile histofile = new HipoFile(hipoFileName);
           histofile.addToMap("H2_a_Hist",ftofPix[idet].strips.hmap2.get("H2_a_Hist"));
           histofile.addToMap("H2_t_Hist",ftofPix[idet].strips.hmap2.get("H2_t_Hist"));
           histofile.writeHipoFile(hipoFileName);
         }
+    }
+
+    @Override
+    public void initEngine() {
+        // TODO Auto-generated method stub
+        
     }
     
 }
