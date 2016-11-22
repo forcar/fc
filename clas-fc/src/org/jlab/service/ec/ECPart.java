@@ -253,13 +253,15 @@ public class ECPart {
         // JLAB: evioPath = "/lustre/expphy/work/hallb/clas12/lcsmith/clas12/forcar/gemc/evio/";
         
         if (args.length == 0) { 
-            reader.open(evioPath+"fc-pizero-10k-s2-25deg-oldgeom.evio");
+//            reader.open(evioPath+"fc-pizero-10k-s2-25deg-oldgeom.evio");
+            reader.open(evioPath+"fc-pizero-10k-s2-newgeom.evio");
         } else {
             String inputFile = args[0];
             reader.open(inputFile);
         }
                 
         engine.init();
+        engine.setCalRun(2);
         engine.setStripThresholds(10,9,8);
         engine.setPeakThresholds(18,20,15);
         engine.setClusterCuts(7,15,20);
@@ -278,7 +280,7 @@ public class ECPart {
             //engine.debug = true;
             engine.processDataEvent((EvioDataEvent) event);      
             
-            ECPart                        part = new ECPart(); part.geom = "2.4";
+            ECPart                        part = new ECPart(); part.geom = "2.5";
             GenericKinematicFitter      fitter = new GenericKinematicFitter(11);
             PhysicsEvent                   gen = fitter.getGeneratedEvent((EvioDataEvent)event);
             List<DetectorResponse>  ecClusters = part.readEC((EvioDataEvent)event);           
