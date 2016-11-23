@@ -44,6 +44,7 @@ public class ECReconstructionApp extends FCApplication {
    double pcx,pcy,pcz;
    double refE=1;
    double refTH=25;
+   Boolean printit = false;
    
    CodaEventDecoder            newdecoder = new CodaEventDecoder();
    DetectorEventDecoder   detectorDecoder = new DetectorEventDecoder();
@@ -656,8 +657,9 @@ public class ECReconstructionApp extends FCApplication {
                    
                    ecPix[idet].strips.hmap2.get("H2_PC_Stat").get(is+1,0,4).fill(area,zone,1.);
                    ecPix[idet].pixels.hmap1.get("H1_a_Maps").get(is+1,7,0).fill(pixel,1.0); // Events per pixel
+                   
                    ecPix[idet].pixels.hmap1.get("H1_a_Maps").get(is+1,7,3).fill(pixel,1.0/ecPix[idet].pixels.getNormalizedArea(pixel)); //Normalized to pixel area
-
+                   
                    for (int il=1; il<4 ; il++){
                        double adcc = ecPix[idet].adcr[is][il-1][0]/pixelLength[pixel-1];
                        if (good_pix[il-1]) {
@@ -730,7 +732,7 @@ public class ECReconstructionApp extends FCApplication {
            divide(H1_a_Maps.get(is, 7, 1),H1_a_Maps.get(is, 7, 0),H1_a_Maps.get(is, 7, 2)); // Normalize Raw ADC Sum to Events
            divide(H1_t_Maps.get(is, 7, 1),H1_t_Maps.get(is, 7, 0),H1_t_Maps.get(is, 7, 2)); // Normalize Raw TDC Sum to Events 
            ecPix[idet].Lmap_a.add(is, 7,0, toTreeMap(H1_a_Maps.get(is,7,0).getData())); //Pixel Events  
-           ecPix[idet].Lmap_a.add(is, 7,1, toTreeMap(H1_a_Maps.get(is,7,3).getData())); //Pixel Events Normalized  
+           printit=true; ecPix[idet].Lmap_a.add(is, 7,1, toTreeMap(H1_a_Maps.get(is,7,3).getData())); printit=false;//Pixel Events Normalized  
            ecPix[idet].Lmap_a.add(is, 9,0, toTreeMap(H1_a_Maps.get(is,7,2).getData())); //Pixel U+V+W ADC     
            ecPix[idet].Lmap_t.add(is, 7,2, toTreeMap(H1_t_Maps.get(is,7,2).getData())); //Pixel U+V+W TDC  
            if (app.isSingleEvent()){
@@ -745,16 +747,19 @@ public class ECReconstructionApp extends FCApplication {
        TreeMap<Integer, Object> hcontainer = new TreeMap<Integer, Object>();
        hcontainer.put(1, dat);
        float[] b = Arrays.copyOf(dat, dat.length);
-       double min=100000,max=0;
+       double min=100000,max=0,bsum=0;
+       int nbsum=0;
        for (int i =0 ; i < b.length; i++){
            if (b[i] !=0 && b[i] < min) min=b[i];
            if (b[i] !=0 && b[i] > max) max=b[i];
+           if (b[i]>0) {bsum=bsum+b[i]; nbsum++;}
        }
        // Arrays.sort(b);
        // double min = b[0]; double max=b[b.length-1];
        if (min<=0) min=0.01;
        hcontainer.put(2, min);
        hcontainer.put(3, max);
+       hcontainer.put(4,bsum/nbsum);
        return hcontainer;        
    }
 

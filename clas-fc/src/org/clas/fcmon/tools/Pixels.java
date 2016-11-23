@@ -27,7 +27,7 @@ public class Pixels {
     public TreeMap<String, DetectorCollection<H2F>>   hmap2 = null; 
     
     public double[] maxZonePixelArea = {0,0,0,0};
-    double       maxPixelArea = 0;
+    double              maxPixelArea = 0;
     public Pixels() {
         this.pixelStrips = new FTHashCollection<Pixel>(3);
         this.pixelNumber = new FTHashCollection<Pixel>(1);

@@ -183,11 +183,12 @@ public class FCDetector {
         // Update shape color map depending on process status and layer
         // layers 1-6 reserved for strip views, layers >7 for pixel views
         // Lmap_a stores live colormap of detector shape elements
-        
+       
         if (inProcess==0){ // Assign default colors upon starting GUI (before event processing)
              if(layer<7) colorfraction = (double)ic/nStrips[ilmap]; 
             if(layer>=7) colorfraction = getcolor((TreeMap<Integer, Object>) ecPix[ilmap].Lmap_a.get(0,0,0), ic);  
         }
+
         if (inProcess>0&&!peakShapes){ 
             switch (appName){
             case   "ECDet": colorfraction = getcolor((TreeMap<Integer, Object>)   ecPix[ilmap].Lmap_a.get(is,layer,opt), ic);break;
@@ -223,10 +224,11 @@ public class FCDetector {
         float val[] = (float[]) map.get(1); 
         double rmin = (double)   map.get(2);
         double rmax = (double)   map.get(3);
+        double  avg = (double)   map.get(4);
         float     z =  val[component];
         
         if (z==0) return 0;
-        
+        rmax=avg;
         PCMon_zmax = rmax*1.2; mon.getGlob().put("PCMon_zmax", PCMon_zmax);
 
         if (inProcess==0)  color=(double)(z-rmin)/(rmax-rmin);
@@ -234,7 +236,7 @@ public class FCDetector {
         if (inProcess!=0) {
 //          if (!app.isSingleEvent()) color=(double)(Math.log10(z)-pixMin*Math.log10(rmin))/(pixMax*Math.log10(rmax)-pixMin*Math.log10(rmin));
 //          if ( app.isSingleEvent()) color=(double)(z-pixMin*rmin)/(smax*pixMax-rmin*pixMin);
-          if (!app.isSingleEvent()) color=(double)(z-rmin*pixMin)/(rmax*pixMax-rmin*pixMin) ;
+          if (!app.isSingleEvent()) color=(double)(z-rmin*pixMin)/(10*avg*pixMax-rmin*pixMin) ;
           if ( app.isSingleEvent()) color=(double)(z-rmin*pixMin)/(rmax*pixMax-rmin*pixMin) ;
         }
         

@@ -17,6 +17,7 @@ import org.clas.fcmon.tools.Pixel;
 import org.clas.fcmon.tools.Pixels;
 import org.clas.fcmon.tools.Strips;
 import org.clas.fcmon.tools.DataBaseLoader;
+import org.clas.fcmon.tools.ECpixelDepth;
 import org.jlab.detector.base.DetectorCollection;
 import org.jlab.detector.base.DetectorDescriptor;
 import org.jlab.detector.base.DetectorType;
@@ -53,12 +54,14 @@ public class ECPixels {
 
     public double ec_xpix[][][]   = new double[10][6916][7];
     public double ec_ypix[][][]   = new double[10][6916][7];
+    public double ec_zpix[][][]   = new double[10][6916][7];
     public double ec_xstr[][][][] = new double[8][68][3][7];
     public double ec_ystr[][][][] = new double[8][68][3][7];
     public  float ec_cmap[]       = new float[6916];
     public  float ec_zmap[]       = new float[6916];
     public    int ec_nvrt[]       = new int[6916];
     public    int ec_nstr[]       = {36,36,36};
+    public double ec_dist[][][]   = new double[36][36][36];
 	
     double      uvwa[] = new double[6];
     double      uvwt[] = new double[6];
@@ -88,17 +91,17 @@ public class ECPixels {
     double[] cerrPhot = {6.5,15.,20.};
     double[] cerrElec = {10.,10.,10.};
     
-    public int id=0;
+    public int idet=0;
     public String detName = null;
 	
     public ECPixels(String det, ECDetector ecdet) {		
         System.out.println(" "); System.out.println("ECPixels("+det+")");
         this.detName = det;
         this.detector = ecdet;
-        if (det=="PCAL")   id=0;
-        if (det=="ECin")   id=1;
-        if (det=="ECout")  id=2;
-        for (int suplay=id ; suplay<id+1; suplay++) {
+        if (det=="PCAL")   idet=0;
+        if (det=="ECin")   idet=1;
+        if (det=="ECout")  idet=2;
+        for (int suplay=idet ; suplay<idet+1; suplay++) {
             for (int layer=0; layer<3; layer++) {
                 ecLayer = detector.getSector(0).getSuperlayer(suplay).getLayer(layer);
                 ec_nstr[layer] = ecLayer.getAllComponents().size();
@@ -108,10 +111,11 @@ public class ECPixels {
             clusterXY.put(is, new ArrayList<double[]>());
                peakXY.put(is, new ArrayList<double[]>());
         }
+        if (det!="PCAL") getECPixelDepth(ecdet);
         pixdef();
         pixrot();
         System.out.println("ECPixels("+det+") is done");
-//    pixHistos();
+//      pixHistos();
 //    this.writeFPGALookupTable("/Users/colesmith/pcal_att376_DB.dat",376.,1); 
 //    this.testStrips();
 //    this.testPixels();
@@ -132,30 +136,30 @@ public class ECPixels {
     
     public int getStripThr(String config, int layer) {
         switch (config) {
-        case     "pi0": return sthrPhot[id][layer-1] ;  
-        case    "phot": return sthrPhot[id][layer-1] ; 
-        case    "muon": return sthrMuon[id][layer-1] ;  
-        case    "elec": return sthrElec[id][layer-1] ;
+        case     "pi0": return sthrPhot[idet][layer-1] ;  
+        case    "phot": return sthrPhot[idet][layer-1] ; 
+        case    "muon": return sthrMuon[idet][layer-1] ;  
+        case    "elec": return sthrElec[idet][layer-1] ;
         }
         return 0;
      }
     
     public int getPeakThr(String config, int layer) {
         switch (config) {
-        case     "pi0": return pthrPhot[id][layer-1] ;  
-        case    "phot": return pthrPhot[id][layer-1] ;  
-        case    "muon": return pthrMuon[id][layer-1] ; 
-        case    "elec": return pthrElec[id][layer-1] ;
+        case     "pi0": return pthrPhot[idet][layer-1] ;  
+        case    "phot": return pthrPhot[idet][layer-1] ;  
+        case    "muon": return pthrMuon[idet][layer-1] ; 
+        case    "elec": return pthrElec[idet][layer-1] ;
         }
         return 0;
      }
     
     public float getClusterErr(String config) {
         switch (config) {
-        case     "pi0": return (float) cerrPhot[id] ;  
-        case    "phot": return (float) cerrPhot[id] ;  
-        case    "muon": return (float) cerrMuon[id] ; 
-        case    "elec": return (float) cerrElec[id] ;
+        case     "pi0": return (float) cerrPhot[idet] ;  
+        case    "phot": return (float) cerrPhot[idet] ;  
+        case    "muon": return (float) cerrMuon[idet] ; 
+        case    "elec": return (float) cerrElec[idet] ;
         }
         return 0;
      }
@@ -201,11 +205,14 @@ public class ECPixels {
                             pix++;
                             double [] xtemp2 = new double [shape.getShapePath().size()];
                             double [] ytemp2 = new double [shape.getShapePath().size()];
+                            double [] ztemp2 = new double [shape.getShapePath().size()];
                             for(int i = 0; i < shape.getShapePath().size(); ++i) {
                                 xtemp2[i] = shape.getShapePath().point(i).x();
                                 ytemp2[i] = shape.getShapePath().point(i).y();
+                                ztemp2[i] = shape.getShapePath().point(i).z();
                                 ec_xpix[i][pix-1][6] = xtemp2[i];
                                 ec_ypix[i][pix-1][6] = ytemp2[i];    
+                                ec_zpix[i][pix-1][6] = ztemp2[i];    
                             }
                             SimplePolygon2D pol1 = new SimplePolygon2D(xtemp2,ytemp2);
                             double uDist = calDB.getUPixelDistance(uStrip, vStrip, wStrip);
@@ -213,6 +220,7 @@ public class ECPixels {
                             double wDist = calDB.getWPixelDistance(uStrip, vStrip, wStrip);
                             shape.setColor(130,(int)(255*vStrip/ec_nstr[1]),(int)(255*wStrip/ec_nstr[2]));
                             ec_zmap[pix-1] = 1;
+                            if (idet!=0) ec_zmap[pix-1]=(float)ec_dist[uStrip][vStrip][wStrip];
                             ec_nvrt[pix-1] = shape.getShapePath().size();
                             pixel = new Pixel();
                             pixel.setIndex(pix);
@@ -435,7 +443,8 @@ public class ECPixels {
 	    	        ec_cmap[ipix] = 255*ipix/pixels.getNumPixels();
 	    	        for (int k=0;k<ec_nvrt[ipix];k++) {
 	    	            ec_xpix[k][ipix][is]= -(ec_xpix[k][ipix][6]*ct+ec_ypix[k][ipix][6]*st); 
-	    	            ec_ypix[k][ipix][is]=  -ec_xpix[k][ipix][6]*st+ec_ypix[k][ipix][6]*ct;    
+                        ec_ypix[k][ipix][is]=  -ec_xpix[k][ipix][6]*st+ec_ypix[k][ipix][6]*ct;    
+                        ec_zpix[k][ipix][is]=   ec_zpix[k][ipix][6];    
 	    	        }    
 	    	    }	    
 	    	}	    	    	
@@ -527,6 +536,96 @@ public class ECPixels {
          
      }
  */  
+    public void getECPixelDepth (ECDetector ecdet){ 
+        
+        System.out.println("ECPixels.getECPixelDepth");
+        
+        ECpixelDepth test = new ECpixelDepth();
+        test.FindBackEC(ecdet);
+        test.FindFrontPCAL(ecdet);
+        
+        double x,y,z,totaldist;
+        double del;
+        double deltazin  = 1.238 * 15.0;
+        double deltaztot = 1.238 * 39.0;
+        int num1, num2, num3;
+        
+        //get list of centers for EC inner
+        CalDrawDB pcaltestdist1 = new CalDrawDB("ECin",ecdet);
+        DetectorShape2D shape1 = new DetectorShape2D();
+        double[][][][] total1 = new double[36][36][36][3];
+        
+        del = deltaztot/deltazin;
+
+        for(int sector = 0; sector < 1; sector++) {
+            for(int uPaddle = 0; uPaddle < 36; uPaddle++) {
+                for(int vPaddle = 0; vPaddle < 36; vPaddle++) {
+                    for(int wPaddle = 0; wPaddle < 36; wPaddle++) {
+                        if(pcaltestdist1.isValidPixel(sector, uPaddle, vPaddle, wPaddle)) {
+                            shape1 = pcaltestdist1.getPixelShape(sector, uPaddle, vPaddle, wPaddle);
+                            System.arraycopy( (double[])pcaltestdist1.getShapeCenter(shape1), 0, total1[uPaddle][vPaddle][wPaddle], 0, 3);
+                        }
+                    }
+                }
+    
+            }
+        }
+        
+        //get list of centers for ECouter
+        CalDrawDB pcaltestdist2 = new CalDrawDB("ECout",ecdet);
+        DetectorShape2D shape2 = new DetectorShape2D();
+        double[][][][] total2 = new double[36][36][36][3];
+
+        for(int sector = 0; sector < 1; sector++) {
+            for(int uPaddle = 0; uPaddle < 36; uPaddle++) {
+                for(int vPaddle = 0; vPaddle < 36; vPaddle++) {
+                    for(int wPaddle = 0; wPaddle < 36; wPaddle++) {
+                        if(pcaltestdist2.isValidPixel(sector, uPaddle, vPaddle, wPaddle)) {
+                            shape2 = pcaltestdist2.getPixelShape(sector, uPaddle, vPaddle, wPaddle);
+                            System.arraycopy( (double[])pcaltestdist2.getShapeCenter(shape2), 0, total2[uPaddle][vPaddle][wPaddle], 0, 3);
+                            total2[uPaddle][vPaddle][wPaddle][2] = deltazin;
+                        }
+                    }
+                }
+    
+            }
+        }
+        
+        //extrapolate centers to end of outer
+
+        double minDist = 1000;
+        for(int sector = 0; sector < 1; sector++) {
+            for(int uPaddle = 0; uPaddle < 36; uPaddle++) {
+                for(int vPaddle = 0; vPaddle < 36; vPaddle++) {
+                    for(int wPaddle = 0; wPaddle < 36; wPaddle++) {
+                        if(pcaltestdist2.isValidPixel(sector, uPaddle, vPaddle, wPaddle)) {
+                            x = (total2[uPaddle][vPaddle][wPaddle][0]
+                              -  total1[uPaddle][vPaddle][wPaddle][0])*del;
+                            y = (total2[uPaddle][vPaddle][wPaddle][1]
+                              -  total1[uPaddle][vPaddle][wPaddle][1])*del;
+                            z = (total2[uPaddle][vPaddle][wPaddle][2]
+                              -  total1[uPaddle][vPaddle][wPaddle][2])*del;
+
+                            totaldist = Math.sqrt(x*x+y*y+z*z);
+                            if(totaldist<minDist) minDist=totaldist;
+                            ec_dist[uPaddle][vPaddle][wPaddle]=totaldist;
+                        }
+                    }
+                }    
+            }
+        }
+        
+        for(int uPaddle = 0; uPaddle < 36; uPaddle++) {
+            for(int vPaddle = 0; vPaddle < 36; vPaddle++) {
+                for(int wPaddle = 0; wPaddle < 36; wPaddle++) {
+                    if(pcaltestdist2.isValidPixel(0, uPaddle, vPaddle, wPaddle)) {
+                    ec_dist[uPaddle][vPaddle][wPaddle]=ec_dist[uPaddle][vPaddle][wPaddle]/minDist;
+                    }
+                }
+            }    
+        }
+
+    }
      
      public void writeFPGALookupTable(String filename, double atten, int opt) {
        Pixels newpix = new Pixels();
