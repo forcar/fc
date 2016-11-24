@@ -38,6 +38,8 @@ public class FCEpics  {
     public DetectorMonitor mon = null;
     public Context     context = null;
     
+    public Monitor<Double>     monitor = null;
+    
     JPanel HVScalers = new JPanel();
     public EmbeddedCanvas scaler1DView = new EmbeddedCanvas();
     public EmbeddedCanvas scaler2DView = new EmbeddedCanvas();
@@ -68,6 +70,14 @@ public class FCEpics  {
         this.layMap.put("LTCC",ltcc); this.nlayMap.put("LTCC", nltcc);
         this.layMap.put("FTOF",ftof); this.nlayMap.put("FTOF", nftof);
         this.layMap.put("EC",ec);     this.nlayMap.put("EC", nec);
+	}
+	
+	public void createContext() {
+	    this.context = new Context();
+	}
+	
+	public void destroyContext() {
+	    this.context.close();
 	}
 	
     public void setApplicationClass(MonitorApp app) {
@@ -120,6 +130,18 @@ public class FCEpics  {
         }   
     }
     
+    public void putCaValue(int grp, String action, int sector, int layer, int channel, double value) {
+        caMap.get(action).getItem(grp,sector,layer,channel).putNoWait(value); //org.epics.ca  
+    } 
+    
+    public void startMonitor(int grp, String action, int sector, int layer, int channel) {
+        this.monitor = caMap.get(action).getItem(grp,sector,layer,channel).addValueMonitor(value->System.out.println(value));
+    }
+    
+    public void stopMonitor(){
+        this.monitor.close();
+    }
+    
     public void setCaNames(String det, int grp) {
         switch (grp) {
         case 0:
@@ -143,7 +165,7 @@ public class FCEpics  {
             for (int il=1; il<layMap.get(det).length+1; il++) {
                 for (int ic=1; ic<nlayMap.get(det)[il-1]+1; ic++) {
                     String pv = getPvName(grp,action,is,il,ic);
-                    map.add(context.createChannel(pv, Double.class),grp,is,il,ic);
+                    map.add(context.createChannel(pv, Double.class),grp,is,il,ic); //org.epics.ca
                 }
             }
         } 
