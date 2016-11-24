@@ -29,7 +29,6 @@ public class ECScalersApp extends FCEpics {
     int nfifo=0, nmax=120;
     int isCurrentSector;
     int isCurrentLayer;
-    Boolean online = false;
     
     ECScalersApp(String name, String det) {
         super(name, det);
@@ -44,7 +43,8 @@ public class ECScalersApp extends FCEpics {
         sectorSelected=is1;
         layerSelected=1;
         channelSelected=1;
-        initHistos();        
+        initHistos();  
+        createContext();
         setCaNames(this.detName,1);
         setCaNames(this.detName,2);
         initFifos();

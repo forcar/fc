@@ -28,8 +28,6 @@ import org.epics.ca.data.Timestamped;
 import org.jlab.detector.base.DetectorDescriptor;
 import org.jlab.utils.groups.IndexedList;
 
-//import org.root.basic.EmbeddedCanvas;
-//groot
 import org.jlab.groot.graphics.EmbeddedCanvas;
 
 public class FCEpics  {
