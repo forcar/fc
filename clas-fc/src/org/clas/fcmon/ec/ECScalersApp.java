@@ -29,22 +29,24 @@ public class ECScalersApp extends FCEpics {
     int nfifo=0, nmax=120;
     int isCurrentSector;
     int isCurrentLayer;
+    Boolean online = false;
     
     ECScalersApp(String name, String det) {
         super(name, det);
     }
     
-    public void init() {
+    public void init(Boolean online) {
+        this.online = online;
         this.is1=ECConstants.IS1; 
         this.is2=ECConstants.IS2; 
         setPvNames(this.detName,1);
         setPvNames(this.detName,2);
-        setCaNames(this.detName,1);
-        setCaNames(this.detName,2);
         sectorSelected=is1;
         layerSelected=1;
         channelSelected=1;
-        initHistos();
+        initHistos();        
+        setCaNames(this.detName,1);
+        setCaNames(this.detName,2);
         initFifos();
         fillFifos();
         fillHistos();

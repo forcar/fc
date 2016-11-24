@@ -169,7 +169,7 @@ public class ECMon extends DetectorMonitor {
         initEngine();
         for (int i=0; i<ecPix.length; i++)   ecPix[i].Lmap_a.add(0,0,0, ecRecon.toTreeMap(ecPix[i].ec_cmap));
         for (int i=0; i<ecPix.length; i++)   ecPix[i].Lmap_a.add(0,0,1, ecRecon.toTreeMap(ecPix[i].ec_zmap));
-        if (app.doEpics) initEPICS();
+        initEPICS();
     }
     
     public void initEngine() {
@@ -192,8 +192,8 @@ public class ECMon extends DetectorMonitor {
     
     public void initEPICS() {
         System.out.println("monitor.initScalers():Initializing EPICS Channel Access");
-        ecHv.init();        
-        ecScalers.init();         
+        ecHv.init(app.doEpics);        
+        ecScalers.init(app.doEpics);         
     }
 	
     public void initGlob() {
@@ -270,8 +270,8 @@ public class ECMon extends DetectorMonitor {
         case "Pedestal":                 ecPedestal.updateCanvas(dd); break;
         case "Pixels":                     ecPixels.updateCanvas(dd); break;
         case "Calibration":                 ecCalib.updateCanvas(dd); break;
-        case "HV":        if(app.doEpics)      ecHv.updateCanvas(dd); break;
-        case "Scalers":   if(app.doEpics) ecScalers.updateCanvas(dd);
+        case "HV":                             ecHv.updateCanvas(dd); break;
+        case "Scalers":                   ecScalers.updateCanvas(dd);
         }				
     }
 

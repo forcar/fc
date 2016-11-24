@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
@@ -25,6 +27,7 @@ import org.epics.ca.data.Timestamped;
 
 import org.jlab.detector.base.DetectorDescriptor;
 import org.jlab.utils.groups.IndexedList;
+
 //import org.root.basic.EmbeddedCanvas;
 //groot
 import org.jlab.groot.graphics.EmbeddedCanvas;
@@ -60,24 +63,27 @@ public class FCEpics  {
     
     public int is1,is2;
     public int sectorSelected, layerSelected, channelSelected;
-    
+    public Boolean online = false;
 	
 	public FCEpics(String name, String det){
 	    System.out.println("Initializing detector "+det);
 	    this.appName = name;
 	    this.detName = det;
-	    this.context = new Context(); //org.epics.ca
         this.layMap.put("LTCC",ltcc); this.nlayMap.put("LTCC", nltcc);
         this.layMap.put("FTOF",ftof); this.nlayMap.put("FTOF", nftof);
         this.layMap.put("EC",ec);     this.nlayMap.put("EC", nec);
 	}
 	
-	public void createContext() {
+	public int createContext() {
+	    if (!online) return 0;
 	    this.context = new Context();
+	    return 1;
 	}
 	
-	public void destroyContext() {
+	public int destroyContext() {
+        if (!online) return 0;
 	    this.context.close();
+	    return 1;
 	}
 	
     public void setApplicationClass(MonitorApp app) {
@@ -103,11 +109,15 @@ public class FCEpics  {
     } 
     
     public int connectCa(int grp, String action, int sector, int layer, int channel) {
+        if (!online) return 0;
         try {
         //System.out.println("Connecting to grp "+grp+" sector "+sector+" layer "+layer+" channel "+channel);
-        caMap.get(action).getItem(grp,sector,layer,channel).connectAsync().get();  //org.epics.ca
+        caMap.get(action).getItem(grp,sector,layer,channel).connectAsync().get(1,TimeUnit.MILLISECONDS);  //org.epics.ca
         }
         catch (InterruptedException e) {  
+            return -1;
+        }        
+        catch (TimeoutException e) {  
             return -1;
         }        
         catch (ExecutionException e) {  
@@ -118,6 +128,7 @@ public class FCEpics  {
     }
     
     public double getCaValue(int grp, String action, int sector, int layer, int channel) {
+        if (!online) return 0.0;
         try {
         CompletableFuture<Double> ffd = caMap.get(action).getItem(grp,sector,layer,channel).getAsync(); //org.epics.ca
         return ffd.get(); 
@@ -130,8 +141,10 @@ public class FCEpics  {
         }   
     }
     
-    public void putCaValue(int grp, String action, int sector, int layer, int channel, double value) {
+    public int putCaValue(int grp, String action, int sector, int layer, int channel, double value) {
+        if(!online) return 0;
         caMap.get(action).getItem(grp,sector,layer,channel).putNoWait(value); //org.epics.ca  
+        return 1;
     } 
     
     public void startMonitor(int grp, String action, int sector, int layer, int channel) {
@@ -157,7 +170,9 @@ public class FCEpics  {
         }
     }
     
-    public void setCaActionNames(String det, int grp, String action) {
+    public int setCaActionNames(String det, int grp, String action) {
+        
+        if (!online) return 0;
         
         IndexedList<Channel<Double>> map = new IndexedList<Channel<Double>>(4);
         
@@ -170,6 +185,7 @@ public class FCEpics  {
             }
         } 
         caMap.put(action,map);
+        return 1;
     }
     
     public void setPvNames(String det, int grp) {

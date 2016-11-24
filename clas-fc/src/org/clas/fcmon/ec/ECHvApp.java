@@ -34,21 +34,23 @@ public class ECHvApp extends FCEpics {
         super(name, det);
     }
     
-    public void init() {
+    public void init(Boolean online) {
+        this.online = online;
         this.is1=ECConstants.IS1;
         this.is2=ECConstants.IS2; 
         setPvNames(this.detName,0);
-        setCaNames(this.detName,0);
         sectorSelected=is1;
         layerSelected=1;
         channelSelected=1;
-        initHistos();
+        initHistos();        
+        createContext();
+        setCaNames(this.detName,0);
         initFifos();
         fillFifos();
         fillHistos();
         this.timer = new Timer(delay,action);  
         this.timer.setDelay(delay);
-        this.timer.start();
+        this.timer.start();       
     }
     
     private class updateGUIAction implements ActionListener {
@@ -97,14 +99,14 @@ public class ECHvApp extends FCEpics {
         for (int is=is1; is<is2 ; is++) {
             for (int il=1; il<layMap.get(detName).length+1 ; il++) {
                 for (int ic=1; ic<nlayMap.get(detName)[il-1]+1; ic++) {
-                    if(nfifo>nmax) {
+                    if (nfifo>nmax) {
                         fifo1.get(is, il, ic).removeFirst();
                         fifo2.get(is, il, ic).removeFirst();
                         fifo3.get(is, il, ic).removeFirst();
-                    }
+                    }                   
                     fifo1.get(is, il, ic).add(getCaValue(0,"vset",is, il, ic));
                     fifo2.get(is, il, ic).add(getCaValue(0,"vmon",is, il, ic));
-                    fifo3.get(is, il, ic).add(getCaValue(0,"imon",is, il, ic));
+                    fifo3.get(is, il, ic).add(getCaValue(0,"imon",is, il, ic));                   
                 }
             }
          }
