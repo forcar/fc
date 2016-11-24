@@ -500,8 +500,8 @@ public class CalDrawDB{
 		}
 		else
 		{
-			ulaststrip = 35;
-			vlaststrip = 35;
+			ulaststrip = 34;
+			vlaststrip = 34;
 		}
 		
         if(uPaddle==ulaststrip||vPaddle==vlaststrip||wPaddle==vlaststrip) return true;
