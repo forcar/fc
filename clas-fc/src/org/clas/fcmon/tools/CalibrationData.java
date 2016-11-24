@@ -34,6 +34,7 @@ public class CalibrationData {
 		String otab[]={"U Inner Strip","V Inner Strip","W Inner Strip","U Outer Strip","V Outer Strip","W Outer Strip"};
 		
 		dataSize = data.length;
+        fitSize  = 0;          
 		int n, min=2 , max=dataSize-2;
 		
 		if (dataSize==1) {min=0 ; max=1;}
@@ -45,35 +46,36 @@ public class CalibrationData {
         double[] ypraw  = new double[dataSize]; 
         double[] xprawe = new double[dataSize];
         double[] yprawe = new double[dataSize]; 
- 
+        
+        Boolean fitcut[] = new Boolean[dataSize];
+
         // For raw graph cnts>5 data>20
-        n=0;          
         for(int loop=0; loop < data.length; loop++) {
-        	if (cnts[loop]>11&&data[loop]>20&&!status[loop]) n++;   		
-    		xpraw[loop]  = xdata[loop]; 
-    		xprawe[loop] = 0.;
-    		ypraw[loop]  = data[loop];
-    		yprawe[loop] = error[loop];
+            fitcut[loop] = cnts[loop]>11&&data[loop]>20&&!status[loop];
+            if (fitcut[loop]) fitSize++;
+            xpraw[loop]  = xdata[loop]; 
+            xprawe[loop] = 0.;
+            ypraw[loop]  = data[loop];
+            yprawe[loop] = error[loop];
         }
+
+        double[] xpfit  = new double[fitSize];
+        double[] ypfit  = new double[fitSize]; 
+        double[] xpfite = new double[fitSize];
+        double[] ypfite = new double[fitSize];  
         
-        double[] xpfit  = new double[n];
-        double[] ypfit  = new double[n]; 
-        double[] xpfite = new double[n];
-        double[] ypfite = new double[n];  
-        
-        fitSize = n;
         // For fit graph
         n=0;
         for(int loop = 0; loop < data.length; loop++){
-        	if (cnts[loop]>11&&data[loop]>20&&!status[loop]) {
-         		xpfit[n]  = xpraw[loop]; 
-        		xpfite[n] = xprawe[loop];
-        		ypfit[n]  = ypraw[loop];
-        		ypfite[n] = yprawe[loop];
-//        		ypfite[n] = 5.0;
-        		n++;
-        	}
+            if (fitcut[loop]) {
+                xpfit[n]  = xpraw[loop]; 
+                xpfite[n] = xprawe[loop];
+                ypfit[n]  = ypraw[loop];
+                ypfite[n] = yprawe[loop];
+                n++;    
+            }
         }
+
         graph = new GraphErrors("FIT",xpfit,ypfit,xpfite,ypfite);   
         graph.getAttributes().setTitleX("Pixel Distance (cm)");
         graph.getAttributes().setTitleY("Mean ADC");
