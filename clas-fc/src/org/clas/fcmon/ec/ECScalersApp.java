@@ -18,9 +18,6 @@ public class ECScalersApp extends FCEpics {
    
     DetectorCollection<H1F> H1_HV = new DetectorCollection<H1F>();
     DetectorCollection<H2F> H2_HV = new DetectorCollection<H2F>();
-    DetectorCollection<LinkedList<Double>> fifo1 = new DetectorCollection<LinkedList<Double>>();
-    DetectorCollection<LinkedList<Double>> fifo2 = new DetectorCollection<LinkedList<Double>>();
-    DetectorCollection<LinkedList<Double>> fifo3 = new DetectorCollection<LinkedList<Double>>();
     
     updateGUIAction action = new updateGUIAction();
     
@@ -81,8 +78,8 @@ public class ECScalersApp extends FCEpics {
         for (int is=is1; is<is2 ; is++) {
             for (int il=1; il<layMap.get(detName).length+1 ; il++) {
                 for (int ic=1; ic<nlayMap.get(detName)[il-1]+1; ic++) {
-                    fifo1.add(is, il, ic,new LinkedList<Double>());
-                    fifo2.add(is, il, ic,new LinkedList<Double>());
+                    app.fifo1.add(is, il, ic,new LinkedList<Double>());
+                    app.fifo2.add(is, il, ic,new LinkedList<Double>());
                     connectCa(1,"c3",is,il,ic);
                     connectCa(2,"c1",is,il,ic);
                 }
@@ -98,11 +95,11 @@ public class ECScalersApp extends FCEpics {
             for (int il=1; il<layMap.get(detName).length+1 ; il++) {
                 for (int ic=1; ic<nlayMap.get(detName)[il-1]+1; ic++) {
                     if(nfifo>nmax) {
-                        fifo1.get(is, il, ic).removeFirst();
-                        fifo2.get(is, il, ic).removeFirst();
+                        app.fifo1.get(is, il, ic).removeFirst();
+                        app.fifo2.get(is, il, ic).removeFirst();
                     }
-                    fifo1.get(is, il, ic).add(getCaValue(1,"c3",is, il, ic));
-                    fifo2.get(is, il, ic).add(getCaValue(2,"c1",is, il, ic));
+                    app.fifo1.get(is, il, ic).add(getCaValue(1,"c3",is, il, ic));
+                    app.fifo2.get(is, il, ic).add(getCaValue(2,"c1",is, il, ic));
                 }
             }
          }
@@ -117,12 +114,12 @@ public class ECScalersApp extends FCEpics {
                 H1_HV.get(is, il, 0).reset(); H2_HV.get(is, il, 0).reset();
                 H1_HV.get(is, il, 1).reset(); H2_HV.get(is, il, 1).reset();
                 for (int ic=1; ic<nlayMap.get(detName)[il-1]+1; ic++) {                    
-                    H1_HV.get(is, il, 0).fill(ic,fifo1.get(is, il, ic).getLast());
-                    H1_HV.get(is, il, 1).fill(ic,fifo2.get(is, il, ic).getLast());
-                    Double ts1[] = new Double[fifo1.get(is, il, ic).size()];
-                    fifo1.get(is, il, ic).toArray(ts1);
-                    Double ts2[] = new Double[fifo2.get(is, il, ic).size()];
-                    fifo2.get(is, il, ic).toArray(ts2);
+                    H1_HV.get(is, il, 0).fill(ic,app.fifo1.get(is, il, ic).getLast());
+                    H1_HV.get(is, il, 1).fill(ic,app.fifo2.get(is, il, ic).getLast());
+                    Double ts1[] = new Double[app.fifo1.get(is, il, ic).size()];
+                    app.fifo1.get(is, il, ic).toArray(ts1);
+                    Double ts2[] = new Double[app.fifo2.get(is, il, ic).size()];
+                    app.fifo2.get(is, il, ic).toArray(ts2);
                     for (int it=0; it<ts1.length; it++) {
                         H2_HV.get(is, il, 0).fill(ic,it,ts1[it]);
                         H2_HV.get(is, il, 1).fill(ic,it,ts2[it]);
