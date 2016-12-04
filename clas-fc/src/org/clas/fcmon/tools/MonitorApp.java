@@ -10,7 +10,7 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
- 
+import java.util.LinkedList;
 import java.util.TreeMap;
  
 import javax.swing.BorderFactory;
@@ -28,6 +28,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import org.clas.fcmon.detector.view.DetectorPane2D;
+import org.jlab.detector.base.DetectorCollection;
 import org.jlab.groot.graphics.EmbeddedCanvas;
 
 /*
@@ -73,6 +74,7 @@ public class MonitorApp extends JFrame implements ActionListener {
     public int   currentSlot  = 3;
     public int   currentChan  = 0;
     public int  detectorIndex = 0;
+    public int      viewIndex = 1;
     public boolean    doEpics = false;
     public String    hipoPath = null;
     public String     hipoRun = "100";
@@ -82,6 +84,10 @@ public class MonitorApp extends JFrame implements ActionListener {
     public boolean      doEng = false;
     public String        geom = "0.27";
     public String      config = "muon";
+    
+    public DetectorCollection<LinkedList<Double>> fifo1 = new DetectorCollection<LinkedList<Double>>();
+    public DetectorCollection<LinkedList<Double>> fifo2 = new DetectorCollection<LinkedList<Double>>();
+    public DetectorCollection<LinkedList<Double>> fifo3 = new DetectorCollection<LinkedList<Double>>();
         
 //    Miscellaneous    extra = new Miscellaneous();
        
@@ -97,6 +103,8 @@ public class MonitorApp extends JFrame implements ActionListener {
         this.pack();
         this.setVisible(true);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.displayControl.setFPS(10);
+        this.setSelectedTab(2);
     }
     
     public void setPluginClass(DetectorMonitor mon) {
@@ -318,6 +326,22 @@ public class MonitorApp extends JFrame implements ActionListener {
     public JPanel getControlPanel(){
         return this.controlsPanel1;
     }  
+    
+    public int getInProcess() {
+        return eventControl.inProcess;
+    }    
+    
+    public void setInProcess(int inProcess) {
+        eventControl.inProcess = inProcess;
+    }
+    
+    public Boolean getIsRunning() {
+        return eventControl.isRunning;
+    }
+    
+    public void setIsRunning(Boolean isRunning) {
+         eventControl.isRunning = isRunning;
+    }
     
     public Boolean isSingleEvent(){
     	return eventControl.isSingleEvent;

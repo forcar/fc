@@ -42,8 +42,7 @@ public class ECReconstructionApp extends FCApplication {
    String BankType        = null;
    int              detID = 0;
    double pcx,pcy,pcz;
-   double refE=1;
-   double refTH=25;
+   double refE=0,refP=0,refTH=25;
    Boolean printit = false;
    
    CodaEventDecoder            newdecoder = new CodaEventDecoder();
@@ -239,14 +238,18 @@ public class ECReconstructionApp extends FCApplication {
       
       for (int idet=0; idet<detlen; idet++) {
           
-          double fac = (app.isCRT==true) ? 1.4:1;
+          double fac = (app.isCRT==true) ? 1.4:1; // For pre-installation PCAL CRT runs
+          
           if(event.hasBank("GenPart::true")==true) {
               genData = (EvioDataBank) event.getBank("GenPart::true");
               double ppx = genData.getDouble("px",0);
               double ppy = genData.getDouble("py",0);
               double ppz = genData.getDouble("pz",0);
-              refE  = Math.sqrt(ppx*ppx+ppy*ppy+ppz*ppz);
-              refTH = Math.acos(ppz/refE)*180/3.14159;
+              double  rm = 0.;
+              if (genData.getInt("pid", 0)==111) rm=0.1349764; // pizero mass               
+              refP  = Math.sqrt(ppx*ppx+ppy*ppy+ppz*ppz);  
+              refE  = Math.sqrt(refP*refP+rm*rm);            
+              refTH = Math.acos(ppz/refP)*180/3.14159;
           }
           
           if(event.hasBank(det[idet]+"::true")==true) {
@@ -406,7 +409,7 @@ public class ECReconstructionApp extends FCApplication {
                  ecPix[idet].strips.hmap2.get("H2_a_Hist").get(is,8,0).fill(0.1*pcy-Y,2.);
                  ecPix[idet].strips.hmap2.get("H2_a_Hist").get(is,8,0).fill(0.1*pcz-Z,3.);
               }
-              ecPix[idet].strips.hmap2.get("H2_a_Hist").get(is,9,0).fill(25.0-mcThet,1.);
+              ecPix[idet].strips.hmap2.get("H2_a_Hist").get(is,9,0).fill(refTH-mcThet,1.);
               ecPix[idet].strips.hmap2.get("H2_a_Hist").get(is,9,0).fill(pcThet-mcThet,2.);
               //Transform X,Y,Z from CLAS into tilted for detector view
               Point3D xyz = new Point3D(-X,Y,Z);
@@ -438,7 +441,7 @@ public class ECReconstructionApp extends FCApplication {
       }
       
       if (invmass>60 && invmass<200) {
-          ecPix[0].strips.hmap1.get("H1_a_Hist").get(2,4,0).fill((float)1e3*(Math.sqrt(part.tpi2)-2.0));  //Pizero total energy error
+          ecPix[0].strips.hmap1.get("H1_a_Hist").get(2,4,0).fill((float)(1e3*Math.sqrt(part.tpi2)-refE)); //Pizero total energy error
           ecPix[0].strips.hmap1.get("H1_a_Hist").get(2,4,1).fill(Math.acos(part.cpi0)*180/3.14159-refTH); //Pizero theta angle error
           ecPix[0].strips.hmap1.get("H1_a_Hist").get(2,4,2).fill((float)part.X);                          //Pizero energy asymmetry
       }

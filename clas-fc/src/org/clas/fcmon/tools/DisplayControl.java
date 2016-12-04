@@ -112,5 +112,10 @@ public class DisplayControl extends JPanel {
         
    }
 	
+	public void setFPS(int fps){
+	    framesPerSecond.setValue(fps);
+	}
+	
+	
 }
 		

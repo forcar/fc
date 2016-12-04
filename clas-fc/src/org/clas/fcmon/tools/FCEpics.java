@@ -126,7 +126,7 @@ public class FCEpics  {
     }
     
     public double getCaValue(int grp, String action, int sector, int layer, int channel) {
-        if (!online) return 0.0;
+        if (!online) return 1000.0;
         try {
         CompletableFuture<Double> ffd = caMap.get(action).getItem(grp,sector,layer,channel).getAsync(); //org.epics.ca
         return ffd.get(); 

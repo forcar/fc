@@ -206,10 +206,10 @@ public class ECSingleEventApp extends FCApplication {
 	  
       for(ilm=0; ilm<3; ilm++) {
           c.cd(ii); 
-          h = ecPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,9,0).sliceY(0) ; h.setTitleX("25-"+dtab[ilm]+"mcThet"); h.setFillColor(2); 
+          h = ecPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,9,0).sliceY(0) ; h.setTitleX("Generated Theta-"+dtab[ilm]+" Theta"); h.setFillColor(2); 
           h.setOptStat(Integer.parseInt("1100")); h.setTitle(" "); c.draw(h);
           c.cd(ii+3); ii++;
-          h = ecPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,9,0).sliceY(1) ; h.setTitleX(dtab[ilm]+"Theta-mcThet"); h.setFillColor(2); 
+          h = ecPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,9,0).sliceY(1) ; h.setTitleX(dtab[ilm]+" Theta-GEMC Theta"); h.setFillColor(2); 
           h.setOptStat(Integer.parseInt("1100")); h.setTitle(" "); c.draw(h);
       }
       

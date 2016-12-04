@@ -35,7 +35,7 @@ public class EventControl extends JPanel implements ActionListener, ChangeListen
     JLabel      fileLabel = new JLabel("");
     JLabel    statusLabel = new JLabel("No Opened File");       
 	
-    DataSource                       evReader;      
+    DataSource        evReader;      
     boolean  isRegularFileOpen = false;
     File                  file = null;
     String            filename = null;
@@ -45,9 +45,11 @@ public class EventControl extends JPanel implements ActionListener, ChangeListen
     public Boolean  isEtFileOpen = false;
     public Boolean      isRemote = false;
     public Boolean isSingleEvent = false;
-    Boolean              running = false;
-    
-    int               nEtEvents = 0;
+    public Boolean     isRunning = false;
+    public int         inProcess = 0;
+    public int          startFPS = 10;
+    public int           stopFPS = 0;
+    int                nEtEvents = 0;
     
     File          eviofile = null;
     String    eviofilename = null;	 
@@ -107,6 +109,7 @@ public class EventControl extends JPanel implements ActionListener, ChangeListen
     public void openEtFile(String ethost, String etfile) { 
       this.etfile=etfile;
       this.ethost=ethost;
+      if(isEtFileOpen) etReader.close();
       if(etfile!=null){
     		try {
     			etReader = new EvioETSource(ethost);
@@ -118,9 +121,9 @@ public class EventControl extends JPanel implements ActionListener, ChangeListen
     			this.fileLabel.setText(" ");
     			etReader = null;
     		} finally {
-    			isRemote	  = true;
-    			isSingleEvent = false;
-    			isEtFileOpen  = true;
+    			isRemote	      = true;
+    			isSingleEvent     = false;
+    			isEtFileOpen      = true;
     			isRegularFileOpen = false;
     			etReader.close();
     			etReader.loadEvents();
@@ -133,8 +136,7 @@ public class EventControl extends JPanel implements ActionListener, ChangeListen
     }
  
     public void openEvioFile(File eviofile) {
-    	isRemote = false;
-        isSingleEvent = false;
+        if(isRegularFileOpen) evReader.close();
         this.monitoringClass.init();
         if(eviofile.getName().contains("hipo")==true){
             evReader = new HipoDataSource();
@@ -143,7 +145,10 @@ public class EventControl extends JPanel implements ActionListener, ChangeListen
         }        
         eviofilename = eviofile.getAbsolutePath();
         evReader.open(eviofilename);
+        isRemote          = false;
+        isSingleEvent     = false;
         isRegularFileOpen = true;
+        isEtFileOpen      = false;
         buttonNext.setEnabled(true);
         buttonNextFFW.setEnabled(true);
         Integer current = evReader.getCurrentIndex();
@@ -193,17 +198,19 @@ public class EventControl extends JPanel implements ActionListener, ChangeListen
         }
         
         if(e.getActionCommand().compareTo(">")==0){
-            if (!running) running = true;
+            if (!isRunning) isRunning = true;
         	isSingleEvent = true;
         	this.processNextEvent();
-        	buttonPrev.setEnabled(true);
+        	buttonPrev.setEnabled(true);        	
             this.detectorView.update();
             this.detectorView.getView().updateGUI();
         }
         
         if(e.getActionCommand().compareTo(">>")==0){
+            monitoringClass.go();
         	isSingleEvent = false;
-        	running = true;
+        	isRunning     = true;
+        	inProcess     = 1;
             class CrunchifyReminder extends TimerTask {
             	public void run() {
             		for (int i=1 ; i<200 ; i++) {
@@ -220,6 +227,9 @@ public class EventControl extends JPanel implements ActionListener, ChangeListen
         }
         
         if(e.getActionCommand().compareTo("||")==0){
+            isRunning = false;
+            inProcess = 2;
+            monitoringClass.pause();
         	killTimer();
             buttonNextFFW.setEnabled(true);
             buttonStop.setEnabled(false);
@@ -239,7 +249,7 @@ public class EventControl extends JPanel implements ActionListener, ChangeListen
     }
     
     private void processNextEvent() {	
-    	if (!running) return;
+    	if (!isRunning) return;
     	
         if(isEtFileOpen == true){
             if(etReader.hasEvent()==false){
@@ -270,7 +280,7 @@ public class EventControl extends JPanel implements ActionListener, ChangeListen
                 int current = etReader.getCurrentIndex();
                 int nevents = etReader.getSize();
                 nEtEvents++;
-                if(nEtEvents>100&&nEtEvents%500==0) monitoringClass.analyze(1);                
+                if(nEtEvents>10&&nEtEvents%50==0) monitoringClass.analyze();                
                 this.statusLabel.setText("   EVENTS IN ET : " + nevents + "  CURRENT : " + nEtEvents);
                                   
                     try {
@@ -288,12 +298,12 @@ public class EventControl extends JPanel implements ActionListener, ChangeListen
             return;
         }
     	   	
-    	if(evReader.hasEvent()){	 
+    	if(evReader.hasEvent()){
     		EvioDataEvent event = (EvioDataEvent) evReader.getNextEvent();
     		int current = evReader.getCurrentIndex();
     		int nevents = evReader.getSize();  
-    		if(isSingleEvent) monitoringClass.analyze(1);
-    		if( current>100&&current%500==0) monitoringClass.analyze(1);
+    		if(isSingleEvent) monitoringClass.analyze();
+            if(current>100&&current%5000==0) monitoringClass.analyze();
     		this.statusLabel.setText("   EVENTS IN FILE : " + nevents + "  CURRENT : " + current);
         
     		try {
@@ -304,14 +314,16 @@ public class EventControl extends JPanel implements ActionListener, ChangeListen
     		}
      
         } else {
-          running = false;
+          isRunning = false;
+          inProcess = 2;
     	  killTimer();
     	  evReader.close();
+    	  isRegularFileOpen = false;
           buttonNextFFW.setEnabled(false);
           buttonStop.setEnabled(false);
           buttonNext.setEnabled(false);
           buttonPrev.setEnabled(false);        
-    	  monitoringClass.analyze(2);
+    	  monitoringClass.analyze();
     	  monitoringClass.close();
           System.out.println("DONE PROCESSING FILE");
         }

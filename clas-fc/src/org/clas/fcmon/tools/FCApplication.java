@@ -72,7 +72,6 @@ public class FCApplication implements ActionListener  {
     private String             canvasSelect;
     private int                canvasIndex;
     
-    int        inProcess = 0;
     double    PCMon_zmin = 0;
     double    PCMon_zmax = 0;    
     public int      omap = 0;
@@ -207,6 +206,7 @@ public class FCApplication implements ActionListener  {
             bStore.replace(group,key);
         }
         omap = key;
+        if (key>10&&key<14) app.viewIndex=key-10;
 //        System.out.println("mapButtonAction omap= "+omap);
         app.getDetectorView().getView().updateGUI();     
     }
@@ -216,6 +216,7 @@ public class FCApplication implements ActionListener  {
         this.rbPanes = app.getDetectorView().rbPanes;
         if(group=="LAY") {
             app.currentView = name;
+            if (key<3) app.viewIndex = key+1;
             name = name+Integer.toString(ilmap);
             app.getDetectorView().getView().setLayerState(name, true);
             if (key<4) {rbPanes.get("PMT").setVisible(true);rbPanes.get("PIX").setVisible(false);omap=bStore.get("PMT");}       

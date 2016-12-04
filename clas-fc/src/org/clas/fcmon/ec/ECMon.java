@@ -36,7 +36,6 @@ public class ECMon extends DetectorMonitor {
     ECEngine                  ecEng = null;
    
     public int               calRun = 12;
-    public int            inProcess = 0;      //0=init 1=processing 2=end-of-run 3=post-run
     int                       detID = 0;
     int                         is1 = 2 ;
     int                         is2 = 3 ;  
@@ -69,9 +68,12 @@ public class ECMon extends DetectorMonitor {
         monitor.initGlob();
         monitor.makeApps();
         monitor.addCanvas();
+        monitor.initEPICS();
         monitor.init();
         monitor.initDetector();
         app.init();
+        app.getDetectorView().setFPS(10);
+        app.setSelectedTab(2); 
         monitor.ecDet.initButtons();
     }
     
@@ -131,7 +133,7 @@ public class ECMon extends DetectorMonitor {
         ecCalib.setMonitoringClass(this);
         ecCalib.setApplicationClass(app);
         ecCalib.setConstantsManager(ccdb,calRun);
-        ecCalib.init(is1,is2);    
+        ecCalib.init();    
                 
         ecHv = new ECHvApp("HV","EC");
         ecHv.setMonitoringClass(this);
@@ -140,7 +142,6 @@ public class ECMon extends DetectorMonitor {
         ecScalers = new ECScalersApp("Scalers","EC");
         ecScalers.setMonitoringClass(this);
         ecScalers.setApplicationClass(app);     
-        
     }
     
     public void addCanvas() {
@@ -158,7 +159,7 @@ public class ECMon extends DetectorMonitor {
 	
     public void init( ) {	    
         System.out.println("monitor.init()");	
-        inProcess = 0; putGlob("inProcess", inProcess);
+        app.setInProcess(0);  
         initApps();
         for (int i=0; i<ecPix.length; i++) ecPix[i].initHistograms(" ");
     }
@@ -169,7 +170,6 @@ public class ECMon extends DetectorMonitor {
         initEngine();
         for (int i=0; i<ecPix.length; i++)   ecPix[i].Lmap_a.add(0,0,0, ecRecon.toTreeMap(ecPix[i].ec_cmap));
         for (int i=0; i<ecPix.length; i++)   ecPix[i].Lmap_a.add(0,0,1, ecRecon.toTreeMap(ecPix[i].ec_zmap));
-        initEPICS();
     }
     
     public void initEngine() {
@@ -223,11 +223,6 @@ public class ECMon extends DetectorMonitor {
     @Override
     public void reset() {
 		ecRecon.clearHistograms();
-    }
-	
-    @Override
-    public void close() {
-	    
     } 
 
     @Override
@@ -235,33 +230,34 @@ public class ECMon extends DetectorMonitor {
       if(app.doEng) {ecEng.singleEvent=app.isSingleEvent() ; ecEng.debug = app.debug; ecEng.processDataEvent(de);} 
       ecRecon.addEvent(de);
     }
-    
-    @Override    
-    public void update(DetectorShape2D shape) {
-        putGlob("inProcess", inProcess);
-        ecDet.update(shape);
-//      ecCalib.updateDetectorView(shape);
-    }
-    
+
 	@Override
-	public void analyze(int process) {		
-		this.inProcess = process; glob.put("inProcess", process);
-		switch (inProcess) {
+	public void analyze() {		
+	
+		switch (app.getInProcess()) {
 			case 1: 
 			    for (int idet=0; idet<ecPix.length; idet++) ecRecon.makeMaps(idet); 
 			    break;
 			case 2: 
-			    for (int idet=0; idet<ecPix.length; idet++) ecRecon.makeMaps(idet);
-				// Final analysis of full detector at end of run
-				for (int idet=0; idet<ecPix.length; idet++) ecCalib.analyze(idet,is1,is2,1,4);
-		        inProcess=3; glob.put("inProcess", process);
+                // Final analysis of full detector at end of run
+			    for (int idet=0; idet<ecPix.length; idet++) {
+			       ecRecon.makeMaps(idet);
+				   ecCalib.analyzeAllEngines(idet,is1,is2,1,4);
+			    }
+		        app.setInProcess(3); 
 		}
 	}
-	
+    
+    @Override    
+    public void update(DetectorShape2D shape) {
+        ecDet.update(shape); //Get color for this shape from maps
+//      ecCalib.updateDetectorView(shape);
+    }	
+    
     @Override
     public void processShape(DetectorShape2D shape) {		
         DetectorDescriptor dd = shape.getDescriptor();
-        this.analyze(inProcess);	
+        this.analyze();	
         switch (app.getSelectedTabName()) {
         case "Mode1":                       ecMode1.updateCanvas(dd); break;
         case "SingleEvent":           ecSingleEvent.updateCanvas(dd); break;
@@ -294,7 +290,7 @@ public class ECMon extends DetectorMonitor {
             ecPix[idet].initHistograms(hipoFileName);
             ecRecon.makeMaps(idet);
           }
-          inProcess = 2;          
+          app.setInProcess(2);          
     }
     
     @Override
@@ -310,5 +306,22 @@ public class ECMon extends DetectorMonitor {
             histofile.addToMap("H1_t_Maps", ecPix[idet].pixels.hmap1.get("H1_t_Maps"));
             histofile.writeHipoFile(hipoFileName);
         }
+    }
+    
+    @Override
+    public void close() {
+        app.displayControl.setFPS(1);
+    }
+    
+    @Override
+    public void pause() {
+        app.displayControl.setFPS(1);
+        
+    }
+
+    @Override
+    public void go() {
+        app.displayControl.setFPS(10);
+        
     }	
 }

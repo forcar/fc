@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.TreeMap;
 
@@ -88,7 +89,7 @@ public class ECPixels {
     int[][] pthrElec = {{30,30,30},{30,30,30},{30,30,30}};
         
     double[] cerrMuon = {5.5,10.,10.};
-    double[] cerrPhot = {6.5,15.,20.};
+    double[] cerrPhot = {7,15.,20.};
     double[] cerrElec = {10.,10.,10.};
     
     public int idet=0;
@@ -347,6 +348,7 @@ public class ECPixels {
                 id="s"+Integer.toString(is)+"_l"+Integer.toString(7)+"_c";
 //                H2_a_Hist.add(is, 7, 0, new H2F("d_reco_"+id+0, 200, -600., 600., 200, -600., 600.));   
 //                H2_a_Hist.add(is, 7, 1, new H2F("d_reco_"+id+1, 200, -600., 600., 200, -600., 600.));   
+                
                 H2_a_Hist.add(is, 7, 2, new H2F("d_reco_"+id+2, 80, 0., 20., 50, 0., 1.5));   
                 id="s"+Integer.toString(is)+"_l"+Integer.toString(8)+"_c";
                 H2_a_Hist.add(is, 8, 0, new H2F("f_reco_"+id+0, 50, -10., 10., 3, 1., 4.));   

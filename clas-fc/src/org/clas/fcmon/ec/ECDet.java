@@ -24,10 +24,7 @@ public class ECDet extends FCDetector {
         initMapButtons(0, 0);
         initMapButtons(1, 0);
         initViewButtons(0, 0);
-        initViewButtons(1, 3);
-        app.getDetectorView().setFPS(10);
-        app.setSelectedTab(2); 
-        
+        initViewButtons(1, 3);        
     }
     
     public void initDetector(int is1, int is2) {

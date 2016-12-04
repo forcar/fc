@@ -20,7 +20,9 @@ public abstract class DetectorMonitor implements IDataEventListener, DetectorLis
     
     public abstract void init();
 //    public abstract void initDetector();
-    public abstract void analyze(int inProcess);
+    public abstract void analyze();
+    public abstract void pause();
+    public abstract void go();
     public abstract void close();
     public abstract void reset();
     public abstract void saveToFile();
