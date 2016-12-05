@@ -31,9 +31,8 @@ public class FTOFMon extends DetectorMonitor {
     FTOFCalibrationApp      ftofCalib = null;
     FTOFScalersApp        ftofScalers = null;
     FTOFHvApp                  ftofHv = null;
-        
-    public boolean               inMC = false; //true=MC false=DATA
-    public int              inProcess = 0;    //0=init 1=processing 2=end-of-run 3=post-run
+       
+    public int                 calRun = 12;
     int                         detID = 0;
     int                           is1 = 2;    //All sectors: is1=1 is2=7  Single sector: is1=s is2=s+1
     int                           is2 = 3; 
@@ -65,14 +64,33 @@ public class FTOFMon extends DetectorMonitor {
         app.setPluginClass(monitor);
         app.getEnv();
         app.makeGUI();
+        monitor.initConstants();
+        monitor.initCCDB();
         monitor.initGlob();
         monitor.makeApps();
         monitor.addCanvas();
+        monitor.initEPICS();
         monitor.init();
         monitor.initDetector();
         app.init();
+        app.getDetectorView().setFPS(10);
+        app.setSelectedTab(2); 
         monitor.ftofDet.initButtons();
     }
+    
+    public void initConstants() {
+        FTOFConstants.setSectors(is1,is2);
+    }   
+    
+    public void initCCDB() {
+        ccdb.init(Arrays.asList(new String[]{
+                "/daq/fadc/ftof",
+                "/calibration/ftof/attenuation",
+                "/calibration/ftof/gain_balance",
+                "/calibration/ftof/status"}));
+  
+        app.mode7Emulation.init(ccdb,calRun,"/daq/fadc/ftof", 3,3,1);        
+    } 
     
     public void initDetector() {
         System.out.println("monitor.initDetector()"); 
@@ -136,7 +154,7 @@ public class FTOFMon extends DetectorMonitor {
     
     public void init( ) {       
         System.out.println("monitor.init()");   
-        inProcess = 0; putGlob("inProcess", inProcess);
+        app.setInProcess(0);
         initApps();
         for (int i=0; i<ftofPix.length; i++) ftofPix[i].initHistograms(" "); 
     }
@@ -146,17 +164,17 @@ public class FTOFMon extends DetectorMonitor {
         for (int i=0; i<ftofPix.length; i++)   ftofPix[i].init();
         app.mode7Emulation.init(ccdb, calrun, "/daq/fadc/ftof", 5,3,1);        
         ftofRecon.init();
-        if (app.doEpics) {
-          ftofHv.init(is1,is2);        
-          ftofScalers.init(is1,is2); 
-        }
+    }
+    
+    public void initEPICS() {
+        System.out.println("monitor.initScalers():Initializing EPICS Channel Access");
+        ftofHv.init(app.doEpics);        
+        ftofScalers.init(app.doEpics);         
     }
     
     public void initGlob() {
         System.out.println("monitor.initGlob()");
-        putGlob("inProcess", inProcess);
         putGlob("detID", detID);
-        putGlob("inMC", inMC);
         putGlob("nsa", nsa);
         putGlob("nsb", nsb);
         putGlob("tet", tet);        
@@ -184,25 +202,19 @@ public class FTOFMon extends DetectorMonitor {
     }
 	
     @Override
-    public void close() {	
-    }	
-	
-    @Override
     public void dataEventAction(DataEvent de) {
         ftofRecon.addEvent((EvioDataEvent) de);	
     }
 
     @Override
     public void update(DetectorShape2D shape) {
-        putGlob("inProcess", inProcess);
         ftofDet.update(shape);
 //        ftofCalib.updateDetectorView(shape);
     }
 		
     @Override
-    public void analyze(int process) {
-        this.inProcess = process; glob.put("inProcess", process);
-        if (process==1||process==2) {
+    public void analyze() {
+        if (app.getInProcess()==1||app.getInProcess()==2) {
             ftofRecon.makeMaps();	
             ftofCalib.engines[0].analyze();
         }
@@ -211,15 +223,15 @@ public class FTOFMon extends DetectorMonitor {
     @Override
     public void processShape(DetectorShape2D shape) { 
         DetectorDescriptor dd = shape.getDescriptor();
-        this.analyze(inProcess);       
+        this.analyze();       
         switch (app.getSelectedTabName()) {
         case "Mode1":                        ftofMode1.updateCanvas(dd); break;
         case "ADC":                            ftofAdc.updateCanvas(dd); break;
         case "TDC":                            ftofTdc.updateCanvas(dd); break;
         case "Pedestal":                  ftofPedestal.updateCanvas(dd); break;
         case "MIP":                            ftofMip.updateCanvas(dd); break; 
-        case "HV":         if(app.doEpics)      ftofHv.updateCanvas(dd); break;
-        case "Scalers":    if(app.doEpics) ftofScalers.updateCanvas(dd);
+        case "HV":                              ftofHv.updateCanvas(dd); break;
+        case "Scalers":                    ftofScalers.updateCanvas(dd);
        } 
     }
 
@@ -240,7 +252,7 @@ public class FTOFMon extends DetectorMonitor {
           ftofPix[idet].initHistograms(hipoFileName);
           ftofRecon.makeMaps();
         }
-        inProcess = 2;          
+        app.setInProcess(2);          
     }
     
     @Override
@@ -255,11 +267,28 @@ public class FTOFMon extends DetectorMonitor {
           histofile.writeHipoFile(hipoFileName);
         }
     }
+    
+    @Override
+    public void close() {
+        app.displayControl.setFPS(1);
+    }
+    
+    @Override
+    public void pause() {
+        app.displayControl.setFPS(1);
+        
+    }
+
+    @Override
+    public void go() {
+        app.displayControl.setFPS(10);
+        
+    }
 
     @Override
     public void initEngine() {
         // TODO Auto-generated method stub
         
-    }
+    }   
     
 }
