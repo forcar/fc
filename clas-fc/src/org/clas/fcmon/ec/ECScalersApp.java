@@ -45,8 +45,6 @@ public class ECScalersApp extends FCEpics {
         setCaNames(this.detName,1);
         setCaNames(this.detName,2);
         initFifos();
-        fillFifos();
-        fillHistos();
         this.timer = new Timer(delay,action);  
         this.timer.setDelay(delay);
         this.timer.start();
@@ -78,8 +76,8 @@ public class ECScalersApp extends FCEpics {
         for (int is=is1; is<is2 ; is++) {
             for (int il=1; il<layMap.get(detName).length+1 ; il++) {
                 for (int ic=1; ic<nlayMap.get(detName)[il-1]+1; ic++) {
-                    app.fifo1.add(is, il, ic,new LinkedList<Double>());
-                    app.fifo2.add(is, il, ic,new LinkedList<Double>());
+                    app.fifo4.add(is, il, ic,new LinkedList<Double>());
+                    app.fifo5.add(is, il, ic,new LinkedList<Double>());
                     connectCa(1,"c3",is,il,ic);
                     connectCa(2,"c1",is,il,ic);
                 }
@@ -95,11 +93,11 @@ public class ECScalersApp extends FCEpics {
             for (int il=1; il<layMap.get(detName).length+1 ; il++) {
                 for (int ic=1; ic<nlayMap.get(detName)[il-1]+1; ic++) {
                     if(nfifo>nmax) {
-                        app.fifo1.get(is, il, ic).removeFirst();
-                        app.fifo2.get(is, il, ic).removeFirst();
+                        app.fifo4.get(is, il, ic).removeFirst();
+                        app.fifo5.get(is, il, ic).removeFirst();
                     }
-                    app.fifo1.get(is, il, ic).add(getCaValue(1,"c3",is, il, ic));
-                    app.fifo2.get(is, il, ic).add(getCaValue(2,"c1",is, il, ic));
+                    app.fifo4.get(is, il, ic).add(getCaValue(1,"c3",is, il, ic));
+                    app.fifo5.get(is, il, ic).add(getCaValue(2,"c1",is, il, ic));
                 }
             }
          }
@@ -114,12 +112,12 @@ public class ECScalersApp extends FCEpics {
                 H1_HV.get(is, il, 0).reset(); H2_HV.get(is, il, 0).reset();
                 H1_HV.get(is, il, 1).reset(); H2_HV.get(is, il, 1).reset();
                 for (int ic=1; ic<nlayMap.get(detName)[il-1]+1; ic++) {                    
-                    H1_HV.get(is, il, 0).fill(ic,app.fifo1.get(is, il, ic).getLast());
-                    H1_HV.get(is, il, 1).fill(ic,app.fifo2.get(is, il, ic).getLast());
-                    Double ts1[] = new Double[app.fifo1.get(is, il, ic).size()];
-                    app.fifo1.get(is, il, ic).toArray(ts1);
-                    Double ts2[] = new Double[app.fifo2.get(is, il, ic).size()];
-                    app.fifo2.get(is, il, ic).toArray(ts2);
+                    H1_HV.get(is, il, 0).fill(ic,app.fifo4.get(is, il, ic).getLast());
+                    H1_HV.get(is, il, 1).fill(ic,app.fifo5.get(is, il, ic).getLast());
+                    Double ts1[] = new Double[app.fifo4.get(is, il, ic).size()];
+                    app.fifo4.get(is, il, ic).toArray(ts1);
+                    Double ts2[] = new Double[app.fifo5.get(is, il, ic).size()];
+                    app.fifo5.get(is, il, ic).toArray(ts2);
                     for (int it=0; it<ts1.length; it++) {
                         H2_HV.get(is, il, 0).fill(ic,it,ts1[it]);
                         H2_HV.get(is, il, 1).fill(ic,it,ts2[it]);

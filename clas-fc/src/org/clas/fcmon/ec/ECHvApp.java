@@ -45,8 +45,6 @@ public class ECHvApp extends FCEpics {
         createContext();
         setCaNames(this.detName,0);
         initFifos();
-        fillFifos();
-        fillHistos();
         this.timer = new Timer(delay,action);  
         this.timer.setDelay(delay);
         this.timer.start();       
@@ -57,7 +55,8 @@ public class ECHvApp extends FCEpics {
             fillFifos();
             fillHistos();
             update1DScalers(scaler1DView,1);   
-            update2DScalers(scaler2DView,1);        }
+            update2DScalers(scaler2DView,1);            
+        }
     } 
     
     public void initHistos() {  
