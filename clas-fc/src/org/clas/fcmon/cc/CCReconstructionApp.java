@@ -293,16 +293,19 @@ public class CCReconstructionApp extends FCApplication {
        TreeMap<Integer, Object> hcontainer = new TreeMap<Integer, Object>();
        hcontainer.put(1, dat);
        float[] b = Arrays.copyOf(dat, dat.length);
-       double min=100000,max=0;
+       double min=100000,max=0,bsum=0;
+       int nbsum=0;
        for (int i =0 ; i < b.length; i++){
            if (b[i] !=0 && b[i] < min) min=b[i];
            if (b[i] !=0 && b[i] > max) max=b[i];
+           if (b[i]>0) {bsum=bsum+b[i]; nbsum++;}    
        }
        // Arrays.sort(b);
        // double min = b[0]; double max=b[b.length-1];
        if (min<=0) min=0.01;
        hcontainer.put(2, min);
        hcontainer.put(3, max);
+       hcontainer.put(4,bsum/nbsum);
        return hcontainer;        
    }
 

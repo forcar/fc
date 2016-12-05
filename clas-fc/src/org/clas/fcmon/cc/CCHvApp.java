@@ -17,9 +17,6 @@ public class CCHvApp extends FCEpics {
    
     DetectorCollection<H1F> H1_HV = new DetectorCollection<H1F>();
     DetectorCollection<H2F> H2_HV = new DetectorCollection<H2F>();
-    DetectorCollection<LinkedList<Double>> fifo1 = new DetectorCollection<LinkedList<Double>>();
-    DetectorCollection<LinkedList<Double>> fifo2 = new DetectorCollection<LinkedList<Double>>();
-    DetectorCollection<LinkedList<Double>> fifo3 = new DetectorCollection<LinkedList<Double>>();
     
     updateGUIAction action = new updateGUIAction();
     
@@ -33,20 +30,19 @@ public class CCHvApp extends FCEpics {
         super(name, det);
     }
     
-    public void init(int is1, int is2) {
+    public void init(Boolean online) {
         System.out.println("CCHvApp.init():");
-        this.is1=is1;
-        this.is2=is2;
+        this.online = online;
+        this.is1=CCConstants.IS1;
+        this.is2=CCConstants.IS2;
         setPvNames(this.detName,0);
-        setCaNames(this.detName,0);
         sectorSelected=is1;
         layerSelected=1;
         channelSelected=1;
         initHistos();
+        createContext();
+        setCaNames(this.detName,0);
         initFifos();
-        fillFifos();
-        fillHistos();
-        System.out.println("CCHvApp.init(): Starting timer");
         this.timer = new Timer(delay,action);  
         this.timer.setDelay(delay);
         this.timer.start();
@@ -57,10 +53,12 @@ public class CCHvApp extends FCEpics {
             fillFifos();
             fillHistos();
             update1DScalers(scaler1DView,1);   
-            update2DScalers(scaler2DView,1);        }
+            update2DScalers(scaler2DView,1);           
+        }
     } 
     
     public void initHistos() {       
+        System.out.println("CCHvApp.initHistos():");
         for (int is=is1; is<is2 ; is++) {
             for (int il=1 ; il<layMap.get(detName).length+1 ; il++){
                 int nb=nlayMap.get(detName)[il-1]; int mx=nb+1;
@@ -75,12 +73,13 @@ public class CCHvApp extends FCEpics {
     }
         
     public void initFifos() {
+        System.out.println("CCHvApp.initFifos():");
         for (int is=is1; is<is2 ; is++) {
             for (int il=1; il<layMap.get(detName).length+1 ; il++) {
                 for (int ic=1; ic<nlayMap.get(detName)[il-1]+1; ic++) {
-                    fifo1.add(is, il, ic,new LinkedList<Double>());
-                    fifo2.add(is, il, ic,new LinkedList<Double>());
-                    fifo3.add(is, il, ic,new LinkedList<Double>());
+                    app.fifo1.add(is, il, ic,new LinkedList<Double>());
+                    app.fifo2.add(is, il, ic,new LinkedList<Double>());
+                    app.fifo3.add(is, il, ic,new LinkedList<Double>());
                     connectCa(0,"vset",is,il,ic);
                     connectCa(0,"vmon",is,il,ic);
                     connectCa(0,"imon",is,il,ic);
@@ -97,13 +96,13 @@ public class CCHvApp extends FCEpics {
             for (int il=1; il<layMap.get(detName).length+1 ; il++) {
                 for (int ic=1; ic<nlayMap.get(detName)[il-1]+1; ic++) {
                     if(nfifo>nmax) {
-                        fifo1.get(is, il, ic).removeFirst();
-                        fifo2.get(is, il, ic).removeFirst();
-                        fifo3.get(is, il, ic).removeFirst();
+                        app.fifo1.get(is, il, ic).removeFirst();
+                        app.fifo2.get(is, il, ic).removeFirst();
+                        app.fifo3.get(is, il, ic).removeFirst();
                     }
-                    fifo1.get(is, il, ic).add(getCaValue(0,"vset",is, il, ic));
-                    fifo2.get(is, il, ic).add(getCaValue(0,"vmon",is, il, ic));
-                    fifo3.get(is, il, ic).add(getCaValue(0,"imon",is, il, ic));
+                    app.fifo1.get(is, il, ic).add(getCaValue(0,"vset",is, il, ic));
+                    app.fifo2.get(is, il, ic).add(getCaValue(0,"vmon",is, il, ic));
+                    app.fifo3.get(is, il, ic).add(getCaValue(0,"imon",is, il, ic));
                 }
             }
          }
@@ -119,15 +118,15 @@ public class CCHvApp extends FCEpics {
                 H1_HV.get(is, il, 1).reset(); H2_HV.get(is, il, 1).reset();
                 H1_HV.get(is, il, 2).reset(); H2_HV.get(is, il, 2).reset();
                 for (int ic=1; ic<nlayMap.get(detName)[il-1]+1; ic++) {                    
-                    H1_HV.get(is, il, 0).fill(ic,fifo1.get(is, il, ic).getLast());
-                    H1_HV.get(is, il, 1).fill(ic,fifo2.get(is, il, ic).getLast());
-                    H1_HV.get(is, il, 2).fill(ic,fifo3.get(is, il, ic).getLast());
-                    Double ts1[] = new Double[fifo1.get(is, il, ic).size()];
-                    fifo1.get(is, il, ic).toArray(ts1);
-                    Double ts2[] = new Double[fifo2.get(is, il, ic).size()];
-                    fifo2.get(is, il, ic).toArray(ts2);
-                    Double ts3[] = new Double[fifo3.get(is, il, ic).size()];
-                    fifo3.get(is, il, ic).toArray(ts3);
+                    H1_HV.get(is, il, 0).fill(ic,app.fifo1.get(is, il, ic).getLast());
+                    H1_HV.get(is, il, 1).fill(ic,app.fifo2.get(is, il, ic).getLast());
+                    H1_HV.get(is, il, 2).fill(ic,app.fifo3.get(is, il, ic).getLast());
+                    Double ts1[] = new Double[app.fifo1.get(is, il, ic).size()];
+                    app.fifo1.get(is, il, ic).toArray(ts1);
+                    Double ts2[] = new Double[app.fifo2.get(is, il, ic).size()];
+                    app.fifo2.get(is, il, ic).toArray(ts2);
+                    Double ts3[] = new Double[app.fifo3.get(is, il, ic).size()];
+                    app.fifo3.get(is, il, ic).toArray(ts3);
                     for (int it=0; it<ts1.length; it++) {
                         H2_HV.get(is, il, 0).fill(ic,it,ts1[it]);
                         H2_HV.get(is, il, 1).fill(ic,it,ts2[it]);
@@ -160,7 +159,7 @@ public class CCHvApp extends FCEpics {
         int is = sectorSelected;
         int lr = layerSelected;
         int ip = channelSelected; 
-        
+
         if (lr==0||lr>layMap.get(detName).length) return;
         
         canvas.divide(4, 1);

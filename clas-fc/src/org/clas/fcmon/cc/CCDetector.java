@@ -21,9 +21,7 @@ public class CCDetector extends FCDetector {
         
         initMapButtons(0, 0);
         initMapButtons(1, 0);
-        initViewButtons(0, 0);
-        app.getDetectorView().setFPS(10);
-        app.setSelectedTab(1); 
+        initViewButtons(0, 0); 
         
     }   
     
