@@ -345,6 +345,10 @@ public class MonitorApp extends JFrame implements ActionListener {
          eventControl.isRunning = isRunning;
     }
     
+    public void setIsMC(Boolean isMC) {
+        mcBtn.setSelected(isMC);
+    }
+    
     public Boolean isSingleEvent(){
     	return eventControl.isSingleEvent;
     }
