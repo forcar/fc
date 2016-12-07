@@ -52,7 +52,6 @@ public class FTOFReconstructionApp extends FCApplication {
    public void init() {
        System.out.println("FTOFReconstruction.init()");
        mondet = (String) mon.getGlob().get("mondet");
-         inMC = (Boolean) mon.getGlob().get("inMC");
 //       detID  =              (int) mon.getGlob().get("detID"); 
    } 
    
@@ -82,11 +81,11 @@ public class FTOFReconstructionApp extends FCApplication {
    
    public void addEvent(EvioDataEvent event) {
       
-      if((event.hasBank("FTOF1A::dgtz"))||(event.hasBank("FTOF1B::dgtz"))==true) {
-          this.updateSimulatedData(event);
-      } else {
-          this.updateRealData(event);         
-      }
+       if(app.isMC==true) {
+           this.updateSimulatedData(event);
+       } else {
+           this.updateRealData(event);         
+       }
           
       if (app.isSingleEvent()) {
          findPixels();     // Process all pixels for SED
