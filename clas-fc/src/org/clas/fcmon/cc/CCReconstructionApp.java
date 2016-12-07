@@ -248,6 +248,7 @@ public class CCReconstructionApp extends FCApplication {
                     ccPix.strips.hmap1.get("H1_CCa_Sevd").get(is+1,il+1,0).reset();
                     ccPix.strips.hmap2.get("H2_CCa_Sevd").get(is+1,il+1,0).reset();
                     ccPix.strips.hmap2.get("H2_CCa_Sevd").get(is+1,il+1,1).reset();
+                    ccPix.strips.hmap2.get("H2_CCa_Hist").get(is+1,il+1,5).reset();
                }
            }
        }   

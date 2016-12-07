@@ -75,6 +75,7 @@ public class CCMon extends DetectorMonitor {
         app.init();
         app.getDetectorView().setFPS(10);
         app.setSelectedTab(1); 
+        app.setIsMC(false);
         monitor.ccDet.initButtons();
     }
     

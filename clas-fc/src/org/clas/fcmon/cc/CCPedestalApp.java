@@ -18,8 +18,7 @@ public class CCPedestalApp extends FCApplication {
     
     public void updateCanvas(DetectorDescriptor dd) {
         
-        Boolean inMC = (Boolean) mon.getGlob().get("inMC");       
-        if (inMC) return;
+        if (app.isMC) return;
         
         this.getDetIndices(dd);   
         int lr = layer;
