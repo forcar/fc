@@ -65,7 +65,6 @@ public class CCReconstructionApp extends FCApplication {
    public void init() {
        System.out.println("CCReconstruction.init()");
        mondet =           (String) mon.getGlob().get("mondet");
-       inMC   =          (Boolean) mon.getGlob().get("inMC");
 //       detID  =              (int) mon.getGlob().get("detID"); 
    }
    
@@ -90,7 +89,7 @@ public class CCReconstructionApp extends FCApplication {
    
    public void addEvent(DataEvent event) {
       
-      if(event.hasBank("EC"+"::dgtz")==true) {
+      if(app.isMC==true) {
           this.updateSimulatedData(event);
       } else {
           this.updateRealData(event);         
