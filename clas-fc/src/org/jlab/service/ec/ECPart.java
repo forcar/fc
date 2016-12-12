@@ -23,14 +23,26 @@ import org.jlab.io.evio.EvioSource;
 public class ECPart {
 	
     public static double distance11,distance12,distance21,distance22;
-    public static double e1,e2,e1c,e2c,cth,cth1,cth2,X,tpi2,cpi0;
+    public static double e1,e2,e1c,e2c,cth,cth1,cth2,X,tpi2,cpi0,refE,refP,refTH;
     static double mpi0 = 0.1349764;
     public static String geom = "2.4";
     public static double SF1 = 0.27;
     public static double SF2 = 0.27;
+    EvioDataBank     genData = null;
     
     public List<DetectorResponse>  readEC(EvioDataEvent event){
         List<DetectorResponse>  ecResponse = new ArrayList<DetectorResponse>();
+        if(event.hasBank("GenPart::true")==true) {
+            genData = (EvioDataBank) event.getBank("GenPart::true");
+            double ppx = genData.getDouble("px",0);
+            double ppy = genData.getDouble("py",0);
+            double ppz = genData.getDouble("pz",0);
+            double  rm = 0.;
+            if (genData.getInt("pid", 0)==111) rm=mpi0;                   
+            refP  = Math.sqrt(ppx*ppx+ppy*ppy+ppz*ppz);  
+            refE  = Math.sqrt(refP*refP+rm*rm);            
+            refTH = Math.acos(ppz/refP)*180/3.14159;
+        }
         if(event.hasBank("ECDetector::clusters")==true){
             EvioDataBank ecCL = (EvioDataBank) event.getBank("ECDetector::clusters");
             int nrows = ecCL.rows();
@@ -289,8 +301,8 @@ public class ECPart {
             h1.fill((float)invmass,1.);                          //Two-photon invariant mass
             if (invmass>60 && invmass<200) {
                 h2.fill((float)part.X);                          //Pizero energy asymmetry
-                h3.fill((float)1e3*(Math.sqrt(part.tpi2)-2.0));  //Pizero total energy error
-                h4.fill(Math.acos(part.cpi0)*180/3.14159-25.);   //Pizero theta angle error
+                h3.fill((float)(1e3*Math.sqrt(part.tpi2)-refE)); //Pizero total energy error
+                h4.fill(Math.acos(part.cpi0)*180/3.14159-refTH); //Pizero theta angle error
             }
         }
         

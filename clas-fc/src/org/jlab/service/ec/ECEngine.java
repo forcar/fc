@@ -162,6 +162,7 @@ public class ECEngine extends ReconstructionEngine {
     }
     
     public void setCalRun(int runno) {
+        System.out.println("ECEngine: Calibration Run Number = "+runno);
         this.calrun = runno;
     }
     
@@ -201,6 +202,7 @@ public class ECEngine extends ReconstructionEngine {
         
         ecDetector =  GeometryFactory.getDetector(DetectorType.EC);
         
+        setCalRun(2);
         setStripThresholds(10,9,8);
         setPeakThresholds(18,20,15);
         setClusterCuts(7,15,20);
