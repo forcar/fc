@@ -19,11 +19,17 @@ public class CalibrationData {
     private List<Double>             chi2 = new ArrayList<Double>(); 
     private int dataSize; 
     private int fitSize;
+    private int sector,view,strip;
     F1D f1 = null;
-    
-    
+    String otab[]={"U Strip ",      "V Strip ",      "W Strip ",
+                   "U Inner Strip ","V Inner Strip ","W Inner Strip ",
+                   "U Outer Strip ","V Outer Strip ","W Outer Strip "};
+        
     public CalibrationData(int sector, int layer, int component){
         this.desc.setSectorLayerComponent(sector, layer, component);
+        this.sector = sector;
+        this.view   = layer;
+        this.strip  = component;        
     }	
 	
     public DetectorDescriptor getDescriptor(){ return this.desc;}
@@ -31,7 +37,6 @@ public class CalibrationData {
     public void addGraph(double[] cnts, double[] xdata, double[] data, double[] error, boolean[] status){
     	
     	GraphErrors graph;
-		String otab[]={"U Inner Strip","V Inner Strip","W Inner Strip","U Outer Strip","V Outer Strip","W Outer Strip"};
 		
 		dataSize = data.length;
         fitSize  = 0;          
@@ -83,13 +88,8 @@ public class CalibrationData {
         graph.getAttributes().setMarkerColor(1);
         graph.getAttributes().setMarkerStyle(1);
         graph.getAttributes().setMarkerSize(3);
+        graph.getAttributes().setLineColor(1);
         graph.getAttributes().setLineWidth(1);
-        
-        int sector=getDescriptor().getSector();
-        int   view=getDescriptor().getLayer();
-        int  strip=getDescriptor().getComponent()+1;
-        
-        graph.getAttributes().setTitle("EXP FIT: Sector "+sector+" "+otab[view-1]+""+strip);  
         
         this.fitgraphs.add(graph);
         
@@ -102,32 +102,34 @@ public class CalibrationData {
         graph.getAttributes().setLineColor(4);
         graph.getAttributes().setLineWidth(1);
         
-        graph.getAttributes().setTitle("EXP FIT: Sector "+sector+" "+otab[view-1]+" "+strip);        
         this.rawgraphs.add(graph);        
     }
     
     public void addFitFunction(int idet) {
         switch (idet) {
         case 0: f1 = new F1D("A*exp(-x/B)+C","[A]*exp(-x/[B])+[C]",0.,400.);
-        f1.setParameter(1,376.); f1.setParLimits(1,1.,1000.);
+        f1.setParameter(1,376.); f1.setParLimits(1,1.,500.);
         f1.setParameter(2, 20.); f1.setParLimits(2,1.,100.); break;
         case 1: f1 = new F1D("A*exp(-x/B)+C","[A]*exp(-x/[B])+[C]",0.,400.);
-        f1.setParameter(1,376.); f1.setParLimits(1,1.,1000.);
-        f1.setParameter(2,0.);   f1.setParLimits(2,0.,1.); break;
+        f1.setParameter(1,376.); f1.setParLimits(1,1.,5000.);
+        f1.setParameter(2,0.1);  f1.setParLimits(2,0.,1.); break;
         case 2: f1 = new F1D("A*exp(-x/B)+C","[A]*exp(-x/[B])+[C]",0.,400.);
-        f1.setParameter(1,376.); f1.setParLimits(1,1.,1000.);
-        f1.setParameter(2,0.);   f1.setParLimits(2,0.,1.);
+        f1.setParameter(1,376.); f1.setParLimits(1,1.,5000.);
+        f1.setParameter(2,0.1);  f1.setParLimits(2,0.,1.);
         }
         f1.setLineWidth(1); f1.setLineColor(2); 
         this.functions.add(f1);        
     }
     
-    public void analyze(){
+    public void analyze(int idet){
     	DataFitter.FITPRINTOUT=false;
+    	int sl = idet*3+this.view;
+    	addFitFunction(idet);
         for(int loop = 0; loop < this.fitgraphs.size(); loop++){
+            this.rawgraphs.get(0).getAttributes().setTitle("Sector "+sector+" "+otab[sl-1]+" "+strip+" NO PIXEL FIT");
             F1D func = this.functions.get(loop);
             func.setParameter(0, 0.);
-            func.setParameter(1, 50000.);
+            func.setParameter(1, 376.);
             func.setParameter(2, 0.);
             double [] dataY=this.fitgraphs.get(loop).getVectorY().getArray();
             if (dataY.length>0) {
@@ -145,7 +147,9 @@ public class CalibrationData {
             		}
             		ch = ch/(fitSize-func.getNPars()-1);
                     this.fitgraphs.get(loop).setFunction(func);                   
-                    this.fitgraphs.get(loop).getFunction().getAttributes().setOptStat("11111");                   
+                    this.fitgraphs.get(loop).getFunction().getAttributes().setOptStat("11111");                      
+                    this.rawgraphs.get(loop).getAttributes().setTitle("Sector "+sector+" "+otab[sl-1]+" "+strip+" PIXEL FIT");
+                    this.fitgraphs.get(loop).getAttributes().setTitle("Sector "+sector+" "+otab[sl-1]+" "+strip+" PIXEL FIT");
                     this.chi2.add(ch);
             	}
             }
@@ -154,6 +158,6 @@ public class CalibrationData {
     
     public GraphErrors  getFitGraph(int index){return this.fitgraphs.get(index);}
     public GraphErrors  getRawGraph(int index){return this.rawgraphs.get(index);}
-    public F1D          getFunc(int index) {return this.functions.get(index);}
+    public F1D          getFunc(int index)    {return this.functions.get(index);}
     public double       getChi2(int index) {if (this.chi2.isEmpty()==false) return this.chi2.get(index); else return 0.;}
 }

@@ -169,7 +169,10 @@ public class ECHvApp extends FCEpics {
         String tit = "Sector "+is+" "+layMap.get(detName)[lr-1]+" PMT";
         
         h = H1_HV.get(is, lr, 0); h.setTitleX(tit); h.setTitleY("VOLTS");
-        h.setFillColor(32); canvas.cd(0); canvas.draw(h);
+        h.setFillColor(33); canvas.cd(0); canvas.draw(h);
+        
+        h = H1_HV.get(is, lr, 1); h.setTitleX(tit); h.setTitleY("VOLTS");
+        h.setFillColor(32); canvas.cd(0); canvas.draw(h,"same");
 
         h = H1_HV.get(is, lr, 2); h.setTitleX(tit); h.setTitleY("MICROAMPS");
         h.setFillColor(32); canvas.cd(1); canvas.draw(h);

@@ -24,7 +24,7 @@ public class ECMon extends DetectorMonitor {
     
     ECReconstructionApp     ecRecon = null;
     ECMode1App              ecMode1 = null;
-    ECSingleEventApp  ecSingleEvent = null;
+    ECEngineApp               ecEng = null;
     ECAdcApp                  ecAdc = null;
     ECTdcApp                  ecTdc = null;
     ECCalibrationApp        ecCalib = null;
@@ -33,7 +33,7 @@ public class ECMon extends DetectorMonitor {
     ECScalersApp          ecScalers = null;
     ECHvApp                    ecHv = null;   
     
-    ECEngine                  ecEng = null;
+    ECEngine               ecEngine = null;
    
     public int               calRun = 12;
     int                       detID = 0;
@@ -74,6 +74,7 @@ public class ECMon extends DetectorMonitor {
         app.init();
         app.getDetectorView().setFPS(10);
         app.setSelectedTab(2); 
+        app.setIsMC(true);
         monitor.ecDet.initButtons();
     }
     
@@ -99,7 +100,7 @@ public class ECMon extends DetectorMonitor {
     public void makeApps() {
         System.out.println("monitor.makeApps()");   
         
-        ecEng   = new ECEngine();
+        ecEngine   = new ECEngine();
         
         ecRecon = new ECReconstructionApp("ECREC",ecPix);        
         ecRecon.setMonitoringClass(this);
@@ -109,9 +110,9 @@ public class ECMon extends DetectorMonitor {
         ecMode1.setMonitoringClass(this);
         ecMode1.setApplicationClass(app);
         
-        ecSingleEvent = new ECSingleEventApp("SingleEvent",ecPix);
-        ecSingleEvent.setMonitoringClass(this);
-        ecSingleEvent.setApplicationClass(app);
+        ecEng = new ECEngineApp("ECEngine",ecPix);
+        ecEng.setMonitoringClass(this);
+        ecEng.setApplicationClass(app);
         
         ecAdc = new ECAdcApp("ADC",ecPix);        
         ecAdc.setMonitoringClass(this);
@@ -147,7 +148,7 @@ public class ECMon extends DetectorMonitor {
     public void addCanvas() {
         System.out.println("monitor.addCanvas()"); 
         app.addFrame(ecMode1.getName(),             ecMode1.getPanel());
-        app.addFrame(ecSingleEvent.getName(), ecSingleEvent.getPanel());
+        app.addFrame(ecEng.getName(),                 ecEng.getPanel());
         app.addCanvas(ecAdc.getName(),                ecAdc.getCanvas());          
         app.addCanvas(ecTdc.getName(),                ecTdc.getCanvas());          
         app.addCanvas(ecPedestal.getName(),      ecPedestal.getCanvas());         
@@ -176,17 +177,17 @@ public class ECMon extends DetectorMonitor {
         System.out.println("monitor.initEngine():Initializing ecEngine");
         System.out.println("Configuration: "+app.config);       
         ecRecon.init(); 
-        ecEng.init();
-        ecEng.setStripThresholds(ecPix[0].getStripThr(app.config, 1),
+        ecEngine.init();
+        ecEngine.setStripThresholds(ecPix[0].getStripThr(app.config, 1),
                                  ecPix[1].getStripThr(app.config, 1),
                                  ecPix[2].getStripThr(app.config, 1));  
-        ecEng.setPeakThresholds(ecPix[0].getPeakThr(app.config, 1),
+        ecEngine.setPeakThresholds(ecPix[0].getPeakThr(app.config, 1),
                                 ecPix[1].getPeakThr(app.config, 1),
                                 ecPix[2].getPeakThr(app.config, 1));  
-        ecEng.setClusterCuts(ecPix[0].getClusterErr(app.config),
+        ecEngine.setClusterCuts(ecPix[0].getClusterErr(app.config),
                              ecPix[1].getClusterErr(app.config),
                              ecPix[2].getClusterErr(app.config));
-        putGlob("ecEng",ecEng.getHist());
+        putGlob("ecEng",ecEngine.getHist());
         
     }
     
@@ -226,8 +227,8 @@ public class ECMon extends DetectorMonitor {
     } 
 
     @Override
-    public void dataEventAction(DataEvent de) {        
-      if(app.doEng) {ecEng.singleEvent=app.isSingleEvent() ; ecEng.debug = app.debug; ecEng.processDataEvent(de);} 
+    public void dataEventAction(DataEvent de) {   
+      if(app.doEng) {ecEngine.singleEvent=app.isSingleEvent() ; ecEngine.debug = app.debug; ecEngine.processDataEvent(de);} 
       ecRecon.addEvent(de);
     }
 
@@ -240,10 +241,8 @@ public class ECMon extends DetectorMonitor {
 			    break;
 			case 2: 
                 // Final analysis of full detector at end of run
-			    for (int idet=0; idet<ecPix.length; idet++) {
-			       ecRecon.makeMaps(idet);
-				   ecCalib.analyzeAllEngines(idet,is1,is2,1,4);
-			    }
+			    for (int idet=0; idet<ecPix.length; idet++) ecRecon.makeMaps(idet);
+				ecCalib.analyzeAllEngines(is1,is2,1,4);			    
 		        app.setInProcess(3); 
 		}
 	}
@@ -260,7 +259,7 @@ public class ECMon extends DetectorMonitor {
         this.analyze();	
         switch (app.getSelectedTabName()) {
         case "Mode1":                       ecMode1.updateCanvas(dd); break;
-        case "SingleEvent":           ecSingleEvent.updateCanvas(dd); break;
+        case "ECEngine":                      ecEng.updateCanvas(dd); break;
         case "ADC":                           ecAdc.updateCanvas(dd); break;
         case "TDC":                           ecTdc.updateCanvas(dd); break;
         case "Pedestal":                 ecPedestal.updateCanvas(dd); break;
@@ -295,6 +294,7 @@ public class ECMon extends DetectorMonitor {
     
     @Override
     public void saveToFile() {
+        System.out.println("monitor.saveToFile()");
         for (int idet=0; idet<3; idet++) {
             String hipoFileName = app.hipoPath+"/"+mondet+idet+"_"+app.hipoRun+".hipo";
             System.out.println("Saving Histograms to "+hipoFileName);

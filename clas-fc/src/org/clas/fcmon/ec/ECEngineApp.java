@@ -1,13 +1,23 @@
 package org.clas.fcmon.ec;
 
 import java.awt.BorderLayout;
+import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.MouseEvent;
 
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JTextField;
 
 import org.clas.fcmon.tools.FCApplication;
 import org.jlab.detector.base.DetectorCollection;
@@ -18,7 +28,7 @@ import org.jlab.io.base.DataEvent;
 import org.jlab.groot.data.H1F;
 import org.jlab.groot.data.H2F; 
 
-public class ECSingleEventApp extends FCApplication {
+public class ECEngineApp extends FCApplication implements ActionListener {
 
     JPanel              engineView = new JPanel();
     EmbeddedCanvasTabbed    strips = new EmbeddedCanvasTabbed("Strips");
@@ -26,16 +36,32 @@ public class ECSingleEventApp extends FCApplication {
     EmbeddedCanvasTabbed  clusters = new EmbeddedCanvasTabbed("Clusters");
     EmbeddedCanvasTabbed        mc = new EmbeddedCanvasTabbed("MC");
     EmbeddedCanvas               c = new EmbeddedCanvas();
+    
+    JPanel              buttonPane = null;  
+    JTextField                  sf = new JTextField(4);  
+    JComboBox                   cb = null;
+    JCheckBox             debugBtn = null;
+    JCheckBox               engBtn = null;
+    JCheckBox               crtBtn = null;    
 
-   public ECSingleEventApp(String name, ECPixels[] ecPix) {
+   public ECEngineApp(String name, ECPixels[] ecPix) {
       super(name,ecPix);
       initCanvas();
       createPopupMenu();
    }
    
-
    public JPanel getPanel() {        
        engineView.setLayout(new BorderLayout());
+       engineView.add(getCanvasPane(),BorderLayout.CENTER);
+       engineView.add(getButtonPane(),BorderLayout.PAGE_END);
+       mc.addCanvas("Resid");
+       mc.addCanvas("SF");
+       mc.addCanvas("PI0");
+       return engineView;       
+   }  
+   
+   public JSplitPane getCanvasPane() {
+       
        JSplitPane    hPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT); 
        JSplitPane   vPaneL = new JSplitPane(JSplitPane.VERTICAL_SPLIT); 
        JSplitPane   vPaneR = new JSplitPane(JSplitPane.VERTICAL_SPLIT); 
@@ -47,13 +73,88 @@ public class ECSingleEventApp extends FCApplication {
        vPaneR.setBottomComponent(mc);
        hPane.setResizeWeight(0.5);
        vPaneL.setResizeWeight(0.5);
-       vPaneR.setResizeWeight(0.5);
-       engineView.add(hPane);
-       mc.addCanvas("Resid");
-       mc.addCanvas("SF");
-       mc.addCanvas("PI0");
-       return engineView;       
-   }  
+       vPaneR.setResizeWeight(0.5);      
+       return hPane;
+   }
+   
+   public JPanel getButtonPane() {
+       
+       buttonPane = new JPanel();
+       buttonPane.setLayout(new FlowLayout());
+       
+       cb = new JComboBox();
+       DefaultComboBoxModel model = (DefaultComboBoxModel) cb.getModel();
+       model.addElement("photon");
+       model.addElement("electron");
+       model.addElement("muon");
+       model.addElement("pizero");
+       cb.setModel(model);
+       cb.addActionListener(new ActionListener() {
+           public void actionPerformed(ActionEvent e) {
+               String s = (String) cb.getSelectedItem();
+               switch (s) {
+               case   "photon": app.config="phot"; break;
+               case "electron": app.config="elec"; break;
+               case     "muon": app.config="muon"; break;
+               case   "pizero": app.config="pi0";
+               }
+               mon.initEngine();
+           }
+       });
+       
+       buttonPane.add(new JLabel("Config:"));
+       buttonPane.add(cb);
+       
+       buttonPane.add(new JLabel("SF:"));
+       sf.setActionCommand("SF"); sf.addActionListener(this); sf.setText(app.geom);  
+       buttonPane.add(sf); 
+       
+       debugBtn = new JCheckBox("Debug");
+       debugBtn.addItemListener(new ItemListener() {
+           public void itemStateChanged(ItemEvent e) {
+               if(e.getStateChange() == ItemEvent.SELECTED) {
+                   app.debug = true;
+               } else {
+                   app.debug = false;
+               };
+           }
+       }); 
+       debugBtn.setSelected(false);
+       buttonPane.add(debugBtn);
+       
+       engBtn = new JCheckBox("ECEngine");
+       engBtn.addItemListener(new ItemListener() {
+           public void itemStateChanged(ItemEvent e) {
+               if(e.getStateChange() == ItemEvent.SELECTED) {
+                   app.doEng = true;
+               } else {
+                   app.doEng = false;
+               };
+           }
+       });           
+       engBtn.setSelected(false);
+       buttonPane.add(engBtn);
+       
+       crtBtn = new JCheckBox("CRT");
+       crtBtn.addItemListener(new ItemListener() {
+           public void itemStateChanged(ItemEvent e) {
+               if(e.getStateChange() == ItemEvent.SELECTED) {
+                   app.isCRT = true;
+               } else {
+                   app.isCRT = false;
+               };
+           }
+       });         
+       crtBtn.setSelected(false);
+       buttonPane.add(crtBtn);
+       
+       return buttonPane;
+       
+   }
+   public void actionPerformed(ActionEvent e) {
+       if(e.getActionCommand().compareTo("SF")==0) app.geom = sf.getText();
+   }      
+   
    private void createPopupMenu(){
        strips.popup = new JPopupMenu();
        JMenuItem itemCopy = new JMenuItem("Copy Canvas");

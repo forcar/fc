@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.swing.JSplitPane;
 
+import org.clas.fcmon.tools.CalibrationData;
 import org.jlab.detector.calib.tasks.CalibrationEngine;
 import org.jlab.detector.calib.utils.CalibrationConstants;
 import org.jlab.groot.graphics.EmbeddedCanvas;
@@ -18,6 +19,7 @@ public class ECCalibrationEngine extends CalibrationEngine {
         public final static String[]    LAYER_NAME = {"LEFT","RIGHT"};
         
         CalibrationConstants calib;
+        CalibrationData fits;
         
         IndexedList<DataGroup> dataGroups = new IndexedList<DataGroup>(3);
         IndexedList<Double[]> constants = new IndexedList<Double[]>(3);
@@ -79,6 +81,18 @@ public class ECCalibrationEngine extends CalibrationEngine {
         public void fit(int sector, int layer, int paddle,
                 double minRange, double maxRange){
             // overridden in calibration application class
+        }
+        
+        public float getMin(float[] array) {
+            float[] dum = array.clone();
+            Arrays.sort(dum);
+            return dum[0];
+        }
+        
+        public float getMax(float[] array) {
+            float[] dum = array.clone();
+            Arrays.sort(dum);
+            return dum[dum.length-1];
         }
 
         public void save() {
