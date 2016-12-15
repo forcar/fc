@@ -314,8 +314,8 @@ public class ECPixels {
                 id="s"+Integer.toString(is)+"_l"+Integer.toString(il)+"_c";
                 H2_a_Hist.add(is, il, 0, new H2F("a_raw_"+id+0, 125,   0., 250., nstr, 1., nend));
                 H2_a_Hist.add(is, il, 1, new H2F("b_pix_"+id+1, 125,   0., 250., nstr, 1., nend));
-                H2_t_Hist.add(is, il, 0, new H2F("a_raw_"+id+0, 100,1300.,1500., nstr, 1., nend));
-                H2_t_Hist.add(is, il, 1, new H2F("b_pix_"+id+1, 100,1300.,1500., nstr, 1., nend));
+                H2_t_Hist.add(is, il, 0, new H2F("a_raw_"+id+0, 100,1200.,1500., nstr, 1., nend));
+                H2_t_Hist.add(is, il, 1, new H2F("b_pix_"+id+1, 100,1200.,1500., nstr, 1., nend));
                 // Pedestal Noise  
                 H2_Peds_Hist.add(is, il, 0, new H2F("a_ped_"+id+0,  20, -10.,  10., nstr, 1., nend)); 
                 // Mode1  
@@ -362,7 +362,7 @@ public class ECPixels {
                 // Occupancy 
                 id="s"+Integer.toString(is)+"_l"+Integer.toString(il)+"_c";
                 H2_a_Hist.add(is, il, 2, new H2F("c_pix_"+id+2,  25,   0., 250., npix, 1., pend));
-                H2_t_Hist.add(is, il, 2, new H2F("c_pix_"+id+2,  40,1300.,1420., npix, 1., pend));
+                H2_t_Hist.add(is, il, 2, new H2F("c_pix_"+id+2,  40,1200.,1420., npix, 1., pend));
                 // Layer Maps
                 H1_a_Maps.add(is, il, 0, new H1F("a_apix_"   +id+0, npix, 1., pend)); //adc weighted pixel
                 H1_a_Maps.add(is, il, 1, new H1F("b_napix_"  +id+1, npix, 1., pend)); //normalized adc weighted pixel

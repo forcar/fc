@@ -67,7 +67,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
         for (int i=0; i<engines.length; i++) engines[i].init(ECConstants.IS1,ECConstants.IS2); 
     }   
     
-    public JPanel getCalibPane() {        
+    public JPanel getPanel() {        
         engineView.setLayout(new BorderLayout());
         ccview.getTabbedPane().addChangeListener(this);        
         for (int i=0; i < engines.length; i++) {

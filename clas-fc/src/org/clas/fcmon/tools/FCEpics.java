@@ -41,7 +41,8 @@ public class FCEpics  {
     
     public Monitor<Double>     monitor = null;
     
-    JPanel HVScalers = new JPanel();
+    public JPanel           engineView = new JPanel();    
+    public JPanel           buttonPane = null;  
     public EmbeddedCanvas scaler1DView = new EmbeddedCanvas();
     public EmbeddedCanvas scaler2DView = new EmbeddedCanvas();
     
@@ -95,16 +96,6 @@ public class FCEpics  {
     public String getName() {
         return this.appName;
     }
-    
-    public JPanel getScalerPane() {        
-        HVScalers.setLayout(new BorderLayout());
-        JSplitPane HVScalerPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);       
-        HVScalerPane.setTopComponent(scaler1DView);
-        HVScalerPane.setBottomComponent(scaler2DView);       
-        HVScalerPane.setResizeWeight(0.2);
-        HVScalers.add(HVScalerPane);
-        return HVScalers;       
-    } 
     
     public int connectCa(int grp, String action, int sector, int layer, int channel) {
         if (!online) return 0;

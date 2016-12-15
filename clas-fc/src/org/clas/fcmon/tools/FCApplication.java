@@ -46,7 +46,8 @@ public class FCApplication implements ActionListener  {
     
     private String                                 appName    = null;
     private List<EmbeddedCanvas>                   canvases   = new ArrayList<EmbeddedCanvas>();
-    private JPanel                                 radioPane  = new JPanel();
+    private JPanel                                 radioPane  = null;
+    public JPanel                                  buttonPane = null;  
     private CalibrationEngineView                  calibPane  = null;
     private List<String>                           fields     = new ArrayList<String>();
 //    private List<FCParameter>                      parameters = new ArrayList<FCParameter>();
@@ -260,6 +261,7 @@ public class FCApplication implements ActionListener  {
     }
 
     public JPanel getRadioPane() {
+        radioPane = new JPanel();
         return radioPane;
     }
     
@@ -269,6 +271,15 @@ public class FCApplication implements ActionListener  {
     
     public int getButtonIndex() {
         return buttonIndex;
+    }
+    
+    public void setButtonPane(JPanel buttonPane) {
+        this.buttonPane = buttonPane;
+    }
+    
+    public JPanel getButtonPane(){
+        buttonPane = new JPanel();
+        return buttonPane;
     }
     
     public String getCanvasSelect() {

@@ -153,9 +153,9 @@ public class ECMon extends DetectorMonitor {
         app.addCanvas(ecTdc.getName(),                ecTdc.getCanvas());          
         app.addCanvas(ecPedestal.getName(),      ecPedestal.getCanvas());         
         app.addCanvas(ecPixels.getName(),          ecPixels.getCanvas());         
-        app.addFrame(ecCalib.getName(),             ecCalib.getCalibPane());
-        app.addFrame(ecHv.getName(),                   ecHv.getScalerPane());
-        app.addFrame(ecScalers.getName(),         ecScalers.getScalerPane());        
+        app.addFrame(ecCalib.getName(),             ecCalib.getPanel());
+        app.addFrame(ecHv.getName(),                   ecHv.getPanel());
+        app.addFrame(ecScalers.getName(),         ecScalers.getPanel());        
     }
 	
     public void init( ) {	    

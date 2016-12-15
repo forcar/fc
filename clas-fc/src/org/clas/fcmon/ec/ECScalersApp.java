@@ -1,9 +1,12 @@
 package org.clas.fcmon.ec;
 
+import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.LinkedList;
 
+import javax.swing.JPanel;
+import javax.swing.JSplitPane;
 import javax.swing.Timer;
 
 import org.clas.fcmon.tools.FCEpics;
@@ -48,6 +51,26 @@ public class ECScalersApp extends FCEpics {
         this.timer = new Timer(delay,action);  
         this.timer.setDelay(delay);
         this.timer.start();
+    }
+    
+    public JPanel getPanel() {        
+        engineView.setLayout(new BorderLayout());
+        engineView.add(getCanvasPane(),BorderLayout.CENTER);
+        engineView.add(getButtonPane(),BorderLayout.PAGE_END);
+        return engineView;       
+    }   
+    
+    public JSplitPane getCanvasPane() {
+        JSplitPane HVScalerPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);       
+        HVScalerPane.setTopComponent(scaler1DView);
+        HVScalerPane.setBottomComponent(scaler2DView);       
+        HVScalerPane.setResizeWeight(0.2);
+        return HVScalerPane;
+    }
+    
+    public JPanel getButtonPane() {
+        buttonPane = new JPanel();
+        return buttonPane;
     }
     
     private class updateGUIAction implements ActionListener {

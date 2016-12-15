@@ -37,7 +37,6 @@ public class ECEngineApp extends FCApplication implements ActionListener {
     EmbeddedCanvasTabbed        mc = new EmbeddedCanvasTabbed("MC");
     EmbeddedCanvas               c = new EmbeddedCanvas();
     
-    JPanel              buttonPane = null;  
     JTextField                  sf = new JTextField(4);  
     JComboBox                   cb = null;
     JCheckBox             debugBtn = null;

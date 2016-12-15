@@ -1,11 +1,16 @@
 package org.clas.fcmon.ec;
 
 import java.awt.BorderLayout;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.LinkedList;
 
+import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSplitPane;
+import javax.swing.JTextField;
 import javax.swing.Timer;
 
 import org.clas.fcmon.tools.FCEpics;
@@ -16,8 +21,11 @@ import org.jlab.groot.graphics.EmbeddedCanvas;
 import org.jlab.groot.data.H1F;
 import org.jlab.groot.data.H2F;
 
-public class ECHvApp extends FCEpics {
+public class ECHvApp extends FCEpics implements ActionListener {
    
+    JTextField   newhv = new JTextField(4);
+    JLabel statuslabel = new JLabel();
+    
     DetectorCollection<H1F> H1_HV = new DetectorCollection<H1F>();
     DetectorCollection<H2F> H2_HV = new DetectorCollection<H2F>();
     
@@ -28,6 +36,7 @@ public class ECHvApp extends FCEpics {
     int nfifo=0, nmax=120;
     int isCurrentSector;
     int isCurrentLayer;
+    double newHV=0;
     
     ECHvApp(String name, String det) {
         super(name, det);
@@ -48,6 +57,39 @@ public class ECHvApp extends FCEpics {
         this.timer = new Timer(delay,action);  
         this.timer.setDelay(delay);
         this.timer.start();       
+    }
+    
+    public JPanel getPanel() {        
+        engineView.setLayout(new BorderLayout());
+        engineView.add(getCanvasPane(),BorderLayout.CENTER);
+        engineView.add(getButtonPane(),BorderLayout.PAGE_END);
+        return engineView;       
+    }   
+    
+    public JSplitPane getCanvasPane() {
+        JSplitPane HVScalerPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);       
+        HVScalerPane.setTopComponent(scaler1DView);
+        HVScalerPane.setBottomComponent(scaler2DView);       
+        HVScalerPane.setResizeWeight(0.2);
+        return HVScalerPane;
+    }
+    
+    public JPanel getButtonPane() {
+        buttonPane = new JPanel();
+        buttonPane.setLayout(new FlowLayout());
+        
+        JButton loadBtn = new JButton("Load HV");
+        loadBtn.addActionListener(this);
+        buttonPane.add(loadBtn); 
+
+        buttonPane.add(new JLabel("New HV:"));
+        newhv.setActionCommand("NEWHV"); newhv.addActionListener(this); newhv.setText("0");  
+        buttonPane.add(newhv); 
+        
+        statuslabel = new JLabel(" ");         
+        buttonPane.add(statuslabel);
+        
+        return buttonPane;
     }
     
     private class updateGUIAction implements ActionListener {
@@ -140,6 +182,10 @@ public class ECHvApp extends FCEpics {
         
     }
     
+    public void updateStatus(int is, int il, int ic) {
+        this.statuslabel.setText(" Sector: "+is+" SuperLayer:" +il+" PMT:"+ic);        
+    }
+    
     public void updateCanvas(DetectorDescriptor dd) {
         
         sectorSelected  = dd.getSector();
@@ -148,9 +194,10 @@ public class ECHvApp extends FCEpics {
         
         update1DScalers(scaler1DView,0);   
         update2DScalers(scaler2DView,0);
-        
+        updateStatus(sectorSelected,layerSelected+3*app.detectorIndex,channelSelected+1);
         isCurrentSector = sectorSelected;
         isCurrentLayer  = layerSelected;
+        
     }
     
     public void update1DScalers(EmbeddedCanvas canvas, int flag) {
@@ -216,6 +263,17 @@ public class ECHvApp extends FCEpics {
         
         isCurrentSector = is;
         isCurrentLayer  = lr;
+        
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        // TODO Auto-generated method stub
+        int is = sectorSelected;
+        int lr = layerSelected+3*app.detectorIndex;
+        int ip = channelSelected+1; 
+        if(e.getActionCommand().compareTo("Load HV")==0) putCaValue(0,"vset",is,lr,ip,newHV);
+        if(e.getActionCommand().compareTo("NEWHV")==0)   newHV = Double.parseDouble(newhv.getText());
         
     }
     
