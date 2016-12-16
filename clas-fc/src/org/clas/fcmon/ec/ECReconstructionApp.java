@@ -542,7 +542,7 @@ public class ECReconstructionApp extends FCApplication {
         
    public void fill(int idet, int is, int il, int ip, int adc, double tdc, double tdcf) {
 
-       if(tdc>1200&&tdc<1500){
+       if(tdc>0&&tdc<1500){
            ecPix[idet].uvwt[is-1]=ecPix[idet].uvwt[is-1]+ecPix[idet].uvw_dalitz(idet,il,ip); //Dalitz tdc 
            ecPix[idet].nht[is-1][il-1]++; int inh = ecPix[idet].nht[is-1][il-1];
            if (inh>nstr) inh=nstr;

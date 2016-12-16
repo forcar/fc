@@ -183,7 +183,13 @@ public class ECHvApp extends FCEpics implements ActionListener {
     }
     
     public void updateStatus(int is, int il, int ic) {
-        this.statuslabel.setText(" Sector: "+is+" SuperLayer:" +il+" PMT:"+ic);        
+//        int vset = (int)getCaValue(0,"vset",is, il, ic);
+//        int vmon = (int)getCaValue(0,"vmon",is, il, ic);
+//        int imon = (int)getCaValue(0,"imon",is, il, ic);
+        double vset = app.fifo1.get(is,il,ic).getLast();
+        double vmon = app.fifo2.get(is,il,ic).getLast(); 
+        double imon = app.fifo3.get(is,il,ic).getLast(); 
+        this.statuslabel.setText(" Sector:"+is+"  SuperLayer:" +il+"  PMT:"+ic+"  Vset:"+(int)vset+"  Vmon:"+(int)vmon+"  Imon:"+(int)imon);        
     }
     
     public void updateCanvas(DetectorDescriptor dd) {
