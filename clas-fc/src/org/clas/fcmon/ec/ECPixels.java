@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.TreeMap;
@@ -22,8 +23,11 @@ import org.clas.fcmon.tools.ECpixelDepth;
 import org.jlab.detector.base.DetectorCollection;
 import org.jlab.detector.base.DetectorDescriptor;
 import org.jlab.detector.base.DetectorType;
+import org.jlab.detector.calib.utils.ConstantsManager;
+import org.clas.containers.FTHashCollection;
 import org.clas.fcmon.detector.view.DetectorShape2D;
 import org.jlab.groot.ui.PaveText;
+import org.jlab.utils.groups.IndexedTable;
 import org.jlab.geom.detector.ec.ECDetector;
 import org.jlab.geom.detector.ec.ECFactory;
 import org.jlab.geom.detector.ec.ECLayer;
@@ -42,7 +46,7 @@ public class ECPixels {
     ECDetector      detector = null;
     PrintWriter       writer = null;
     DetectorShape2D    shape = new DetectorShape2D();
-	
+    
     public TreeMap<Integer,List<double[]>>          clusterXY = new TreeMap<Integer, List<double[]>>();
     public TreeMap<Integer,List<double[]>>             peakXY = new TreeMap<Integer, List<double[]>>();
     public DetectorCollection<TreeMap<Integer,Object>> Lmap_a = new DetectorCollection<TreeMap<Integer,Object>>();
@@ -97,7 +101,7 @@ public class ECPixels {
 	
     public ECPixels(String det, ECDetector ecdet) {		
         System.out.println(" "); System.out.println("ECPixels("+det+")");
-        this.detName = det;
+        this.detName  = det;
         this.detector = ecdet;
         if (det=="PCAL")   idet=0;
         if (det=="ECin")   idet=1;
@@ -121,11 +125,6 @@ public class ECPixels {
 //    this.testStrips();
 //    this.testPixels();
         
-    }
-    
-    public static void main(String[] args) {
-        ECDetector ecdet  = new ECFactory().createDetectorTilted(DataBaseLoader.getGeometryConstants(DetectorType.EC, 10, "default"));
-        ECPixels pix = new ECPixels("PCAL",ecdet);        
     }
     
     public void init() {
@@ -171,7 +170,7 @@ public class ECPixels {
         GetStripsDB();
         GetPixelsDB();    
     }
-
+    
     public void GetStripsDB() {
         
         System.out.println("ECPixels:GetStripsDB()");	

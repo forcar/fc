@@ -27,8 +27,10 @@ import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import org.clas.containers.FTHashCollection;
 import org.clas.fcmon.detector.view.DetectorPane2D;
 import org.jlab.detector.base.DetectorCollection;
+import org.jlab.detector.base.DetectorDescriptor;
 import org.jlab.groot.graphics.EmbeddedCanvas;
 
 /*
@@ -39,14 +41,14 @@ import org.jlab.groot.graphics.EmbeddedCanvas;
 @SuppressWarnings("serial")
 public class MonitorApp extends JFrame implements ActionListener {
     
-    DetectorPane2D detectorView;  
-    int      selectedTabIndex = 0;  
-    String   selectedTabName  = " ";  
-	
+    DetectorPane2D       detectorView;  	
     JTabbedPane      canvasTabbedPane;
     JSplitPane             vSplitPane; 
     JSplitPane	           hSplitPane;
 	
+    JPanel  detectorPane;
+    JPanel  infoPane;
+    JLabel statusLabel = null;
     JPanel  canvasPane = null;
     JPanel  buttonPane = null;
     JTextField   runno = new JTextField(4);
@@ -63,6 +65,8 @@ public class MonitorApp extends JFrame implements ActionListener {
     public DisplayControl   displayControl = null;	
     public Mode7Emulation   mode7Emulation = null;
     
+    int      selectedTabIndex = 0;  
+    String   selectedTabName  = " ";  
     public String currentView = null;
     public int   currentCrate = 1;
     public int   currentSlot  = 3;
@@ -85,8 +89,6 @@ public class MonitorApp extends JFrame implements ActionListener {
     public DetectorCollection<LinkedList<Double>> fifo4 = new DetectorCollection<LinkedList<Double>>();
     public DetectorCollection<LinkedList<Double>> fifo5 = new DetectorCollection<LinkedList<Double>>();
         
-//    Miscellaneous    extra = new Miscellaneous();
-       
     DetectorMonitor   monitoringClass = null;
     
     public MonitorApp(String name, int xsize, int ysize) {
@@ -127,13 +129,33 @@ public class MonitorApp extends JFrame implements ActionListener {
     
     public void makeGUI(){
 
+// Setup containers        
+        
         this.setLayout(new BorderLayout());   
     	
         this.detectorView       = new DetectorPane2D();
-        this.canvasPane         = new JPanel();
-        this.canvasTabbedPane   = new JTabbedPane();	
+        this.infoPane           = new JPanel();
+        this.detectorPane       = new JPanel();
+        
+        detectorPane.setLayout(new BorderLayout());
+        this.detectorPane.add(detectorView,BorderLayout.CENTER);
+        this.detectorPane.add(infoPane,BorderLayout.PAGE_END);
+        
+        this.canvasTabbedPane   = new JTabbedPane();    
         this.buttonPane         = new JPanel();
-		
+        this.canvasPane         = new JPanel();
+        
+        canvasPane.setLayout(new BorderLayout());
+        this.canvasPane.add(canvasTabbedPane,BorderLayout.CENTER);
+        this.canvasPane.add(buttonPane,BorderLayout.PAGE_END);
+
+        
+// InfoPane label
+        
+        infoPane.setLayout(new FlowLayout());
+        statusLabel = new JLabel(" ");         
+        infoPane.add(statusLabel);
+
 // Canvas buttons
 		
         mcBtn = new JCheckBox("MC");
@@ -160,7 +182,6 @@ public class MonitorApp extends JFrame implements ActionListener {
         JButton loadBtn = new JButton("Load Histos");
         loadBtn.addActionListener(this);
         buttonPane.add(loadBtn); 
-
         
         buttonPane.add(new JLabel("Run:"));
         runno.setActionCommand("RUN"); runno.addActionListener(this); runno.setText(hipoRun);  
@@ -203,14 +224,10 @@ public class MonitorApp extends JFrame implements ActionListener {
         		
 // Basic GUI layout
         
-        this.hSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,detectorView,controlsPanel0);		
+        this.hSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,detectorPane,controlsPanel0);		
         this.hSplitPane.setDividerLocation(600);  
         this.hSplitPane.setResizeWeight(1.0);
 		
-        canvasPane.setLayout(new BorderLayout());
-        this.canvasPane.add(canvasTabbedPane,BorderLayout.CENTER);
-        this.canvasPane.add(buttonPane,BorderLayout.PAGE_END);
-        
         this.vSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,hSplitPane,canvasPane);			
         this.vSplitPane.setDividerLocation(600);  
 
@@ -304,6 +321,10 @@ public class MonitorApp extends JFrame implements ActionListener {
          }
          }
       });
+    }
+    
+    public void updateStatus(String status)  {
+        this.statusLabel.setText(status) ; 
     }
     
     @Override

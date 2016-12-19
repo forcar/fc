@@ -45,7 +45,7 @@ public class ECReconstructionApp extends FCApplication {
    double refE=0,refP=0,refTH=25;
    Boolean printit = false;
    
-   CodaEventDecoder            newdecoder = new CodaEventDecoder();
+   CodaEventDecoder           codaDecoder = new CodaEventDecoder();
    DetectorEventDecoder   detectorDecoder = new DetectorEventDecoder();
    List<DetectorDataDgtz>   detectorData  = new ArrayList<DetectorDataDgtz>();
    EvioDataBank            mcData,genData = null;
@@ -136,7 +136,7 @@ public class ECReconstructionApp extends FCApplication {
       double tdc=0,tdcf=0;
       String AdcType ;
       
-      List<DetectorDataDgtz>  dataSet = newdecoder.getDataEntries((EvioDataEvent) event);
+      List<DetectorDataDgtz>  dataSet = codaDecoder.getDataEntries((EvioDataEvent) event);
       
       detectorDecoder.translate(dataSet);   
       detectorDecoder.fitPulses(dataSet);

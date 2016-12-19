@@ -1,5 +1,6 @@
 package org.clas.fcmon.ec;
 
+import org.clas.containers.FTHashCollection;
 import org.clas.fcmon.detector.view.DetectorShape2D;
 import org.clas.fcmon.tools.*;
 import org.jlab.detector.base.DetectorType;
@@ -9,6 +10,7 @@ import org.jlab.geom.detector.ec.ECDetector;
 import org.jlab.geom.detector.ec.ECFactory;
 import org.jlab.io.base.DataEvent;
 import org.jlab.service.ec.*;
+import org.jlab.utils.groups.IndexedTable;
 
 import java.util.Arrays;
 import java.util.TreeMap;
@@ -19,7 +21,7 @@ public class ECMon extends DetectorMonitor {
     
     ECPixels                ecPix[] = new ECPixels[3];
     ConstantsManager           ccdb = new ConstantsManager();
- 
+    FTHashCollection            rtt = null;
     ECDet                     ecDet = null;
     
     ECReconstructionApp     ecRecon = null;
@@ -35,10 +37,10 @@ public class ECMon extends DetectorMonitor {
     
     ECEngine               ecEngine = null;
    
-    public int               calRun = 12;
+    public static int        calRun = 12;
     int                       detID = 0;
-    int                         is1 = 3 ;
-    int                         is2 = 4 ;  
+    int                         is1 = 2 ;
+    int                         is2 = 3 ;  
     int    nsa,nsb,tet,p1,p2,pedref = 0;
     double               PCMon_zmin = 0;
     double               PCMon_zmax = 0;
@@ -61,8 +63,8 @@ public class ECMon extends DetectorMonitor {
         String det = "PCAL";
         ECMon monitor = new ECMon(det);		
         app.setPluginClass(monitor);
-        app.getEnv();
         app.makeGUI();
+        app.getEnv();
         monitor.initConstants();
         monitor.initCCDB();
         monitor.initGlob();
@@ -77,17 +79,43 @@ public class ECMon extends DetectorMonitor {
         monitor.ecDet.initButtons();
     }
     
+    public FTHashCollection getReverseTT(ConstantsManager ccdb) {
+        System.out.println("monitor.getReverseTT()"); 
+        IndexedTable tt = ccdb.getConstants(10,  "/daq/tt/ec");
+        FTHashCollection rtt = new FTHashCollection<int[]>(4);
+        for(int ic=1; ic<35; ic++) {
+            for (int sl=3; sl<19; sl++) {
+                int chmax=16;
+                if (sl==6||sl==16) chmax=128;
+                for (int ch=0; ch<chmax; ch++){
+                    if (tt.hasEntry(ic,sl,ch)) {
+                        int[] dum = {ic,sl,ch}; rtt.add(dum,tt.getIntValue("sector",    ic,sl,ch),
+                                                            tt.getIntValue("layer",     ic,sl,ch),
+                                                            tt.getIntValue("component", ic,sl,ch),
+                                                            tt.getIntValue("order",     ic,sl,ch));
+                    };
+                }
+            }
+        }
+        return rtt;
+    }
+    
     public void initConstants() {
         ECConstants.setSectors(is1,is2);
     }
     
     public void initCCDB() {
+        System.out.println("monitor.initCCDB()"); 
         ccdb.init(Arrays.asList(new String[]{
                 "/daq/fadc/ec",
-                "/calibration/ec/attenuation","/calibration/ec/gain","/calibration/ec/status"}));
+                "/daq/tt/ec",
+                "/calibration/ec/attenuation",
+                "/calibration/ec/gain",
+                "/calibration/ec/status"}));
+        rtt = getReverseTT(ccdb);
         app.mode7Emulation.init(ccdb,calRun,"/daq/fadc/ec", 3,3,1);        
-    }
-	
+    }	
+    
     public void initDetector() {
         System.out.println("monitor.initDetector()"); 
         ecDet = new ECDet("ECDet",ecPix);
@@ -178,14 +206,14 @@ public class ECMon extends DetectorMonitor {
         ecRecon.init(); 
         ecEngine.init();
         ecEngine.setStripThresholds(ecPix[0].getStripThr(app.config, 1),
-                                 ecPix[1].getStripThr(app.config, 1),
-                                 ecPix[2].getStripThr(app.config, 1));  
+                                    ecPix[1].getStripThr(app.config, 1),
+                                    ecPix[2].getStripThr(app.config, 1));  
         ecEngine.setPeakThresholds(ecPix[0].getPeakThr(app.config, 1),
-                                ecPix[1].getPeakThr(app.config, 1),
-                                ecPix[2].getPeakThr(app.config, 1));  
+                                   ecPix[1].getPeakThr(app.config, 1),
+                                   ecPix[2].getPeakThr(app.config, 1));  
         ecEngine.setClusterCuts(ecPix[0].getClusterErr(app.config),
-                             ecPix[1].getClusterErr(app.config),
-                             ecPix[2].getClusterErr(app.config));
+                                ecPix[1].getClusterErr(app.config),
+                                ecPix[2].getClusterErr(app.config));
         putGlob("ecEng",ecEngine.getHist());
         
     }
@@ -255,6 +283,7 @@ public class ECMon extends DetectorMonitor {
     @Override
     public void processShape(DetectorShape2D shape) {		
         DetectorDescriptor dd = shape.getDescriptor();
+        app.updateStatus(getStatusString(dd));
         this.analyze();	
         switch (app.getSelectedTabName()) {
         case "Mode1":                       ecMode1.updateCanvas(dd); break;
@@ -268,7 +297,25 @@ public class ECMon extends DetectorMonitor {
         case "Scalers":                   ecScalers.updateCanvas(dd);
         }				
     }
-
+    
+    public String getStatusString(DetectorDescriptor dd) {
+        int is = dd.getSector();
+        int il = dd.getLayer()+3*app.detectorIndex;
+        int ic = dd.getComponent()+1;
+        int or = 0;
+        int cr = 0;
+        int sl = 0;
+        int ch = 0;
+        if (app.getSelectedTabName()=="TDC") or=2;
+        if (rtt.hasItem(is,il,ic,or)) {
+            int[] dum = (int[]) rtt.getItem(is,il,ic,or);
+            cr = dum[0];
+            sl = dum[1];
+            ch = dum[2];
+        }   
+        return " Sector:"+is+"  SuperLayer:"+il+"  PMT:"+ic+" "+" Crate:"+cr+" Slot:"+sl+" Chan:"+ch;
+    }
+    
     @Override
     public void resetEventListener() {
 
