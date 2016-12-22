@@ -156,10 +156,10 @@ public class FCApplication implements ActionListener  {
 	public void analyze() {
 	}
 	
-    public void analyze(int is1, int is2, int il1, int il2, int ip1, int ip2) {
+    public synchronized void analyze(int idet, int is1, int is2, int il1, int il2, int ip1, int ip2) {
     }
     
-    public void analyze(int idet, int is1, int is2, int il1, int il2) {
+    public synchronized void analyze(int idet, int is1, int is2, int il1, int il2) {
     }
 	
 	public void updateCanvas(DetectorDescriptor dd, EmbeddedCanvas canvas) {		
@@ -325,7 +325,7 @@ public class FCApplication implements ActionListener  {
     public class EmbeddedCanvasTabbed extends JPanel implements MouseMotionListener, MouseListener {
         
         private JTabbedPane   tabbedPane = null; 
-        private JPanel       actionPanel = null;  
+        public JPanel        actionPanel = null;  
         public JPopupMenu          popup = null;
         private int             popupPad = 0;
         public String     selectedCanvas = null;

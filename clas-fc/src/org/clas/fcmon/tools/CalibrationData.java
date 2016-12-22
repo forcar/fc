@@ -13,13 +13,21 @@ public class CalibrationData {
 	
     DetectorDescriptor desc = new DetectorDescriptor();
     
-    private List<GraphErrors>  rawgraphs  = new ArrayList<GraphErrors>();
-    private List<GraphErrors>  fitgraphs  = new ArrayList<GraphErrors>();
-    private List<F1D>          functions  = new ArrayList<F1D>();
-    private List<Double>             chi2 = new ArrayList<Double>(); 
-    private int dataSize; 
-    private int fitSize;
+    List<GraphErrors>  rawgraphs  = new ArrayList<GraphErrors>();
+    List<GraphErrors>  fitgraphs  = new ArrayList<GraphErrors>();
+    List<F1D>          functions  = new ArrayList<F1D>();
+    List<Double>             chi2 = new ArrayList<Double>(); 
+    
+    int          dataSize = 0; 
+    int           fitSize = 0;
+    
+    public double[] fitLimits = {0.0,1.0};
+    public double   fitXmin   = 0.;
+    public double   fitXmax   = 450.;
+    public double  xprawMax   = 450.;
+    
     private int sector,view,strip;
+    
     F1D f1 = null;
     String otab[]={"U Strip ",      "V Strip ",      "W Strip ",
                    "U Inner Strip ","V Inner Strip ","W Inner Strip ",
@@ -32,20 +40,15 @@ public class CalibrationData {
         this.strip  = component;        
     }	
 	
-    public DetectorDescriptor getDescriptor(){ return this.desc;}
+    public DetectorDescriptor getDescriptor() {
+         return this.desc;
+    }
     
     public void addGraph(double[] cnts, double[] xdata, double[] data, double[] error, boolean[] status){
     	
     	GraphErrors graph;
 		
 		dataSize = data.length;
-        fitSize  = 0;          
-		int n, min=2 , max=dataSize-2;
-		
-		if (dataSize==1) {min=0 ; max=1;}
-		if (dataSize==3) {min=1 ; max=2;}
-		if (dataSize==5) {min=1 ; max=dataSize-1;}
-		if (dataSize==7) {min=1 ; max=dataSize-1;}
 		
         double[] xpraw  = new double[dataSize];
         double[] ypraw  = new double[dataSize]; 
@@ -70,7 +73,7 @@ public class CalibrationData {
         double[] ypfite = new double[fitSize];  
         
         // For fit graph
-        n=0;
+        int n=0;
         for(int loop = 0; loop < data.length; loop++){
             if (fitcut[loop]) {
                 xpfit[n]  = xpraw[loop]; 
@@ -81,6 +84,8 @@ public class CalibrationData {
             }
         }
 
+        if (dataSize>0) xprawMax = xpraw[dataSize-1];
+        
         graph = new GraphErrors("FIT",xpfit,ypfit,xpfite,ypfite);   
         graph.getAttributes().setTitleX("Pixel Distance (cm)");
         graph.getAttributes().setTitleY("Mean ADC");
@@ -105,15 +110,25 @@ public class CalibrationData {
         this.rawgraphs.add(graph);        
     }
     
+    public void setFitLimits(double min, double max) {
+        fitLimits[0] = min;
+        fitLimits[1] = max;
+        if (dataSize>0) {
+            fitXmin = fitLimits[0]*xprawMax;
+            fitXmax = fitLimits[1]*xprawMax;
+        }
+        
+    }
+    
     public void addFitFunction(int idet) {
         switch (idet) {
-        case 0: f1 = new F1D("A*exp(-x/B)+C","[A]*exp(-x/[B])+[C]",0.,400.);
+        case 0: f1 = new F1D("A*exp(-x/B)+C","[A]*exp(-x/[B])+[C]",fitXmin,fitXmax);
         f1.setParameter(1,376.); f1.setParLimits(1,1.,500.);
         f1.setParameter(2, 20.); f1.setParLimits(2,1.,100.); break;
-        case 1: f1 = new F1D("A*exp(-x/B)+C","[A]*exp(-x/[B])+[C]",0.,400.);
+        case 1: f1 = new F1D("A*exp(-x/B)+C","[A]*exp(-x/[B])+[C]",fitXmin,fitXmax);
         f1.setParameter(1,376.); f1.setParLimits(1,1.,5000.);
         f1.setParameter(2,0.1);  f1.setParLimits(2,0.,1.); break;
-        case 2: f1 = new F1D("A*exp(-x/B)+C","[A]*exp(-x/[B])+[C]",0.,400.);
+        case 2: f1 = new F1D("A*exp(-x/B)+C","[A]*exp(-x/[B])+[C]",fitXmin,fitXmax);
         f1.setParameter(1,376.); f1.setParLimits(1,1.,5000.);
         f1.setParameter(2,0.1);  f1.setParLimits(2,0.,1.);
         }

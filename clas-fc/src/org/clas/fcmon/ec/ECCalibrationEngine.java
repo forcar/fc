@@ -113,6 +113,9 @@ public class ECCalibrationEngine extends CalibrationEngine {
             return dataGroups;
         }
         
+        public void analyze(int idet, int is1, int is2, int il1, int il2, int ip1, int ip2) {
+        }  
+        
         public void analyze(int idet, int is1, int is2, int il1, int il2) {
         }  
         
