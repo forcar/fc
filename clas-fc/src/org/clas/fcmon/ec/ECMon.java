@@ -313,7 +313,7 @@ public class ECMon extends DetectorMonitor {
             sl = dum[1];
             ch = dum[2];
         }   
-        return " Sector:"+is+"  SuperLayer:"+il+"  PMT:"+ic+" "+" Crate:"+cr+" Slot:"+sl+" Chan:"+ch;
+        return " Sector:"+is+"  Layer:"+il+"  PMT:"+ic+" "+" Crate:"+cr+" Slot:"+sl+" Chan:"+ch;
     }
     
     @Override

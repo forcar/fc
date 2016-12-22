@@ -149,7 +149,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
         
         ECCalibrationEngine engine = getSelectedEngine();
         this.getDetIndices(dd);
-        engine.drawPlots();        
+        engine.drawPlots(is,lay,ic);        
     }
         
         /*
