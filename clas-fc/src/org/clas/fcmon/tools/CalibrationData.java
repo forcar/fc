@@ -158,7 +158,7 @@ public class CalibrationData {
             			yfit = func.evaluate(this.fitgraphs.get(loop).getDataX(i));
             			ydat = this.fitgraphs.get(loop).getDataY(i);
             			yerr = this.fitgraphs.get(loop).getDataEY(i);
-            			ch   = ch + Math.pow((ydat-yfit)/yerr,2);
+             			ch   = ch + Math.pow((ydat-yfit)/yerr,2);
             		}
             		ch = ch/(fitSize-func.getNPars()-1);
                     this.fitgraphs.get(loop).setFunction(func);                   

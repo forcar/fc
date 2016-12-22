@@ -329,6 +329,10 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
         int is1,is2;
         int nstr=68;
         
+        Boolean   isPix = false;
+        Boolean   isStr = false;
+        int    pixStrip = 1;
+        
         double xSliderMin = 0.0;
         double xSliderMax = 100.0;
         double currentRangeMin = 0.0;
@@ -455,7 +459,8 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
                    currentRangeMax = slider.getUpperValue();
                    rangeSliderValue1.setText(String.valueOf("" + String.format("%4.2f", currentRangeMin)));
                    rangeSliderValue2.setText(String.valueOf("" + String.format("%4.2f", currentRangeMax)));
-                   analyze(ilmap,is,is+1,lay,lay+1,ic+1,ic+2);
+                   int il =  lay; if (isPix) il=lay-10;
+                   analyze(ilmap,is,is+1,il,il+1,pixStrip,pixStrip+1);
                }
            });   
        }
@@ -532,7 +537,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
                         calib.setDoubleValue(fits.getFunc(0).parameter(0).error()/MIP[sl-1], "Aerr", is, sl, ip);
                         calib.setDoubleValue(fits.getFunc(0).parameter(1).error(),           "Berr", is, sl, ip);
                         calib.setDoubleValue(fits.getFunc(0).parameter(2).error()/MIP[sl-1], "Cerr", is, sl, ip);
-                      
+                        
                         ecPix[idet].collection.add(fits.getDescriptor(),fits);
                      }
                   }
@@ -559,12 +564,9 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
             DetectorCollection<CalibrationData> fit = ecPix[ilmap].collection;
             DetectorCollection<H2F>            dc2a = ecPix[ilmap].strips.hmap2.get("H2_a_Hist");    
             EmbeddedCanvas                        c = new EmbeddedCanvas();    
-            Boolean   isPix = false;
-            Boolean   isStr = false;
-            H1F      pixADC = null;
-            int          il = 0;
-            int    pixStrip = 0;
-            int        nstr = ecPix[0].ec_nstr[0];
+            H1F                              pixADC = null;
+            int                                  il = 0;
+            int                                nstr = ecPix[0].ec_nstr[0];
              
             String otab[][]={{" U PMT "," V PMT "," W PMT "},
                     {" U Inner PMT "," V Inner PMT "," W Inner PMT "},
@@ -617,7 +619,9 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
                          parCe[ip] = fit.get(is,il,ip+1).getFunc(0).parameter(2).error()/MIP[sl-1];
                          parAC[ip] = parA[ip]+parC[ip];
                          parACe[ip]= Math.sqrt(parAe[ip]*parAe[ip]+parCe[ip]*parCe[ip]);
-                         vchi2[ip] = Math.min(4, fit.get(is,il,ip+1).getChi2(0)); 
+                         double chi2 = fit.get(is,il,ip+1).getFunc(0).getChiSquare()/
+                                       fit.get(is,il,ip+1).getFunc(0).getNDF();
+                         vchi2[ip] = Math.min(4, chi2); 
                          vchi2e[ip]= 0.;                                                          
                          ccdbA[ip] = atten.getDoubleValue("A",is,sl,ip+1);
                          ccdbB[ip] = atten.getDoubleValue("B",is,sl,ip+1);
