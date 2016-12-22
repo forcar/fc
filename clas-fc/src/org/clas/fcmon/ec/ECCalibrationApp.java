@@ -574,6 +574,13 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
             isStr = layer <  7;  
             il    = layer;
                                         
+            GStyle.getGraphErrorsAttributes().setMarkerStyle(1);
+            GStyle.getGraphErrorsAttributes().setMarkerColor(2);
+            GStyle.getGraphErrorsAttributes().setMarkerSize(3);
+            GStyle.getGraphErrorsAttributes().setLineColor(2);
+            GStyle.getGraphErrorsAttributes().setLineWidth(1);
+            GStyle.getGraphErrorsAttributes().setFillStyle(1);                     
+                                                          
             if (isPix) {
                float meanmap[] = (float[]) ecPix[ilmap].Lmap_a.get(is, layer, 0).get(1);
                il = layer-10;
@@ -598,7 +605,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
                      if (app.getInProcess()==1&&app.getIsRunning())  {analyze(ilmap,is,is+1,il,il+1,1,69);}
                      if (fit.hasEntry(is, il, pixStrip)) {
                      int sl = il+ilmap*3;  // Superlayer PCAL:1-3 ECinner: 4-6 ECouter: 7-9
-                                                                   
+                     
                      for (int ip=0; ip<nstr ; ip++) {
                          xp[ip]    = ip+1;     
                          xpe[ip]   = 0.; 
@@ -621,17 +628,32 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
                          ccdbCe[ip]  = 0.;
                          ccdbACe[ip] = 0.;
                      }
-                     GStyle.getGraphErrorsAttributes().setMarkerStyle(1);
-                     GStyle.getGraphErrorsAttributes().setMarkerColor(2);
-                     GStyle.getGraphErrorsAttributes().setMarkerSize(3);
+                     
+                     GraphErrors   pixGraph = new GraphErrors("pix",xpix,ypix,xerr,yerr);
+                     
+                     GStyle.getGraphErrorsAttributes().setLineColor(3);
+                     GStyle.getGraphErrorsAttributes().setLineWidth(2);
+                     GStyle.getGraphErrorsAttributes().setMarkerColor(3);
+                     int icc = pixStrip-1;
+                     xpix[0]=xp[icc]; ypix[0]=vchi2[icc]; yerr[0]=vchi2e[icc];
+                     GraphErrors  chi2Graphi = new GraphErrors("chi",xpix,ypix,xerr,yerr);
+                     xpix[0]=xp[icc]; ypix[0]=parA[icc]; yerr[0]=parAe[icc];
+                     GraphErrors  parAGraphi = new GraphErrors("Ai",xpix,ypix,xerr,yerr);
+                     xpix[0]=xp[icc]; ypix[0]=parB[icc]; yerr[0]=parBe[icc];
+                     GraphErrors  parBGraphi = new GraphErrors("Bi",xpix,ypix,xerr,yerr);
+                     xpix[0]=xp[icc]; ypix[0]=parC[icc]; yerr[0]=parCe[icc];
+                     GraphErrors  parCGraphi = new GraphErrors("Ci",xpix,ypix,xerr,yerr);
+                     xpix[0]=xp[icc]; ypix[0]=parAC[icc]; yerr[0]=parACe[icc];
+                     GraphErrors  parACGraphi = new GraphErrors("A+Ci",xpix,ypix,xerr,yerr);
+                     
                      GStyle.getGraphErrorsAttributes().setLineColor(2);
                      GStyle.getGraphErrorsAttributes().setLineWidth(1);
-                     GStyle.getGraphErrorsAttributes().setFillStyle(1);                     
+                     GStyle.getGraphErrorsAttributes().setMarkerColor(2);
+                     GraphErrors  chi2Graph = new GraphErrors("chi2",xp,vchi2,xpe,vchi2e);
                      GraphErrors  parAGraph = new GraphErrors("A",xp,parA,xpe,parAe); 
                      GraphErrors  parBGraph = new GraphErrors("B",xp,parB,xpe,parBe); 
                      GraphErrors  parCGraph = new GraphErrors("C",xp,parC,xpe,parCe); 
                      GraphErrors parACGraph = new GraphErrors("A+C",xp,parAC,xpe,parACe); 
-                     GraphErrors   pixGraph = new GraphErrors("pix",xpix,ypix,xerr,yerr);
                      GStyle.getGraphErrorsAttributes().setMarkerColor(1);
                      GStyle.getGraphErrorsAttributes().setFillStyle(0);
                      GraphErrors ccdbAGraph = new GraphErrors("dbA",xp,ccdbA,xpe,ccdbAe); 
@@ -640,7 +662,6 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
                      GraphErrors ccdbACGraph = new GraphErrors("dbAC",xp,ccdbAC,xpe,ccdbACe); 
                      GStyle.getGraphErrorsAttributes().setMarkerColor(2);
                      GStyle.getGraphErrorsAttributes().setFillStyle(2);
-                     GraphErrors  chi2Graph = new GraphErrors("chi2",xp,vchi2,xpe,vchi2e);
                        
                      parAGraph.getAttributes().setTitleX(otab[ilmap][il-1]) ;  ccdbAGraph.getAttributes().setTitleX(otab[ilmap][il-1]) ; 
                      parAGraph.getAttributes().setTitleY("A")  ;               ccdbAGraph.getAttributes().setTitleY("A")  ;
@@ -682,19 +703,19 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
                      double xmax = ecPix[ilmap].ec_nstr[il-1]+1;
                      
                      c.getPad(0).getAxisX().setRange(0.,xmax);c.getPad(0).getAxisY().setRange(0.,4.);
-                     c.draw(chi2Graph) ;
+                     c.draw(chi2Graph) ; c.draw(chi2Graphi,"same");
                      c.repaint();
                      
                      c = fitCof.getCanvas("COEF"); c.divide(2,2);
                      
                      c.cd(0); c.getPad(0).getAxisX().setRange(0.,xmax);c.getPad(0).getAxisY().setRange(0.,2.);
-                     c.draw(ccdbAGraph) ; c.draw(parAGraph,"same"); 
+                     c.draw(ccdbAGraph) ; c.draw(parAGraph,"same"); c.draw(parAGraphi,"same"); 
                      c.cd(1); c.getPad(1).getAxisX().setRange(0.,xmax);c.getPad(1).getAxisY().setRange(0.,600.);
-                     c.draw(ccdbBGraph); c.draw(parBGraph,"same");                       
+                     c.draw(ccdbBGraph); c.draw(parBGraph,"same"); c.draw(parBGraphi,"same");                       
                      c.cd(2); c.getPad(2).getAxisX().setRange(0.,xmax);c.getPad(2).getAxisY().setRange(0.,2.);
-                     c.draw(ccdbCGraph) ; c.draw(parCGraph,"same"); 
+                     c.draw(ccdbCGraph) ; c.draw(parCGraph,"same"); c.draw(parCGraphi,"same");
                      c.cd(3); c.getPad(3).getAxisX().setRange(0.,xmax);c.getPad(3).getAxisY().setRange(0.,2.);
-                     c.draw(ccdbACGraph) ; c.draw(parACGraph,"same"); 
+                     c.draw(ccdbACGraph) ; c.draw(parACGraph,"same"); c.draw(parACGraphi,"same"); 
                      c.repaint();
                       
                   }
