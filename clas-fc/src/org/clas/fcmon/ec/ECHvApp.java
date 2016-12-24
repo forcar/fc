@@ -26,8 +26,8 @@ public class ECHvApp extends FCEpics implements ActionListener {
     JTextField   newhv = new JTextField(4);
     JLabel statuslabel = new JLabel();
     
-    DetectorCollection<H1F> H1_HV = new DetectorCollection<H1F>();
-    DetectorCollection<H2F> H2_HV = new DetectorCollection<H2F>();
+    public DetectorCollection<H1F> H1_HV = new DetectorCollection<H1F>();
+    public DetectorCollection<H2F> H2_HV = new DetectorCollection<H2F>();
     
     updateGUIAction action = new updateGUIAction();
     

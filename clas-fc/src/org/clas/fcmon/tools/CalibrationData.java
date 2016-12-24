@@ -49,6 +49,7 @@ public class CalibrationData {
     	GraphErrors graph;
 		
 		dataSize = data.length;
+		fitSize  = 0;
 		
         double[] xpraw  = new double[dataSize];
         double[] ypraw  = new double[dataSize]; 

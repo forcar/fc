@@ -284,7 +284,7 @@ public class ECMon extends DetectorMonitor {
     public void processShape(DetectorShape2D shape) {		
         DetectorDescriptor dd = shape.getDescriptor();
         app.updateStatus(getStatusString(dd));
-        this.analyze();	
+        this.analyze();
         switch (app.getSelectedTabName()) {
         case "Mode1":                       ecMode1.updateCanvas(dd); break;
         case "ECEngine":                      ecEng.updateCanvas(dd); break;
@@ -299,21 +299,24 @@ public class ECMon extends DetectorMonitor {
     }
     
     public String getStatusString(DetectorDescriptor dd) {
+        
+        String comp=(dd.getLayer()==4) ? "  Pixel:":"  PMT:";  
+      
         int is = dd.getSector();
-        int il = dd.getLayer()+3*app.detectorIndex;
+        int sp = app.viewIndex+3*app.detectorIndex;
         int ic = dd.getComponent()+1;
         int or = 0;
         int cr = 0;
         int sl = 0;
         int ch = 0;
         if (app.getSelectedTabName()=="TDC") or=2;
-        if (rtt.hasItem(is,il,ic,or)) {
-            int[] dum = (int[]) rtt.getItem(is,il,ic,or);
+        if (rtt.hasItem(is,sp,ic,or)) {
+            int[] dum = (int[]) rtt.getItem(is,sp,ic,or);
             cr = dum[0];
             sl = dum[1];
             ch = dum[2];
         }   
-        return " Sector:"+is+"  Layer:"+il+"  PMT:"+ic+" "+" Crate:"+cr+" Slot:"+sl+" Chan:"+ch;
+        return " Sector:"+is+"  Layer:"+sp+comp+ic+" "+" Crate:"+cr+" Slot:"+sl+" Chan:"+ch;
     }
     
     @Override

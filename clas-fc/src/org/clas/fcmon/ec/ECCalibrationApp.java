@@ -147,6 +147,10 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
     
     public void updateCanvas(DetectorDescriptor dd) {
         
+        sectorSelected  = dd.getSector();
+        layerSelected   = dd.getLayer();
+        channelSelected = dd.getComponent(); 
+        
         ECCalibrationEngine engine = getSelectedEngine();
         this.getDetIndices(dd);
         engine.drawPlots(is,lay,ic);        
@@ -290,13 +294,22 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
             c = ECHv.getCanvas("HV"); 
             c.divide(2,2);
             c.getPad(0).getAxisY().setRange((double)getMin(hvnew.getData())-10,(double)getMax(hvnew.getData())+10);
+            hvold.getAttributes().setTitleX("PMT"); hvold.getAttributes().setTitleY("HV");
             c.cd(0); c.draw(hvold); c.draw(hvnew,"same");
             c.getPad(1).getAxisY().setRange((double)getMin(dhv.getData())-10,(double)getMax(dhv.getData())+10);
+            dhv.getAttributes().setTitleX("PMT"); dhv.getAttributes().setTitleY("Delta HV");
             c.cd(1); c.draw(dhv);
+            
+            H1F h = null;
+            h = hvnew.histClone("Copy"); h.reset() ; h.setBinContent(ic, 2000);
+            h.setFillColor(2);  c.cd(0); c.draw(h,"same");
+            
+            h = dhv.histClone("Copy"); h.reset() ; h.setBinContent(ic, 2000);
+            h.setFillColor(2);  c.cd(1); c.draw(h,"same");
+                        
             if (app.getInProcess()>0)  {
                 DetectorCollection<CalibrationData> fit = ecPix[ilmap].collection;
-//                System.out.println("ilmap,is,il="+ilmap+" "+is+" "+il);
-                if (app.getInProcess()==1&&app.getIsRunning()) engines[0].analyze(ilmap,is,is+1,il,il+1);
+                if (app.getInProcess()==1&&app.getIsRunning()) engines[0].analyze(ilmap,is,is+1,il,il+1,1,69);
                 if (fit.hasEntry(is, il, ic+1)) {
                     c.getPad(2).getAxisX().setRange(0.,400.); c.getPad(2).getAxisY().setRange(0.,300.);
                     if(fit.get(is,il,ic+1).getFitGraph(0).getDataSize(0)>0) {
@@ -317,6 +330,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
         EmbeddedCanvasTabbed   fitCh2 = new EmbeddedCanvasTabbed("Chi^2");
         EmbeddedCanvasTabbed   fitCof = new EmbeddedCanvasTabbed("COEF");
         IndexedTable            atten = null; 
+        RangeSlider            slider = null;
         
         public final double[][] PARAM = {{1,1,1,1,1,1,1,1,1},
                                          {360,360,360,360,360,360,360,360,360},
@@ -439,15 +453,15 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
         
         public void getSliderPane() {
            JLabel xLabel = new JLabel("X:");
-           RangeSlider slider = new RangeSlider();
+           slider = new RangeSlider();
            slider.setMinimum((int) xSliderMin);
            slider.setMaximum((int) xSliderMax);
            slider.setValue((int) xSliderMin);
            slider.setUpperValue((int) xSliderMax);            
            currentRangeMin = slider.getValue();
            currentRangeMax = slider.getUpperValue();
-           JLabel rangeSliderValue1 = new JLabel("" + String.format("%4.2f", currentRangeMin));
-           JLabel rangeSliderValue2 = new JLabel("" + String.format("%4.2f", currentRangeMax));
+           JLabel rangeSliderValue1 = new JLabel("" + String.format("%4.1f", currentRangeMin));
+           JLabel rangeSliderValue2 = new JLabel("" + String.format("%4.1f", currentRangeMax));
            fitPix.actionPanel.add(xLabel);
            fitPix.actionPanel.add(rangeSliderValue1);
            fitPix.actionPanel.add(slider);
@@ -457,8 +471,8 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
                    RangeSlider slider = (RangeSlider) e.getSource();
                    currentRangeMin = slider.getValue();
                    currentRangeMax = slider.getUpperValue();
-                   rangeSliderValue1.setText(String.valueOf("" + String.format("%4.2f", currentRangeMin)));
-                   rangeSliderValue2.setText(String.valueOf("" + String.format("%4.2f", currentRangeMax)));
+                   rangeSliderValue1.setText(String.valueOf("" + String.format("%4.1f", currentRangeMin)));
+                   rangeSliderValue2.setText(String.valueOf("" + String.format("%4.1f", currentRangeMax)));
                    int il =  lay; if (isPix) il=lay-10;
                    analyze(ilmap,is,is+1,il,il+1,pixStrip,pixStrip+1);
                }
@@ -520,7 +534,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
                   int ipmax = ip2>iptst ? iptst:ip2;
                   for (int ip=ip1 ; ip<ipmax ; ip++) { //Loop over strips
                      if (doCalibration) {
-                        fits = new CalibrationData(is,il,ip);
+                        fits = new CalibrationData(is, il, ip);
                         fits.getDescriptor().setType(DetectorType.EC);
                         fits.addGraph(ecPix[idet].strips.getpixels(il,ip,cnts),
                                       ecPix[idet].strips.getpixels(il,ip,distmap),
@@ -606,6 +620,9 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
                      nstr = ecPix[ilmap].ec_nstr[il-1];
                      if (app.getInProcess()==1&&app.getIsRunning())  {analyze(ilmap,is,is+1,il,il+1,1,69);}
                      if (fit.hasEntry(is, il, pixStrip)) {
+//                     slider.setValue(     (int) (fit.get(is,il,pixStrip).fitLimits[0]*100));
+//                     slider.setUpperValue((int) (fit.get(is,il,pixStrip).fitLimits[1]*100));            
+
                      int sl = il+ilmap*3;  // Superlayer PCAL:1-3 ECinner: 4-6 ECouter: 7-9
                      
                      for (int ip=0; ip<nstr ; ip++) {

@@ -29,6 +29,7 @@ import org.jlab.geom.prim.Line3D;
 import org.jlab.geom.prim.Point3D;
 import org.jlab.io.evio.EvioDataEvent;
 import org.jlab.service.ec.ECPart;
+import org.jlab.io.base.DataBank;
 import org.jlab.io.base.DataEvent;
 import org.jlab.io.evio.EvioDataBank;
 import org.clas.fcmon.detector.view.DetectorShape2D;
@@ -48,7 +49,7 @@ public class ECReconstructionApp extends FCApplication {
    CodaEventDecoder           codaDecoder = new CodaEventDecoder();
    DetectorEventDecoder   detectorDecoder = new DetectorEventDecoder();
    List<DetectorDataDgtz>   detectorData  = new ArrayList<DetectorDataDgtz>();
-   EvioDataBank            mcData,genData = null;
+   DataBank                mcData,genData = null;
    
    public DetectorCollection<TreeMap<Integer,Object>> Lmap_a = new DetectorCollection<TreeMap<Integer,Object>>();
    public DetectorCollection<TreeMap<Integer,Object>> Lmap_t = new DetectorCollection<TreeMap<Integer,Object>>();
@@ -241,7 +242,7 @@ public class ECReconstructionApp extends FCApplication {
           double fac = (app.isCRT==true) ? 1.4:1; // For pre-installation PCAL CRT runs
           
           if(event.hasBank("GenPart::true")==true) {
-              genData = (EvioDataBank) event.getBank("GenPart::true");
+              genData = event.getBank("GenPart::true");
               double ppx = genData.getDouble("px",0);
               double ppy = genData.getDouble("py",0);
               double ppz = genData.getDouble("pz",0);
@@ -253,7 +254,7 @@ public class ECReconstructionApp extends FCApplication {
           }
           
           if(event.hasBank(det[idet]+"::true")==true) {
-              mcData = (EvioDataBank) event.getBank(det[idet]+"::true");
+              mcData = event.getBank(det[idet]+"::true");
               for(int i=0; i < mcData.rows(); i++) {
                   if(idet==0) {
                      double pcX = mcData.getDouble("avgX",i);
@@ -267,7 +268,7 @@ public class ECReconstructionApp extends FCApplication {
           }
           
           if(event.hasBank(det[idet]+"::dgtz")==true) {            
-              EvioDataBank bank = (EvioDataBank) event.getBank(det[idet]+"::dgtz");
+              DataBank bank = event.getBank(det[idet]+"::dgtz");
               
               for(int i = 0; i < bank.rows(); i++){
                   float dum = (float)bank.getInt("TDC",i);

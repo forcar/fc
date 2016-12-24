@@ -78,6 +78,8 @@ public class FCApplication implements ActionListener  {
     public int      omap = 0;
     public int     ilmap = 0;
     
+    public int sectorSelected, layerSelected, channelSelected;
+    
     public FCApplication(ECPixels[] ecPix) {
         this.ecPix = ecPix;     
     }
