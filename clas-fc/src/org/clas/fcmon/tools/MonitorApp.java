@@ -274,6 +274,10 @@ public class MonitorApp extends JFrame implements ActionListener {
         return this.controlsPanel1;
     }  
     
+    public void setFPS(int fps){
+        this.displayControl.setFPS(fps);
+    }
+    
     public int getInProcess() {
         return eventControl.inProcess;
     }    

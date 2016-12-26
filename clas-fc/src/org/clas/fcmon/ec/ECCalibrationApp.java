@@ -1,18 +1,23 @@
 package org.clas.fcmon.ec;
 
 import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
 
+import javax.swing.ButtonGroup;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JSplitPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import org.clas.fcmon.detector.view.DetectorShape2D;
 import org.clas.fcmon.tools.CalibrationData;
+import org.clas.fcmon.tools.DisplayControl;
 import org.clas.fcmon.tools.FCApplication;
 import org.jlab.detector.base.DetectorCollection;
 import org.jlab.detector.base.DetectorType;
@@ -135,7 +140,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
         String str_sector    = (String) cc.getValueAt(row, 0);
         String str_layer     = (String) cc.getValueAt(row, 1);
         String str_component = (String) cc.getValueAt(row, 2);
-            
+        
         if (cc.getName() != selectedDir) {
             selectedDir = cc.getName();
         }
@@ -143,12 +148,18 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
         selectedSector = Integer.parseInt(str_sector);
         selectedLayer  = Integer.parseInt(str_layer);
         selectedPaddle = Integer.parseInt(str_component);
+        
+        DetectorDescriptor dd = new DetectorDescriptor();
+        dd.setSectorLayerComponent(selectedSector,selectedLayer,selectedPaddle-1);
+        app.setFPS(0);
+        updateCanvas(dd);
+        
     }
     
     public void updateCanvas(DetectorDescriptor dd) {
         
-        sectorSelected  = dd.getSector();
-        layerSelected   = dd.getLayer();
+         sectorSelected = dd.getSector();
+          layerSelected = dd.getLayer();
         channelSelected = dd.getComponent(); 
         
         ECCalibrationEngine engine = getSelectedEngine();
@@ -322,7 +333,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
         }
     }  
   
-    public class ECAttenEventListener extends ECCalibrationEngine {
+    public class ECAttenEventListener extends ECCalibrationEngine implements ActionListener {
         
         JSplitPane              hPane = null; 
         EmbeddedCanvasTabbed   fitPix = new EmbeddedCanvasTabbed("Pixel Fits");
@@ -351,6 +362,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
         double xSliderMax = 100.0;
         double currentRangeMin = 0.0;
         double currentRangeMax = 100.0;
+        String sliderMode = "Strip";
         
         double[] xp     = new double[nstr];
         double[] xpe    = new double[nstr];
@@ -390,6 +402,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
         public void init(int is1, int is2) {
             System.out.println("ECCalibrationApp:ECAttenEventListener.init");
             
+            getButtonGroup();
             getSliderPane();
             initCalibPane();
             setCalibPane();
@@ -398,7 +411,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
             this.is2=is2;
             
             atten = ccdb.getConstants(calrun, names[ATTEN]);
-            calib = new CalibrationConstants(3,"A/F:Aerr/F:B/F:Berr/F:C/F:Cerr/F");
+            calib = new CalibrationConstants(3,"A/F:Aerr/F:B/F:Berr/F:C/F:Cerr/F:FitMin/F:FitMax/F");
             calib.setName(names[ATTEN]);
             calib.setPrecision(3);
             
@@ -423,6 +436,8 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
                             calib.setDoubleValue(0., "Berr", is, layer+1, ip+1);
                             calib.setDoubleValue(0., "C",    is, layer+1, ip+1);
                             calib.setDoubleValue(0., "Cerr", is, layer+1, ip+1);
+                            calib.setDoubleValue(0.04, "FitMin",is, layer+1, ip+1);
+                            calib.setDoubleValue(0.95, "FitMax",is, layer+1, ip+1);
                         }
                     }
                 }
@@ -451,6 +466,25 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
             vPaneR.setResizeWeight(0.25);
         }
         
+        public void getButtonGroup() {
+            JRadioButton bGv = new JRadioButton("View"); 
+            bGv.setActionCommand("View");
+            
+            JRadioButton bGs = new JRadioButton("Strip");
+            bGs.setActionCommand("Strip"); 
+            bGs.setSelected(true); 
+            
+            ButtonGroup  bG  = new ButtonGroup();
+            bG.add(bGv);
+            bG.add(bGs);
+            
+            bGv.addActionListener(this);  
+            bGs.addActionListener(this);   
+            
+            fitPix.actionPanel.add(bGv);
+            fitPix.actionPanel.add(bGs);
+        }
+        
         public void getSliderPane() {
            JLabel xLabel = new JLabel("X:");
            slider = new RangeSlider();
@@ -474,7 +508,15 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
                    rangeSliderValue1.setText(String.valueOf("" + String.format("%4.1f", currentRangeMin)));
                    rangeSliderValue2.setText(String.valueOf("" + String.format("%4.1f", currentRangeMax)));
                    int il =  lay; if (isPix) il=lay-10;
-                   analyze(ilmap,is,is+1,il,il+1,pixStrip,pixStrip+1);
+                   int ip1=1,ip2=1;
+                   if (sliderMode=="Strip") {ip1=pixStrip; ip2=pixStrip+1;}
+                   if (sliderMode=="View")  {ip1=1;        ip2=ecPix[ilmap].ec_nstr[il-1];}
+                   for (int ip=ip1; ip<ip2; ip++) {
+                      calib.setDoubleValue(currentRangeMin*0.01,"FitMin",is, 3*ilmap+il, ip);
+                      calib.setDoubleValue(currentRangeMax*0.01,"FitMax",is, 3*ilmap+il, ip);
+                   }
+                   calib.fireTableDataChanged();
+                   analyze(ilmap,is,is+1,il,il+1,ip1,ip2);
                }
            });   
        }
@@ -530,10 +572,13 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
                   map = (TreeMap<Integer, Object>) ecPix[idet].Lmap_a.get(is,il+10,0);
                   float  meanmap[] = (float[]) map.get(1);
                   double distmap[] = (double[]) ecPix[idet].pixels.getDist(il);
+                  int    sl = il+idet*3;  // Superlayer PCAL:1-3 ECinner: 4-6 ECouter: 7-9
                   int iptst = ecPix[idet].ec_nstr[il-1]+1;
                   int ipmax = ip2>iptst ? iptst:ip2;
+                  
                   for (int ip=ip1 ; ip<ipmax ; ip++) { //Loop over strips
                      if (doCalibration) {
+                         
                         fits = new CalibrationData(is, il, ip);
                         fits.getDescriptor().setType(DetectorType.EC);
                         fits.addGraph(ecPix[idet].strips.getpixels(il,ip,cnts),
@@ -541,10 +586,10 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
                                       ecPix[idet].strips.getpixels(il,ip,meanmap),
                                       ecPix[idet].strips.getpixels(il,ip,meanerr),
                                       ecPix[idet].strips.getpixels(il,ip,status));
-                        fits.setFitLimits(currentRangeMin*0.01,currentRangeMax*0.01);
+                        fits.setFitLimits(calib.getDoubleValue("FitMin",is,sl,ip),
+                                          calib.getDoubleValue("FitMax",is,sl,ip));
                         fits.analyze(idet);
-                        int sl = il+idet*3;  // Superlayer PCAL:1-3 ECinner: 4-6 ECouter: 7-9
-                        calib.addEntry(is, sl, ip);
+             
                         calib.setDoubleValue(fits.getFunc(0).parameter(0).value()/MIP[sl-1], "A",    is, sl, ip);
                         calib.setDoubleValue(fits.getFunc(0).parameter(1).value(),           "B",    is, sl, ip);
                         calib.setDoubleValue(fits.getFunc(0).parameter(2).value()/MIP[sl-1], "C",    is, sl, ip);
@@ -742,6 +787,11 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
                   }
                }
             }
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+          sliderMode = e.getActionCommand();
         }
 
     }
