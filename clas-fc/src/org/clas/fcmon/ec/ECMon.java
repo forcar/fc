@@ -298,6 +298,10 @@ public class ECMon extends DetectorMonitor {
         }				
     }
     
+    public void loadHV(int is1, int is2, int il1, int il2) {
+        ecHv.loadHV(is1,is2,il1,il2);
+    }
+    
     public String getStatusString(DetectorDescriptor dd) {
         
         String comp=(dd.getLayer()==4) ? "  Pixel:":"  PMT:";  
@@ -333,8 +337,8 @@ public class ECMon extends DetectorMonitor {
     public void readHipoFile() {        
         System.out.println("monitor.readHipoFile()");
         for (int idet=0; idet<3; idet++) {
-            String hipoFileName = app.hipoPath+"/"+mondet+idet+"_"+app.hipoRun+".hipo";
-            System.out.println("Loading Histograms from "+hipoFileName);
+            String hipoFileName = app.hipoPath+mondet+idet+"_"+app.runNumber+".hipo";
+            System.out.println("Reading Histograms from "+hipoFileName);
             ecPix[idet].initHistograms(hipoFileName);
             ecRecon.makeMaps(idet);
           }
@@ -342,11 +346,11 @@ public class ECMon extends DetectorMonitor {
     }
     
     @Override
-    public void saveToFile() {
-        System.out.println("monitor.saveToFile()");
+    public void writeHipoFile() {
+        System.out.println("monitor.writeHipoFile()");
         for (int idet=0; idet<3; idet++) {
-            String hipoFileName = app.hipoPath+"/"+mondet+idet+"_"+app.hipoRun+".hipo";
-            System.out.println("Saving Histograms to "+hipoFileName);
+            String hipoFileName = app.hipoPath+mondet+idet+"_"+app.runNumber+".hipo";
+            System.out.println("Writing Histograms to "+hipoFileName);
             HipoFile histofile = new HipoFile(hipoFileName);
             histofile.addToMap("H2_a_Hist", ecPix[idet].strips.hmap2.get("H2_a_Hist")); 
             histofile.addToMap("H1_a_Hist", ecPix[idet].strips.hmap1.get("H1_a_Hist")); 

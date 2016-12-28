@@ -1,5 +1,9 @@
 package org.clas.fcmon.ec;
+import java.io.File;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import javax.swing.JSplitPane;
@@ -16,14 +20,18 @@ import org.jlab.utils.groups.IndexedList;
 public class ECCalibrationEngine extends CalibrationEngine {
    
         public final static int[]       NUM_PADDLES = {23,62,5};
-        public final static String[]    LAYER_NAME = {"LEFT","RIGHT"};
+        public final static String[]     LAYER_NAME = {"LEFT","RIGHT"};
         
         CalibrationConstants calib;
-        CalibrationData fits;
+        CalibrationData       fits;
         
         IndexedList<DataGroup> dataGroups = new IndexedList<DataGroup>(3);
-        IndexedList<Double[]> constants = new IndexedList<Double[]>(3);
+        IndexedList<Double[]>   constants = new IndexedList<Double[]>(3);
 
+        String fileNamePrefix = "UNKNOWN";
+        String fileName       = "UNKNOWN.txt";
+        public String filePath       = ".";
+        
         public ECCalibrationEngine() {
             // controlled by calibration application class
         }
@@ -81,6 +89,47 @@ public class ECCalibrationEngine extends CalibrationEngine {
         public void fit(int sector, int layer, int paddle,
                 double minRange, double maxRange){
             // overridden in calibration application class
+        }
+        
+        // Borrowed from Louise Clarke 
+        // https://github.com/louiseclark/clascalib-services/blob/master/src/main/java/org/jlab/calib/services/TOFCalibrationEngine.java
+            
+        
+        public String getFileName() {
+            return nextFileName(filePath);
+        }
+        
+        public String nextFileName(String path) {
+
+            Date today = new Date();
+            DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
+            String todayString = dateFormat.format(today);
+            String filePrefix = fileNamePrefix + todayString;
+            int newFileNum = 0;
+
+            File dir = new File(path);
+            File[] filesList = dir.listFiles();
+
+            for (File file : filesList) {
+                if (file.isFile()) {
+                    String fileName = file.getName();
+                    if (fileName.matches(filePrefix + "[.]\\d+[.]txt")) {
+                        String fileNumString = fileName.substring(
+                                fileName.indexOf('.') + 1,
+                                fileName.lastIndexOf('.'));
+                        int fileNum = Integer.parseInt(fileNumString);
+                        if (fileNum >= newFileNum)
+                            newFileNum = fileNum + 1;
+
+                    }
+                }
+            }
+
+            return path + filePrefix + "." + newFileNum + ".txt";
+        }
+        
+        public void loadHV() {
+            
         }
         
         public float getMin(float[] array) {

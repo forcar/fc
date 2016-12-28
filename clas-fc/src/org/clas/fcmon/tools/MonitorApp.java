@@ -74,8 +74,11 @@ public class MonitorApp extends JFrame implements ActionListener {
     public int  detectorIndex = 0;
     public int      viewIndex = 1;
     public boolean    doEpics = false;
+    public String    rootPath = ".";
     public String    hipoPath = null;
-    public String     hipoRun = "100";
+    public String   calibPath = null;
+    public String      hvPath = null;
+    public String   runNumber = "100";
     public boolean      debug = false;
     public boolean       isMC = true;
     public boolean      isCRT = false;
@@ -88,6 +91,7 @@ public class MonitorApp extends JFrame implements ActionListener {
     public DetectorCollection<LinkedList<Double>> fifo3 = new DetectorCollection<LinkedList<Double>>();
     public DetectorCollection<LinkedList<Double>> fifo4 = new DetectorCollection<LinkedList<Double>>();
     public DetectorCollection<LinkedList<Double>> fifo5 = new DetectorCollection<LinkedList<Double>>();
+    public DetectorCollection<LinkedList<Double>> fifo6 = new DetectorCollection<LinkedList<Double>>();
         
     DetectorMonitor   monitoringClass = null;
     
@@ -117,14 +121,17 @@ public class MonitorApp extends JFrame implements ActionListener {
               System.out.println("Running on "+hostname);
               doEpics = true;
               setIsMC(false);
-              hipoPath = "/home/lcsmith/PCAL";
+              rootPath = "/home/clasrun/pcal/paw/ECMON/";              
             }
         } else {
             System.out.println("Running on "+ostype);
             doEpics = false;
             setIsMC(true);
-            hipoPath  = "/Users/colesmith/PCAL/fc";
+            rootPath  = "/Users/colesmith/ECMON/";
         }
+        hipoPath  = rootPath+"HIPO/";
+        calibPath = rootPath+"CALIB/";
+           hvPath = rootPath+"HV/";
     }    
     
     public void makeGUI(){
@@ -173,7 +180,7 @@ public class MonitorApp extends JFrame implements ActionListener {
         
         JButton resetBtn = new JButton("Clear Histos");
         resetBtn.addActionListener(this);
-        buttonPane.add(resetBtn);	
+        buttonPane.add(resetBtn);   
         
         JButton saveBtn = new JButton("Save Histos");
         saveBtn.addActionListener(this);
@@ -184,7 +191,7 @@ public class MonitorApp extends JFrame implements ActionListener {
         buttonPane.add(loadBtn); 
         
         buttonPane.add(new JLabel("Run:"));
-        runno.setActionCommand("RUN"); runno.addActionListener(this); runno.setText(hipoRun);  
+        runno.setActionCommand("RUN"); runno.addActionListener(this); runno.setText(runNumber);  
         buttonPane.add(runno); 
         
 // Control Panels
@@ -334,8 +341,8 @@ public class MonitorApp extends JFrame implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         if(e.getActionCommand().compareTo("Clear Histos")==0) monitoringClass.reset();
-        if(e.getActionCommand().compareTo("Save Histos")==0)  monitoringClass.saveToFile();
+        if(e.getActionCommand().compareTo("Save Histos")==0)  monitoringClass.writeHipoFile();
         if(e.getActionCommand().compareTo("Load Histos")==0)  monitoringClass.readHipoFile();
-        if(e.getActionCommand().compareTo("RUN")==0)           hipoRun = runno.getText();
+        if(e.getActionCommand().compareTo("RUN")==0)           runNumber = runno.getText();
     }      
 }

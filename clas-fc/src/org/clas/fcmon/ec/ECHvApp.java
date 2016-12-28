@@ -8,6 +8,7 @@ import java.util.LinkedList;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.JTextField;
@@ -124,6 +125,7 @@ public class ECHvApp extends FCEpics implements ActionListener {
                     app.fifo1.add(is, il, ic, new LinkedList<Double>());
                     app.fifo2.add(is, il, ic, new LinkedList<Double>());
                     app.fifo3.add(is, il, ic, new LinkedList<Double>());
+                    app.fifo6.add(is, il, ic, new LinkedList<Double>());
                     connectCa(0,"vset",is,il,ic);
                     connectCa(0,"vmon",is,il,ic);
                     connectCa(0,"imon",is,il,ic);
@@ -176,6 +178,19 @@ public class ECHvApp extends FCEpics implements ActionListener {
                         H2_HV.get(is, il, 1).fill(ic,it,ts2[it]);
                         H2_HV.get(is, il, 2).fill(ic,it,ts3[it]);
                     }
+                }
+            }
+        }
+        
+    }
+    
+    public void loadHV(int is1, int is2, int il1, int il2) {
+        System.out.println("ECHvApp.loadHV()");
+        for (int is=is1; is<is2 ; is++) {
+            for (int il=il1; il<il2 ; il++) {
+                for (int ic=1; ic<nlayMap.get(detName)[il-1]+1; ic++) {
+                    System.out.println("is="+is+" il="+il+" ic="+ic+" HV="+app.fifo6.get(is, il, ic).getLast());
+//                    putCaValue(0,"vset",is,il,ic,app.fifo6.get(is, il, ic).getLast());  
                 }
             }
         }

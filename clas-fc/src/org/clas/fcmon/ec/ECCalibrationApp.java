@@ -8,7 +8,9 @@ import java.util.List;
 import java.util.TreeMap;
 
 import javax.swing.ButtonGroup;
+import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JSplitPane;
@@ -16,6 +18,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import org.clas.fcmon.detector.view.DetectorShape2D;
+import org.clas.fcmon.tools.CalibrationConstantsView;
 import org.clas.fcmon.tools.CalibrationData;
 import org.clas.fcmon.tools.DisplayControl;
 import org.clas.fcmon.tools.FCApplication;
@@ -25,7 +28,7 @@ import org.jlab.detector.base.DetectorType;
 import org.jlab.detector.base.DetectorDescriptor;
 import org.jlab.detector.calib.utils.CalibrationConstants;
 import org.jlab.detector.calib.utils.CalibrationConstantsListener;
-import org.jlab.detector.calib.utils.CalibrationConstantsView;
+//import org.jlab.detector.calib.utils.CalibrationConstantsView;
 import org.jlab.detector.calib.utils.ConstantsManager;
 import org.jlab.groot.base.GStyle;
 import org.jlab.groot.data.GraphErrors;
@@ -40,7 +43,9 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
     
     JPanel                    engineView = new JPanel();
     JSplitPane                enginePane = new JSplitPane(JSplitPane.VERTICAL_SPLIT); 
-    CalibrationConstantsView      ccview = new CalibrationConstantsView();
+    JButton                    tableSave = null;
+    JButton                       hvSave = null;
+    CalibrationConstantsView      ccview = new CalibrationConstantsView("");
     ConstantsManager                ccdb = new ConstantsManager();
     ArrayList<CalibrationConstants> list = new ArrayList<CalibrationConstants>();
 
@@ -76,15 +81,47 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
     
     public JPanel getPanel() {        
         engineView.setLayout(new BorderLayout());
-        ccview.getTabbedPane().addChangeListener(this);        
+        ccview.getTabbedPane().addChangeListener(this);  
         for (int i=0; i < engines.length; i++) {
             ccview.addConstants(engines[i].getCalibrationConstants().get(0),this);
         }   
         enginePane.setBottomComponent(ccview);       
         enginePane.setResizeWeight(0.9);
         engineView.add(enginePane);
+        engineView.add(getButtonPane(),BorderLayout.PAGE_END);
         return engineView;       
     }  
+    
+    public JPanel getButtonPane(){
+        buttonPane = new JPanel();
+        tableSave  = new JButton("Save Table");
+        tableSave.addActionListener(this);
+        tableSave.setActionCommand("SAVE");
+        hvSave  = new JButton("Load HVnew");
+        hvSave.addActionListener(this);
+        hvSave.setActionCommand("LOADHV");
+        buttonPane.add(tableSave);
+        buttonPane.add(hvSave);
+        return buttonPane;
+    }  
+    
+    public void actionPerformed(ActionEvent e) {
+        ECCalibrationEngine engine = getSelectedEngine();
+        if (e.getActionCommand().compareTo("SAVE")==0) {           
+            String outputFilename = engine.getFileName();
+            engine.calib.save(outputFilename);
+            JOptionPane.showMessageDialog(new JPanel(),
+                    engine.calib.getName() + " table written to "+outputFilename);
+        }        
+        if (e.getActionCommand().compareTo("LOADHV")==0) { 
+            
+            int is1=sectorSelected;         int is2=is1+1;
+            int il1=layerSelected+ilmap*3;  int il2=il1+1;
+            mon.loadHV(is1,is2,il1,il2);
+            JOptionPane.showMessageDialog(new JPanel(),
+                    "Loading HV from "+engines[3].getFileName()+" to CAEN MAINFRAME");
+        }        
+    }
     
     public void setConstantsManager(ConstantsManager ccdb, int run) {
         this.ccdb = ccdb;
@@ -188,7 +225,9 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
         if (tabTitle != selectedDir) {            
             selectedDir = tabTitle;
         }
-        ECCalibrationEngine engine = getSelectedEngine(); engine.setCalibPane();
+        ECCalibrationEngine engine = getSelectedEngine(); 
+        engine.setCalibPane(); 
+        
     }
 
     // Calibration Apps
@@ -199,15 +238,17 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
         public final double PARAM3 = 1.0;
         public final int    PARAM6 = 0;
         public final double[] GAIN = {0.2,0.2,0.2,0.5,0.5,0.5,0.5,0.5,0.5};
-        public final int[]    DHV = {20,20,20,100,100,100,100,100,100};
+        public final int[]     DHV = {20,20,20,100,100,100,100,100,100};
         IndexedTable        status = null; 
-        
         ECHvEventListener(){}
         
         public void init(int is1, int is2){
             
             System.out.println("ECCalibrationApp:ECHvEventListener.init");
             
+            fileNamePrefix = "EC_CALIB_HV_";
+            filePath       = app.hvPath;
+
             initCalibPane();
             setCalibPane();
             
@@ -278,8 +319,9 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
                         if (gain<0.5||gain>2.0) gain=0.0;
                         double ratio=Math.pow(gain, 1./11.);
                         double hvnew = (ratio>0.5) ? hvold/ratio:hvold;
-                        calib.setDoubleValue(hvnew,"HVnew", is, sl, ip);                        
-                        calib.setDoubleValue(hvnew-hvold,"DHV", is, sl, ip);                        
+                        calib.setDoubleValue(hvnew,"HVnew", is, sl, ip);                           
+                        calib.setDoubleValue(hvnew-hvold,"DHV", is, sl, ip);  
+                        app.fifo6.get(is, sl, ip).add(hvnew);
                     }
                 }
             }
@@ -331,6 +373,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
             }
             c.repaint();                                    
         }
+
     }  
   
     public class ECAttenEventListener extends ECCalibrationEngine implements ActionListener {
@@ -401,6 +444,9 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
         
         public void init(int is1, int is2) {
             System.out.println("ECCalibrationApp:ECAttenEventListener.init");
+            
+            fileNamePrefix ="EC_CALIB_ATTEN_";
+            filePath= app.calibPath;
             
             getButtonGroup();
             getSliderPane();
@@ -526,6 +572,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
             System.out.println("setCalibPane:ECAtten");
             enginePane.setTopComponent(hPane);                        
         }
+
         
         @Override
         public void analyze() {
@@ -809,6 +856,10 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
         public void init(int is1, int is2) {
             
             System.out.println("ECCalibrationApp:ECGainEventListener.init");
+            
+            fileNamePrefix ="EC_CALIB_GAIN_";
+            filePath       = app.calibPath;
+            
             this.is1=is1;
             this.is2=is2;
             
@@ -871,6 +922,9 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
         public void init(int is1, int is2){
             
             System.out.println("ECCalibrationApp:ECStatusEventListener.init");
+            
+            fileNamePrefix = "EC_CALIB_STATUS_";
+            filePath       = app.calibPath;
             
             status = ccdb.getConstants(calrun, names[STATUS]);
             calib = new CalibrationConstants(3,"status/I");
