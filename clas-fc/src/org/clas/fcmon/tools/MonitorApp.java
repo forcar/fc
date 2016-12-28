@@ -182,11 +182,11 @@ public class MonitorApp extends JFrame implements ActionListener {
         resetBtn.addActionListener(this);
         buttonPane.add(resetBtn);   
         
-        JButton saveBtn = new JButton("Save Histos");
+        JButton saveBtn = new JButton("Write Histos");
         saveBtn.addActionListener(this);
         buttonPane.add(saveBtn);	
         
-        JButton loadBtn = new JButton("Load Histos");
+        JButton loadBtn = new JButton("Read Histos");
         loadBtn.addActionListener(this);
         buttonPane.add(loadBtn); 
         
@@ -341,8 +341,8 @@ public class MonitorApp extends JFrame implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         if(e.getActionCommand().compareTo("Clear Histos")==0) monitoringClass.reset();
-        if(e.getActionCommand().compareTo("Save Histos")==0)  monitoringClass.writeHipoFile();
-        if(e.getActionCommand().compareTo("Load Histos")==0)  monitoringClass.readHipoFile();
+        if(e.getActionCommand().compareTo("Write Histos")==0) monitoringClass.writeHipoFile();
+        if(e.getActionCommand().compareTo("Read Histos")==0)  monitoringClass.readHipoFile();
         if(e.getActionCommand().compareTo("RUN")==0)           runNumber = runno.getText();
     }      
 }

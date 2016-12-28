@@ -25,6 +25,7 @@ public class CalibrationData {
     public double   fitXmin   = 0.;
     public double   fitXmax   = 450.;
     public double  xprawMax   = 450.;
+    public final    int[] ATT = {150,150,150,150,150,150,150,150,150};
     
     private int sector,view,strip;
     
@@ -145,7 +146,7 @@ public class CalibrationData {
             this.rawgraphs.get(0).getAttributes().setTitle("Sector "+sector+" "+otab[sl-1]+" "+strip+" NO PIXEL FIT");
             F1D func = this.functions.get(loop);
             func.setParameter(0, 0.);
-            func.setParameter(1, 376.);
+            func.setParameter(1, ATT[sl-1]);
             func.setParameter(2, 0.);
             double [] dataY=this.fitgraphs.get(loop).getVectorY().getArray();
             if (dataY.length>0) {

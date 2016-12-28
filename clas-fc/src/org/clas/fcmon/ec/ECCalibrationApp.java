@@ -3,6 +3,12 @@ package org.clas.fcmon.ec;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
@@ -44,6 +50,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
     JPanel                    engineView = new JPanel();
     JSplitPane                enginePane = new JSplitPane(JSplitPane.VERTICAL_SPLIT); 
     JButton                    tableSave = null;
+    JButton                    tableRead = null;
     JButton                       hvSave = null;
     CalibrationConstantsView      ccview = new CalibrationConstantsView("");
     ConstantsManager                ccdb = new ConstantsManager();
@@ -68,7 +75,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
     int selectedSector = 1;
     int selectedLayer = 1;
     int selectedPaddle = 1;
-    
+
     int calrun = 1;
     
     public ECCalibrationApp(String name , ECPixels[] ecPix) {
@@ -94,32 +101,43 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
     
     public JPanel getButtonPane(){
         buttonPane = new JPanel();
-        tableSave  = new JButton("Save Table");
+        tableSave  = new JButton("Write Table");
         tableSave.addActionListener(this);
-        tableSave.setActionCommand("SAVE");
+        tableSave.setActionCommand("WRITE");
+        tableRead  = new JButton("Restore Table");
+        tableRead.addActionListener(this);
+        tableRead.setActionCommand("RESTORE");        
         hvSave  = new JButton("Load HVnew");
         hvSave.addActionListener(this);
         hvSave.setActionCommand("LOADHV");
         buttonPane.add(tableSave);
+        buttonPane.add(tableRead);
         buttonPane.add(hvSave);
         return buttonPane;
     }  
     
     public void actionPerformed(ActionEvent e) {
+
         ECCalibrationEngine engine = getSelectedEngine();
-        if (e.getActionCommand().compareTo("SAVE")==0) {           
-            String outputFilename = engine.getFileName();
-            engine.calib.save(outputFilename);
+       if (e.getActionCommand().compareTo("WRITE")==0) {           
+            String outputFileName = engine.getFileName(app.runNumber);
+            engine.calib.save(outputFileName);
             JOptionPane.showMessageDialog(new JPanel(),
-                    engine.calib.getName() + " table written to "+outputFilename);
+                    engine.calib.getName() + " table written to "+outputFileName);
         }        
+        if (e.getActionCommand().compareTo("RESTORE")==0) {           
+            String outputFileName = engines[0].getFileName(app.runNumber);
+            engines[0].updateTable();
+            JOptionPane.showMessageDialog(new JPanel(),
+                   "Restoring table " + engine.calib.getName() + " written to "+outputFileName);
+        }
         if (e.getActionCommand().compareTo("LOADHV")==0) { 
             
             int is1=sectorSelected;         int is2=is1+1;
             int il1=layerSelected+ilmap*3;  int il2=il1+1;
             mon.loadHV(is1,is2,il1,il2);
             JOptionPane.showMessageDialog(new JPanel(),
-                    "Loading HV from "+engines[3].getFileName()+" to CAEN MAINFRAME");
+                    "Loading HV from "+engines[3].outputFileName+" to CAEN MAINFRAME");
         }        
     }
     
@@ -246,7 +264,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
             
             System.out.println("ECCalibrationApp:ECHvEventListener.init");
             
-            fileNamePrefix = "EC_CALIB_HV_";
+            fileNamePrefix = "EC_CALIB_HV";
             filePath       = app.hvPath;
 
             initCalibPane();
@@ -392,6 +410,8 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
         public final double[][] DELTA = {{0.25,0.25,0.25,0.2,0.2,0.2,0.2,0.2,0.2},
                                          {160,160,160,160,160,160,160,160,160},
                                          {0.25,0.25,0.25,0,0,0,0,0,0}};
+        
+        public final        int[] REF = {150,150,150,100,100,100,160,160,160};
         public final        int[] MIP = {100,100,100,100,100,100,160,160,160};
         
         int is1,is2;
@@ -445,7 +465,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
         public void init(int is1, int is2) {
             System.out.println("ECCalibrationApp:ECAttenEventListener.init");
             
-            fileNamePrefix ="EC_CALIB_ATTEN_";
+            fileNamePrefix ="EC_CALIB_ATTEN";
             filePath= app.calibPath;
             
             getButtonGroup();
@@ -490,6 +510,48 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
             }
             
             list.add(calib);         
+        }
+        
+        public void updateTable(){
+            
+            String inputFile = getFileName(app.runNumber);
+            
+            int is,il,ip;
+            double dum;
+            
+            try {                 
+                FileInputStream fstream = new FileInputStream(inputFile);
+                BufferedReader       br = new BufferedReader(new InputStreamReader(fstream));
+
+                String line = br.readLine();
+                
+                while (line != null) {
+
+                    String[] lineValues = line.trim().split("\\s+");
+                    
+                    is  = Integer.parseInt(lineValues[0]);
+                    il  = Integer.parseInt(lineValues[1]);
+                    ip  = Integer.parseInt(lineValues[2]);
+                    dum = Double.parseDouble(lineValues[3]);  calib.setDoubleValue(dum,"A",is,il,ip);
+                    dum = Double.parseDouble(lineValues[4]);  calib.setDoubleValue(dum,"Aerr",is,il,ip);
+                    dum = Double.parseDouble(lineValues[5]);  calib.setDoubleValue(dum,"B",is,il,ip);
+                    dum = Double.parseDouble(lineValues[6]);  calib.setDoubleValue(dum,"Berr",is,il,ip);
+                    dum = Double.parseDouble(lineValues[7]);  calib.setDoubleValue(dum,"C",is,il,ip);
+                    dum = Double.parseDouble(lineValues[8]);  calib.setDoubleValue(dum,"Cerr",is,il,ip);
+                    dum = Double.parseDouble(lineValues[9]);  calib.setDoubleValue(dum,"FitMin",is,il,ip);
+                    dum = Double.parseDouble(lineValues[10]); calib.setDoubleValue(dum,"FitMax",is,il,ip);
+                    
+                    line = br.readLine();                    
+                }
+                br.close();            
+            }
+            catch(FileNotFoundException ex) {
+                ex.printStackTrace();                
+            }
+            catch(IOException ex) {
+                ex.printStackTrace();
+            }            
+            
         }
         
         public CalibrationConstants getCalibTable() {
@@ -636,7 +698,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
                         fits.setFitLimits(calib.getDoubleValue("FitMin",is,sl,ip),
                                           calib.getDoubleValue("FitMax",is,sl,ip));
                         fits.analyze(idet);
-             
+                        
                         calib.setDoubleValue(fits.getFunc(0).parameter(0).value()/MIP[sl-1], "A",    is, sl, ip);
                         calib.setDoubleValue(fits.getFunc(0).parameter(1).value(),           "B",    is, sl, ip);
                         calib.setDoubleValue(fits.getFunc(0).parameter(2).value()/MIP[sl-1], "C",    is, sl, ip);
@@ -650,7 +712,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
                }
             }
             calib.fireTableDataChanged();              
-         }  
+         } 
         
         public double getTestChannel(int sector, int layer, int paddle) {
             return calib.getDoubleValue("B", sector, layer, paddle);
@@ -716,16 +778,18 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
 //                     slider.setUpperValue((int) (fit.get(is,il,pixStrip).fitLimits[1]*100));            
 
                      int sl = il+ilmap*3;  // Superlayer PCAL:1-3 ECinner: 4-6 ECouter: 7-9
+                     double scale = (app.isMC) ? MIP[sl-1]:REF[sl-1]; 
                      
                      for (int ip=0; ip<nstr ; ip++) {
                          xp[ip]    = ip+1;     
                          xpe[ip]   = 0.; 
-                         parA[ip]  = fit.get(is,il,ip+1).getFunc(0).parameter(0).value()/MIP[sl-1];
-                         parAe[ip] = fit.get(is,il,ip+1).getFunc(0).parameter(0).error()/MIP[sl-1];
+                         
+                         parA[ip]  = fit.get(is,il,ip+1).getFunc(0).parameter(0).value()/scale;
+                         parAe[ip] = fit.get(is,il,ip+1).getFunc(0).parameter(0).error()/scale;
                          parB[ip]  = fit.get(is,il,ip+1).getFunc(0).parameter(1).value();
                          parBe[ip] = fit.get(is,il,ip+1).getFunc(0).parameter(1).error();
-                         parC[ip]  = fit.get(is,il,ip+1).getFunc(0).parameter(2).value()/MIP[sl-1];
-                         parCe[ip] = fit.get(is,il,ip+1).getFunc(0).parameter(2).error()/MIP[sl-1];
+                         parC[ip]  = fit.get(is,il,ip+1).getFunc(0).parameter(2).value()/scale;
+                         parCe[ip] = fit.get(is,il,ip+1).getFunc(0).parameter(2).error()/scale;
                          parAC[ip] = parA[ip]+parC[ip];
                          parACe[ip]= Math.sqrt(parAe[ip]*parAe[ip]+parCe[ip]*parCe[ip]);
                          double chi2 = fit.get(is,il,ip+1).getFunc(0).getChiSquare()/
@@ -792,7 +856,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
                      chi2Graph.getAttributes().setTitleY("REDUCED CHI^2"); 
                      chi2Graph.getAttributes().setTitle(" ");
                       
-                     F1D f1 = new F1D("p0","[a]",0,nstr+1); f1.setParameter(0,MIP[sl-1]); f1.setLineWidth(1);
+                     F1D f1 = new F1D("p0","[a]",0,nstr+1); f1.setParameter(0,scale); f1.setLineWidth(1);
                                
                      double ymax=2.; 
                      
@@ -857,7 +921,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
             
             System.out.println("ECCalibrationApp:ECGainEventListener.init");
             
-            fileNamePrefix ="EC_CALIB_GAIN_";
+            fileNamePrefix ="EC_CALIB_GAIN";
             filePath       = app.calibPath;
             
             this.is1=is1;
@@ -923,7 +987,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
             
             System.out.println("ECCalibrationApp:ECStatusEventListener.init");
             
-            fileNamePrefix = "EC_CALIB_STATUS_";
+            fileNamePrefix = "EC_CALIB_STATUS";
             filePath       = app.calibPath;
             
             status = ccdb.getConstants(calrun, names[STATUS]);

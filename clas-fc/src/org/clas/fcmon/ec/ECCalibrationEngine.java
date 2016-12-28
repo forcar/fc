@@ -28,9 +28,10 @@ public class ECCalibrationEngine extends CalibrationEngine {
         IndexedList<DataGroup> dataGroups = new IndexedList<DataGroup>(3);
         IndexedList<Double[]>   constants = new IndexedList<Double[]>(3);
 
-        String fileNamePrefix = "UNKNOWN";
-        String fileName       = "UNKNOWN.txt";
+        String fileNamePrefix        = "UNKNOWN";
+        String fileName              = "UNKNOWN.txt";
         public String filePath       = ".";
+        public String outputFileName = "UNKNOWN.txt";
         
         public ECCalibrationEngine() {
             // controlled by calibration application class
@@ -91,20 +92,24 @@ public class ECCalibrationEngine extends CalibrationEngine {
             // overridden in calibration application class
         }
         
-        // Borrowed from Louise Clarke 
-        // https://github.com/louiseclark/clascalib-services/blob/master/src/main/java/org/jlab/calib/services/TOFCalibrationEngine.java
+        public void updateTable() {
             
-        
-        public String getFileName() {
-            return nextFileName(filePath);
         }
         
-        public String nextFileName(String path) {
+        public String getFileName(String runno) {
+            this.outputFileName = filePath+fileNamePrefix+"."+runno+".txt";
+            return this.outputFileName;
+        }
+        
+        // Borrowed from Louise Clarke 
+        // https://github.com/louiseclark/clascalib-services/blob/master/src/main/java/org/jlab/calib/services/TOFCalibrationEngine.java
+
+        public String nextFileName(String path, String runno) {
 
             Date today = new Date();
             DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
             String todayString = dateFormat.format(today);
-            String filePrefix = fileNamePrefix + todayString;
+            String filePrefix = fileNamePrefix + todayString+"."+runno;
             int newFileNum = 0;
 
             File dir = new File(path);
