@@ -685,6 +685,8 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
                   int iptst = ecPix[idet].ec_nstr[il-1]+1;
                   int ipmax = ip2>iptst ? iptst:ip2;
                   
+                  double scale = (app.isMC) ? MIP[sl-1]:REF[sl-1]; 
+                  
                   for (int ip=ip1 ; ip<ipmax ; ip++) { //Loop over strips
                      if (doCalibration) {
                          
@@ -699,12 +701,12 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
                                           calib.getDoubleValue("FitMax",is,sl,ip));
                         fits.analyze(idet);
                         
-                        calib.setDoubleValue(fits.getFunc(0).parameter(0).value()/MIP[sl-1], "A",    is, sl, ip);
-                        calib.setDoubleValue(fits.getFunc(0).parameter(1).value(),           "B",    is, sl, ip);
-                        calib.setDoubleValue(fits.getFunc(0).parameter(2).value()/MIP[sl-1], "C",    is, sl, ip);
-                        calib.setDoubleValue(fits.getFunc(0).parameter(0).error()/MIP[sl-1], "Aerr", is, sl, ip);
-                        calib.setDoubleValue(fits.getFunc(0).parameter(1).error(),           "Berr", is, sl, ip);
-                        calib.setDoubleValue(fits.getFunc(0).parameter(2).error()/MIP[sl-1], "Cerr", is, sl, ip);
+                        calib.setDoubleValue(fits.getFunc(0).parameter(0).value()/scale, "A",    is, sl, ip);
+                        calib.setDoubleValue(fits.getFunc(0).parameter(1).value(),       "B",    is, sl, ip);
+                        calib.setDoubleValue(fits.getFunc(0).parameter(2).value()/scale, "C",    is, sl, ip);
+                        calib.setDoubleValue(fits.getFunc(0).parameter(0).error()/scale, "Aerr", is, sl, ip);
+                        calib.setDoubleValue(fits.getFunc(0).parameter(1).error(),       "Berr", is, sl, ip);
+                        calib.setDoubleValue(fits.getFunc(0).parameter(2).error()/scale, "Cerr", is, sl, ip);
                         
                         ecPix[idet].collection.add(fits.getDescriptor(),fits);
                      }
