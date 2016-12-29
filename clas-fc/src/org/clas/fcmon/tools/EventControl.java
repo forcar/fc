@@ -200,6 +200,7 @@ public class EventControl extends JPanel implements ActionListener, ChangeListen
         if(e.getActionCommand().compareTo(">")==0){
             if (!isRunning) isRunning = true;
         	isSingleEvent = true;
+        	inProcess = 1;
         	this.processNextEvent();
         	buttonPrev.setEnabled(true);        	
             this.detectorView.update();
