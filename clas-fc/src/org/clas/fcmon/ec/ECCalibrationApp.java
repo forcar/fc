@@ -256,7 +256,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
         public final double PARAM3 = 1.0;
         public final int    PARAM6 = 0;
         public final double[] GAIN = {0.2,0.2,0.2,0.5,0.5,0.5,0.5,0.5,0.5};
-        public final int[]     DHV = {20,20,20,100,100,100,100,100,100};
+        public final int[]     DHV = {20,20,20,150,150,150,150,150,150};
         IndexedTable        status = null; 
         ECHvEventListener(){}
         
@@ -334,7 +334,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
                         double  gain = gains.getDoubleValue("A", is,sl,ip)+gains.getDoubleValue("C", is,sl,ip);
                         double hvold = calib.getDoubleValue("HVold", is,sl,ip);
                         calib.setDoubleValue(gain,"Gain", is, sl, ip);                        
-                        if (gain<0.5||gain>2.0) gain=0.0;
+                        if (gain<0.3||gain>2.5) gain=0.0;
                         double ratio=Math.pow(gain, 1./11.);
                         double hvnew = (ratio>0.5) ? hvold/ratio:hvold;
                         calib.setDoubleValue(hvnew,"HVnew", is, sl, ip);                           
