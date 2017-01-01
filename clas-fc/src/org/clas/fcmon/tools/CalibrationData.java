@@ -140,7 +140,8 @@ public class CalibrationData {
     
     public void analyze(int idet){
     	DataFitter.FITPRINTOUT=false;
-    	int sl = idet*3+this.view;
+//    	int sl = idet*3+this.view;
+    	int sl = this.view;
     	addFitFunction(idet);
         for(int loop = 0; loop < this.fitgraphs.size(); loop++){
             this.rawgraphs.get(0).getAttributes().setTitle("Sector "+sector+" "+otab[sl-1]+" "+strip+" NO PIXEL FIT");

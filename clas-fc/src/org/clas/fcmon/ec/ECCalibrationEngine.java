@@ -9,6 +9,7 @@ import java.util.List;
 import javax.swing.JSplitPane;
 
 import org.clas.fcmon.tools.CalibrationData;
+import org.jlab.detector.base.DetectorCollection;
 import org.jlab.detector.calib.tasks.CalibrationEngine;
 import org.jlab.detector.calib.utils.CalibrationConstants;
 import org.jlab.groot.graphics.EmbeddedCanvas;
@@ -23,8 +24,8 @@ public class ECCalibrationEngine extends CalibrationEngine {
         public final static String[]     LAYER_NAME = {"LEFT","RIGHT"};
         
         CalibrationConstants calib;
-        CalibrationData       fits;
-        
+        DetectorCollection<CalibrationData>     collection = new DetectorCollection<CalibrationData>() ;  
+                
         IndexedList<DataGroup> dataGroups = new IndexedList<DataGroup>(3);
         IndexedList<Double[]>   constants = new IndexedList<Double[]>(3);
 

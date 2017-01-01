@@ -51,7 +51,6 @@ public class ECPixels {
     public TreeMap<Integer,List<double[]>>             peakXY = new TreeMap<Integer, List<double[]>>();
     public DetectorCollection<TreeMap<Integer,Object>> Lmap_a = new DetectorCollection<TreeMap<Integer,Object>>();
     public DetectorCollection<TreeMap<Integer,Object>> Lmap_t = new DetectorCollection<TreeMap<Integer,Object>>();
-    public DetectorCollection<CalibrationData>     collection = new DetectorCollection<CalibrationData>();  
 
     public Pixels     pixels = new Pixels();
     public Strips     strips = new Strips();
@@ -131,7 +130,6 @@ public class ECPixels {
         System.out.println("ECPixels.init()");
         Lmap_a.clear();
         Lmap_t.clear();
-        collection.clear();    
     }
     
     public int getStripThr(String config, int layer) {
