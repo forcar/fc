@@ -1,9 +1,16 @@
 package org.clas.fcmon.cc;
 
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.LinkedList;
 
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JSplitPane;
+import javax.swing.JTextField;
 import javax.swing.Timer;
 
 import org.clas.fcmon.tools.FCEpics;
@@ -13,8 +20,11 @@ import org.jlab.groot.data.H1F;
 import org.jlab.groot.data.H2F;
 import org.jlab.groot.graphics.EmbeddedCanvas;
 
-public class CCHvApp extends FCEpics {
+public class CCHvApp extends FCEpics implements ActionListener {
    
+    JTextField   newhv = new JTextField(4);
+    JLabel statuslabel = new JLabel();
+    
     DetectorCollection<H1F> H1_HV = new DetectorCollection<H1F>();
     DetectorCollection<H2F> H2_HV = new DetectorCollection<H2F>();
     
@@ -25,6 +35,7 @@ public class CCHvApp extends FCEpics {
     int nfifo=0, nmax=120;
     int isCurrentSector;
     int isCurrentLayer;
+    double newHV=0;
     
     CCHvApp(String name, String det) {
         super(name, det);
@@ -47,6 +58,39 @@ public class CCHvApp extends FCEpics {
         this.timer.setDelay(delay);
         this.timer.start();
     }
+    
+    public JPanel getPanel() {        
+        engineView.setLayout(new BorderLayout());
+        engineView.add(getCanvasPane(),BorderLayout.CENTER);
+        engineView.add(getButtonPane(),BorderLayout.PAGE_END);
+        return engineView;       
+    }   
+    
+    public JSplitPane getCanvasPane() {
+        JSplitPane HVScalerPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);       
+        HVScalerPane.setTopComponent(scaler1DView);
+        HVScalerPane.setBottomComponent(scaler2DView);       
+        HVScalerPane.setResizeWeight(0.2);
+        return HVScalerPane;
+    }
+    
+    public JPanel getButtonPane() {
+        buttonPane = new JPanel();
+        buttonPane.setLayout(new FlowLayout());
+        
+        JButton loadBtn = new JButton("Load HV");
+        loadBtn.addActionListener(this);
+        buttonPane.add(loadBtn); 
+
+        buttonPane.add(new JLabel("New HV:"));
+        newhv.setActionCommand("NEWHV"); newhv.addActionListener(this); newhv.setText("0");  
+        buttonPane.add(newhv); 
+        
+        statuslabel = new JLabel(" ");         
+        buttonPane.add(statuslabel);
+        
+        return buttonPane;
+    }   
     
     private class updateGUIAction implements ActionListener {
         public void actionPerformed(ActionEvent evt) {
@@ -77,9 +121,10 @@ public class CCHvApp extends FCEpics {
         for (int is=is1; is<is2 ; is++) {
             for (int il=1; il<layMap.get(detName).length+1 ; il++) {
                 for (int ic=1; ic<nlayMap.get(detName)[il-1]+1; ic++) {
-                    app.fifo1.add(is, il, ic,new LinkedList<Double>());
-                    app.fifo2.add(is, il, ic,new LinkedList<Double>());
-                    app.fifo3.add(is, il, ic,new LinkedList<Double>());
+                    app.fifo1.add(is, il, ic, new LinkedList<Double>());
+                    app.fifo2.add(is, il, ic, new LinkedList<Double>());
+                    app.fifo3.add(is, il, ic, new LinkedList<Double>());
+                    app.fifo6.add(is, il, ic, new LinkedList<Double>());
                     connectCa(0,"vset",is,il,ic);
                     connectCa(0,"vmon",is,il,ic);
                     connectCa(0,"imon",is,il,ic);
@@ -138,6 +183,26 @@ public class CCHvApp extends FCEpics {
         
     }
     
+    public void loadHV(int is1, int is2, int il1, int il2) {
+        System.out.println("ECHvApp.loadHV()");
+        for (int is=is1; is<is2 ; is++) {
+            for (int il=il1; il<il2 ; il++) {
+                for (int ic=1; ic<nlayMap.get(detName)[il-1]+1; ic++) {
+                    System.out.println("is="+is+" il="+il+" ic="+ic+" HV="+app.fifo6.get(is, il, ic).getLast());
+                    putCaValue(0,"vset",is,il,ic,app.fifo6.get(is, il, ic).getLast());  
+                }
+            }
+        }
+        
+    }  
+    
+    public void updateStatus(int is, int il, int ic) {
+        double vset = app.fifo1.get(is,il,ic).getLast();
+        double vmon = app.fifo2.get(is,il,ic).getLast(); 
+        double imon = app.fifo3.get(is,il,ic).getLast(); 
+        this.statuslabel.setText(" Sector:"+is+"  SuperLayer:" +il+"  PMT:"+ic+"  Vset:"+(int)vset+"  Vmon:"+(int)vmon+"  Imon:"+(int)imon);        
+    }  
+    
     public void updateCanvas(DetectorDescriptor dd) {
         
         sectorSelected  = dd.getSector();
@@ -145,7 +210,8 @@ public class CCHvApp extends FCEpics {
         channelSelected = dd.getComponent(); 
         
         update1DScalers(scaler1DView,0);   
-        update2DScalers(scaler2DView,0);
+        update2DScalers(scaler2DView,0);        
+        updateStatus(sectorSelected,layerSelected,channelSelected+1);
         
         isCurrentSector = sectorSelected;
         isCurrentLayer  = layerSelected;
@@ -165,9 +231,14 @@ public class CCHvApp extends FCEpics {
         canvas.divide(4, 1);
         
         h = H1_HV.get(is, 1, 0); h.setTitleX("Sector "+is+" Left PMT"); h.setTitleY("VOLTS");
-        h.setFillColor(32); canvas.cd(0); canvas.draw(h);
+        h.setFillColor(33); canvas.cd(0); canvas.draw(h);
         h = H1_HV.get(is, 2, 0); h.setTitleX("Sector "+is+" Right PMT"); h.setTitleY("VOLTS");
-        h.setFillColor(32); canvas.cd(1);    canvas.draw(h);
+        h.setFillColor(33); canvas.cd(1);    canvas.draw(h);
+        
+        h = H1_HV.get(is, 1, 1); h.setTitleX("Sector "+is+" Left PMT"); h.setTitleY("VOLTS");
+        h.setFillColor(32); canvas.cd(0); canvas.draw(h,"same");
+        h = H1_HV.get(is, 2, 1); h.setTitleX("Sector "+is+" Right PMT"); h.setTitleY("VOLTS");
+        h.setFillColor(32); canvas.cd(1);    canvas.draw(h,"same");
 
         h = H1_HV.get(is, 1, 2); h.setTitleX("Sector "+is+" Left PMT"); h.setTitleY("MICROAMPS");
         h.setFillColor(32); canvas.cd(2); canvas.draw(h);
@@ -216,5 +287,15 @@ public class CCHvApp extends FCEpics {
         
     }
     
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        // TODO Auto-generated method stub
+        int is = sectorSelected;
+        int lr = layerSelected;
+        int ip = channelSelected+1; 
+        if(e.getActionCommand().compareTo("Load HV")==0) putCaValue(0,"vset",is,lr,ip,newHV);
+        if(e.getActionCommand().compareTo("NEWHV")==0)   newHV = Double.parseDouble(newhv.getText());
+        
+    }    
     
 }

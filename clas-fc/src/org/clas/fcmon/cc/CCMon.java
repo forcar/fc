@@ -3,6 +3,7 @@ package org.clas.fcmon.cc;
 import java.util.Arrays;
 import java.util.TreeMap;
 
+import org.clas.containers.FTHashCollection;
 import org.clas.fcmon.detector.view.DetectorShape2D;
 import org.clas.fcmon.tools.*;
 
@@ -15,6 +16,7 @@ import org.jlab.detector.calib.utils.ConstantsManager;
 import org.jlab.groot.data.H1F;
 import org.jlab.groot.data.H2F;
 import org.jlab.io.evio.EvioDataEvent;
+import org.jlab.utils.groups.IndexedTable;
 import org.jlab.io.base.DataEvent;
 
 public class CCMon extends DetectorMonitor {
@@ -23,7 +25,7 @@ public class CCMon extends DetectorMonitor {
     
     CCPixels                  ccPix = new CCPixels();
     ConstantsManager           ccdb = new ConstantsManager();  
-    
+    FTHashCollection            rtt = null;    
     CCDetector                ccDet = null;  
     
     CCReconstructionApp     ccRecon = null;
@@ -62,8 +64,8 @@ public class CCMon extends DetectorMonitor {
         String det = "LTCC";
         CCMon monitor = new CCMon(det);	
         app.setPluginClass(monitor);
-        app.getEnv();
         app.makeGUI();
+        app.getEnv();
         monitor.initConstants();
         monitor.initCCDB();
         monitor.initGlob();
@@ -79,6 +81,27 @@ public class CCMon extends DetectorMonitor {
         monitor.ccDet.initButtons();
     }
     
+    public FTHashCollection getReverseTT(ConstantsManager ccdb) {
+        System.out.println("monitor.getReverseTT()"); 
+        IndexedTable tt = ccdb.getConstants(10,  "/daq/tt/ltcc");
+        FTHashCollection rtt = new FTHashCollection<int[]>(4);
+        for(int ic=1; ic<35; ic++) {
+            for (int sl=16; sl<21; sl++) {
+                int chmax=16;
+                if (sl==16) chmax=128;
+                for (int ch=0; ch<chmax; ch++){
+                    if (tt.hasEntry(ic,sl,ch)) {
+                        int[] dum = {ic,sl,ch}; rtt.add(dum,tt.getIntValue("sector",    ic,sl,ch),
+                                                            tt.getIntValue("layer",     ic,sl,ch),
+                                                            tt.getIntValue("component", ic,sl,ch),
+                                                            tt.getIntValue("order",     ic,sl,ch));
+                    };
+                }
+            }
+        }
+        return rtt;
+    }  
+    
     public void initConstants() {
         CCConstants.setSectors(is1,is2);
     }
@@ -86,7 +109,11 @@ public class CCMon extends DetectorMonitor {
     public void initCCDB() {
         ccdb.init(Arrays.asList(new String[]{
                 "/daq/fadc/ltcc",
-                "/calibration/ltcc/gain","/calibration/ltcc/timing_offset","/calibration/ltcc/status"}));
+                "/daq/tt/ltcc",
+                "/calibration/ltcc/gain",
+                "/calibration/ltcc/timing_offset",
+                "/calibration/ltcc/status"}));
+        rtt = getReverseTT(ccdb);
         app.mode7Emulation.init(ccdb, calRun, "/daq/fadc/ltcc", 1,18,12);        
     }
     
@@ -125,7 +152,8 @@ public class CCMon extends DetectorMonitor {
         ccCalib = new CCCalibrationApp("Calibration", ccPix);
         ccCalib.setMonitoringClass(this);
         ccCalib.setApplicationClass(app);  
-        ccCalib.init(is1,is2);
+        ccCalib.setConstantsManager(ccdb,calRun);
+        ccCalib.init();
         
         ccHv = new CCHvApp("HV","LTCC");
         ccHv.setMonitoringClass(this);
@@ -142,9 +170,9 @@ public class CCMon extends DetectorMonitor {
         app.addCanvas(ccOccupancy.getName(), ccOccupancy.getCanvas());          
         app.addCanvas(ccPedestal.getName(),   ccPedestal.getCanvas());
         app.addCanvas(ccSpe.getName(),             ccSpe.getCanvas()); 
-        app.addFrame(ccCalib.getName(),          ccCalib.getCalibPane());
-        app.addFrame(ccHv.getName(),                ccHv.getScalerPane());
-        app.addFrame(ccScalers.getName(),      ccScalers.getScalerPane());
+        app.addFrame(ccCalib.getName(),          ccCalib.getPanel());
+        app.addFrame(ccHv.getName(),                ccHv.getPanel());
+        app.addFrame(ccScalers.getName(),      ccScalers.getPanel());
     }
     
     public void init( ) {       
@@ -172,7 +200,6 @@ public class CCMon extends DetectorMonitor {
         putGlob("nsa", nsa);
         putGlob("nsb", nsb);
         putGlob("tet", tet);        
-        putGlob("ccdb", ccdb);
         putGlob("PCMon_zmin", PCMon_zmin);
         putGlob("PCMon_zmax", PCMon_zmax);
         putGlob("mondet",mondet);
@@ -204,32 +231,61 @@ public class CCMon extends DetectorMonitor {
     @Override
     public void update(DetectorShape2D shape) {
         ccDet.update(shape);
-        ccCalib.updateDetectorView(shape);
+        //ccCalib.updateDetectorView(shape);
     }
 		
     @Override
     public void analyze() {
         
-        if (app.getInProcess()==1||app.getInProcess()==2) {
-            ccRecon.makeMaps();	
-            ccCalib.engines[0].analyze();
+        switch (app.getInProcess()) {
+        case 1: ccRecon.makeMaps();  break;
+        case 2: ccRecon.makeMaps();
+                ccCalib.analyzeAllEngines(is1,is2,1,3);   
+                app.setInProcess(3); 
         }
     }
 
     @Override
     public void processShape(DetectorShape2D shape) {       
         DetectorDescriptor dd = shape.getDescriptor();
+        app.updateStatus(getStatusString(dd));
         this.analyze();        
         switch (app.getSelectedTabName()) {
         case "Mode1":                ccMode1.updateCanvas(dd); break;
         case "Occupancy":        ccOccupancy.updateCanvas(dd); break;
         case "Pedestal":          ccPedestal.updateCanvas(dd); break;
         case "SPE":                    ccSpe.updateCanvas(dd); break; 
+        case "Calibration":          ccCalib.updateCanvas(dd); break; 
         case "HV":                      ccHv.updateCanvas(dd); break;
         case "Scalers":            ccScalers.updateCanvas(dd);
         }                       
     }
-
+    
+    public void loadHV(int is1, int is2, int il1, int il2) {
+        ccHv.loadHV(is1,is2,il1,il2);
+    }
+    
+    public String getStatusString(DetectorDescriptor dd) {
+        
+        String comp=(dd.getLayer()==4) ? "  Pixel:":"  PMT:";  
+      
+        int is = dd.getSector();
+        int lr = dd.getLayer();
+        int ic = dd.getComponent()+1;
+        int or = 0;
+        int cr = 0;
+        int sl = 0;
+        int ch = 0;
+        if (app.getSelectedTabName()=="TDC") or=2;
+        if (rtt.hasItem(is,lr,ic,or)) {
+            int[] dum = (int[]) rtt.getItem(is,lr,ic,or);
+            cr = dum[0];
+            sl = dum[1];
+            ch = dum[2];
+        }   
+        return " Sector:"+is+"  Layer:"+lr+comp+ic+" "+" Crate:"+cr+" Slot:"+sl+" Chan:"+ch;
+    } 
+    
     @Override
     public void resetEventListener() {
     }
@@ -241,17 +297,17 @@ public class CCMon extends DetectorMonitor {
     @Override
     public void readHipoFile() {        
         System.out.println("monitor.readHipoFile()");
-        String hipoFileName = app.hipoPath+"/"+mondet+"_"+app.hipoRun+".hipo";
-        System.out.println("Loading Histograms from "+hipoFileName);
+        String hipoFileName = app.hipoPath+mondet+"_"+app.runNumber+".hipo";
+        System.out.println("Reading Histograms from "+hipoFileName);
         ccPix.initHistograms(hipoFileName);
         ccOccupancy.analyze();
         app.setInProcess(2);          
     }
     
     @Override
-    public void saveToFile() {
-        System.out.println("monitor.saveToFile()");
-        String hipoFileName = app.hipoPath+"/"+mondet+"_"+app.hipoRun+".hipo";
+    public void writeHipoFile() {
+        System.out.println("monitor.writeHipoFile()");
+        String hipoFileName = app.hipoPath+mondet+"_"+app.runNumber+".hipo";
         System.out.println("Saving Histograms to "+hipoFileName);
         HipoFile histofile = new HipoFile(hipoFileName);
         histofile.addToMap("H2_CCa_Hist", this.H2_CCa_Hist);

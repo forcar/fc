@@ -2,6 +2,9 @@ package org.clas.fcmon.cc;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.swing.JSplitPane;
+
+import org.jlab.detector.base.DetectorCollection;
 import org.jlab.detector.calib.tasks.CalibrationEngine;
 import org.jlab.detector.calib.utils.CalibrationConstants;
 import org.jlab.groot.graphics.EmbeddedCanvas;
@@ -14,16 +17,26 @@ public class CCCalibrationEngine extends CalibrationEngine {
    
 
         public final static int[]       NUM_PADDLES = {18,18};
+        public final static int         NUM_LAYERS = 1;
         public final static String[]    LAYER_NAME = {"LEFT","RIGHT"};
         
-        CalibrationConstants calib;
+        DetectorCollection<CalibrationData>     collection = new DetectorCollection<CalibrationData>() ;  
         
-        IndexedList<DataGroup> dataGroups = new IndexedList<DataGroup>(3);
         IndexedList<Double[]> constants = new IndexedList<Double[]>(3);
+        CalibrationConstants calib;
+        IndexedList<DataGroup> dataGroups = new IndexedList<DataGroup>(3);
 
-
+        String fileNamePrefix        = "UNKNOWN";
+        String fileName              = "UNKNOWN.txt";
+        public String filePath       = ".";
+        public String outputFileName = "UNKNOWN.txt";
+        
         public CCCalibrationEngine() {
             // controlled by calibration application class
+        }
+        
+        public void setCalibPane() {
+            JSplitPane    hPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT); 
         }
         
         @Override
@@ -55,7 +68,16 @@ public class CCCalibrationEngine extends CalibrationEngine {
             // overridden in calibration step classes
             
         }
-
+        public void analyze(int is1, int is2, int il1, int il2, int ip1, int ip2) {
+        }  
+        
+        public void analyze(int is1, int is2, int il1, int il2) {
+        }  
+        
+        public void drawPlots(int sector, int layer, int component) {
+            
+        }
+        
         public void analyze() {
             for (int sector = 1; sector <= 6; sector++) {
                 for (int layer = 1; layer <= 3; layer++) {
@@ -76,7 +98,32 @@ public class CCCalibrationEngine extends CalibrationEngine {
                 double minRange, double maxRange){
             // overridden in calibration application class
         }
-
+        
+        public void updateTable() {
+            
+        }
+        
+        public String getFileName(String runno) {
+            this.outputFileName = filePath+fileNamePrefix+"."+runno+".txt";
+            return this.outputFileName;
+        }
+        
+        public void loadHV() {
+            
+        }   
+        
+        public float getMin(float[] array) {
+            float[] dum = array.clone();
+            Arrays.sort(dum);
+            return dum[0];
+        }
+        
+        public float getMax(float[] array) {
+            float[] dum = array.clone();
+            Arrays.sort(dum);
+            return dum[dum.length-1];
+        }
+        
         public void save() {
             // overridden in calibration application class
         }
