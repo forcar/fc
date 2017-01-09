@@ -5,6 +5,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.util.Arrays;
 import java.util.LinkedList;
 
 import javax.swing.JCheckBox;
@@ -101,7 +102,7 @@ public class ECScalersApp extends FCEpics {
         cb1.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
                 isAccum = (e.getStateChange() == ItemEvent.SELECTED) ? true:false;
-                nTimer = 0;
+                nTimer = 1;
                 updateScalers(1);
             }
         });    
@@ -228,21 +229,13 @@ public class ECScalersApp extends FCEpics {
 
     public void fillHistos() {
         
-        int acc[][] = new int[6][layMap.get(detName).length];
         float[] norm1 = null;
         float[] norm2 = null;
         
         for (int is=is1; is<is2 ; is++) {
             for (int il=1; il<layMap.get(detName).length+1 ; il++) {                
-                if(!isAccum) {
-                    H1_SCA.get(is, il, 0).reset(); H2_SCA.get(is, il, 0).reset();
-                    H1_SCA.get(is, il, 1).reset(); H2_SCA.get(is, il, 1).reset();
-                }
-                if(isAccum&&!isNorm) {
-                    acc[is-1][il-1] = nTimer;
-                    norm1 = H1_SCA.get(is, il, 0).getData();
-                    norm2 = H1_SCA.get(is, il, 1).getData();
-                }
+                if(!isAccum) {H1_SCA.get(is, il, 0).reset(); H1_SCA.get(is, il, 1).reset();}
+                H2_SCA.get(is, il, 0).reset(); H2_SCA.get(is, il, 1).reset();
                 for (int ic=1; ic<nlayMap.get(detName)[il-1]+1; ic++) {                    
                     H1_SCA.get(is, il, 0).fill(ic,app.fifo4.get(is, il, ic).getLast());
                     H1_SCA.get(is, il, 1).fill(ic,app.fifo5.get(is, il, ic).getLast());
@@ -251,14 +244,21 @@ public class ECScalersApp extends FCEpics {
                     Double ts2[] = new Double[app.fifo5.get(is, il, ic).size()];
                     app.fifo5.get(is, il, ic).toArray(ts2);
                     for (int it=0; it<ts1.length; it++) {
-                        if(isNorm&&acc[is-1][il-1]>0) {
-                            ts1[it]=(ts1[it]-norm1[ic-1]/acc[is-1][il-1])/Math.sqrt(ts1[it]);
-                            ts2[it]=(ts2[it]-norm2[ic-1]/acc[is-1][il-1])/Math.sqrt(ts2[it]);
+                        if(isNorm) {
+                            ts1[it]=(ts1[it]-norm1[ic-1])/Math.sqrt(ts1[it]);
+                            ts2[it]=(ts2[it]-norm2[ic-1])/Math.sqrt(ts2[it]);
                         }
                         H2_SCA.get(is, il, 0).fill(ic,it,ts1[it]);
                         H2_SCA.get(is, il, 1).fill(ic,it,ts2[it]);
                     }
                 }
+                if(isAccum&&!isNorm&&nTimer==10) {
+                    norm1 = H1_SCA.get(is, il, 0).getData();
+                    norm2 = H1_SCA.get(is, il, 1).getData();
+                    int itim = nTimer+1;
+                   for (int i=0; i<norm1.length; i++) {norm1[i]=norm1[i]/itim;norm2[i]=norm2[i]/itim;}
+                }
+
             }
         }
         
