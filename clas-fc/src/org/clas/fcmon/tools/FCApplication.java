@@ -1,4 +1,4 @@
-  package org.clas.fcmon.tools;
+package org.clas.fcmon.tools;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -322,106 +322,6 @@ public class FCApplication implements ActionListener  {
         canvas.getPad(num).getAxisZ().setAutoScale(true);
         canvas.getPad(num).getAxisFrame().getAxisZ().setLog(linlog);
         return canvas;
-    } 
-    
-    public class EmbeddedCanvasTabbed extends JPanel implements MouseMotionListener, MouseListener {
-        
-        private JTabbedPane   tabbedPane = null; 
-        public JPanel        actionPanel = null;  
-        public JPopupMenu          popup = null;
-        private int             popupPad = 0;
-        public String     selectedCanvas = null;
-        
-        private Map<String,EmbeddedCanvas>  tabbedCanvases = new LinkedHashMap<String,EmbeddedCanvas>();
-       
-        public EmbeddedCanvasTabbed(String name){
-            super();
-            this.setLayout(new BorderLayout());
-            initUI(name);
-            initMouse();
-        }
-        
-        public final void initMouse(){
-            this.addMouseMotionListener(this);
-            this.addMouseListener(this);
-        }
-        
-        public void initUI(String name){
-            
-            tabbedPane  = new JTabbedPane();
-            actionPanel = new JPanel();
-            actionPanel.setLayout(new FlowLayout());
-            tabbedPane.addChangeListener(new ChangeListener() {
-                public void stateChanged(ChangeEvent e) {
-                     JTabbedPane tabbedPane = (JTabbedPane) e.getSource();
-                     int index = tabbedPane.getSelectedIndex();
-                     selectedCanvas = tabbedPane.getTitleAt(index);
-                }
-            });            
-            this.add(tabbedPane,BorderLayout.CENTER);
-            this.add(actionPanel,BorderLayout.PAGE_END);
-            this.addCanvas(name);
-            
-        }
-        
-        public void addCanvas(String name){        
-            EmbeddedCanvas canvas = new EmbeddedCanvas();
-            this.tabbedCanvases.put(name, canvas);
-            tabbedPane.addTab(name, canvas);
-            tabbedPane.addMouseListener(this);
-
-        }  
-        
-        public EmbeddedCanvas getCanvas(String title){
-            return this.tabbedCanvases.get(title);
-        }
-        
-        @Override
-        public void mousePressed(MouseEvent e) {
-             if (SwingUtilities.isRightMouseButton(e)) {
-                 //System.out.println("POP-UP coordinates = " + e.getX() + " " + e.getY() + "  pad = " + popupPad);
-                 System.out.println("Mouse clicked");
-                 popup.show(this, e.getX(), e.getY());                 
-             }
-        }  
-        
-        @Override
-        public void mouseClicked(MouseEvent e) {
-            // TODO Auto-generated method stub
-            
-        }
-
-        @Override
-        public void mouseReleased(MouseEvent e) {
-            // TODO Auto-generated method stub
-            
-        }
-
-        @Override
-        public void mouseEntered(MouseEvent e) {
-            // TODO Auto-generated method stub
-            
-        }
-
-        @Override
-        public void mouseExited(MouseEvent e) {
-            // TODO Auto-generated method stub
-            
-        }
-
-        @Override
-        public void mouseDragged(MouseEvent e) {
-            // TODO Auto-generated method stub
-            
-        }
-
-        @Override
-        public void mouseMoved(MouseEvent e) {
-            // TODO Auto-generated method stub
-            
-        }
-        
-   }
-    
+    }  
     
 }

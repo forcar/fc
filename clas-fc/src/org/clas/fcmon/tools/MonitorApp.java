@@ -74,6 +74,7 @@ public class MonitorApp extends JFrame implements ActionListener {
     public int  detectorIndex = 0;
     public int      viewIndex = 1;
     public boolean    doEpics = false;
+    public String     appName = null;
     public String    rootPath = ".";
     public String    hipoPath = null;
     public String   calibPath = null;
@@ -113,6 +114,10 @@ public class MonitorApp extends JFrame implements ActionListener {
     	this.monitoringClass = mon;
     }
     
+    public void setAppName(String name) {
+        this.appName = name;
+    }
+    
     public void getEnv() {        
         String   ostype = System.getenv("OSTYPE");    
         if (ostype!=null&&ostype.equals("Linux")) {
@@ -121,13 +126,13 @@ public class MonitorApp extends JFrame implements ActionListener {
               System.out.println("Running on "+hostname);
               doEpics = true;
               setIsMC(false);
-              rootPath = "/home/clasrun/pcal/paw/ECMON/";              
+              rootPath = "/home/clasrun/pcal/paw/"+appName;              
             }
         } else {
             System.out.println("Running on "+ostype);
             doEpics = false;
             setIsMC(true);
-            rootPath  = "/Users/colesmith/ECMON/";
+            rootPath  = "/Users/colesmith/"+appName;
         }
         hipoPath  = rootPath+"HIPO/";
         calibPath = rootPath+"CALIB/";

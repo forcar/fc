@@ -14,6 +14,7 @@ import java.util.concurrent.TimeoutException;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 
+import org.clas.fcmon.detector.view.EmbeddedCanvasTabbed;
 import org.epics.ca.Channel;
 import org.epics.ca.Context;
 import org.epics.ca.Listener;
@@ -41,10 +42,14 @@ public class FCEpics  {
     
     public Monitor<Double>     monitor = null;
     
-    public JPanel           engineView = new JPanel();    
-    public JPanel           buttonPane = null;  
-    public EmbeddedCanvas scaler1DView = new EmbeddedCanvas();
-    public EmbeddedCanvas scaler2DView = new EmbeddedCanvas();
+    public JPanel                   engineView = new JPanel();    
+    public JSplitPane               enginePane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+    public JPanel                 engine1DView = new JPanel();
+    public JPanel                 engine2DView = new JPanel();
+    public EmbeddedCanvasTabbed engine1DCanvas = null;
+    public EmbeddedCanvasTabbed engine2DCanvas = null;
+    public JPanel                   buttonPane = null;
+    public JPanel                   sliderPane = null;
     
     IndexedList<String>                             map = new IndexedList<String>(4);
     TreeMap<String,IndexedList<String>>           pvMap = new TreeMap<String,IndexedList<String>>();
