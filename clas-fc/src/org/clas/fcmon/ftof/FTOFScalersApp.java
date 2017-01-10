@@ -235,7 +235,7 @@ public class FTOFScalersApp extends FCEpics {
             for (int is=is1; is<is2 ; is++) {
                 for (int il=1; il<layMap.get(detName).length+1 ; il++) {
                     if(!isAccum) {H1_SCA.get(is, il, 0).reset(); H1_SCA.get(is, il, 1).reset();}
-                    H1_SCA.get(is, il, 1).reset(); H2_SCA.get(is, il, 1).reset();
+                    H2_SCA.get(is, il, 0).reset(); H2_SCA.get(is, il, 1).reset();
                     for (int ic=1; ic<nlayMap.get(detName)[il-1]+1; ic++) {                    
                         H1_SCA.get(is, il, 0).fill(ic,app.fifo4.get(is, il, ic).getLast());
                         H1_SCA.get(is, il, 1).fill(ic,app.fifo5.get(is, il, ic).getLast());
