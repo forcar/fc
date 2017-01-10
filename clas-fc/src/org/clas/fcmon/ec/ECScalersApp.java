@@ -149,7 +149,7 @@ public class ECScalersApp extends FCEpics {
     public void getSliderPane() {
         JLabel xLabel = new JLabel("Z-Range:");
         RangeSlider slider = new RangeSlider();
-        slider.setMinimum((int) 0.);
+        slider.setMinimum((int)  0.);
         slider.setMaximum((int) 70.);
         slider.setValue((int) 0.);
         slider.setUpperValue((int) 20.);            
@@ -283,7 +283,7 @@ public class ECScalersApp extends FCEpics {
         isCurrentLayer  = layerSelected;
     }
     
-    public void update1DScalers(EmbeddedCanvas canvas, int flag) {
+    public synchronized void update1DScalers(EmbeddedCanvas canvas, int flag) {
         
         H1F h = new H1F();
         H1F c = new H1F();
@@ -318,7 +318,7 @@ public class ECScalersApp extends FCEpics {
         canvas.repaint();
     }
     
-    public void update2DScalers(EmbeddedCanvas canvas, int flag) {
+    public synchronized void update2DScalers(EmbeddedCanvas canvas, int flag) {
         
         H2F h = new H2F();
         
@@ -340,8 +340,8 @@ public class ECScalersApp extends FCEpics {
         if (isNorm) {
             canvas.getPad(0).getAxisZ().setLog(false); 
             canvas.getPad(1).getAxisZ().setLog(false); 
-            canvas.getPad(0).getAxisZ().setRange(-3.0,3.0);
-            canvas.getPad(1).getAxisZ().setRange(-3.0,3.0);
+            canvas.getPad(0).getAxisZ().setRange(-8.0,8.0);
+            canvas.getPad(1).getAxisZ().setRange(-8.0,8.0);
         }
         String tit = "Sector "+is+" "+layMap.get(detName)[lr-1]+" PMT";
         
