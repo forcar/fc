@@ -3,6 +3,7 @@ package org.clas.fcmon.ftof;
 import java.util.Arrays;
 import java.util.TreeMap;
 
+import org.clas.containers.FTHashCollection;
 import org.clas.fcmon.detector.view.DetectorShape2D;
 import org.clas.fcmon.tools.*;
 
@@ -19,7 +20,7 @@ public class FTOFMon extends DetectorMonitor {
     
     FTOFPixels              ftofPix[] = new FTOFPixels[3];
     ConstantsManager             ccdb = new ConstantsManager();
-      
+    FTHashCollection              rtt = null;      
     FTOFDetector              ftofDet = null;  
     
     FTOFReconstructionApp   ftofRecon = null;
@@ -36,22 +37,17 @@ public class FTOFMon extends DetectorMonitor {
     int                         detID = 0;
     int                           is1 = 2;    //All sectors: is1=1 is2=7  Single sector: is1=s is2=s+1
     int                           is2 = 3; 
-    int                        calrun = 2;
     int      nsa,nsb,tet,p1,p2,pedref = 0;
     double                 PCMon_zmin = 0;
     double                 PCMon_zmax = 0;
     
     String mondet                     = "FTOF";
+    static String             appname = "FTOFMON";
 	
     TreeMap<String,Object> glob = new TreeMap<String,Object>();
 	   
     public FTOFMon(String det) {
         super("FTOFMON", "1.0", "lcsmith");
-        ccdb.init(Arrays.asList(new String[]{
-                "/daq/fadc/ftof",
-                "/calibration/ftof/attenuation",
-                "/calibration/ftof/gain_balance",
-                "/calibration/ftof/status"}));
         mondet = det;
         ftofPix[0] = new FTOFPixels("PANEL1A");
         ftofPix[1] = new FTOFPixels("PANEL1B");
@@ -62,8 +58,9 @@ public class FTOFMon extends DetectorMonitor {
         String det = "FTOF";
         FTOFMon monitor = new FTOFMon(det);	
         app.setPluginClass(monitor);
-        app.getEnv();
+        app.setAppName(appname);
         app.makeGUI();
+        app.getEnv();
         monitor.initConstants();
         monitor.initCCDB();
         monitor.initGlob();
@@ -78,6 +75,27 @@ public class FTOFMon extends DetectorMonitor {
         monitor.ftofDet.initButtons();
     }
     
+    public FTHashCollection getReverseTT(ConstantsManager ccdb) {
+        System.out.println("monitor.getReverseTT()"); 
+        IndexedTable tt = ccdb.getConstants(10,  "/daq/tt/ftof");
+        FTHashCollection rtt = new FTHashCollection<int[]>(4);
+        for(int ic=1; ic<35; ic++) {
+            for (int sl=3; sl<19; sl++) {
+                int chmax=16;
+                if (sl==6||sl==16) chmax=128;
+                for (int ch=0; ch<chmax; ch++){
+                    if (tt.hasEntry(ic,sl,ch)) {
+                        int[] dum = {ic,sl,ch}; rtt.add(dum,tt.getIntValue("sector",    ic,sl,ch),
+                                                            tt.getIntValue("layer",     ic,sl,ch),
+                                                            tt.getIntValue("component", ic,sl,ch),
+                                                            tt.getIntValue("order",     ic,sl,ch));
+                    };
+                }
+            }
+        }
+        return rtt;
+    }
+    
     public void initConstants() {
         FTOFConstants.setSectors(is1,is2);
     }   
@@ -85,10 +103,11 @@ public class FTOFMon extends DetectorMonitor {
     public void initCCDB() {
         ccdb.init(Arrays.asList(new String[]{
                 "/daq/fadc/ftof",
+                "/daq/tt/ftof",
                 "/calibration/ftof/attenuation",
                 "/calibration/ftof/gain_balance",
                 "/calibration/ftof/status"}));
-  
+        rtt = getReverseTT(ccdb); 
         app.mode7Emulation.init(ccdb,calRun,"/daq/fadc/ftof", 3,3,1);        
     } 
     
@@ -148,8 +167,8 @@ public class FTOFMon extends DetectorMonitor {
         app.addCanvas(ftofPedestal.getName(),   ftofPedestal.getCanvas());
         app.addCanvas(ftofMip.getName(),             ftofMip.getCanvas()); 
         app.addFrame(ftofCalib.getName(),          ftofCalib.getCalibPane());
-        app.addFrame(ftofHv.getName(),                ftofHv.getScalerPane());
-        app.addFrame(ftofScalers.getName(),      ftofScalers.getScalerPane());
+        app.addFrame(ftofHv.getName(),                ftofHv.getPanel());
+        app.addFrame(ftofScalers.getName(),      ftofScalers.getPanel());
     }
     
     public void init( ) {       
@@ -162,7 +181,6 @@ public class FTOFMon extends DetectorMonitor {
     public void initApps() {
         System.out.println("monitor.initApps()");
         for (int i=0; i<ftofPix.length; i++)   ftofPix[i].init();
-        app.mode7Emulation.init(ccdb, calrun, "/daq/fadc/ftof", 5,3,1);        
         ftofRecon.init();
     }
     
@@ -223,6 +241,7 @@ public class FTOFMon extends DetectorMonitor {
     @Override
     public void processShape(DetectorShape2D shape) { 
         DetectorDescriptor dd = shape.getDescriptor();
+        app.updateStatus(getStatusString(dd));
         this.analyze();       
         switch (app.getSelectedTabName()) {
         case "Mode1":                        ftofMode1.updateCanvas(dd); break;
@@ -234,7 +253,32 @@ public class FTOFMon extends DetectorMonitor {
         case "Scalers":                    ftofScalers.updateCanvas(dd);
        } 
     }
-
+    
+    public void loadHV(int is1, int is2, int il1, int il2) {
+        ftofHv.loadHV(is1,is2,il1,il2);
+    }  
+    
+    public String getStatusString(DetectorDescriptor dd) {
+        
+        String comp=(dd.getLayer()==4) ? "  Pixel:":"  PMT:";  
+      
+        int is = dd.getSector();
+        int sp = app.viewIndex+2*app.detectorIndex;
+        int ic = dd.getComponent()+1;
+        int or = 0;
+        int cr = 0;
+        int sl = 0;
+        int ch = 0;
+        if (app.getSelectedTabName()=="TDC") or=2;
+        if (rtt.hasItem(is,sp,ic,or)) {
+            int[] dum = (int[]) rtt.getItem(is,sp,ic,or);
+            cr = dum[0];
+            sl = dum[1];
+            ch = dum[2];
+        }   
+        return " Sector:"+is+"  Layer:"+sp+comp+ic+" "+" Crate:"+cr+" Slot:"+sl+" Chan:"+ch;
+    }
+    
     @Override
     public void resetEventListener() {
     }
@@ -247,8 +291,8 @@ public class FTOFMon extends DetectorMonitor {
     public void readHipoFile() {        
         System.out.println("monitor.readHipoFile()");
         for (int idet=0; idet<3; idet++) {
-          String hipoFileName = app.hipoPath+"/"+mondet+idet+"_"+app.hipoRun+".hipo";
-          System.out.println("Loading Histograms from "+hipoFileName);
+          String hipoFileName = app.hipoPath+mondet+idet+"_"+app.runNumber+".hipo";
+          System.out.println("Reading Histograms from "+hipoFileName);
           ftofPix[idet].initHistograms(hipoFileName);
           ftofRecon.makeMaps();
         }
@@ -256,11 +300,11 @@ public class FTOFMon extends DetectorMonitor {
     }
     
     @Override
-    public void saveToFile() {
-        System.out.println("monitor.saveToFile()");
+    public void writeHipoFile() {
+        System.out.println("monitor.writeHipoFile()");
         for (int idet=0; idet<3; idet++) {
-          String hipoFileName = app.hipoPath+"/"+mondet+idet+"_"+app.hipoRun+".hipo";
-          System.out.println("Saving Histograms to "+hipoFileName);
+          String hipoFileName = app.hipoPath+mondet+idet+"_"+app.runNumber+".hipo";
+          System.out.println("Writing Histograms to "+hipoFileName);
           HipoFile histofile = new HipoFile(hipoFileName);
           histofile.addToMap("H2_a_Hist",ftofPix[idet].strips.hmap2.get("H2_a_Hist"));
           histofile.addToMap("H2_t_Hist",ftofPix[idet].strips.hmap2.get("H2_t_Hist"));
