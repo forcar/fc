@@ -134,9 +134,9 @@ public class MonitorApp extends JFrame implements ActionListener {
             setIsMC(true);
             rootPath  = "/Users/colesmith/"+appName;
         }
-        hipoPath  = rootPath+"HIPO/";
-        calibPath = rootPath+"CALIB/";
-           hvPath = rootPath+"HV/";
+        hipoPath  = rootPath+"/HIPO/";
+        calibPath = rootPath+"/CALIB/";
+           hvPath = rootPath+"/HV/";
     }    
     
     public void makeGUI(){
