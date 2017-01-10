@@ -30,6 +30,10 @@ public class ECScalersApp extends FCEpics {
    
     public DetectorCollection<H1F> H1_SCA = new DetectorCollection<H1F>();
     public DetectorCollection<H2F> H2_SCA = new DetectorCollection<H2F>();
+    float norm1[] = null;
+    float norm2[] = null;
+    float norm3[][] = new float[9][68];
+    float norm4[][] = new float[9][68];
     
     updateGUIAction action = new updateGUIAction();
     
@@ -187,6 +191,8 @@ public class ECScalersApp extends FCEpics {
                 int nb=nlayMap.get(detName)[il-1]; int mx=nb+1;
                 H1_SCA.add(is, il, 0, new H1F("HV_dsc2"+is+"_"+il, nb,1,mx));                
                 H1_SCA.add(is, il, 1, new H1F("HV_fadc"+is+"_"+il, nb,1,mx));                               
+                H1_SCA.add(is, il, 2, new H1F("HV_dsc2_sum"+is+"_"+il, nb,1,mx));                               
+                H1_SCA.add(is, il, 3, new H1F("HV_fadc_sum"+is+"_"+il, nb,1,mx));                               
                 H2_SCA.add(is, il, 0, new H2F("HV_dsc2"+is+"_"+il, nb,1,mx,nmax,0,nmax));                
                 H2_SCA.add(is, il, 1, new H2F("HV_fadc"+is+"_"+il, nb,1,mx,nmax,0,nmax));                               
             }
@@ -229,36 +235,32 @@ public class ECScalersApp extends FCEpics {
 
     public void fillHistos() {
         
-        float[] norm1 = null;
-        float[] norm2 = null;
-        
         for (int is=is1; is<is2 ; is++) {
             for (int il=1; il<layMap.get(detName).length+1 ; il++) {                
-                if(!isAccum) {H1_SCA.get(is, il, 0).reset(); H1_SCA.get(is, il, 1).reset();}
-                H2_SCA.get(is, il, 0).reset(); H2_SCA.get(is, il, 1).reset();
-                for (int ic=1; ic<nlayMap.get(detName)[il-1]+1; ic++) {                    
+               if(!isAccum) {H1_SCA.get(is, il, 0).reset(); H1_SCA.get(is, il, 1).reset();}
+               H2_SCA.get(is, il, 0).reset(); H2_SCA.get(is, il, 1).reset();
+               for (int ic=1; ic<nlayMap.get(detName)[il-1]+1; ic++) {                    
                     H1_SCA.get(is, il, 0).fill(ic,app.fifo4.get(is, il, ic).getLast());
                     H1_SCA.get(is, il, 1).fill(ic,app.fifo5.get(is, il, ic).getLast());
                     Double ts1[] = new Double[app.fifo4.get(is, il, ic).size()];
-                    app.fifo4.get(is, il, ic).toArray(ts1);
                     Double ts2[] = new Double[app.fifo5.get(is, il, ic).size()];
+                    app.fifo4.get(is, il, ic).toArray(ts1);
                     app.fifo5.get(is, il, ic).toArray(ts2);
                     for (int it=0; it<ts1.length; it++) {
                         if(isNorm) {
-                            ts1[it]=(ts1[it]-norm1[ic-1])/Math.sqrt(ts1[it]);
-                            ts2[it]=(ts2[it]-norm2[ic-1])/Math.sqrt(ts2[it]);
+                            ts1[it]=(ts1[it]-norm3[il-1][ic-1])/Math.sqrt(ts1[it]);
+                            ts2[it]=(ts2[it]-norm4[il-1][ic-1])/Math.sqrt(ts2[it]);
                         }
                         H2_SCA.get(is, il, 0).fill(ic,it,ts1[it]);
                         H2_SCA.get(is, il, 1).fill(ic,it,ts2[it]);
                     }
-                }
-                if(isAccum&&!isNorm&&nTimer==10) {
-                    norm1 = H1_SCA.get(is, il, 0).getData();
-                    norm2 = H1_SCA.get(is, il, 1).getData();
-                    int itim = nTimer+1;
-                   for (int i=0; i<norm1.length; i++) {norm1[i]=norm1[i]/itim;norm2[i]=norm2[i]/itim;}
-                }
-
+               }
+               if(isAccum&&!isNorm&&nTimer==10) {
+                   norm1 = H1_SCA.get(is, il, 0).getData();
+                   norm2 = H1_SCA.get(is, il, 1).getData();
+                   int itim = nTimer+1;
+                   for (int i=0; i<norm1.length; i++) {norm3[il-1][i]=norm1[i]/itim;norm4[il-1][i]=norm2[i]/itim;}
+               }
             }
         }
         
