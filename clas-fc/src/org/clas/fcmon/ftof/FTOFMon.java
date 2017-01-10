@@ -35,8 +35,8 @@ public class FTOFMon extends DetectorMonitor {
        
     public int                 calRun = 12;
     int                         detID = 0;
-    int                           is1 = 2;    //All sectors: is1=1 is2=7  Single sector: is1=s is2=s+1
-    int                           is2 = 3; 
+    int                           is1 = 4;    //All sectors: is1=1 is2=7  Single sector: is1=s is2=s+1
+    int                           is2 = 5; 
     int      nsa,nsb,tet,p1,p2,pedref = 0;
     double                 PCMon_zmin = 0;
     double                 PCMon_zmax = 0;
