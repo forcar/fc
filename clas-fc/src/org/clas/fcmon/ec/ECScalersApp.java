@@ -295,8 +295,14 @@ public class ECScalersApp extends FCEpics {
         if (layerSelected>3||lr==0||lr>layMap.get(detName).length) return;
         
         canvas.divide(2, 1);
-        canvas.getPad(0).getAxisY().setLog(isLogy); 
-        canvas.getPad(1).getAxisY().setLog(isLogy); 
+        canvas.getPad(0).getAxisY().setAutoScale(false);
+        canvas.getPad(1).getAxisY().setAutoScale(false);
+        canvas.getPad(0).getAxisY().getAttributes().setLog(isLogy); 
+        canvas.getPad(1).getAxisY().getAttributes().setLog(isLogy); 
+        canvas.getPad(0).getAxisY().getAttributes().setAxisMinimum(isLogy?1.0:0.0);
+        canvas.getPad(0).getAxisY().getAttributes().setAxisMaximum(isLogy?1500.0:1200.0);
+        canvas.getPad(1).getAxisY().getAttributes().setAxisMinimum(isLogy?1.0:0.0);
+        canvas.getPad(1).getAxisY().getAttributes().setAxisMaximum(isLogy?1500.0:1200.0);
                 
         String tit = "Sector "+is+" "+layMap.get(detName)[lr-1]+" PMT";
         
@@ -331,15 +337,16 @@ public class ECScalersApp extends FCEpics {
         if (flag==0&&lr==isCurrentLayer) return;  
         
         canvas.divide(2, 1);
-        canvas.getPad(0).getAxisY().setLog(false); 
-        canvas.getPad(1).getAxisY().setLog(false); 
-        canvas.getPad(0).getAxisZ().setLog(isLogz); 
+        canvas.getPad(0).getAxisY().getAttributes().setLog(false);
+        canvas.getPad(1).getAxisY().getAttributes().setLog(false); 
+        
+        canvas.getPad(0).getAxisZ().getAttributes().setLog(isLogz); 
         canvas.getPad(0).getAxisZ().setRange(zMinLab,zMaxLab);
-        canvas.getPad(1).getAxisZ().setLog(isLogz); 
+        canvas.getPad(1).getAxisZ().getAttributes().setLog(isLogz); 
         canvas.getPad(1).getAxisZ().setRange(zMinLab,zMaxLab);
         if (isNorm) {
-            canvas.getPad(0).getAxisZ().setLog(false); 
-            canvas.getPad(1).getAxisZ().setLog(false); 
+            canvas.getPad(0).getAxisZ().getAttributes().setLog(false); 
+            canvas.getPad(1).getAxisZ().getAttributes().setLog(false); 
             canvas.getPad(0).getAxisZ().setRange(-8.0,8.0);
             canvas.getPad(1).getAxisZ().setRange(-8.0,8.0);
         }
