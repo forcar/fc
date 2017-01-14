@@ -136,6 +136,8 @@ public class ECReconstructionApp extends FCApplication {
       int adc,npk,ped;
       double tdc=0,tdcf=0;
       String AdcType ;
+      int[] SCALE  = {10,10,10,10,10,10,10,10,10};
+      int[] SCALE5 = {10,10,10,5,5,5,5,5,5}; // Sector 5 ECAL uses EMI PMTs near max voltage
       
       List<DetectorDataDgtz>  dataSet = codaDecoder.getDataEntries((EvioDataEvent) event);
       
@@ -176,6 +178,7 @@ public class ECReconstructionApp extends FCApplication {
             if (strip.getADCSize()>0) {     
                 
                AdcType = strip.getADCData(0).getPulseSize()>0 ? "ADCPULSE":"ADCFPGA";
+               int sca = (is==5)?SCALE5[il-1]:SCALE[il-1];
                
                if(AdcType=="ADCFPGA") { // FADC MODE 7
                    
@@ -186,8 +189,8 @@ public class ECReconstructionApp extends FCApplication {
                  
                   getMode7(icr,isl,ich); 
 
-                  if (app.mode7Emulation.User_pedref==0) adc = (adc-ped*(this.nsa+this.nsb))/10;
-                  if (app.mode7Emulation.User_pedref==1) adc = (adc-this.pedref*(this.nsa+this.nsb))/10;
+                  if (app.mode7Emulation.User_pedref==0) adc = (adc-ped*(this.nsa+this.nsb))/sca;
+                  if (app.mode7Emulation.User_pedref==1) adc = (adc-this.pedref*(this.nsa+this.nsb))/sca;
                }   
                
                if (AdcType=="ADCPULSE") { // FADC MODE 1
@@ -201,7 +204,7 @@ public class ECReconstructionApp extends FCApplication {
                   if (app.mode7Emulation.User_pedref==0) fitter.fit(this.nsa,this.nsb,this.tet,0,pulse);                  
                   if (app.mode7Emulation.User_pedref==1) fitter.fit(this.nsa,this.nsb,this.tet,pedref,pulse);   
                   
-                  adc = fitter.adc/10;
+                  adc = fitter.adc/sca;
                   ped = fitter.pedsum;
                   
                   for (int i=0 ; i< pulse.length ; i++) {
