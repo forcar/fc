@@ -482,6 +482,8 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
             this.is1=is1;
             this.is2=is2;
             
+//            if (is1==5) {REF[3]=50;REF[4]=50;REF[5]=50;}  //Used once to force DHV - now use SCALE in Reco App
+            
             atten = ccdb.getConstants(calrun, names[ATTEN]);
             calib = new CalibrationConstants(3,"A/F:Aerr/F:B/F:Berr/F:C/F:Cerr/F:FitMin/F:FitMax/F");
             calib.setName(names[ATTEN]);
