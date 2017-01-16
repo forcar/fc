@@ -222,6 +222,8 @@ public class ECHvApp extends FCEpics implements ActionListener {
     
     public void updateCanvas(DetectorDescriptor dd) {
         
+        if (dd.getLayer()>3) return;  
+        
         sectorSelected  = dd.getSector();
         layerSelected   = dd.getLayer();
         channelSelected = dd.getComponent(); 

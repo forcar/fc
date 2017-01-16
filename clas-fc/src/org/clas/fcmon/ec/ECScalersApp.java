@@ -295,18 +295,18 @@ public class ECScalersApp extends FCEpics {
         if (layerSelected>3||lr==0||lr>layMap.get(detName).length) return;
         
         canvas.divide(2, 1);
-        canvas.getPad(0).getAxisY().setAutoScale(false);
-        canvas.getPad(1).getAxisY().setAutoScale(false);
-        canvas.getPad(0).getAxisY().getAttributes().setLog(isLogy); 
-        canvas.getPad(1).getAxisY().getAttributes().setLog(isLogy); 
-        canvas.getPad(0).getAxisY().getAttributes().setAxisMinimum(isLogy?1.0:0.0);
-        canvas.getPad(0).getAxisY().getAttributes().setAxisMaximum(isLogy?1500.0:1200.0);
-        canvas.getPad(1).getAxisY().getAttributes().setAxisMinimum(isLogy?1.0:0.0);
-        canvas.getPad(1).getAxisY().getAttributes().setAxisMaximum(isLogy?1500.0:1200.0);
+//        canvas.getPad(0).getAxisY().setAutoScale(false);
+//        canvas.getPad(1).getAxisY().setAutoScale(false);
+        canvas.getPad(0).getAxisY().setLog(isLogy); 
+        canvas.getPad(1).getAxisY().setLog(isLogy); 
+//        canvas.getPad(0).getAxisY().getAttributes().setAxisMinimum(isLogy?1.0:0.0);
+//        canvas.getPad(0).getAxisY().getAttributes().setAxisMaximum(isLogy?1500.0:1200.0);
+//        canvas.getPad(1).getAxisY().getAttributes().setAxisMinimum(isLogy?1.0:0.0);
+//        canvas.getPad(1).getAxisY().getAttributes().setAxisMaximum(isLogy?1500.0:1200.0);
                 
         String tit = "Sector "+is+" "+layMap.get(detName)[lr-1]+" PMT";
         
-        h = H1_SCA.get(is, lr, 0); h.setTitleX(tit); h.setTitleY("DSC2 HITS");
+        h = H1_SCA.get(is, lr, 0); h.setTitleX(tit); h.setTitleY("DSC2 HITS");//
         h.setFillColor(32); canvas.cd(0); canvas.draw(h);
 
         h = H1_SCA.get(is, lr, 1); h.setTitleX(tit); h.setTitleY("FADC HITS");
@@ -334,19 +334,20 @@ public class ECScalersApp extends FCEpics {
         if (layerSelected>3||lr==0||lr>layMap.get(detName).length) return;
         
         //Don't redraw unless timer fires or new sector selected
-        if (flag==0&&lr==isCurrentLayer) return;  
+//        if (flag==0&&lr==isCurrentLayer) return;  
         
         canvas.divide(2, 1);
-        canvas.getPad(0).getAxisY().getAttributes().setLog(false);
-        canvas.getPad(1).getAxisY().getAttributes().setLog(false); 
         
-        canvas.getPad(0).getAxisZ().getAttributes().setLog(isLogz); 
+        canvas.getPad(0).getAxisY().setLog(false);
+        canvas.getPad(1).getAxisY().setLog(false); 
+        
+        canvas.getPad(0).getAxisZ().setLog(isLogz); 
         canvas.getPad(0).getAxisZ().setRange(zMinLab,zMaxLab);
-        canvas.getPad(1).getAxisZ().getAttributes().setLog(isLogz); 
+        canvas.getPad(1).getAxisZ().setLog(isLogz); 
         canvas.getPad(1).getAxisZ().setRange(zMinLab,zMaxLab);
         if (isNorm) {
-            canvas.getPad(0).getAxisZ().getAttributes().setLog(false); 
-            canvas.getPad(1).getAxisZ().getAttributes().setLog(false); 
+            canvas.getPad(0).getAxisZ().setLog(false); 
+            canvas.getPad(1).getAxisZ().setLog(false); 
             canvas.getPad(0).getAxisZ().setRange(-8.0,8.0);
             canvas.getPad(1).getAxisZ().setRange(-8.0,8.0);
         }
