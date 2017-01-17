@@ -9,6 +9,7 @@ import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.Timer;
 
+import org.clas.fcmon.detector.view.EmbeddedCanvasTabbed;
 import org.clas.fcmon.tools.FCEpics;
 import org.jlab.detector.base.DetectorCollection;
 import org.jlab.detector.base.DetectorDescriptor;
@@ -55,18 +56,33 @@ public class CCScalersApp extends FCEpics {
         
         public JPanel getPanel() {        
             engineView.setLayout(new BorderLayout());
-            engineView.add(getCanvasPane(),BorderLayout.CENTER);
-            engineView.add(getButtonPane(),BorderLayout.PAGE_END);
+            engineView.add(getEnginePane(),BorderLayout.CENTER);
             return engineView;       
         }   
         
-        public JSplitPane getCanvasPane() {
-            JSplitPane HVScalerPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);       
-            HVScalerPane.setTopComponent(scaler1DView);
-            HVScalerPane.setBottomComponent(scaler2DView);       
-            HVScalerPane.setResizeWeight(0.2);
-            return HVScalerPane;
+        public JSplitPane getEnginePane() {  
+            enginePane.setTopComponent(getEngine1DView());
+            enginePane.setBottomComponent(getEngine2DView());       
+            enginePane.setResizeWeight(0.2);
+            return enginePane;
         }
+        
+        public JPanel getEngine1DView() {
+            engine1DView.setLayout(new BorderLayout());
+            engine1DCanvas = new EmbeddedCanvasTabbed("Scalers");
+            engine1DView.add(engine1DCanvas,BorderLayout.CENTER);
+//            get1DButtonPane();
+            return engine1DView;
+        }
+        
+        public JPanel getEngine2DView() {
+            engine2DView.setLayout(new BorderLayout());
+            engine2DCanvas = new EmbeddedCanvasTabbed("Stripcharts");
+            engine2DView.add(engine2DCanvas,BorderLayout.CENTER);
+//            getSliderPane();
+//            get2DButtonPane();
+            return engine2DView;        
+        }        
         
         public JPanel getButtonPane() {
             buttonPane = new JPanel();
@@ -77,9 +93,14 @@ public class CCScalersApp extends FCEpics {
             public void actionPerformed(ActionEvent evt) {
                 fillFifos();
                 fillHistos();
-                update1DScalers(scaler1DView,1);   
-                update2DScalers(scaler2DView,1);        }
-        } 
+                updateScalers(1);
+            }
+        }
+            
+        public synchronized void updateScalers(int flag) {
+                update1DScalers(engine1DCanvas.getCanvas("Scalers"),flag);   
+                update2DScalers(engine2DCanvas.getCanvas("Stripcharts"),flag);        
+        }
         
         public void initHistos() {       
             System.out.println("CCScalersApp.initHistos():");
@@ -157,8 +178,7 @@ public class CCScalersApp extends FCEpics {
             layerSelected   = dd.getLayer();
             channelSelected = dd.getComponent(); 
             
-            update1DScalers(scaler1DView,0);   
-            update2DScalers(scaler2DView,0);
+            updateScalers(0);
             
             isCurrentSector = sectorSelected;
             isCurrentLayer  = layerSelected;

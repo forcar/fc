@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 
 import javax.swing.JPanel;
 
+import org.clas.fcmon.detector.view.EmbeddedCanvasTabbed;
 import org.clas.fcmon.tools.FCApplication;
 import org.jlab.detector.base.DetectorCollection;
 import org.jlab.detector.base.DetectorDescriptor;

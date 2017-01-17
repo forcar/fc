@@ -22,6 +22,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import org.clas.fcmon.detector.view.DetectorShape2D;
+import org.clas.fcmon.detector.view.EmbeddedCanvasTabbed;
 import org.clas.fcmon.tools.CalibrationConstantsView;
 import org.clas.fcmon.tools.FCApplication;
 import org.jlab.detector.base.DetectorDescriptor;
