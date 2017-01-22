@@ -128,8 +128,8 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
                     engine.calib.getName() + " table written to "+outputFileName);
         }        
         if (e.getActionCommand().compareTo("RESTORE")==0) {           
-            String outputFileName = engines[0].getFileName(app.runNumber);
-            engines[0].updateTable();
+            String outputFileName = engine.getFileName(app.runNumber);
+            engine.updateTable();
             JOptionPane.showMessageDialog(new JPanel(),
                    "Restoring table " + engine.calib.getName() + " written to "+outputFileName);
         }
@@ -260,6 +260,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
         public final double[] GAIN = {0.2,0.2,0.2,0.5,0.5,0.5,0.5,0.5,0.5};
         public final int[]     DHV = {20,20,20,150,150,150,150,150,150};
         IndexedTable        status = null; 
+        Boolean         isUseTable = false;
         ECHvEventListener(){}
         
         public void init(int is1, int is2){
@@ -316,6 +317,9 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
         
         @Override
         public synchronized void analyze(int idet, int is1, int is2, int il1, int il2, int ip1, int ip2) {
+            
+            if(isUseTable) return;
+            
             for (int is=is1; is<is2; is++) {
                 for (int il=il1; il<il2; il++) {
                     int iptst = ecPix[idet].ec_nstr[il-1]+1;
@@ -327,6 +331,8 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
                     }
                 }
             }
+            
+            
             CalibrationConstants gains = engines[0].calib;
             
             for (int is=is1; is<is2; is++) {
@@ -350,7 +356,48 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
             
             calib.fireTableDataChanged();     
         }
-         
+        
+        public void updateTable(){
+            
+            String inputFile = getFileName(app.runNumber);
+            
+            isUseTable = true; //disable analysis method
+            
+            int is,il,ip;
+            double dum;
+            
+            try {                 
+                FileInputStream fstream = new FileInputStream(inputFile);
+                BufferedReader       br = new BufferedReader(new InputStreamReader(fstream));
+
+                String line = br.readLine();
+                
+                while (line != null) {
+
+                    String[] lineValues = line.trim().split("\\s+");
+                    
+                    is  = Integer.parseInt(lineValues[0]);
+                    il  = Integer.parseInt(lineValues[1]);
+                    ip  = Integer.parseInt(lineValues[2]);
+                    dum = Double.parseDouble(lineValues[3]);  calib.setDoubleValue(dum,"Gain",  is,il,ip);
+                    dum = Double.parseDouble(lineValues[4]);  calib.setDoubleValue(dum,"HVold", is,il,ip);
+                    dum = Double.parseDouble(lineValues[5]);  calib.setDoubleValue(dum,"HVnew", is,il,ip);
+                    app.fifo6.get(is, il, ip).add(dum);
+                    dum = Double.parseDouble(lineValues[6]);  calib.setDoubleValue(dum,"DHV",   is,il,ip);
+                    
+                    line = br.readLine();                    
+                }
+                br.close();            
+            }
+            catch(FileNotFoundException ex) {
+                ex.printStackTrace();                
+            }
+            catch(IOException ex) {
+                ex.printStackTrace();
+            }            
+            
+        }
+        
         public synchronized void drawPlots(int is, int il, int ic) {
             if (il>3) return;
             if (app.getInProcess()<2) analyze(ilmap,is,is+1,il,il+1,1,69);

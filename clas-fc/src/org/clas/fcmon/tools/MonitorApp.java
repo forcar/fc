@@ -126,7 +126,7 @@ public class MonitorApp extends JFrame implements ActionListener {
               System.out.println("Running on "+hostname);
               doEpics = true;
               setIsMC(false);
-              rootPath = "/home/clasrun/pcal/paw/"+appName;              
+              rootPath = "/home/clasrun/"+appName;              
             }
         } else {
             System.out.println("Running on "+ostype);
