@@ -104,11 +104,12 @@ public class ECReconstructionApp extends FCApplication {
    
    public void addEvent(DataEvent event) {
        
-      if(app.isMC==true) {
-          this.updateSimulatedData(event);
-      } else {
-          this.updateRealData(event);         
+      if(app.getDataSource()=="EVIO") {
+          if(app.isMC==true)  this.updateSimulatedData(event);
+          if(app.isMC==false) this.updateRawData(event); 
       }
+      
+      if(app.getDataSource()=="XHIPO") this.updateHipoData(event);
       
       if (app.doEng) this.processECRec(event);
       
@@ -130,8 +131,30 @@ public class ECReconstructionApp extends FCApplication {
        int[] il = {1,2,3,1,2,3,1,2,3}; // layer 1-3: PCAL 4-6: ECinner 7-9: ECouter  
        return il[layer-1];
     }
+   
+   public void updateHipoData(DataEvent event) {
+       int ilay=0;
+       int idet=-1;
+       int tdc=0;
+       float tdcf=0;
+       
+       if(event.hasBank("ECAL::adc")==true){
+           DataBank  bank = event.getBank("ECAL::adc");
+           int rows = bank.rows();
+           for(int i = 0; i < rows; i++){
+               int  is = bank.getByte("sector",i);
+               int  il = bank.getByte("layer",i);
+               int  ip = bank.getShort("component",i);
+               int adc = bank.getInt("ADC",i);
+               int ped = bank.getShort("ped", i);
+               idet = getDet(il);
+               ilay = getLay(il);
+               fill(idet, is, ilay, ip, adc, tdc, tdcf);    
+           }
+       }
+   }
      
-   public void updateRealData(DataEvent event){
+   public void updateRawData(DataEvent event){
 
       int adc,npk,ped;
       double tdc=0,tdcf=0;

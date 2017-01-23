@@ -79,6 +79,7 @@ public class MonitorApp extends JFrame implements ActionListener {
     public String    hipoPath = null;
     public String   calibPath = null;
     public String      hvPath = null;
+    public String    xMsgHost = null;
     public String   runNumber = "100";
     public boolean      debug = false;
     public boolean       isMC = true;
@@ -106,7 +107,8 @@ public class MonitorApp extends JFrame implements ActionListener {
         this.pack();
         this.setVisible(true);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.displayControl.setFPS(10);
+        this.displayControl.setFPS(2);
+        eventControl.setXmsgHost(this.xMsgHost);
         this.setSelectedTab(2);
     }
     
@@ -127,12 +129,14 @@ public class MonitorApp extends JFrame implements ActionListener {
               doEpics = true;
               setIsMC(false);
               rootPath = "/home/clasrun/"+appName;              
-            }
+              xMsgHost = "129.57.167.227";
+           }
         } else {
             System.out.println("Running on "+ostype);
             doEpics = false;
             setIsMC(true);
             rootPath  = "/Users/colesmith/"+appName;
+            xMsgHost = "localhost";
         }
         hipoPath  = rootPath+"/HIPO/";
         calibPath = rootPath+"/CALIB/";
@@ -312,6 +316,10 @@ public class MonitorApp extends JFrame implements ActionListener {
     
     public Boolean isSingleEvent(){
     	return eventControl.isSingleEvent;
+    }
+    
+    public String getDataSource(){
+        return eventControl.getDataSource();
     }
 
     public int getSelectedTabIndex(){

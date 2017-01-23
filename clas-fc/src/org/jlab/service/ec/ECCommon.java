@@ -18,6 +18,7 @@ import org.jlab.geom.component.ScintillatorPaddle;
 import org.jlab.geom.prim.Line3D;
 import org.jlab.groot.data.H1F;
 import org.jlab.groot.data.H2F;
+import org.jlab.io.base.DataBank;
 import org.jlab.io.base.DataEvent;
 import org.jlab.io.evio.EvioDataBank;
 import org.jlab.service.ec.ECCluster.ECClusterIndex;
@@ -88,8 +89,7 @@ public class ECCommon {
      */
     public static List<ECStrip> readStrips(DataEvent event){
         List<ECStrip>  strips = new ArrayList<ECStrip>();
-        strips.addAll(ECCommon.readEvent("PCAL",event));
-        strips.addAll(ECCommon.readEvent("EC",event));
+        strips.addAll(ECCommon.readEvent(event));
         return strips;
     }
     
@@ -99,7 +99,7 @@ public class ECCommon {
      * @param event
      * @return 
      */
-    public static List<ECStrip>  readEvent(String det, DataEvent event){
+    public static List<ECStrip>  oldReadEvent(String det, DataEvent event){
         List<ECStrip>  strips = new ArrayList<ECStrip>();
          if(event.hasBank(det+"::dgtz")==true){
             EvioDataBank ecBank = (EvioDataBank) event.getBank(det+"::dgtz");
@@ -117,7 +117,26 @@ public class ECCommon {
             }
          }
         return strips;
-    }
+    }    
+    
+    public static List<ECStrip>  readEvent(DataEvent event){
+        List<ECStrip>  strips = new ArrayList<ECStrip>();
+        if(event.hasBank("ECAL::adc")==true){
+           DataBank bank = event.getBank("ECAL::adc");
+           int nrows = bank.rows();
+           for(int row = 0; row < nrows; row++){
+               int     sector = bank.getByte("sector",row);
+               int      layer = bank.getByte("layer",row);
+               int  component = bank.getShort("component",row);
+               int        adc = bank.getInt("ADC",row);
+               ECStrip  strip = new ECStrip(sector, layer, component);
+               strip.setADC(adc);
+               strip.setTDC(0);
+               if(strip.getADC()>ECCommon.stripThreshold[ind[layer-1]]) strips.add(strip);                       
+           }
+        }
+       return strips;
+   }
     
     public static List<ECPeak>  createPeaks(List<ECStrip> stripList){
         List<ECPeak>  peakList = new ArrayList<ECPeak>();
