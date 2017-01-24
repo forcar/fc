@@ -104,6 +104,8 @@ public class ECReconstructionApp extends FCApplication {
    
    public void addEvent(DataEvent event) {
        
+      if(app.getDataSource()=="ET") this.updateRawData(event);
+      
       if(app.getDataSource()=="EVIO") {
           if(app.isMC==true)  this.updateSimulatedData(event);
           if(app.isMC==false) this.updateRawData(event); 
