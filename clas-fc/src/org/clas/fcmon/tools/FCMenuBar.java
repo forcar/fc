@@ -81,13 +81,13 @@ public class FCMenuBar extends JMenuBar implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-    	if(e.getActionCommand().compareTo("Sector 1")==0) ethost="adcecal1";etfile="/tmp/et_sys_clasprod1";
-    	if(e.getActionCommand().compareTo("Sector 2")==0) ethost="adcecal2";etfile="/tmp/et_sys_clasprod2";
-    	if(e.getActionCommand().compareTo("Sector 3")==0) ethost="adcecal3";etfile="/tmp/et_sys_clasprod3";
-    	if(e.getActionCommand().compareTo("Sector 4")==0) ethost="adcecal4";etfile="/tmp/et_sys_clasprod4";
-    	if(e.getActionCommand().compareTo("Sector 5")==0) ethost="adcecal5";etfile="/tmp/et_sys_clasprod5";
-        if(e.getActionCommand().compareTo("Sector 6")==0) ethost="adcecal6";etfile="/tmp/et_sys_clasprod6";       
-        if(e.getActionCommand().compareTo("Sector 0")==0) ethost="clondaq6";etfile="/tmp/et_sys_clastest0";       
+    	if(e.getActionCommand().compareTo("Sector 1")==0) {ethost="adcecal1";etfile="/tmp/et_sys_clasprod1";}
+    	if(e.getActionCommand().compareTo("Sector 2")==0) {ethost="adcecal2";etfile="/tmp/et_sys_clasprod2";}
+    	if(e.getActionCommand().compareTo("Sector 3")==0) {ethost="adcecal3";etfile="/tmp/et_sys_clasprod3";}
+    	if(e.getActionCommand().compareTo("Sector 4")==0) {ethost="adcecal4";etfile="/tmp/et_sys_clasprod4";}
+    	if(e.getActionCommand().compareTo("Sector 5")==0) {ethost="adcecal5";etfile="/tmp/et_sys_clasprod5";}
+        if(e.getActionCommand().compareTo("Sector 6")==0) {ethost="adcecal6";etfile="/tmp/et_sys_clasprod6";}      
+        if(e.getActionCommand().compareTo("Sector 0")==0) {ethost="clondaq6";etfile="/tmp/et_sys_clastest0";}       
     	if(ethost!=null) this.eventControl.openEtFile(ethost,etfile);    	
         if(e.getActionCommand().compareTo("Load EVIO or HIPO File")==0) this.chooseEvioFile();
         if(e.getActionCommand().compareTo("EVIO")==0) this.eventControl.openXEvioRing();

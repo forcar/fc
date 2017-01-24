@@ -1029,6 +1029,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
         }   
         
         public void drawPlots(int is, int il, int ic) {
+            
         }
 
     }
