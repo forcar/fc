@@ -25,7 +25,7 @@ public class FCMenuBar extends JMenuBar implements ActionListener {
     JMenuItem           s4 = new JMenuItem("Sector 4");
     JMenuItem           s5 = new JMenuItem("Sector 5");
     JMenuItem           s6 = new JMenuItem("Sector 6");
-    JMenuItem           s0 = new JMenuItem("Sector 0");
+    JMenuItem           s0 = new JMenuItem("clondaq4");
     JMenuItem           x0 = new JMenuItem("EVIO");
     JMenuItem           x1 = new JMenuItem("HIPO");
        
@@ -87,7 +87,7 @@ public class FCMenuBar extends JMenuBar implements ActionListener {
     	if(e.getActionCommand().compareTo("Sector 4")==0) {ethost="adcecal4";etfile="/tmp/et_sys_clasprod4";}
     	if(e.getActionCommand().compareTo("Sector 5")==0) {ethost="adcecal5";etfile="/tmp/et_sys_clasprod5";}
         if(e.getActionCommand().compareTo("Sector 6")==0) {ethost="adcecal6";etfile="/tmp/et_sys_clasprod6";}      
-        if(e.getActionCommand().compareTo("Sector 0")==0) {ethost="clondaq6";etfile="/tmp/et_sys_clastest0";}       
+        if(e.getActionCommand().compareTo("clondaq4")==0) {ethost="clondaq4";etfile="/tmp/et_sys_clasprod2";}       
     	if(ethost!=null) this.eventControl.openEtFile(ethost,etfile);    	
         if(e.getActionCommand().compareTo("Load EVIO or HIPO File")==0) this.chooseEvioFile();
         if(e.getActionCommand().compareTo("EVIO")==0) this.eventControl.openXEvioRing();

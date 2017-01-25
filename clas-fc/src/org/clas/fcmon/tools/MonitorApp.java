@@ -129,7 +129,7 @@ public class MonitorApp extends JFrame implements ActionListener {
               doEpics = true;
               setIsMC(false);
               rootPath = "/home/clasrun/"+appName;              
-              xMsgHost = "129.57.167.227";
+              xMsgHost = "129.57.167.227"; //clondaq4
            }
         } else {
             System.out.println("Running on "+ostype);

@@ -342,6 +342,7 @@ public class EventControl extends JPanel implements ActionListener, ChangeListen
                 }
                 if(trycount==maxTries){
                     System.out.println("[Et-Ring::Thread] Tried reloading events unsuccesfully");
+                    buttonStop.setEnabled(true); buttonStop.setSelected(true);
                 }
             }
             
