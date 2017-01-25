@@ -151,7 +151,7 @@ public class ECReconstructionApp extends FCApplication {
                int ped = bank.getShort("ped", i);
                idet = getDet(il);
                ilay = getLay(il);
-               fill(idet, is, ilay, ip, adc, tdc, tdcf);    
+               fill(idet, is, ilay, ip, adc/10, tdc, tdcf);    
            }
        }
    }
