@@ -26,7 +26,6 @@ import javax.swing.event.ChangeListener;
 import org.clas.fcmon.detector.view.DetectorShape2D;
 import org.clas.fcmon.detector.view.EmbeddedCanvasTabbed;
 import org.clas.fcmon.tools.CalibrationConstantsView;
-import org.clas.fcmon.tools.CalibrationData;
 import org.clas.fcmon.tools.DisplayControl;
 import org.clas.fcmon.tools.FCApplication;
 import org.jlab.detector.base.DetectorCollection;
@@ -551,7 +550,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
                         int sl = il+idet*3;
                         for(int ip = 1; ip < ecPix[idet].ec_nstr[il-1]+1; ip++) {
                             calib.addEntry(is, sl, ip);
-                            calib.setDoubleValue(0.00, "A",     is, sl, ip);
+                            calib.setDoubleValue(1.00, "A",     is, sl, ip);
                             calib.setDoubleValue(0.00, "Aerr",  is, sl, ip);
                             calib.setDoubleValue(0.00, "B",     is, sl, ip);
                             calib.setDoubleValue(0.00, "Berr",  is, sl, ip);
@@ -754,7 +753,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
                                       ecPix[idet].strips.getpixels(il,ip,status));
                         fits.setFitLimits(calib.getDoubleValue("FitMin",is,sl,ip),
                                           calib.getDoubleValue("FitMax",is,sl,ip));
-                        fits.analyze(idet);
+                        fits.analyze(idet,scale);
                         
                         calib.setDoubleValue(fits.getFunc(0).parameter(0).value()/scale, "A",    is, sl, ip);
                         calib.setDoubleValue(fits.getFunc(0).parameter(1).value(),       "B",    is, sl, ip);

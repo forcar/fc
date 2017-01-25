@@ -39,8 +39,8 @@ public class ECMon extends DetectorMonitor {
    
     public static int        calRun = 12;
     int                       detID = 0;
-    int                         is1 = 2 ;
-    int                         is2 = 3 ;  
+    int                         is1 = 1 ;
+    int                         is2 = 2 ;  
     int    nsa,nsb,tet,p1,p2,pedref = 0;
     double               PCMon_zmin = 0;
     double               PCMon_zmax = 0;
@@ -62,7 +62,11 @@ public class ECMon extends DetectorMonitor {
 	
     public static void main(String[] args){
         String det = "PCAL";
-        ECMon monitor = new ECMon(det);		
+        ECMon monitor = new ECMon(det);
+        if (args.length != 0) {
+           monitor.is1=Integer.parseInt(args[0]); 
+           monitor.is2=Integer.parseInt(args[1]);    
+        }
         app.setPluginClass(monitor);
         app.setAppName(appname);
         app.makeGUI();

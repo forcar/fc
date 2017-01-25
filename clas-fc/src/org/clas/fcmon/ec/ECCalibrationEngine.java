@@ -8,7 +8,6 @@ import java.util.List;
 
 import javax.swing.JSplitPane;
 
-import org.clas.fcmon.tools.CalibrationData;
 import org.jlab.detector.base.DetectorCollection;
 import org.jlab.detector.calib.tasks.CalibrationEngine;
 import org.jlab.detector.calib.utils.CalibrationConstants;
