@@ -451,6 +451,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
         EmbeddedCanvasTabbed   fitADC = new EmbeddedCanvasTabbed("ADC");
         EmbeddedCanvasTabbed   fitCh2 = new EmbeddedCanvasTabbed("Chi^2");
         EmbeddedCanvasTabbed   fitCof = new EmbeddedCanvasTabbed("COEF");
+        CalibrationConstants    cctab = null;
         IndexedTable            atten = null; 
         RangeSlider            slider = null;
         
@@ -563,12 +564,86 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
                 }
             }
             
-            list.add(calib);         
+            list.add(calib);    
+
+// Here is where we do special jobs 
+//            cctab = new CalibrationConstants(3,"A/F:B/F:C/F");            
+            createDefaultTables(1,50000.);
+            createDefaultTables(2,376.);
+            updateTable(app.calibPath+"EC_CALIB_ATTEN_r9");          
+            createDefaultTables(9,0);
+            
         }
         
-        public void updateTable(){
+        public void createDefaultTables(int run, double att)  {
+            for(int is=1; is<7; is++) {                
+                for(int idet=0; idet<ecPix.length; idet++) {
+                    for (int il=1; il<4 ; il++) {
+                        int sl = il+idet*3;
+                        for(int ip = 1; ip < ecPix[idet].ec_nstr[il-1]+1; ip++) {
+                            calib.addEntry(is, sl, ip);
+                            if (att>0) {
+                                calib.setDoubleValue(1.00, "A",     is, sl, ip);
+                                calib.setDoubleValue(att,  "B",     is, sl, ip);
+                                calib.setDoubleValue(0.00, "C",     is, sl, ip);
+                            }
+                            if (att==0) {
+                                calib.setDoubleValue(cctab.getDoubleValue("A",is,sl,ip), "A", is, sl, ip);
+                                calib.setDoubleValue(cctab.getDoubleValue("B",is,sl,ip), "B", is, sl, ip);
+                                calib.setDoubleValue(cctab.getDoubleValue("C",is,sl,ip), "C", is, sl, ip);                                
+                            }
+                            calib.setDoubleValue(0.00, "Aerr",  is, sl, ip);
+                            calib.setDoubleValue(0.00, "Berr",  is, sl, ip);
+                            calib.setDoubleValue(0.00, "Cerr",  is, sl, ip);
+                            calib.setDoubleValue(0.04, "FitMin",is, sl, ip);
+                            calib.setDoubleValue(0.95, "FitMax",is, sl, ip);
+                        }
+                    }
+                }
+            }  
+            calib.save(app.calibPath+"EC_CALIB_ATTEN_r"+run);
+        }
+        
+        public void loadCCTab(){
             
-            String inputFile = getFileName(app.runNumber);
+           System.out.println("ECCalibrationApp:loadCCTab()");
+           String inputFile = app.calibPath+"EC_CALIB_ATTEN_r8";
+            
+            int is,il,ip;
+            double dum;
+            
+            try {                 
+                FileInputStream fstream = new FileInputStream(inputFile);
+                BufferedReader       br = new BufferedReader(new InputStreamReader(fstream));
+
+                String line = br.readLine();
+                
+                while (line != null) {
+                    String[] lineValues = line.trim().split("\\s+");
+                    is  = Integer.parseInt(lineValues[0]);
+                    il  = Integer.parseInt(lineValues[1]);
+                    ip  = Integer.parseInt(lineValues[2]);
+                    cctab.addEntry(is, il, ip);
+                    dum = Double.parseDouble(lineValues[3]);  cctab.setDoubleValue(dum,"A",  is,il,ip);
+                    dum = Double.parseDouble(lineValues[4]);  cctab.setDoubleValue(dum,"B",  is,il,ip);
+                    dum = Double.parseDouble(lineValues[5]);  cctab.setDoubleValue(dum,"C",  is,il,ip);
+                    
+                    line = br.readLine();                    
+                }
+                br.close();            
+            }
+            catch(FileNotFoundException ex) {
+                ex.printStackTrace();                
+            }
+            catch(IOException ex) {
+                ex.printStackTrace();
+            }            
+            
+        }
+        
+        public void updateTable(String inputFile){
+            
+            if(inputFile==null) inputFile = getFileName(app.runNumber);
             
             int is,il,ip;
             double dum;
