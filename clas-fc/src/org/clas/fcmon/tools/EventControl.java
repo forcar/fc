@@ -57,7 +57,8 @@ public class EventControl extends JPanel implements ActionListener, ChangeListen
     String                ethost = null;
     String                etfile = null;
     String              xMsgHost = null;
-    Boolean    isRegularFileOpen = false;
+    Boolean       isEvioFileOpen = false;
+    Boolean       isHipoFileOpen = false;
     public Boolean  isEtFileOpen = false;
     public Boolean   isXEvioOpen = false;
     public Boolean   isXHipoOpen = false;
@@ -85,7 +86,8 @@ public class EventControl extends JPanel implements ActionListener, ChangeListen
     }
     
     public String getDataSource() {
-        if (isRegularFileOpen) return "EVIO";
+        if    (isEvioFileOpen) return "EVIO";
+        if    (isHipoFileOpen) return "HIPO";
         if      (isEtFileOpen) return "ET";
         if       (isXEvioOpen) return "XEVIO";
         if       (isXHipoOpen) return "XHIPO";
@@ -141,10 +143,11 @@ public class EventControl extends JPanel implements ActionListener, ChangeListen
     			this.fileLabel.setText(" ");
     			etReader = null;
     		} finally {
-    			isRemote	      = true;
-    			isSingleEvent     = false;
-    			isEtFileOpen      = true;
-    			isRegularFileOpen = false;
+    			isRemote	   = true;
+    			isSingleEvent  = false;
+    			isEtFileOpen   = true;
+                isEvioFileOpen = false;
+                isHipoFileOpen = false;
     			etReader.close();
     			etReader.loadEvents();
     			buttonNext.setEnabled(true);
@@ -156,19 +159,22 @@ public class EventControl extends JPanel implements ActionListener, ChangeListen
     }
  
     public void openEvioFile(File eviofile) {
-        if(isRegularFileOpen) evReader.close();
+        if(isEvioFileOpen||isHipoFileOpen) evReader.close();
         this.monitoringClass.init();
         if(eviofile.getName().contains("hipo")==true){
+            isHipoFileOpen = true; isEvioFileOpen = false;
             evReader = new HipoDataSource();
         } else {
+            isEvioFileOpen = true; isHipoFileOpen = false;
             evReader = new EvioSource();
         }        
         eviofilename = eviofile.getAbsolutePath();
         evReader.open(eviofilename);
         isRemote          = false;
         isSingleEvent     = false;
-        isRegularFileOpen = true;
         isEtFileOpen      = false;
+        isXEvioOpen       = false;
+        isXHipoOpen       = false;
         buttonNext.setEnabled(true);
         buttonNextFFW.setEnabled(true);
         Integer current = evReader.getCurrentIndex();
@@ -189,12 +195,13 @@ public class EventControl extends JPanel implements ActionListener, ChangeListen
                   this.fileLabel.setText(" ");
                   XEvioReader = null;
               } finally {
-                  isRemote          = true;
-                  isSingleEvent     = false;
-                  isXEvioOpen       = true;
-                  isXHipoOpen       = false;
-                  isRegularFileOpen = false;
-                  isEtFileOpen      = false;
+                  isRemote       = true;
+                  isSingleEvent  = false;
+                  isXEvioOpen    = true;
+                  isXHipoOpen    = false;
+                  isEvioFileOpen = false;
+                  isHipoFileOpen = false;
+                  isEtFileOpen   = false;
                   buttonNext.setEnabled(true);
                   buttonPrev.setEnabled(false);
                   buttonNextFFW.setEnabled(true);
@@ -213,12 +220,13 @@ public class EventControl extends JPanel implements ActionListener, ChangeListen
                   this.fileLabel.setText(" ");
                   XHipoReader = null;
               } finally {
-                  isRemote          = true;
-                  isSingleEvent     = false;
-                  isXHipoOpen       = true;
-                  isXEvioOpen       = false;
-                  isRegularFileOpen = false;
-                  isEtFileOpen      = false;
+                  isRemote       = true;
+                  isSingleEvent  = false;
+                  isXHipoOpen    = true;
+                  isXEvioOpen    = false;
+                  isEvioFileOpen = false;
+                  isHipoFileOpen = false;
+                  isEtFileOpen   = false;
                   buttonNext.setEnabled(true);
                   buttonPrev.setEnabled(false);
                   buttonNextFFW.setEnabled(true);
@@ -243,7 +251,7 @@ public class EventControl extends JPanel implements ActionListener, ChangeListen
             if(evReader.hasEvent()){
                 if(evReader.getCurrentIndex()>=2){
                     
-                    EvioDataEvent event = (EvioDataEvent) evReader.getPreviousEvent();
+                    DataEvent event = evReader.getPreviousEvent();
                     Integer current = evReader.getCurrentIndex();
                     Integer nevents = evReader.getSize();
                     this.statusLabel.setText("   EVENTS IN FILE : " + nevents.toString() + "  CURRENT : " + current.toString());
@@ -400,37 +408,38 @@ public class EventControl extends JPanel implements ActionListener, ChangeListen
 
         }
     	
-    	if(isRegularFileOpen) {
-    	if(evReader.hasEvent()){
-    	
-    		EvioDataEvent event = (EvioDataEvent) evReader.getNextEvent();
-    		int current = evReader.getCurrentIndex();
-    		int nevents = evReader.getSize();  
-    		if(isSingleEvent) monitoringClass.analyze();
-            if(current>100&&current%5000==0) monitoringClass.analyze();
-    		this.statusLabel.setText("   EVENTS IN FILE : " + nevents + "  CURRENT : " + current);
+    	if(isEvioFileOpen||isHipoFileOpen) {
+    	    if(evReader.hasEvent()){
+    	        
+    	        DataEvent event = evReader.getNextEvent();
+    		    int current = evReader.getCurrentIndex();
+    		    int nevents = evReader.getSize();  
+    		    if(isSingleEvent) monitoringClass.analyze();
+                if(current>100&&current%5000==0) monitoringClass.analyze();
+    		    this.statusLabel.setText("   EVENTS IN FILE : " + nevents + "  CURRENT : " + current);
         
-    		try {
-                Thread.sleep(threadDelay);
-               monitoringClass.dataEventAction(event);
-    		} catch (Exception ex) {
-    			ex.printStackTrace();
-    		}
+    		    try {
+                    Thread.sleep(threadDelay);
+                    monitoringClass.dataEventAction(event);
+    		    } catch (Exception ex) {
+    			    ex.printStackTrace();
+    		    }
      
-        } else {
-          isRunning = false;
-          inProcess = 2;
-    	  killTimer();
-    	  evReader.close();
-    	  isRegularFileOpen = false;
-          buttonNextFFW.setEnabled(false);
-          buttonStop.setEnabled(false);
-          buttonNext.setEnabled(false);
-          buttonPrev.setEnabled(false);        
-    	  monitoringClass.analyze();
-    	  monitoringClass.close();
-          System.out.println("DONE PROCESSING FILE");
-        }
+            } else {
+                isRunning = false;
+                inProcess = 2;
+    	        killTimer();
+    	        evReader.close();
+                isEvioFileOpen = false;
+                isHipoFileOpen = false;
+                buttonNextFFW.setEnabled(false);
+                buttonStop.setEnabled(false);
+                buttonNext.setEnabled(false);
+                buttonPrev.setEnabled(false);        
+    	        monitoringClass.analyze();
+    	        monitoringClass.close();
+                System.out.println("DONE PROCESSING FILE");
+            }
     	}
 
     }  
