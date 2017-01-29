@@ -567,12 +567,14 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
             list.add(calib);    
 
 // Here is where we do special jobs 
-//            cctab = new CalibrationConstants(3,"A/F:B/F:C/F");            
-            createDefaultTables(1,50000.);
-            createDefaultTables(2,376.);
+//            cctab = new CalibrationConstants(3,"A/F:B/F:C/F");  
+//            createDefaultTables(1,50000.);
+//            createDefaultTables(2,376.);
+//            loadCCTab();            
+//            createDefaultTables(9,0);
             updateTable(app.calibPath+"EC_CALIB_ATTEN_r9");          
-            createDefaultTables(9,0);
-            
+            updateTable(app.calibPath+"EC_CALIB_ATTEN_s2_r10");   
+            calib.save(app.calibPath+"EC_CALIB_ATTEN_r10");
         }
         
         public void createDefaultTables(int run, double att)  {
@@ -661,14 +663,18 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
                     is  = Integer.parseInt(lineValues[0]);
                     il  = Integer.parseInt(lineValues[1]);
                     ip  = Integer.parseInt(lineValues[2]);
-                    dum = Double.parseDouble(lineValues[3]);  calib.setDoubleValue(dum,"A",     is,il,ip);
-                    dum = Double.parseDouble(lineValues[4]);  calib.setDoubleValue(dum,"Aerr",  is,il,ip);
-                    dum = Double.parseDouble(lineValues[5]);  calib.setDoubleValue(dum,"B",     is,il,ip);
-                    dum = Double.parseDouble(lineValues[6]);  calib.setDoubleValue(dum,"Berr",  is,il,ip);
-                    dum = Double.parseDouble(lineValues[7]);  calib.setDoubleValue(dum,"C",     is,il,ip);
-                    dum = Double.parseDouble(lineValues[8]);  calib.setDoubleValue(dum,"Cerr",  is,il,ip);
-                    dum = Double.parseDouble(lineValues[9]);  calib.setDoubleValue(dum,"FitMin",is,il,ip);
-                    dum = Double.parseDouble(lineValues[10]); calib.setDoubleValue(dum,"FitMax",is,il,ip);
+                    double A = Double.parseDouble(lineValues[3]);
+                    double C = Double.parseDouble(lineValues[7]);
+                    if (A==0) A=1.0;
+                    double sca = A+C;
+                    calib.setDoubleValue(A/sca,"A",     is,il,ip);
+                    dum = Double.parseDouble(lineValues[4]);  calib.setDoubleValue(dum/sca,"Aerr",  is,il,ip);
+                    dum = Double.parseDouble(lineValues[5]);  calib.setDoubleValue(dum,"B",         is,il,ip);
+                    dum = Double.parseDouble(lineValues[6]);  calib.setDoubleValue(dum,"Berr",      is,il,ip);
+                    calib.setDoubleValue(C/sca,"C",     is,il,ip);
+                    dum = Double.parseDouble(lineValues[8]);  calib.setDoubleValue(dum/sca,"Cerr",  is,il,ip);
+                    dum = Double.parseDouble(lineValues[9]);  calib.setDoubleValue(dum,"FitMin",    is,il,ip);
+                    dum = Double.parseDouble(lineValues[10]); calib.setDoubleValue(dum,"FitMax",    is,il,ip);
                     
                     line = br.readLine();                    
                 }
@@ -1060,7 +1066,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
             this.is2=is2;
             
             gain = ccdb.getConstants(calrun, names[GAIN]);
-            calib = new CalibrationConstants(3,"gain/F");
+            calib = new CalibrationConstants(3,"gain/F:gainErr/F");
             calib.setName(names[GAIN]);
             calib.setPrecision(3);
 
