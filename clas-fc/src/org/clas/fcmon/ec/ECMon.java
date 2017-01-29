@@ -6,9 +6,12 @@ import org.clas.fcmon.tools.*;
 import org.jlab.detector.base.DetectorType;
 import org.jlab.detector.base.DetectorDescriptor;
 import org.jlab.detector.calib.utils.ConstantsManager;
+import org.jlab.detector.decode.CLASDecoder;
 import org.jlab.geom.detector.ec.ECDetector;
 import org.jlab.geom.detector.ec.ECFactory;
 import org.jlab.io.base.DataEvent;
+import org.jlab.io.evio.EvioDataEvent;
+import org.jlab.io.hipo.HipoDataEvent;
 import org.jlab.service.ec.*;
 import org.jlab.utils.groups.IndexedTable;
 
@@ -39,8 +42,8 @@ public class ECMon extends DetectorMonitor {
    
     public static int        calRun = 12;
     int                       detID = 0;
-    int                         is1 = 1 ;
-    int                         is2 = 2 ;  
+    int                         is1 = 2 ;
+    int                         is2 = 3 ;  
     int    nsa,nsb,tet,p1,p2,pedref = 0;
     double               PCMon_zmin = 0;
     double               PCMon_zmax = 0;
@@ -261,7 +264,12 @@ public class ECMon extends DetectorMonitor {
 
     @Override
     public void dataEventAction(DataEvent de) {   
-      if(app.doEng) {ecEngine.singleEvent=app.isSingleEvent() ; ecEngine.debug = app.debug; ecEngine.processDataEvent(de);} 
+      if(app.doEng) {
+          ecEngine.singleEvent = app.isSingleEvent() ; 
+          ecEngine.debug       = app.debug; 
+          ecEngine.isMC        = app.isMC;
+          ecEngine.processDataEvent(de);          
+      }
       ecRecon.addEvent(de);
     }
 

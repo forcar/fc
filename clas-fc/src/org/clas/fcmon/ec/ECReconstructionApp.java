@@ -45,6 +45,8 @@ public class ECReconstructionApp extends FCApplication {
    double pcx,pcy,pcz;
    double refE=0,refP=0,refTH=25;
    Boolean printit = false;
+   int[] SCALE  = {10,10,10,10,10,10,10,10,10};
+   int[] SCALE5 = {10,10,10,5,5,5,5,5,5}; // Sector 5 ECAL uses EMI PMTs near max voltage
    
    CodaEventDecoder           codaDecoder = new CodaEventDecoder();
    DetectorEventDecoder   detectorDecoder = new DetectorEventDecoder();
@@ -111,7 +113,7 @@ public class ECReconstructionApp extends FCApplication {
           if(app.isMC==false) this.updateRawData(event); 
       }
       
-      if(app.getDataSource()=="XHIPO") this.updateHipoData(event);
+      if(app.getDataSource()=="XHIPO"||app.getDataSource()=="HIPO") this.updateHipoData(event);
       
       if (app.doEng) this.processECRec(event);
       
@@ -138,7 +140,10 @@ public class ECReconstructionApp extends FCApplication {
        int ilay=0;
        int idet=-1;
        int tdc=0;
+       int sca=1;
        float tdcf=0;
+       
+       clear(0); clear(1); clear(2);
        
        if(event.hasBank("ECAL::adc")==true){
            DataBank  bank = event.getBank("ECAL::adc");
@@ -151,7 +156,9 @@ public class ECReconstructionApp extends FCApplication {
                int ped = bank.getShort("ped", i);
                idet = getDet(il);
                ilay = getLay(il);
-               fill(idet, is, ilay, ip, adc/10, tdc, tdcf);    
+               
+               if(!app.isMC) sca = (is==5)?SCALE5[il-1]:SCALE[il-1];
+               fill(idet, is, ilay, ip, adc/sca, tdc, tdcf);    
            }
        }
    }
@@ -161,8 +168,6 @@ public class ECReconstructionApp extends FCApplication {
       int adc,npk,ped;
       double tdc=0,tdcf=0;
       String AdcType ;
-      int[] SCALE  = {10,10,10,10,10,10,10,10,10};
-      int[] SCALE5 = {10,10,10,5,5,5,5,5,5}; // Sector 5 ECAL uses EMI PMTs near max voltage
       
       List<DetectorDataDgtz>  dataSet = codaDecoder.getDataEntries((EvioDataEvent) event);
       
@@ -402,7 +407,6 @@ public class ECReconstructionApp extends FCApplication {
       ECPart                        part = new ECPart(); part.geom = app.geom;
       GenericKinematicFitter      fitter = new GenericKinematicFitter(11);
       PhysicsEvent                   gen = fitter.getGeneratedEvent((EvioDataEvent)event);
-
       List<DetectorResponse>  ecClusters = part.readEC((EvioDataEvent)event);
       
       double invmass = 1e3*Math.sqrt(part.getTwoPhoton(gen, ecClusters));

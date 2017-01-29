@@ -21,6 +21,8 @@ import org.jlab.groot.data.H2F;
 import org.jlab.io.base.DataBank;
 import org.jlab.io.base.DataEvent;
 import org.jlab.io.evio.EvioDataBank;
+import org.jlab.io.evio.EvioDataEvent;
+import org.jlab.io.hipo.HipoDataEvent;
 import org.jlab.service.ec.ECCluster.ECClusterIndex;
 import org.jlab.utils.groups.IndexedTable;
 
@@ -59,8 +61,21 @@ public class ECCommon {
     
     public static List<ECStrip>  initEC(DataEvent event, Detector detector, ConstantsManager manager, int run){
         if (singleEvent) resetHistos();
-        List<ECStrip>  ecStrips = ECCommon.readStrips(event);
+        
+        List<ECStrip>  ecStrips = null;
+        
+        if(event instanceof EvioDataEvent) {
+            ecStrips = ECCommon.readStrips(event);
+        }
+        
+        if(event instanceof HipoDataEvent) {
+            ecStrips = ECCommon.readStripsHipo(event);
+        }  
+        
+        if(ecStrips==null) return new ArrayList<ECStrip>();
+       
         Collections.sort(ecStrips);
+        
         IndexedTable   atten  = manager.getConstants(run, "/calibration/ec/attenuation");
         for(ECStrip strip : ecStrips){
             int sector    = strip.getDescriptor().getSector();
@@ -87,19 +102,15 @@ public class ECCommon {
      * @param event
      * @return 
      */
+    
     public static List<ECStrip> readStrips(DataEvent event){
         List<ECStrip>  strips = new ArrayList<ECStrip>();
-        strips.addAll(ECCommon.readEvent(event));
+        strips.addAll(ECCommon.ReadEvent("PCAL",event));
+        strips.addAll(ECCommon.ReadEvent("EC",event));
         return strips;
-    }
+    }    
     
-    /**
-     * Read event data from calorimeters
-     * @param det
-     * @param event
-     * @return 
-     */
-    public static List<ECStrip>  oldReadEvent(String det, DataEvent event){
+    public static List<ECStrip>  ReadEvent(String det, DataEvent event){
         List<ECStrip>  strips = new ArrayList<ECStrip>();
          if(event.hasBank(det+"::dgtz")==true){
             EvioDataBank ecBank = (EvioDataBank) event.getBank(det+"::dgtz");
@@ -119,7 +130,7 @@ public class ECCommon {
         return strips;
     }    
     
-    public static List<ECStrip>  readEvent(DataEvent event){
+    public static List<ECStrip>  readStripsHipo(DataEvent event){
         List<ECStrip>  strips = new ArrayList<ECStrip>();
         if(event.hasBank("ECAL::adc")==true){
            DataBank bank = event.getBank("ECAL::adc");
