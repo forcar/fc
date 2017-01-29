@@ -63,6 +63,10 @@ public class CCMon extends DetectorMonitor {
     public static void main(String[] args){		
         String det = "LTCC";
         CCMon monitor = new CCMon(det);	
+        if (args.length != 0) {
+            monitor.is1=Integer.parseInt(args[0]); 
+            monitor.is2=Integer.parseInt(args[1]);    
+         }
         app.setPluginClass(monitor);
         app.makeGUI();
         app.getEnv();
