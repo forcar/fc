@@ -92,8 +92,8 @@ public class ECCalibrationEngine extends CalibrationEngine {
             // overridden in calibration application class
         }
         
-        public void updateTable() {
-            
+        public void updateTable(String inputFile) {
+            System.out.println("Dummy method");            
         }
         
         public String getFileName(String runno) {

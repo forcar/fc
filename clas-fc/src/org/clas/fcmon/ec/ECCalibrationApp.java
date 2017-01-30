@@ -128,7 +128,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
         }        
         if (e.getActionCommand().compareTo("RESTORE")==0) {           
             String outputFileName = engine.getFileName(app.runNumber);
-            engine.updateTable();
+            engine.updateTable(outputFileName);
             JOptionPane.showMessageDialog(new JPanel(),
                    "Restoring table " + engine.calib.getName() + " written to "+outputFileName);
         }
@@ -356,9 +356,11 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
             calib.fireTableDataChanged();     
         }
         
-        public void updateTable(){
+        @Override
+        public void updateTable(String inputFile){
             
-            String inputFile = getFileName(app.runNumber);
+            System.out.println("ECHVListener:updateTable()");
+            if(inputFile==null) inputFile = getFileName(app.runNumber);
             
             isUseTable = true; //disable analysis method
             
@@ -564,17 +566,21 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
                 }
             }
             
-            list.add(calib);    
+            list.add(calib);  
+//            loadDefaultTables();
 
-// Here is where we do special jobs 
-//            cctab = new CalibrationConstants(3,"A/F:B/F:C/F");  
-//            createDefaultTables(1,50000.);
-//            createDefaultTables(2,376.);
-//            loadCCTab();            
-//            createDefaultTables(9,0);
-            updateTable(app.calibPath+"EC_CALIB_ATTEN_r9");          
-            updateTable(app.calibPath+"EC_CALIB_ATTEN_s2_r10");   
-            calib.save(app.calibPath+"EC_CALIB_ATTEN_r10");
+        }
+        
+        public void loadDefaultTables() {
+         // Here is where we create default tables (runs 1-9) 
+//          cctab = new CalibrationConstants(3,"A/F:B/F:C/F");  
+//          createDefaultTables(1,50000.);
+//          createDefaultTables(2,376.);
+//          loadCCTab();            
+//          createDefaultTables(9,0);
+          updateTable(app.calibPath+"EC_CALIB_ATTEN_r9");          
+          updateTable(app.calibPath+"EC_CALIB_ATTEN_s2_r10");   
+          calib.save(app.calibPath+"EC_CALIB_ATTEN_r10");   
         }
         
         public void createDefaultTables(int run, double att)  {
@@ -643,10 +649,13 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
             
         }
         
+        @Override
         public void updateTable(String inputFile){
             
-            if(inputFile==null) inputFile = getFileName(app.runNumber);
+            System.out.println("ECCalibrationApp:ECAttenEventListener.updateTable");
             
+            if(inputFile==null) inputFile = getFileName(app.runNumber);
+             
             int is,il,ip;
             double dum;
             
@@ -1045,9 +1054,12 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
     
     public class ECGainEventListener extends ECCalibrationEngine {
         
-        public final int[]      PARAM = {100,100,100,100,100,100,160,160,160};
-        public final int        DELTA = 10;        
+        public final int[]      PARAM = {1,1,1,1,1,1,1,1,1};
+        public final double     DELTA = 0.1;        
         IndexedTable             gain = null; 
+        
+        public final        int[] REF = {150,150,150,100,100,100,160,160,160};
+        public final        int[] MIP = {100,100,100,100,100,100,160,160,160};
         
         int is1,is2;
         
@@ -1066,7 +1078,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
             this.is2=is2;
             
             gain = ccdb.getConstants(calrun, names[GAIN]);
-            calib = new CalibrationConstants(3,"gain/F:gainErr/F");
+            calib = new CalibrationConstants(3,"Gain/F:GainErr/F");
             calib.setName(names[GAIN]);
             calib.setPrecision(3);
 
@@ -1075,18 +1087,90 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
                                        PARAM[i]+DELTA, 1, i+1);
             }
             
+            for(int is=is1; is<is2; is++) {                
+                for(int idet=0; idet<ecPix.length; idet++) {
+                    for (int il=1; il<4 ; il++) {
+                        int sl = il+idet*3;
+                        for(int ip = 1; ip < ecPix[idet].ec_nstr[il-1]+1; ip++) {
+                            calib.addEntry(is, sl, ip);
+                            calib.setDoubleValue(1.00, "Gain",     is, sl, ip);
+                            calib.setDoubleValue(0.00, "GainErr",  is, sl, ip);
+                        }
+                    }
+                }
+            }            
             list.add(calib);         
         } 
         
+        public void createDefaultTable(int run) {
+            calib.save(app.calibPath+"EC_CALIB_GAIN_r"+run);
+            
+        }
+        
+        @Override        
+        public void updateTable(String inputFile){
+            
+            if(inputFile==null) inputFile = getFileName(app.runNumber);
+            
+            int is,il,ip;
+            double dum;
+            
+            try {                 
+                FileInputStream fstream = new FileInputStream(inputFile);
+                BufferedReader       br = new BufferedReader(new InputStreamReader(fstream));
+
+                String line = br.readLine();
+                
+                while (line != null) {
+
+                    String[] lineValues = line.trim().split("\\s+");
+                    
+                    is  = Integer.parseInt(lineValues[0]);
+                    il  = Integer.parseInt(lineValues[1]);
+                    ip  = Integer.parseInt(lineValues[2]);
+                    double A = Double.parseDouble(lineValues[3]);
+                    double C = Double.parseDouble(lineValues[7]);
+                    if (A==0) A=1.0;
+                    double sca = A+C;
+                    calib.setDoubleValue(A/sca,"Gain",     is,il,ip);
+                    dum = Double.parseDouble(lineValues[4]);  calib.setDoubleValue(dum/sca,"Aerr",  is,il,ip);
+                    dum = Double.parseDouble(lineValues[5]);  calib.setDoubleValue(dum,"B",         is,il,ip);
+                    dum = Double.parseDouble(lineValues[6]);  calib.setDoubleValue(dum,"Berr",      is,il,ip);
+                    calib.setDoubleValue(C/sca,"C",     is,il,ip);
+                    dum = Double.parseDouble(lineValues[8]);  calib.setDoubleValue(dum/sca,"Cerr",  is,il,ip);
+                    dum = Double.parseDouble(lineValues[9]);  calib.setDoubleValue(dum,"FitMin",    is,il,ip);
+                    dum = Double.parseDouble(lineValues[10]); calib.setDoubleValue(dum,"FitMax",    is,il,ip);
+                    
+                    line = br.readLine();                    
+                }
+                br.close();            
+            }
+            catch(FileNotFoundException ex) {
+                ex.printStackTrace();                
+            }
+            catch(IOException ex) {
+                ex.printStackTrace();
+            }            
+            
+        }    
+        
         @Override
         public void analyze() {
-            for (int sector = is1; sector < is2; sector++) {
-                for (int layer = 1; layer < 4; layer++) {
-                    for (int paddle = 1; paddle<NUM_PADDLES[layer-1]+1; paddle++) {
-                        fit(sector, layer, paddle, 0.0, 0.0);
+            for(int is=is1; is<is2; is++) {                
+                for(int idet=0; idet<ecPix.length; idet++) {
+                    for (int il=1; il<4 ; il++) {
+                        int sl = il+idet*3;
+                        for(int ip = 1; ip < ecPix[idet].ec_nstr[il-1]+1; ip++) {
+                            double A = engines[0].calib.getDoubleValue("A",is, sl, ip);                    
+                            double C = engines[0].calib.getDoubleValue("C",is, sl, ip);                    
+                            double Aerr = engines[0].calib.getDoubleValue("Aerr",is, sl, ip);                    
+                            double Cerr = engines[0].calib.getDoubleValue("Cerr",is, sl, ip);                    
+                            calib.setDoubleValue(1.00, "Gain",     is, sl, ip);
+                            calib.setDoubleValue(0.00, "GainErr",  is, sl, ip);
+                        }
                     }
                 }
-            }
+            }           
             calib.fireTableDataChanged();
         }
         
@@ -1155,6 +1239,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
         }
         
         public void drawPlots(int is, int il, int ic) {
+            
         }
     }
 
