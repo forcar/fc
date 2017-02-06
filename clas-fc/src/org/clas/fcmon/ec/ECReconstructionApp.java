@@ -45,12 +45,11 @@ public class ECReconstructionApp extends FCApplication {
    double pcx,pcy,pcz;
    double refE=0,refP=0,refTH=25;
    Boolean printit = false;
-   int[] SCALE  = {10,10,10,10,10,10,10,10,10};
-   int[] SCALE5 = {10,10,10,5,5,5,5,5,5}; // Sector 5 ECAL uses EMI PMTs near max voltage
    
    CodaEventDecoder           codaDecoder = new CodaEventDecoder();
    DetectorEventDecoder   detectorDecoder = new DetectorEventDecoder();
    List<DetectorDataDgtz>   detectorData  = new ArrayList<DetectorDataDgtz>();
+   ECConstants                        ecc = new ECConstants();
    DataBank                mcData,genData = null;
    
    public DetectorCollection<TreeMap<Integer,Object>> Lmap_a = new DetectorCollection<TreeMap<Integer,Object>>();
@@ -140,7 +139,7 @@ public class ECReconstructionApp extends FCApplication {
        int ilay=0;
        int idet=-1;
        int tdc=0;
-       int sca=1;
+       double sca=1;
        float tdcf=0;
        
        clear(0); clear(1); clear(2);
@@ -157,8 +156,8 @@ public class ECReconstructionApp extends FCApplication {
                idet = getDet(il);
                ilay = getLay(il);
                
-               if(!app.isMC) sca = (is==5)?SCALE5[il-1]:SCALE[il-1];
-               fill(idet, is, ilay, ip, adc/sca, tdc, tdcf);    
+               if(!app.isMC) sca = (is==5)?ecc.SCALE5[il-1]:ecc.SCALE[il-1];
+               fill(idet, is, ilay, ip, adc/(int)sca, tdc, tdcf);    
            }
        }
    }
@@ -191,7 +190,7 @@ public class ECReconstructionApp extends FCApplication {
             int il  = strip.getDescriptor().getLayer(); // 1-3: PCAL 4-9: ECAL
             int ip  = strip.getDescriptor().getComponent();
             int iord= strip.getDescriptor().getOrder(); 
-            
+//            System.out.println(icr+" "+isl+" "+ich+" "+is+" "+il);
             idet = getDet(il);
             ilay = getLay(il);
             
@@ -208,7 +207,7 @@ public class ECReconstructionApp extends FCApplication {
             if (strip.getADCSize()>0) {     
                 
                AdcType = strip.getADCData(0).getPulseSize()>0 ? "ADCPULSE":"ADCFPGA";
-               int sca = (is==5)?SCALE5[il-1]:SCALE[il-1];
+               double sca = (is==5)?ecc.SCALE5[il-1]:ecc.SCALE[il-1];
                
                if(AdcType=="ADCFPGA") { // FADC MODE 7
                    
@@ -219,8 +218,8 @@ public class ECReconstructionApp extends FCApplication {
                  
                   getMode7(icr,isl,ich); 
 
-                  if (app.mode7Emulation.User_pedref==0) adc = (adc-ped*(this.nsa+this.nsb))/sca;
-                  if (app.mode7Emulation.User_pedref==1) adc = (adc-this.pedref*(this.nsa+this.nsb))/sca;
+                  if (app.mode7Emulation.User_pedref==0) adc = (adc-ped*(this.nsa+this.nsb))/(int)sca;
+                  if (app.mode7Emulation.User_pedref==1) adc = (adc-this.pedref*(this.nsa+this.nsb))/(int)sca;
                }   
                
                if (AdcType=="ADCPULSE") { // FADC MODE 1
@@ -234,7 +233,7 @@ public class ECReconstructionApp extends FCApplication {
                   if (app.mode7Emulation.User_pedref==0) fitter.fit(this.nsa,this.nsb,this.tet,0,pulse);                  
                   if (app.mode7Emulation.User_pedref==1) fitter.fit(this.nsa,this.nsb,this.tet,pedref,pulse);   
                   
-                  adc = fitter.adc/sca;
+                  adc = fitter.adc/(int)sca;
                   ped = fitter.pedsum;
                   
                   for (int i=0 ; i< pulse.length ; i++) {

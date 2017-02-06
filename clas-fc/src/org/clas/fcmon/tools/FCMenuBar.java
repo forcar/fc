@@ -87,7 +87,7 @@ public class FCMenuBar extends JMenuBar implements ActionListener {
     	if(e.getActionCommand().compareTo("Sector 4")==0) {ethost="adcecal4";etfile="/tmp/et_sys_clasprod4";}
     	if(e.getActionCommand().compareTo("Sector 5")==0) {ethost="adcecal5";etfile="/tmp/et_sys_clasprod5";}
         if(e.getActionCommand().compareTo("Sector 6")==0) {ethost="adcecal6";etfile="/tmp/et_sys_clasprod6";}      
-        if(e.getActionCommand().compareTo("clondaq4")==0) {ethost="clondaq4";etfile="/tmp/et_sys_clasprod2";}       
+        if(e.getActionCommand().compareTo("clondaq4")==0) {ethost="clondaq4";etfile="/tmp/et_sys_clasprod";}       
     	if(ethost!=null) this.eventControl.openEtFile(ethost,etfile);    	
         if(e.getActionCommand().compareTo("Load EVIO or HIPO File")==0) this.chooseEvioFile();
         if(e.getActionCommand().compareTo("EVIO")==0) this.eventControl.openXEvioRing();
