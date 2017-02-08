@@ -22,7 +22,7 @@ import org.jlab.groot.data.H2F;
 public class ECMode1App extends FCApplication  {
 	
    JPanel              engineView = new JPanel();
-   EmbeddedCanvasTabbed    mode1  = new EmbeddedCanvasTabbed("Event");
+   EmbeddedCanvasTabbed    mode1  = new EmbeddedCanvasTabbed("PMT");
    EmbeddedCanvas               c = this.getCanvas(this.getName()); 
    
    int is,la,ic,idet,nstr;
@@ -37,7 +37,7 @@ public class ECMode1App extends FCApplication  {
    
    public JPanel getPanel() {
        engineView.setLayout(new BorderLayout());
-       mode1.addCanvas("Sum");
+       mode1.addCanvas("UVW");
        engineView.add(mode1);
        return engineView;
    }
@@ -54,8 +54,8 @@ public class ECMode1App extends FCApplication  {
       this.nstr = ecPix[idet].ec_nstr[la-1];    
       
       switch (mode1.selectedCanvas) {
-      case "Event": updateEvent(); break;
-      case   "Sum": updateSum();
+      case "PMT": updateEvent(); break;
+      case "UVW": updateSum();
       }
       
    }
@@ -63,7 +63,7 @@ public class ECMode1App extends FCApplication  {
    public void updateEvent() {   
    
       int min=0, max=nstr;
-      c = mode1.getCanvas("Event");
+      c = mode1.getCanvas("PMT");
       
       switch (idet) {
       case 0: c.divide(4,6); max=24 ; if (ic>23) {min=24; max=48;} if (ic>47) {min=48; max=nstr;} break;
@@ -117,7 +117,7 @@ public class ECMode1App extends FCApplication  {
       f1.setParameter(0,ic+1); f1.setLineWidth(1); f1.setLineColor(2);
       f2.setParameter(0,ic+2); f2.setLineWidth(1); f2.setLineColor(2);
              
-      c = mode1.getCanvas("Sum");  c.clear(); c.divide(3,2);       
+      c = mode1.getCanvas("UVW");  c.clear(); c.divide(3,2);       
           
       for (int il=1; il<4 ; il++) {
           h2 = dc2a.get(is,il,0); h2.setTitleY("Sector "+is+otab[idet][il-1]) ; h2.setTitleX("SAMPLES (4 ns/ch)");
