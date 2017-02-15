@@ -82,7 +82,7 @@ public class MonitorApp extends JFrame implements ActionListener {
     public String    xMsgHost = null;
     public String   runNumber = "100";
     public boolean      debug = false;
-    public boolean       isMC = true;
+    public boolean       isMC = false;
     public boolean      isCRT = false;
     public boolean      doEng = false;
     public String        geom = "0.27";
@@ -122,7 +122,7 @@ public class MonitorApp extends JFrame implements ActionListener {
     
     public void getEnv() {        
         String   ostype = System.getenv("OSTYPE");    
-        if (ostype!=null&&ostype.equals("linux")) {
+        if (ostype!=null&&ostype.equals("Linux")) {
             String hostname = System.getenv("HOST");
             if(hostname.substring(0,4).equals("clon")) {
               System.out.println("Running on "+hostname);
