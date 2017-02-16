@@ -729,6 +729,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
                    }
                    calib.fireTableDataChanged();
                    analyze(ilmap,is,is+1,il,il+1,ip1,ip2);
+                   drawPlots(sectorSelected,layerSelected,channelSelected);
                }
            });   
        }
