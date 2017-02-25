@@ -22,7 +22,7 @@ public class ECStrip implements Comparable {
     private int                 iADC  = 0;
     private int                 iTDC  = 0;
     private double              iGain = 1.0;
-    private double              iADC_to_MEV  = 1.0/10000.0;
+    private double              iADC_to_GEV  = 1.0/10000.0;
     private double              iTDC_to_NSEC = 1.0;
     private double              iAttenLengthA = 1.0;
     private double              iAttenLengthB = 50000.0;
@@ -46,7 +46,7 @@ public class ECStrip implements Comparable {
     }
     
     public double getEnergy(){
-        return this.iADC*this.iGain*this.iADC_to_MEV;
+        return this.iADC*this.iGain*this.iADC_to_GEV;
     }
     
     public double getTime(){
@@ -72,7 +72,7 @@ public class ECStrip implements Comparable {
     public double getEnergy(Point3D point){
         double dist = point.distance(this.stripLine.end());
         double ecorr  =  this.iAttenLengthA*Math.exp(-dist/this.iAttenLengthB) + this.iAttenLengthC;
-        double energy = this.iADC*this.iGain*this.iADC_to_MEV/ecorr;
+        double energy = this.iADC*this.iGain*this.iADC_to_GEV/ecorr;
         return energy;
     }
     

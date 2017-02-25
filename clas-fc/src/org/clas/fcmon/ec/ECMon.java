@@ -11,6 +11,7 @@ import org.jlab.geom.detector.ec.ECDetector;
 import org.jlab.geom.detector.ec.ECFactory;
 import org.jlab.io.base.DataEvent;
 import org.jlab.io.evio.EvioDataEvent;
+import org.jlab.io.evio.EvioDataSync;
 import org.jlab.io.hipo.HipoDataEvent;
 import org.jlab.service.ec.*;
 import org.jlab.utils.groups.IndexedTable;
@@ -39,11 +40,13 @@ public class ECMon extends DetectorMonitor {
     ECHvApp                    ecHv = null;   
     
     ECEngine               ecEngine = null;
+    EvioDataSync             writer = null;
+    Boolean                saveFile = false;
    
-    public static int        calRun = 12;
+    public static int        calRun = 2;
     int                       detID = 0;
-    int                         is1 = 5 ;
-    int                         is2 = 6 ;  
+    int                         is1 = 2;
+    int                         is2 = 3;  
     int    nsa,nsb,tet,p1,p2,pedref = 0;
     double               PCMon_zmin = 0;
     double               PCMon_zmax = 0;
@@ -211,9 +214,16 @@ public class ECMon extends DetectorMonitor {
     
     public void initEngine() {
         System.out.println("monitor.initEngine():Initializing ecEngine");
-        System.out.println("Configuration: "+app.config);       
+        System.out.println("Configuration: "+app.config);   
+        
+        if(saveFile) {
+            writer = new EvioDataSync();
+            writer.open("/Users/colesmith/ECMON/EVIO/test.evio");
+        }
+
         ecRecon.init(); 
         ecEngine.init();
+        ecEngine.setVariation("clas6");
         ecEngine.setStripThresholds(ecPix[0].getStripThr(app.config, 1),
                                     ecPix[1].getStripThr(app.config, 1),
                                     ecPix[2].getStripThr(app.config, 1));  
@@ -268,7 +278,8 @@ public class ECMon extends DetectorMonitor {
           ecEngine.singleEvent = app.isSingleEvent() ; 
           ecEngine.debug       = app.debug; 
           ecEngine.isMC        = app.isMC;
-          ecEngine.processDataEvent(de);          
+          ecEngine.processDataEvent(de);     
+          if(de instanceof EvioDataEvent&&saveFile) writer.writeEvent(de);
       }
       ecRecon.addEvent(de);
     }
@@ -379,7 +390,9 @@ public class ECMon extends DetectorMonitor {
     
     @Override
     public void close() {
+        System.out.println("monitor.close()");
         app.displayControl.setFPS(1);
+        if(saveFile) writer.close();
     }
     
     @Override

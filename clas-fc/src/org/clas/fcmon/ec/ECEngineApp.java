@@ -232,7 +232,8 @@ public class ECEngineApp extends FCApplication implements ActionListener {
 	  double xmx1=40.,xmx2=100.;
 	  switch (app.config) {
 	  case "muon": xmx1=40. ; xmx2=100.; break;
-	  case "phot": xmx1=200.; xmx2=500.; break;
+      case "phot": xmx1=200.; xmx2=500.; break;
+      case "pi0" : xmx1=200.; xmx2=500.; break;
 	  case "elec": xmx1=100.; xmx2=400.;
 	  }
 

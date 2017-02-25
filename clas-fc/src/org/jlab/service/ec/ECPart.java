@@ -15,150 +15,137 @@ import org.jlab.detector.base.DetectorType;
 import org.jlab.geom.prim.Line3D;
 import org.jlab.groot.data.H1F;
 import org.jlab.groot.graphics.EmbeddedCanvas;
+import org.jlab.io.base.DataBank;
+import org.jlab.io.base.DataEvent;
 import org.jlab.io.evio.EvioDataBank;
 import org.jlab.io.evio.EvioDataEvent;
 import org.jlab.io.evio.EvioSource;
+import org.jlab.service.eb.EBConstants;
+import org.jlab.service.eb.EventBuilder;
 
 
 public class ECPart {
 	
+    EventBuilder builder = new EventBuilder();
     public static double distance11,distance12,distance21,distance22;
     public static double e1,e2,e1c,e2c,cth,cth1,cth2,X,tpi2,cpi0,refE,refP,refTH;
     static double mpi0 = 0.1349764;
     public static String geom = "2.4";
     public static double SF1 = 0.27;
     public static double SF2 = 0.27;
-    EvioDataBank     genData = null;
     
-    public List<DetectorResponse>  readEC(EvioDataEvent event){
-        List<DetectorResponse>  ecResponse = new ArrayList<DetectorResponse>();
-        if(event.hasBank("GenPart::true")==true) {
-            genData = (EvioDataBank) event.getBank("GenPart::true");
-            double ppx = genData.getDouble("px",0);
-            double ppy = genData.getDouble("py",0);
-            double ppz = genData.getDouble("pz",0);
-            double  rm = 0.;
-            if (genData.getInt("pid", 0)==111) rm=mpi0;                   
-            refP  = Math.sqrt(ppx*ppx+ppy*ppy+ppz*ppz);  
-            refE  = Math.sqrt(refP*refP+rm*rm);            
-            refTH = Math.acos(ppz/refP)*180/3.14159;
+    public static void readMC(DataEvent event, Boolean isEvio) {
+        double ppx=0,ppy=0,ppz=0;
+        int pid=0;
+        if(isEvio&&event.hasBank("GenPart::true")) {
+            EvioDataBank bank = (EvioDataBank) event.getBank("GenPart::true");
+            ppx = bank.getDouble("px",0);
+            ppy = bank.getDouble("py",0);
+            ppz = bank.getDouble("pz",0);
+            pid = bank.getInt("pid",0);
         }
-        if(event.hasBank("ECDetector::clusters")==true){
-            EvioDataBank ecCL = (EvioDataBank) event.getBank("ECDetector::clusters");
-            int nrows = ecCL.rows();
-            for(int i = 0; i < nrows; i++){
-                DetectorResponse response = new DetectorResponse();
-                response.getDescriptor().setType(DetectorType.EC);
-                response.getDescriptor().setSectorLayerComponent(
-                        ecCL.getInt("sector", i),
-                        ecCL.getInt("layer", i),
-                        0
-                        );
-                response.setPosition(
-                        ecCL.getDouble("X", i),
-                        ecCL.getDouble("Y", i),
-                        ecCL.getDouble("Z", i)
-                        );
-                response.setEnergy(ecCL.getDouble("energy", i));
-                ecResponse.add(response);
-            }            
+        if(!isEvio&&event.hasBank("MC::Particle")) {
+            DataBank bank = event.getBank("MC::Particle");
+            ppx = bank.getFloat("px",0);
+            ppy = bank.getFloat("py",0);
+            ppz = bank.getFloat("pz",0);
+            pid = bank.getInt("pid",0);                
         }
-        return ecResponse;
+        double  rm = 0.;
+        if (pid==111) rm=mpi0;                   
+        refP  = Math.sqrt(ppx*ppx+ppy*ppy+ppz*ppz);  
+        refE  = Math.sqrt(refP*refP+rm*rm);            
+        refTH = Math.acos(ppz/refP)*180/3.14159;        
     }
     
-    public static List<DetectorResponse>  getResponseForLayer(List<DetectorResponse> res, int layer){
-        List<DetectorResponse>  ecr = new ArrayList<DetectorResponse>();
-        for(DetectorResponse r : res){
-            if(r.getDescriptor().getLayer()==layer){
-                ecr.add(r);
+    public static List<DetectorResponse> readEvioEvent(DataEvent event, String bankName, DetectorType type) {
+        List<DetectorResponse> responseList = new ArrayList<DetectorResponse>();
+        if(event.hasBank(bankName)==true){
+            EvioDataBank bank = (EvioDataBank) event.getBank(bankName);
+            int nrows = bank.rows();
+            for(int row = 0; row < nrows; row++){
+                int sector = bank.getInt("sector", row);
+                int  layer = bank.getInt("layer",  row);
+                DetectorResponse  response = new DetectorResponse(sector,layer,0);
+                response.getDescriptor().setType(type);
+                double x = bank.getDouble("X", row);
+                double y = bank.getDouble("Y", row);
+                double z = bank.getDouble("Z", row);
+                response.setPosition(x, y, z);
+                response.setEnergy(bank.getDouble("energy", row));
+                response.setTime(bank.getDouble("time", row));
+                responseList.add(response);
             }
         }
-        return ecr;        
+        return responseList;                      
     }
     
-    public double getTwoPhoton(PhysicsEvent gen, List<DetectorResponse> ecResponses){
+    public List<DetectorResponse>  readEC(DataEvent event){
+        List<DetectorResponse>  ecResponse = new ArrayList<DetectorResponse>();
+        Boolean isEvio = event instanceof EvioDataEvent;        
+        readMC(event, isEvio);        
+        if (isEvio) ecResponse =                  readEvioEvent(event, "ECDetector::clusters", DetectorType.EC); 
+        if(!isEvio) ecResponse = DetectorResponse.readHipoEvent(event, "ECAL::clusters", DetectorType.EC);
+
+        return ecResponse;
+    } 
+    
+    public double getTwoPhoton(List<DetectorResponse> response){
         
-        List<DetectorResponse>        rPCAL = ECPart.getResponseForLayer(ecResponses, 1);
-        
-        distance11=distance12=distance21=distance22=-10;
-        
+        List<DetectorResponse> rPCAL = builder.getUnmatchedResponses(response, DetectorType.EC, 1);
         if(rPCAL.size()!=2) return   0.0;
+        return processNeutralTracks(doHitMatching(response));
+    }
+     
+    public List<DetectorParticle> doHitMatching(List<DetectorResponse> response) {
         
         List<DetectorParticle>  particles = new ArrayList<DetectorParticle>();
         
+        List<DetectorResponse> rPCAL  = builder.getUnmatchedResponses(response, DetectorType.EC,1);
+        List<DetectorResponse> rECIN  = builder.getUnmatchedResponses(response, DetectorType.EC,4);
+        List<DetectorResponse> rECOUT = builder.getUnmatchedResponses(response, DetectorType.EC,7);
+        
+        distance11=distance12=distance21=distance22=-10;
+                        
         for(int i = 0; i < rPCAL.size(); i++){
-            DetectorParticle p = new DetectorParticle();
-            p.setCross(0.0, 0.0, 0.0, 
-                    rPCAL.get(i).getPosition().x(),
-                    rPCAL.get(i).getPosition().y(),
-                    rPCAL.get(i).getPosition().z()
-                    );
-            p.addResponse(rPCAL.get(i));
-            particles.add(p);
-            //System.out.println(p);
+            particles.add(DetectorParticle.createNeutral(rPCAL.get(i)));
         }
+                        
+        DetectorParticle p1 = particles.get(0);  //PCAL Photon 1
+        DetectorParticle p2 = particles.get(1);  //PCAL Photon 2
         
-        List<DetectorResponse> rECIN  = ECPart.getResponseForLayer(ecResponses, 4);
-        List<DetectorResponse> rECOUT = ECPart.getResponseForLayer(ecResponses, 7);
-                
-        int index_ecin  = particles.get(0).getDetectorHitIndex(rECIN);
+        int index=0;
         
-        if(index_ecin>=0&&index_ecin<rECIN.size()){
-            distance11 = particles.get(0).getDistance(rECIN.get(index_ecin)).length();
-            if(distance11<15.0){
-                particles.get(0).addResponse(rECIN.get(index_ecin));
-                rECIN.remove(index_ecin);
-            }
-        }
+        index  = p1.getDetectorHit(rECIN,DetectorType.EC,4,EBConstants.ECIN_MATCHING);
+        if(index>=0){p1.addResponse(rECIN.get(index),true); rECIN.get(index).setAssociation(0);
+        distance11 = p1.getDistance(rECIN.get(index)).length();}
         
-        int index_ecout  = particles.get(0).getDetectorHitIndex(rECOUT);
+        index  = p1.getDetectorHit(rECOUT,DetectorType.EC,7,EBConstants.ECOUT_MATCHING);
+        if(index>=0){p1.addResponse(rECOUT.get(index),true); rECOUT.get(index).setAssociation(0);
+        distance12 = p1.getDistance(rECOUT.get(index)).length();}
         
-        if(index_ecout>=0&&index_ecout<rECOUT.size()){
-            distance12 = particles.get(0).getDistance(rECOUT.get(index_ecout)).length();
-            if(distance12<15.0){
-                particles.get(0).addResponse(rECOUT.get(index_ecout));
-                rECOUT.remove(index_ecout);
-            }
-        }
+        index  = p2.getDetectorHit(rECIN,DetectorType.EC,4,EBConstants.ECIN_MATCHING);
+        if(index>=0){p2.addResponse(rECIN.get(index),true); rECIN.get(index).setAssociation(1);
+        distance21 = p2.getDistance(rECIN.get(index)).length();}
         
-        index_ecin  = particles.get(1).getDetectorHitIndex(rECIN);
+        index  = p2.getDetectorHit(rECOUT,DetectorType.EC,7,EBConstants.ECOUT_MATCHING);
+        if(index>=0){p2.addResponse(rECOUT.get(index),true); rECOUT.get(index).setAssociation(1);
+        distance22 = p2.getDistance(rECOUT.get(index)).length();}
         
-        if(index_ecin>=0&&index_ecin<rECIN.size()){
-            distance21 = particles.get(1).getDistance(rECIN.get(index_ecin)).length();
-            if(distance21<15.0){
-                particles.get(1).addResponse(rECIN.get(index_ecin));
-                rECIN.remove(index_ecin);
-            }
-        }
+        return particles;
+    }
+       
+    public double processNeutralTracks(List<DetectorParticle> particles) {
         
-        index_ecout  = particles.get(1).getDetectorHitIndex(rECOUT);
+        DetectorParticle p1 = particles.get(0);  //Photon 1
+        DetectorParticle p2 = particles.get(1);  //Photon 2
         
-        if(index_ecout>=0&&index_ecout<rECOUT.size()){
-            distance22 = particles.get(1).getDistance(rECOUT.get(index_ecout)).length();
-            if(distance22<15.0){
-                particles.get(1).addResponse(rECOUT.get(index_ecout));
-                rECOUT.remove(index_ecout);
-            }
-        }
+        Vector3 n1 = p1.vector(); n1.unit();
+        Vector3 n2 = p2.vector(); n2.unit();
         
-        
-        //System.out.println("--------------  EVENT -------------");
-        for(DetectorParticle p : particles){
-            double energy = p.getEnergy(DetectorType.EC);
-            //p.getPhysicsParticle(22);
-            //System.out.println(" energy = " + energy);
-            //System.out.println(p);
-        }
-        
-        Vector3 n1 = particles.get(0).getCrossDir();
-        Vector3 n2 = particles.get(1).getCrossDir();
-        
-        e1 = particles.get(0).getEnergy(DetectorType.EC);
-        e2 = particles.get(1).getEnergy(DetectorType.EC);
-        
-        n1.unit();
-        n2.unit();
-        
+        e1 = p1.getEnergy(DetectorType.EC);
+        e2 = p2.getEnergy(DetectorType.EC);
+
         SF1 = getSF(geom,e1); e1c=e1/SF1;
         Particle g1 = new Particle(22,
                 n1.x()*e1c,
@@ -176,25 +163,22 @@ public class ECPart {
         X    =  1e3;
         tpi2 =  1e9;
         cpi0 =  -1;
+        cth  =  -1;
         cth1 = Math.cos(g1.theta());
         cth2 = Math.cos(g2.theta());
          cth = g1.cosTheta(g2);
-        
-        if(particles.get(0).getResponse(DetectorType.EC, 1)!=null&&
-           particles.get(0).getResponse(DetectorType.EC, 4)!=null&&
-           particles.get(1).getResponse(DetectorType.EC, 1)!=null&&
-           particles.get(1).getResponse(DetectorType.EC, 4)!=null                
-                ){
-            /*
-            System.out.println("  ENERGIES = " + (e1/0.27) + "  " + (e2/0.27));
-            System.out.println(particles.get(0));
-            System.out.println(particles.get(1));
-            System.out.println(gen);*/
-            X = (e1c-e2c)/(e1c+e2c);
-            tpi2 = 2*mpi0*mpi0/(1-cth)/(1-X*X);
-            cpi0 = (e1c*cth1+e2c*cth2)/Math.sqrt(e1c*e1c+e2c*e2c+2*e1c*e2c*cth);
-            g1.combine(g2, +1);
-            return g1.vector().mass2();
+         
+        // Require 2 photons in PCAL and ECinner
+         
+        if(p1.getResponse(DetectorType.EC, 1)!=null&&
+//           p1.getResponse(DetectorType.EC, 4)!=null&&
+           p2.getResponse(DetectorType.EC, 1)!=null) {
+//           p2.getResponse(DetectorType.EC, 4)!=null) {                
+              X = (e1c-e2c)/(e1c+e2c);
+           tpi2 = 2*mpi0*mpi0/(1-cth)/(1-X*X);
+           cpi0 = (e1c*cth1+e2c*cth2)/Math.sqrt(e1c*e1c+e2c*e2c+2*e1c*e2c*cth);
+           g1.combine(g2, +1);
+           return g1.vector().mass2();
         }
         
         return  0.0;
@@ -205,6 +189,10 @@ public class ECPart {
         //System.out.println(gen);
     }
     
+    public void setGeom(String geom) {
+        this.geom = geom;
+    }
+    
     public static double getSF(String geom, double e) {
         switch (geom) {
         case "2.4": return 0.268*(1.0510 - 0.0104/e - 0.00008/e/e); 
@@ -213,52 +201,11 @@ public class ECPart {
         return Double.parseDouble(geom);
     }    
     
-    public static void getPhoton(PhysicsEvent gen, List<DetectorResponse>  ecResponses){
-
-        List<DetectorResponse>  rPCAL  = ECPart.getResponseForLayer(ecResponses, 1);
-        List<DetectorResponse>  rECIN  = ECPart.getResponseForLayer(ecResponses, 4);
-        List<DetectorResponse>  rECOUT = ECPart.getResponseForLayer(ecResponses, 7);
-        
-        if(rPCAL.size()!=1) return;
-        List<DetectorParticle>  particles = new ArrayList<DetectorParticle>();
-        
-        DetectorParticle g = new DetectorParticle();
-        g.setCross(0.0, 0.0, 0.0, 
-                    rPCAL.get(0).getPosition().x(),
-                    rPCAL.get(0).getPosition().y(),
-                    rPCAL.get(0).getPosition().z()
-                    );
-        g.addResponse(rPCAL.get(0));
-        
-        int index_ecin  = g.getDetectorHitIndex(rECIN);
-        int index_ecout = g.getDetectorHitIndex(rECOUT);
-        
-        if(index_ecin>=0&&rECIN.size()>0)  g.addResponse(rECIN.get(index_ecin));
-        if(index_ecout>=0&&rECOUT.size()>0) g.addResponse(rECOUT.get(index_ecout));
-        double energy = g.getEnergy(DetectorType.EC)/0.27;
-        
-        Vector3  dir = g.getCrossDir();
-        dir.unit();
-        /*
-        System.out.println(" INDEX = " + index_ecin + "  " + index_ecout 
-                + "  energy = " + g.getEnergy(DetectorType.EC)
-                + "  " + energy + "  " + String.format("%8.5f %8.5f", dir.theta()*57.29,dir.phi()*57.29));
-        */
-        
-        //System.out.println(g);
-        
-        Particle gamma = gen.getParticle("[22]");
-        System.out.println(String.format("%8.5f %8.5f %8.5f %8.5f %8.5f %8.5f", energy,
-                dir.theta()*57.29,dir.phi()*57.29,gamma.vector().p(),
-                gamma.vector().theta()*57.29,gamma.vector().phi()*57.29));
-        
-        
-    }
-    
     public static void main(String[] args){
         
         ECEngine   engine = new ECEngine();
         EvioSource reader = new EvioSource();
+        ECPart       part = new ECPart();
         
         String evioPath = "/Users/colesmith/coatjava/data/pizero/";
         // GEMC file: 10k 2.0 GeV pizeros thrown at 25 deg into Sector 2 using GEMC 2.4 geometry
@@ -273,10 +220,13 @@ public class ECPart {
         }
                 
         engine.init();
+        engine.isMC = true;
+        engine.setVariation("clas6");
         engine.setCalRun(2);
         engine.setStripThresholds(10,9,8);
         engine.setPeakThresholds(18,20,15);
         engine.setClusterCuts(7,15,20);
+        part.setGeom("2.5");
         
         H1F h1 = new H1F("Invariant Mass",50,10.,200);         
         h1.setOptStat(Integer.parseInt("1100")); h1.setTitleX("Pizero Invariant Mass (MeV)");
@@ -288,17 +238,14 @@ public class ECPart {
         h4.setOptStat(Integer.parseInt("1100")); h4.setTitleX("Pizero Theta Error (deg)");
         
         while(reader.hasEvent()){
-            EvioDataEvent event = (EvioDataEvent) reader.getNextEvent();
-            //engine.debug = true;
-            engine.processDataEvent((EvioDataEvent) event);      
+            DataEvent event = reader.getNextEvent();
+            engine.processDataEvent(event);      
+            List<DetectorResponse>  ecClusters = part.readEC(event);     
             
-            ECPart                        part = new ECPart(); part.geom = "2.5";
-            GenericKinematicFitter      fitter = new GenericKinematicFitter(11);
-            PhysicsEvent                   gen = fitter.getGeneratedEvent((EvioDataEvent)event);
-            List<DetectorResponse>  ecClusters = part.readEC((EvioDataEvent)event);           
-            double                     invmass = 1e3*Math.sqrt(part.getTwoPhoton(gen, ecClusters));
+            double invmass = 1e3*Math.sqrt(part.getTwoPhoton(ecClusters));
             
             h1.fill((float)invmass,1.);                          //Two-photon invariant mass
+            
             if (invmass>60 && invmass<200) {
                 h2.fill((float)part.X);                          //Pizero energy asymmetry
                 h3.fill((float)(1e3*Math.sqrt(part.tpi2)-refE)); //Pizero total energy error
