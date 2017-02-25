@@ -28,6 +28,7 @@ import org.jlab.detector.base.DetectorType;
 import org.jlab.geom.prim.Line3D;
 import org.jlab.geom.prim.Point3D;
 import org.jlab.io.evio.EvioDataEvent;
+import org.jlab.service.eb.EventBuilder;
 import org.jlab.service.ec.ECPart;
 import org.jlab.io.base.DataBank;
 import org.jlab.io.base.DataEvent;
@@ -42,6 +43,7 @@ public class ECReconstructionApp extends FCApplication {
 
    String BankType        = null;
    int              detID = 0;
+   
    double pcx,pcy,pcz;
    double refE=0,refP=0,refTH=25;
    Boolean printit = false;
@@ -49,8 +51,10 @@ public class ECReconstructionApp extends FCApplication {
    CodaEventDecoder           codaDecoder = new CodaEventDecoder();
    DetectorEventDecoder   detectorDecoder = new DetectorEventDecoder();
    List<DetectorDataDgtz>   detectorData  = new ArrayList<DetectorDataDgtz>();
+   
    ECConstants                        ecc = new ECConstants();
    DataBank                mcData,genData = null;
+   ECPart                            part = new ECPart(); 
    
    public DetectorCollection<TreeMap<Integer,Object>> Lmap_a = new DetectorCollection<TreeMap<Integer,Object>>();
    public DetectorCollection<TreeMap<Integer,Object>> Lmap_t = new DetectorCollection<TreeMap<Integer,Object>>();
@@ -73,7 +77,6 @@ public class ECReconstructionApp extends FCApplication {
    public void init() {
        System.out.println("ECReconstruction.init()");
        mondet =           (String) mon.getGlob().get("mondet");
-
        DetectorCollection<H1F> ecEngHist = (DetectorCollection<H1F>) mon.getGlob().get("ecEng");
    }
    
@@ -364,7 +367,8 @@ public class ECReconstructionApp extends FCApplication {
             int    il = bank.getInt("layer",i);
             double en = bank.getDouble("energy",i);
             ecPix[getDet(il)].strips.hmap2.get("H2_a_Hist").get(is,4,0).fill(en*1e3,getLay(il),1.);  
-            if (app.isSingleEvent()) {
+            
+            if (app.isSingleEvent()) {  //Draw reconstructed peak lines on detector view
                 double xo = bank.getDouble("Xo",i);
                 double yo = bank.getDouble("Yo",i);
                 double zo = bank.getDouble("Zo",i);
@@ -403,21 +407,19 @@ public class ECReconstructionApp extends FCApplication {
         
       } 
       
-      ECPart                        part = new ECPart(); part.geom = app.geom;
-      GenericKinematicFitter      fitter = new GenericKinematicFitter(11);
-      PhysicsEvent                   gen = fitter.getGeneratedEvent((EvioDataEvent)event);
-      List<DetectorResponse>  ecClusters = part.readEC((EvioDataEvent)event);
-      
-      double invmass = 1e3*Math.sqrt(part.getTwoPhoton(gen, ecClusters));
+      part.setGeom(app.geom);     
+      List<DetectorResponse>  ecClusters = part.readEC(event);      
+      double invmass = 1e3*Math.sqrt(part.getTwoPhoton(ecClusters));
       ecPix[0].strips.hmap2.get("H2_a_Hist").get(2,4,0).fill((float)invmass,6,1.); //Two-photon invariant mass
       
       // Monitor EC cluster data
       
       List<List<DetectorResponse>>   res = new ArrayList<List<DetectorResponse>>();      
+      EventBuilder builder = new EventBuilder();
       
       if (ecClusters.size()>0) {
       for (int idet=0; idet<3; idet++) {
-          res.add(ECPart.getResponseForLayer(ecClusters, iidet[idet]));
+          res.add(builder.getUnmatchedResponses(ecClusters, DetectorType.EC,iidet[idet]));
           for(int i = 0; i < res.get(idet).size(); i++){
               int        is = res.get(idet).get(i).getDescriptor().getSector();
               double energy = res.get(idet).get(i).getEnergy();
@@ -464,7 +466,7 @@ public class ECReconstructionApp extends FCApplication {
               ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,0).fill(esum[is-1],5,1.);                    // Total Single Cluster Energy   
               ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,3).fill(1e-3*esum[is-1],esum[is-1]/refE,1.); // S.F. vs. meas.photon energy            
           }
-          if(nesum[0][is-1]>1 && nesum[1][is-1]>1) {
+          if(nesum[0][is-1]>1 && nesum[1][is-1]>0) {
               ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,0).fill(esum[is-1],7,1.);     //Total Cluster Energy            
               ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,2).fill(part.e1,part.SF1,1.); // S.F. vs. meas. photon energy            
               ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,7,2).fill(Math.acos(part.cth)*180/3.14159,part.e1c*part.e2c,1.); //E1*E2 vs opening angle            

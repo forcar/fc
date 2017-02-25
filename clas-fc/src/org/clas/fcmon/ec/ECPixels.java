@@ -86,14 +86,17 @@ public class ECPixels {
     int[][] sthrMuon = {{15,15,15},{20,20,20},{20,20,20}};
     int[][] sthrPhot = {{10,10,10},{9,9,9},{8,8,8}};
     int[][] sthrElec = {{10,10,10},{10,10,10},{10,10,10}};
+//    int[][] sthrElec = {{1,1,1},{1,1,1},{1,1,1}};
     
     int[][] pthrMuon = {{15,15,15},{20,20,20},{20,20,20}};
     int[][] pthrPhot = {{18,18,18},{20,20,20},{15,15,15}};
     int[][] pthrElec = {{30,30,30},{30,30,30},{30,30,30}};
+//    int[][] pthrElec = {{0,0,0},{1,1,1},{1,1,1}};
         
     double[] cerrMuon = {5.5,10.,10.};
     double[] cerrPhot = {7,15.,20.};
     double[] cerrElec = {10.,10.,10.};
+//    double[] cerrElec = {100.,100.,100.};
     
     public int idet=0;
     public String detName = null;
