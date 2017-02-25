@@ -34,6 +34,8 @@ public class ECEngine extends ReconstructionEngine {
 
     EvioHipoEvent convertor = new EvioHipoEvent();            
     HipoDataSync     writer = new HipoDataSync();
+    CLASDecoder     decoder = null;
+    List<ECStrip>  ecStrips = null;
     
     Detector        ecDetector = null;
     public Boolean       debug = false;
@@ -49,9 +51,13 @@ public class ECEngine extends ReconstructionEngine {
     @Override
     public boolean processDataEvent(DataEvent de) {
            
-        List<ECStrip>  ecStrips = null;
         ECCommon.debug       = this.debug;
         ECCommon.singleEvent = this.singleEvent;
+        
+        if(de.hasBank("RUN::config")==true){
+            DataBank bank = de.getBank("RUN::config");
+            runNo = bank.getInt("run", 0);
+        }  
         
         if(de instanceof EvioDataEvent) {
             HipoDataEvent dec = null;
@@ -59,19 +65,13 @@ public class ECEngine extends ReconstructionEngine {
                 dec = (HipoDataEvent) writer.createEvent();
                 convertor.fillHipoEventECAL(dec, (EvioDataEvent) de);
             } else {
-                CLASDecoder decoder = null;
                 dec = (HipoDataEvent) decoder.getDataEvent(de);      
             }
             ecStrips = ECCommon.initEC(dec, ecDetector, this.getConstantsManager(), calrun);        
         } else {
             ecStrips = ECCommon.initEC(de,  ecDetector, this.getConstantsManager(), calrun);        
         }    
-        
-        if(de.hasBank("RUN::config")==true){
-            DataBank bank = de.getBank("RUN::config");
-            runNo = bank.getInt("run", 0);
-        }       
-        
+               
         List<ECPeak> ecPeaksALL = ECCommon.createPeaks(ecStrips);
         List<ECPeak>    ecPeaks = ECCommon.processPeaks(ecPeaksALL);
         
@@ -79,7 +79,7 @@ public class ECEngine extends ReconstructionEngine {
         ECPeakAnalysis.splitPeaks(ecPeaks);
         int peaksOriginalSplit = ecPeaks.size();
         
-        for(ECPeak p : ecPeaks) p.redoPeakLine();
+        for(ECPeak p : ecPeaks) p.redoPeakLine(); //Production code does this before splitPeaks (??)
                 
         List<ECCluster>  cPCAL  = ECCommon.createClusters(ecPeaks,1);
         List<ECCluster>  cECIN  = ECCommon.createClusters(ecPeaks,4);
@@ -229,6 +229,11 @@ public class ECEngine extends ReconstructionEngine {
         this.calrun = runno;
     }
     
+    public void setVariation(String variation) {
+        System.out.println("ECEngine: Variation = "+variation);
+        ECCommon.variation = variation;
+    }
+    
     public void setStripThresholds(int thr0, int thr1, int thr2) {
         System.out.println("ECEngine: Strip ADC thresholds = "+thr0+" "+thr1+" "+thr2);
         ECCommon.stripThreshold[0] = thr0;
@@ -266,6 +271,7 @@ public class ECEngine extends ReconstructionEngine {
         ecDetector =  GeometryFactory.getDetector(DetectorType.EC);
         
         setCalRun(2);
+        setVariation("default");
         setStripThresholds(10,9,8);
         setPeakThresholds(18,20,15);
         setClusterCuts(7,15,20);

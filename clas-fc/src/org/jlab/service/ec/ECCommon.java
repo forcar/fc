@@ -37,6 +37,8 @@ public class ECCommon {
     public static float[]  clusterError = new float[3];
     public static Boolean         debug = false;
     public static Boolean   singleEvent = false;
+    public static String      variation = "default";
+    
     public static DetectorCollection<H1F> H1_ecEng = new DetectorCollection<H1F>();
     
     static int ind[]  = {0,0,0,1,1,1,2,2,2}; 
@@ -65,7 +67,7 @@ public class ECCommon {
         List<ECStrip>  ecStrips = null;
         
         if(event instanceof EvioDataEvent) {
-            ecStrips = ECCommon.readStrips(event);
+            ecStrips = ECCommon.readStripsEvio(event);
         }
         
         if(event instanceof HipoDataEvent) {
@@ -76,7 +78,9 @@ public class ECCommon {
        
         Collections.sort(ecStrips);
         
+        manager.setVariation(variation);
         IndexedTable   atten  = manager.getConstants(run, "/calibration/ec/attenuation");
+        IndexedTable    gain  = manager.getConstants(run, "/calibration/ec/gain");
         for(ECStrip strip : ecStrips){
             int sector    = strip.getDescriptor().getSector();
             int layer     = strip.getDescriptor().getLayer();
@@ -93,7 +97,7 @@ public class ECCommon {
             strip.setAttenuation( atten.getDoubleValue("A", sector,layer,component),
                                   atten.getDoubleValue("B", sector,layer,component),
                                   atten.getDoubleValue("C", sector,layer,component));
-        }
+            strip.setGain(gain.getDoubleValue("gain", sector,layer,component));                    }
         return ecStrips;
     }
     
@@ -103,27 +107,27 @@ public class ECCommon {
      * @return 
      */
     
-    public static List<ECStrip> readStrips(DataEvent event){
+    public static List<ECStrip> readStripsEvio(DataEvent event){
         List<ECStrip>  strips = new ArrayList<ECStrip>();
-        strips.addAll(ECCommon.ReadEvent("PCAL",event));
-        strips.addAll(ECCommon.ReadEvent("EC",event));
+        strips.addAll(ECCommon.ReadEvioEvent("PCAL",event));
+        strips.addAll(ECCommon.ReadEvioEvent("EC",event));
         return strips;
     }    
     
-    public static List<ECStrip>  ReadEvent(String det, DataEvent event){
+    public static List<ECStrip>  ReadEvioEvent(String det, DataEvent event){
         List<ECStrip>  strips = new ArrayList<ECStrip>();
          if(event.hasBank(det+"::dgtz")==true){
-            EvioDataBank ecBank = (EvioDataBank) event.getBank(det+"::dgtz");
-            int nrows = ecBank.rows();
+            EvioDataBank bank = (EvioDataBank) event.getBank(det+"::dgtz");
+            int nrows = bank.rows();
             for(int row = 0; row < nrows; row++){
-                int     sector = ecBank.getInt("sector", row);
-                int      stack = det.equals("PCAL") ? 0:ecBank.getInt("stack", row);
-                int       view = ecBank.getInt("view", row);
-                int  component = ecBank.getInt("strip", row);
+                int     sector = bank.getInt("sector", row);
+                int      stack = det.equals("PCAL") ? 0:bank.getInt("stack", row);
+                int       view = bank.getInt("view", row);
+                int  component = bank.getInt("strip", row);
                 int      layer = stack*3 + view;
                 ECStrip  strip = new ECStrip(sector, layer, component);
-                strip.setADC(ecBank.getInt("ADC", row));
-                strip.setTDC(ecBank.getInt("TDC", row));
+                strip.setADC(bank.getInt("ADC", row));
+                strip.setTDC(bank.getInt("TDC", row));
                 if(strip.getADC()>ECCommon.stripThreshold[ind[layer-1]]) strips.add(strip);                       
             }
          }
