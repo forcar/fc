@@ -97,13 +97,13 @@ public class ECCalibrationEngine extends CalibrationEngine {
         }
         
         public String getFileName(String runno) {
-            this.outputFileName = filePath+fileNamePrefix+"."+runno+".txt";
+            this.outputFileName = filePath+fileNamePrefix+"_"+runno;
             return this.outputFileName;
         }
         
         // Borrowed from Louise Clarke 
         // https://github.com/louiseclark/clascalib-services/blob/master/src/main/java/org/jlab/calib/services/TOFCalibrationEngine.java
-
+/*
         public String nextFileName(String path, String runno) {
 
             Date today = new Date();
@@ -132,7 +132,7 @@ public class ECCalibrationEngine extends CalibrationEngine {
 
             return path + filePrefix + "." + newFileNum + ".txt";
         }
-        
+*/        
         public void loadHV() {
             
         }
@@ -190,6 +190,11 @@ public class ECCalibrationEngine extends CalibrationEngine {
             // Overridden in calibration application class
             DataGroup dg = null;
             return dg;
+        }
+
+        public void writeDefaultTables(String runno) {
+            // TODO Auto-generated method stub
+            
         }
 
 }

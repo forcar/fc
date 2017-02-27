@@ -49,6 +49,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
     
     JPanel                    engineView = new JPanel();
     JSplitPane                enginePane = new JSplitPane(JSplitPane.VERTICAL_SPLIT); 
+    JButton                   tableWrite = null;
     JButton                    tableSave = null;
     JButton                    tableRead = null;
     JButton                       hvSave = null;
@@ -102,15 +103,19 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
     
     public JPanel getButtonPane(){
         buttonPane = new JPanel();
-        tableSave  = new JButton("Write Table");
+        tableWrite = new JButton("Write Table");
+        tableWrite.addActionListener(this);
+        tableWrite.setActionCommand("WRITE");
+        tableSave  = new JButton("Save Table");
         tableSave.addActionListener(this);
-        tableSave.setActionCommand("WRITE");
+        tableSave.setActionCommand("SAVE");
         tableRead  = new JButton("Restore Table");
         tableRead.addActionListener(this);
         tableRead.setActionCommand("RESTORE");        
         hvSave  = new JButton("Load HVnew");
         hvSave.addActionListener(this);
         hvSave.setActionCommand("LOADHV");
+        buttonPane.add(tableWrite);
         buttonPane.add(tableSave);
         buttonPane.add(tableRead);
         buttonPane.add(hvSave);
@@ -122,16 +127,22 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
        ECCalibrationEngine engine = getSelectedEngine();
        
        if (e.getActionCommand().compareTo("WRITE")==0) {           
+           String outputFileName = engine.getFileName(app.runNumber);
+           engine.writeDefaultTables(app.runNumber);
+           JOptionPane.showMessageDialog(new JPanel(),
+                   "Writing table " + engine.calib.getName() + " to "+outputFileName);
+       }        
+       if (e.getActionCommand().compareTo("SAVE")==0) {           
             String outputFileName = engine.getFileName(app.runNumber);
             engine.calib.save(outputFileName);
             JOptionPane.showMessageDialog(new JPanel(),
-                    engine.calib.getName() + " table written to "+outputFileName);
+                    "Saving table " + engine.calib.getName() + " to "+outputFileName);
         }        
         if (e.getActionCommand().compareTo("RESTORE")==0) {           
             String outputFileName = engine.getFileName(app.runNumber);
             engine.updateTable(outputFileName);
             JOptionPane.showMessageDialog(new JPanel(),
-                   "Restoring table " + engine.calib.getName() + " written to "+outputFileName);
+                   "Restoring table " + engine.calib.getName() + " from "+outputFileName);
         }
         if (e.getActionCommand().compareTo("LOADHV")==0) { 
             
@@ -530,9 +541,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
             this.is2=is2;
             
             atten = ccdb.getConstants(calrun, names[ATTEN]);
-            
-//            makeNewTable(1,7);
-//            loadDefaultTables();
+
             makeNewTable(is1,is2);
 
         }
@@ -572,17 +581,18 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
             }
             list.add(calib);  
         }
-        
-        public void loadDefaultTables() {
-            System.out.println("Creating EC_CALIB_ATTEN tables");
+        @Override
+        public void writeDefaultTables(String runno) {
+          System.out.println("Creating EC_CALIB_ATTEN tables for "+runno);
+          makeNewTable(1,7);
           updateTable(app.calibPath+"EC_CALIB_ATTEN_r9");          
-//          updateTable(app.calibPath+"EC_CALIB_ATTEN_s1_r10");   
-          updateTable(app.calibPath+"EC_CALIB_ATTEN_s2_r10");   
-          updateTable(app.calibPath+"EC_CALIB_ATTEN_s3_r10");   
-//          updateTable(app.calibPath+"EC_CALIB_ATTEN_s4_r10");   
-          updateTable(app.calibPath+"EC_CALIB_ATTEN_s5_r10");   
-          updateTable(app.calibPath+"EC_CALIB_ATTEN_s6_r10");   
-          calib.save(app.calibPath+"EC_CALIB_ATTEN_r10");   
+          updateTable(app.calibPath+"EC_CALIB_ATTEN_s1_r"+runno);   
+          updateTable(app.calibPath+"EC_CALIB_ATTEN_s2_r"+runno);   
+          updateTable(app.calibPath+"EC_CALIB_ATTEN_s3_r"+runno);   
+//        updateTable(app.calibPath+"EC_CALIB_ATTEN_s4_r"+runno);   
+          updateTable(app.calibPath+"EC_CALIB_ATTEN_s5_r"+runno);   
+          updateTable(app.calibPath+"EC_CALIB_ATTEN_s6_r"+runno);   
+          calib.save(app.calibPath+"EC_CALIB_ATTEN_r"+runno);   
         }
         
         public void createDefaultTable(int run, double att)  {
@@ -1036,9 +1046,6 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
             
             gain = ccdb.getConstants(calrun, names[GAIN]);
             
-//            makeNewTable(1,7);
-//            loadDefaultTables();
-            
             makeNewTable(is1,is2);
             
         } 
@@ -1072,18 +1079,19 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
             list.add(calib);
             
         }
-        
-        public void loadDefaultTables() {
-            System.out.println("Creating EC_CALIB_GAIN tables");
+        @Override
+        public void writeDefaultTables(String runno) {
+            System.out.println("Creating EC_CALIB_GAIN tables for run "+runno);
+            makeNewTable(1,7);
             updateTable(app.calibPath+"EC_CALIB_GAIN_r1");          
-//            updateTable(app.calibPath+"EC_CALIB_GAIN_s1_r10");   
-//           updateTable(app.calibPath+"EC_CALIB_GAIN_s2_r10");   
- //         updateTable(app.calibPath+"EC_CALIB_GAIN_s3_r10");   
-//          updateTable(app.calibPath+"EC_CALIB_GAIN_s4_r10");   
-            updateTable(app.calibPath+"EC_CALIB_GAIN_s5_r10");   
-            updateTable(app.calibPath+"EC_CALIB_GAIN_s6_r10");   
-            calib.save(app.calibPath+"EC_CALIB_GAIN_r10");   
-          }        
+            updateTable(app.calibPath+"EC_CALIB_GAIN_s1_r"+runno);   
+            updateTable(app.calibPath+"EC_CALIB_GAIN_s2_r"+runno);   
+            updateTable(app.calibPath+"EC_CALIB_GAIN_s3_r"+runno);   
+//          updateTable(app.calibPath+"EC_CALIB_GAIN_s4_r"+runno);   
+            updateTable(app.calibPath+"EC_CALIB_GAIN_s5_r"+runno);   
+            updateTable(app.calibPath+"EC_CALIB_GAIN_s6_r"+runno);   
+            calib.save(app.calibPath+"EC_CALIB_GAIN_r"+runno);   
+        }        
         
         public void createDefaultTable(int run)  {             
             for(int is=1; is<7; is++) {                
