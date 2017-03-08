@@ -31,6 +31,7 @@ public class ECPart {
     public static double e1,e2,e1c,e2c,cth,cth1,cth2,X,tpi2,cpi0,refE,refP,refTH;
     static double mpi0 = 0.1349764;
     public static String geom = "2.4";
+    public static String config = null;
     public static double SF1 = 0.27;
     public static double SF2 = 0.27;
     
@@ -171,14 +172,14 @@ public class ECPart {
         // Require 2 photons in PCAL and ECinner
          
         if(p1.getResponse(DetectorType.EC, 1)!=null&&
-//           p1.getResponse(DetectorType.EC, 4)!=null&&
-           p2.getResponse(DetectorType.EC, 1)!=null) {
-//           p2.getResponse(DetectorType.EC, 4)!=null) {                
+           p1.getResponse(DetectorType.EC, 4)!=null&&
+           p2.getResponse(DetectorType.EC, 1)!=null&& 
+           p2.getResponse(DetectorType.EC, 4)!=null) {                
               X = (e1c-e2c)/(e1c+e2c);
            tpi2 = 2*mpi0*mpi0/(1-cth)/(1-X*X);
            cpi0 = (e1c*cth1+e2c*cth2)/Math.sqrt(e1c*e1c+e2c*e2c+2*e1c*e2c*cth);
            g1.combine(g2, +1);
-           return g1.vector().mass2();
+           return g1.mass2();
         }
         
         return  0.0;
@@ -191,6 +192,10 @@ public class ECPart {
     
     public void setGeom(String geom) {
         this.geom = geom;
+    }
+    
+    public void setConfig(String config) {
+        this.config = config;
     }
     
     public static double getSF(String geom, double e) {
@@ -240,9 +245,7 @@ public class ECPart {
         while(reader.hasEvent()){
             DataEvent event = reader.getNextEvent();
             engine.processDataEvent(event);      
-            List<DetectorResponse>  ecClusters = part.readEC(event);     
-            
-            double invmass = 1e3*Math.sqrt(part.getTwoPhoton(ecClusters));
+            double invmass = 1e3*Math.sqrt(part.getTwoPhoton(part.readEC(event)));
             
             h1.fill((float)invmass,1.);                          //Two-photon invariant mass
             

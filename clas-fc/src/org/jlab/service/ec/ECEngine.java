@@ -102,9 +102,9 @@ public class ECEngine extends ReconstructionEngine {
         }
         
         if(de instanceof HipoDataEvent){
-            this.writeHipoBanks(de, cEC);
+            this.writeHipoBanks(de, ecStrips,ecPeaks,cEC);
         }else{
-            this.writeBanks(de,ecStrips,ecPeaks,cEC);            
+            this.writeEvioBanks(de,ecStrips,ecPeaks,cEC);            
         }
                
         //for(ECPeak p : ecPeaks){ System.out.println(p);}
@@ -125,7 +125,7 @@ public class ECEngine extends ReconstructionEngine {
         return true;
     }
     
-    public void writeBanks(DataEvent de, 
+    public void writeEvioBanks(DataEvent de, 
                            List<ECStrip>   strips, 
                            List<ECPeak>    peaks, 
                            List<ECCluster> clusters) {
@@ -194,9 +194,12 @@ public class ECEngine extends ReconstructionEngine {
        
     }
     
-    private void writeHipoBanks(DataEvent event, List<ECCluster> clusters){
+    private void writeHipoBanks(DataEvent de, 
+                                List<ECStrip>   strips, 
+                                List<ECPeak>    peaks, 
+                                List<ECCluster> clusters){
         
-        DataBank bankC = event.createBank("ECAL::clusters", clusters.size());
+        DataBank bankC = de.createBank("ECAL::clusters", clusters.size());
         
         if(bankC==null){
             System.out.println("ERROR CREATING BANK : ECAL::clusters");
@@ -221,7 +224,7 @@ public class ECEngine extends ReconstructionEngine {
             bankC.setInt("coordV", c, clusters.get(c).getPeak(1).getCoord());
             bankC.setInt("coordW", c, clusters.get(c).getPeak(2).getCoord());
         }
-        event.appendBanks(bankC);
+        de.appendBanks(bankC);
     }
     
     public void setCalRun(int runno) {
@@ -261,6 +264,7 @@ public class ECEngine extends ReconstructionEngine {
     
     @Override
     public boolean init() {
+        
         String[]  ecTables = new String[]{
             "/calibration/ec/attenuation", 
             "/calibration/ec/gain", 
