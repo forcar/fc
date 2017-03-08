@@ -32,10 +32,8 @@ import org.jlab.detector.base.DetectorDescriptor;
 import org.jlab.detector.calib.tasks.CalibrationEngine;
 import org.jlab.detector.calib.tasks.CalibrationEngineView;
 
-//import org.root.attr.ColorPalette
-//import org.root.basic.EmbeddedCanvas;
-//import org.root.histogram.H1D;
-//import org.root.histogram.H2D;
+import org.jlab.groot.group.DataGroup;
+import org.jlab.utils.groups.IndexedList;
 import org.jlab.groot.graphics.EmbeddedCanvas;
 import org.jlab.groot.data.H1F;
 import org.jlab.groot.data.H2F;
@@ -44,6 +42,7 @@ public class FCApplication implements ActionListener  {
 	
     ColorPalette palette = new ColorPalette();
     
+    private IndexedList<DataGroup> analysisData               = new IndexedList<DataGroup>(1);    
     private String                                 appName    = null;
     private List<EmbeddedCanvas>                   canvases   = new ArrayList<EmbeddedCanvas>();
     private JPanel                                 radioPane  = null;
@@ -126,6 +125,10 @@ public class FCApplication implements ActionListener  {
     public void setName(String name) {
         this.appName = name;
     }	
+    
+    public IndexedList<DataGroup>  getDataGroup(){
+        return analysisData;
+    }    
     
 	public void getDetIndices(DetectorDescriptor dd) {
         is    = dd.getSector();

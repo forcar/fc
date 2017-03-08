@@ -331,10 +331,11 @@ public class ECPixels {
             
             // Reco data
                 id="s"+Integer.toString(is)+"_l"+Integer.toString(4)+"_c";
-                H2_a_Hist.add(is, 4, 0, new H2F("a_reco_"+id+0, 1600, 5.,800., 9, 1., 10.));
+                H2_a_Hist.add(is, 4, 0, new H2F("a_reco_"+id+0, 200, 5.,800., 9, 1., 10.));
                 H2_a_Hist.add(is, 4, 1, new H2F("a_reco_"+id+1, 50, 0., 3.5, 40, 0.15, 0.35));
                 H2_a_Hist.add(is, 4, 2, new H2F("a_reco_"+id+2, 50, 0., 1.0, 40, 0.15, 0.35));
                 H2_a_Hist.add(is, 4, 3, new H2F("a_reco_"+id+3, 50, 0., 1.0, 40, 0.15, 0.35));
+                H2_a_Hist.add(is, 4, 4, new H2F("a_reco_"+id+4, 40, 0., 20., 50, -1.0, 1.0));
                 H1_a_Hist.add(is, 4, 0, new H1F("b_reco_"+id+0, 50, -300, 300.));
                 H1_a_Hist.add(is, 4, 1, new H1F("b_reco_"+id+1, 50, -2.0, 2.0));
                 H1_a_Hist.add(is, 4, 2, new H1F("b_reco_"+id+2, 50, -1.0, 1.0));
@@ -349,7 +350,7 @@ public class ECPixels {
 //                H2_a_Hist.add(is, 7, 0, new H2F("d_reco_"+id+0, 200, -600., 600., 200, -600., 600.));   
 //                H2_a_Hist.add(is, 7, 1, new H2F("d_reco_"+id+1, 200, -600., 600., 200, -600., 600.));   
                 
-                H2_a_Hist.add(is, 7, 2, new H2F("d_reco_"+id+2, 80, 0., 20., 50, 0., 1.5));   
+                H2_a_Hist.add(is, 7, 2, new H2F("d_reco_"+id+2, 50, 0., 20., 50, 0., 5.0));   
                 id="s"+Integer.toString(is)+"_l"+Integer.toString(8)+"_c";
                 H2_a_Hist.add(is, 8, 0, new H2F("f_reco_"+id+0, 50, -10., 10., 3, 1., 4.));   
                 id="s"+Integer.toString(is)+"_l"+Integer.toString(9)+"_c";

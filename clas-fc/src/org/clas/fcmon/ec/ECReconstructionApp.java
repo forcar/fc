@@ -278,11 +278,12 @@ public class ECReconstructionApp extends FCApplication {
           
           if(event.hasBank("GenPart::true")==true) {
               genData = event.getBank("GenPart::true");
+              int    pid = genData.getInt("pid", 0);
               double ppx = genData.getDouble("px",0);
               double ppy = genData.getDouble("py",0);
               double ppz = genData.getDouble("pz",0);
               double  rm = 0.;
-              if (genData.getInt("pid", 0)==111) rm=0.1349764; // pizero mass               
+              if (pid==111) rm=0.1349764; // pizero mass               
               refP  = Math.sqrt(ppx*ppx+ppy*ppy+ppz*ppz);  
               refE  = Math.sqrt(refP*refP+rm*rm);            
               refTH = Math.acos(ppz/refP)*180/3.14159;
@@ -407,9 +408,12 @@ public class ECReconstructionApp extends FCApplication {
         
       } 
       
-      part.setGeom(app.geom);     
+      part.setGeom(app.geom);    
+      part.setConfig(app.config);
+      
       List<DetectorResponse>  ecClusters = part.readEC(event);      
       double invmass = 1e3*Math.sqrt(part.getTwoPhoton(ecClusters));
+      double     opa = Math.acos(part.cth)*180/3.14159;
       ecPix[0].strips.hmap2.get("H2_a_Hist").get(2,4,0).fill((float)invmass,6,1.); //Two-photon invariant mass
       
       // Monitor EC cluster data
@@ -469,15 +473,17 @@ public class ECReconstructionApp extends FCApplication {
           if(nesum[0][is-1]>1 && nesum[1][is-1]>0) {
               ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,0).fill(esum[is-1],7,1.);     //Total Cluster Energy            
               ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,2).fill(part.e1,part.SF1,1.); // S.F. vs. meas. photon energy            
-              ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,7,2).fill(Math.acos(part.cth)*180/3.14159,part.e1c*part.e2c,1.); //E1*E2 vs opening angle            
+              ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,7,2).fill(opa,part.e1c*part.e2c,1.); //E1*E2 vs opening angle            
           }
       }
       }
       
-      if (invmass>60 && invmass<200) {
+      if (app.config=="pi0") {
+      if (invmass>95 && invmass<200) {
           ecPix[0].strips.hmap1.get("H1_a_Hist").get(2,4,0).fill((float)(1e3*Math.sqrt(part.tpi2)-refE)); //Pizero total energy error
           ecPix[0].strips.hmap1.get("H1_a_Hist").get(2,4,1).fill(Math.acos(part.cpi0)*180/3.14159-refTH); //Pizero theta angle error
           ecPix[0].strips.hmap1.get("H1_a_Hist").get(2,4,2).fill((float)part.X);                          //Pizero energy asymmetry
+          ecPix[0].strips.hmap2.get("H2_a_Hist").get(2,4,4).fill(opa,(float)part.X);
       }
       
       ecPix[0].strips.hmap2.get("H2_a_Hist").get(2,9,1).fill(part.distance11,1,1.); //Pizero photon 1 PCAL-ECinner cluster error
@@ -486,7 +492,8 @@ public class ECReconstructionApp extends FCApplication {
       ecPix[0].strips.hmap2.get("H2_a_Hist").get(2,9,1).fill(part.distance22,4,1.); //Pizero photon 2 PCAL-ECouter cluster error
       
       if (app.debug) System.out.println(part.distance11+" "+part.distance12+" "+part.distance21+" "+part.distance22);
-
+      }
+      
       if(event.hasBank("ECDetector::calib")){
           double raw[] = new double[3];
           double rec[] = new double[3];

@@ -247,7 +247,7 @@ public class ECEngineApp extends FCApplication implements ActionListener {
           h  = ecPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,4,0).sliceY(il-1) ;  h.setFillColor(0);
           h1 = ecPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,5,0).sliceY(il-1) ; h1.setFillColor(34);
           h2 = ecPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,6,0).sliceY(il-1) ; h2.setFillColor(32);
-          h2.setOptStat(Integer.parseInt("1100"));
+          h2.setOptStat(Integer.parseInt("11001100"));
           h.setTitleX(dtab[ilm]+otab[il-1]+"Peak Energy (MeV)");          
           h2.setTitleX(dtab[ilm]+otab[il-1]+"Peak Energy (MeV)");          
           c.cd(ii); c.getPad(ii).getAxisX().setRange(0.,xmx1); ii++;
@@ -274,7 +274,7 @@ public class ECEngineApp extends FCApplication implements ActionListener {
       // Cluster energy PCAL, ECinner, ECouter
 	  for(ilm=0; ilm<3; ilm++) {
           h = ecPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,4,0).sliceY((int)3) ; h.setTitleX(dtab[ilm]+"Cluster Energy (MeV)"); h.setFillColor(2);          
-          h.setOptStat(Integer.parseInt("1110")); 
+          h.setOptStat(Integer.parseInt("11001100")); 
           c.cd(ii); c.getPad(ii).getAxisX().setRange(0.,xmx2); ii++;
           c.draw(h); 
 	  }
@@ -282,20 +282,21 @@ public class ECEngineApp extends FCApplication implements ActionListener {
 	  // Single Cluster total energy
      
       h = ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,0).sliceY((int)4) ; h.setTitleX("Total Single Cluster Energy (MeV)"); h.setFillColor(2);          
-      h.setOptStat(Integer.parseInt("1100")); 
+      h.setOptStat(Integer.parseInt("11001100")); 
       c.cd(ii);  c.getPad(ii).getAxisX().setRange(0.,xmx2*2); ii++;
       c.draw(h);      
       
       // Cluster total energy
       h = ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,0).sliceY((int)6) ; h.setTitleX("Total Cluster Energy (MeV)"); h.setFillColor(2);          
-      h.setOptStat(Integer.parseInt("1100")); 
+      h.setOptStat(Integer.parseInt("11001100")); 
       c.cd(ii);  c.getPad(ii).getAxisX().setRange(0.,xmx2*2); ii++;
       c.draw(h);
       
       c.repaint();
       
-      // JTabbedPane plots: mc1=TRUE-DGTZ residuals  resid=distance residuals pi0=Pi-zero plots     
-      c = mc.getCanvas("MC"); c.divide(3,3); 
+      // JTabbedPane plots: mc1=TRUE-DGTZ residuals  resid=distance residuals pi0=Pi-zero plots   
+      
+      c = mc.getCanvas("MC"); c.divide(3,4); 
       
 	  ii=0;
 	  
@@ -315,6 +316,16 @@ public class ECEngineApp extends FCApplication implements ActionListener {
           h.setOptStat(Integer.parseInt("1100")); h.setTitle(" "); c.draw(h);
       }
       
+      ii=ii+3;
+      
+      h = ecPix[0].strips.hmap1.get("H1_a_Hist").get(is,4,0) ; h.setTitleX("Pizero Energy Error (MeV)"); h.setFillColor(2); 
+      h.setOptStat(Integer.parseInt("1100")); 
+      c.cd(ii); c.draw(h); ii++;
+      
+      h = ecPix[0].strips.hmap1.get("H1_a_Hist").get(is,4,1) ; h.setTitleX("Pizero Theta Error (deg)"); h.setFillColor(2); 
+      h.setOptStat(Integer.parseInt("1100")); 
+      c.cd(ii); c.draw(h); ii++;
+     
       c.repaint();
       
       c = mc.getCanvas("Resid"); c.divide(2,2); 
@@ -322,7 +333,7 @@ public class ECEngineApp extends FCApplication implements ActionListener {
       for(ii=0; ii<4; ii++){
           c.cd(ii); c.getPad(ii).getAxisX().setRange(-2.,40.);
           h = ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,9,1).sliceY(ii) ; h.setTitleX(lab[ii]); h.setFillColor(2); 
-          h.setOptStat(Integer.parseInt("1100")); c.draw(h);
+          h.setOptStat(Integer.parseInt("11001100")); c.draw(h);
       }
       
       c.repaint();
@@ -345,11 +356,11 @@ public class ECEngineApp extends FCApplication implements ActionListener {
       
       c = mc.getCanvas("PI0"); c.divide(3,2);      
       h = ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,0).sliceY((int)5) ; h.setTitleX("Pizero Invariant Mass (MeV)"); h.setFillColor(2); 
-      h.setOptStat(Integer.parseInt("1100")); 
-      c.cd(ii); c.getPad(ii).getAxisX().setRange(0.,200.); c.draw(h); ii++;
+      h.setOptStat(Integer.parseInt("11001100")); 
+      c.cd(ii); c.getPad(ii).getAxisX().setRange(0.,400.); c.draw(h); ii++;
       
       h = ecPix[0].strips.hmap1.get("H1_a_Hist").get(is,4,2) ; h.setTitleX("X:(E1-E2)/(E1+E2)"); h.setFillColor(2); 
-      h.setOptStat(Integer.parseInt("1100")); 
+      h.setOptStat(Integer.parseInt("11001100")); 
       c.cd(ii); c.draw(h); ii++;
       
       h2f = ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,7,2) ; 
@@ -358,20 +369,17 @@ public class ECEngineApp extends FCApplication implements ActionListener {
       c.getPad(ii).getAxisZ().setAutoScale(true);
       if(app.isSingleEvent()) c.getPad(ii).getAxisZ().setRange(0.,3.2);
       c.draw(h2f);
-      F1D f1 = new F1D("E1*E2/2/(1-COS(x))","0.13495*0.13495/2/(1-cos(x*3.14159/180.))",7.,20.); f1.setLineColor(1); f1.setLineWidth(2);
-      F1D f2 = new F1D("E1*E2/2/(1-COS(x))","0.12495*0.12495/2/(1-cos(x*3.14159/180.))",7.,20.); f2.setLineColor(5); f2.setLineWidth(1);
-      F1D f3 = new F1D("E1*E2/2/(1-COS(x))","0.14495*0.14495/2/(1-cos(x*3.14159/180.))",7.,20.); f3.setLineColor(5); f3.setLineWidth(2);
+      F1D f1 = new F1D("E1*E2/2/(1-COS(x))","0.13495*0.13495/2/(1-cos(x*3.14159/180.))",3.6,20.); f1.setLineColor(1); f1.setLineWidth(2);
+      F1D f2 = new F1D("E1*E2/2/(1-COS(x))","0.12495*0.12495/2/(1-cos(x*3.14159/180.))",3.4,20.); f2.setLineColor(5); f2.setLineWidth(2);
+      F1D f3 = new F1D("E1*E2/2/(1-COS(x))","0.14495*0.14495/2/(1-cos(x*3.14159/180.))",3.8,20.); f3.setLineColor(5); f3.setLineWidth(2);
       c.draw(f1,"same"); c.draw(f2,"same"); c.draw(f3,"same"); ii++;
- 
-      h = ecPix[0].strips.hmap1.get("H1_a_Hist").get(is,4,0) ; h.setTitleX("Pizero Energy Error (MeV)"); h.setFillColor(2); 
-      h.setOptStat(Integer.parseInt("1100")); 
-      c.cd(ii); c.draw(h); ii++;
       
-      h = ecPix[0].strips.hmap1.get("H1_a_Hist").get(is,4,1) ; h.setTitleX("Pizero Theta Error (deg)"); h.setFillColor(2); 
-      h.setOptStat(Integer.parseInt("1100")); 
-      c.cd(ii); c.draw(h); ii++;
-      
-      
+      h2f = ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,4) ; 
+      h2f.setTitleX("Two Photon Opening Angle (deg)"); h2f.setTitleY("X:(E1-E2)/(E1+E2)");      
+      c.cd(ii); c.getPad(ii).getAxisZ().setLog(true);
+      c.getPad(ii).getAxisZ().setAutoScale(true);
+      c.draw(h2f);
+       
       c.repaint();
       
    }

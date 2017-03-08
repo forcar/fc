@@ -36,6 +36,7 @@ public class ECMon extends DetectorMonitor {
     ECCalibrationApp        ecCalib = null;
     ECPedestalApp        ecPedestal = null;
     ECPixelsApp            ecPixels = null;
+    ECGainsApp              ecGains = null;
     ECScalersApp          ecScalers = null;
     ECHvApp                    ecHv = null;   
     
@@ -43,7 +44,7 @@ public class ECMon extends DetectorMonitor {
     EvioDataSync             writer = null;
     Boolean                saveFile = false;
    
-    public static int        calRun = 2;
+    public static int        calRun = 813;
     int                       detID = 0;
     int                         is1 = 2;
     int                         is2 = 3;  
@@ -173,7 +174,12 @@ public class ECMon extends DetectorMonitor {
         ecCalib.setMonitoringClass(this);
         ecCalib.setApplicationClass(app);
         ecCalib.setConstantsManager(ccdb,calRun);
-        ecCalib.init();    
+        ecCalib.init(); 
+        
+        ecGains = new ECGainsApp("Gains", ecPix);
+        ecGains.setMonitoringClass(this);
+        ecGains.setApplicationClass(app);
+        ecGains.init(); 
                 
         ecHv = new ECHvApp("HV","EC");
         ecHv.setMonitoringClass(this);
@@ -193,6 +199,7 @@ public class ECMon extends DetectorMonitor {
         app.addCanvas(ecPedestal.getName(),      ecPedestal.getCanvas());         
         app.addCanvas(ecPixels.getName(),          ecPixels.getCanvas());         
         app.addFrame(ecCalib.getName(),             ecCalib.getPanel());
+        app.addFrame(ecGains.getName(),             ecGains.getPanel());
         app.addFrame(ecHv.getName(),                   ecHv.getPanel());
         app.addFrame(ecScalers.getName(),         ecScalers.getPanel());        
     }
@@ -224,6 +231,7 @@ public class ECMon extends DetectorMonitor {
         ecRecon.init(); 
         ecEngine.init();
         ecEngine.setVariation("clas6");
+       
         ecEngine.setStripThresholds(ecPix[0].getStripThr(app.config, 1),
                                     ecPix[1].getStripThr(app.config, 1),
                                     ecPix[2].getStripThr(app.config, 1));  
@@ -282,6 +290,7 @@ public class ECMon extends DetectorMonitor {
           if(de instanceof EvioDataEvent&&saveFile) writer.writeEvent(de);
       }
       ecRecon.addEvent(de);
+      ecGains.addEvent(de);
     }
 
 	@Override
@@ -318,6 +327,7 @@ public class ECMon extends DetectorMonitor {
         case "Pedestal":                 ecPedestal.updateCanvas(dd); break;
         case "Pixels":                     ecPixels.updateCanvas(dd); break;
         case "Calibration":                 ecCalib.updateCanvas(dd); break;
+        case "Gains":                       ecGains.updateCanvas(dd); break;
         case "HV":                             ecHv.updateCanvas(dd); break;
         case "Scalers":                   ecScalers.updateCanvas(dd);
         }				
