@@ -58,7 +58,7 @@ public class ECEngine extends ReconstructionEngine {
             DataBank bank = de.getBank("RUN::config");
             runNo = bank.getInt("run", 0);
         }  
-
+        
         if(de instanceof EvioDataEvent) {
             HipoDataEvent dec = null;
             if (isMC) {
@@ -69,7 +69,7 @@ public class ECEngine extends ReconstructionEngine {
             }
             ecStrips = ECCommon.initEC(dec, ecDetector, this.getConstantsManager(), calrun);        
         } else {
-            ecStrips = ECCommon.initEC(de,  ecDetector, this.getConstantsManager(), calrun);        
+            ecStrips = ECCommon.initEC(de,  ecDetector, this.getConstantsManager(), runNo);        
         }    
                
         List<ECPeak> ecPeaksALL = ECCommon.createPeaks(ecStrips);
@@ -201,14 +201,14 @@ public class ECEngine extends ReconstructionEngine {
         
         DataBank bankS = de.createBank("ECAL::hits", strips.size());
         for(int h = 0; h < strips.size(); h++){
-
+            bankS.setByte("sector",  h,  (byte) strips.get(h).getDescriptor().getSector());
             bankS.setByte("layer",   h,  (byte) strips.get(h).getDescriptor().getLayer());
             bankS.setByte("strip",   h,  (byte) strips.get(h).getDescriptor().getComponent());
             bankS.setByte("peakid",  h,  (byte) strips.get(h).getPeakId());
             bankS.setFloat("energy", h, (float) strips.get(h).getEnergy());
             bankS.setFloat("time",   h, (float) strips.get(h).getTime());                
         }
-        
+       
         DataBank  bankP =  de.createBank("ECAL::peaks", peaks.size());
         for(int p = 0; p < peaks.size(); p++){
             bankP.setByte("sector",  p,  (byte) peaks.get(p).getDescriptor().getSector());
@@ -255,8 +255,8 @@ public class ECEngine extends ReconstructionEngine {
             bankD.setFloat("recEV",  c, (float) clusters.get(c).getEnergy(1));
             bankD.setFloat("recEW",  c, (float) clusters.get(c).getEnergy(2));            
         }
-        
-        de.appendBanks(bankS,bankP,bankC,bankD);
+         
+        de.appendBanks(bankS,bankP,bankC,bankD);        
     }
     
     public void setCalRun(int runno) {
