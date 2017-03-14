@@ -33,6 +33,7 @@ import org.jlab.detector.calib.tasks.CalibrationEngine;
 import org.jlab.detector.calib.tasks.CalibrationEngineView;
 
 import org.jlab.groot.group.DataGroup;
+import org.jlab.service.ec.ECEngine;
 import org.jlab.utils.groups.IndexedList;
 import org.jlab.groot.graphics.EmbeddedCanvas;
 import org.jlab.groot.data.H1F;
@@ -54,6 +55,8 @@ public class FCApplication implements ActionListener  {
     public ECPixels[]                                   ecPix = new ECPixels[2];
     public CCPixels                                     ccPix = null;
     public FTOFPixels[]                               ftofPix = null;
+    
+    public ECEngine                                    engine = null;
     
 	public DetectorCollection<TreeMap<Integer,Object>> Lmap_a = new  DetectorCollection<TreeMap<Integer,Object>>();
 	public TreeMap<String, DetectorCollection<H1F>>     hmap1 = new TreeMap<String, DetectorCollection<H1F>>();
@@ -89,6 +92,12 @@ public class FCApplication implements ActionListener  {
     
     public FCApplication(FTOFPixels[] ftofPix) {
         this.ftofPix = ftofPix;     
+    }
+    
+    public FCApplication(String name, ECEngine engine) {
+        this.appName = name;
+        this.engine = engine;
+        this.addCanvas(name);
     }
      
     public FCApplication(String name, ECPixels[] ecPix) {
