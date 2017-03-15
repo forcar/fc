@@ -43,21 +43,20 @@ public class ECGainsApp extends FCApplication implements ActionListener {
     public int        activeSector = 2;
     public int      activeDetector = 0;                
     public int         activeLayer = 0;    
-    Boolean     storeMIPGraphsDone = false;
     int is,la,ic,idet,nstr;
     
     float[][][][] ecmean = new float[6][3][3][68];
     float[][][][]  ecrms = new float[6][3][3][68];
     String[]         det = new String[]{"pcal","ecin","ecou"};
     String[]         lay = new String[]{"u","v","w"};
-    double[]        mipc = new double[]{30,30,48};  
-    double[]        mipp = new double[]{10,10,16};  
-    double[]      fitMin = { 5, 4, 6};
-    double[]      fitMax = {17,17,25};
+    double[]        mipc = {30,30,48};  
+    double[]        mipp = {10,10,16};  
+    double[]     fitLimp = { 5, 3, 6,17,17,27};
+    double[]     fitLimc = {20,17,35,40,48,75};
+    int[]           npmt = {68,62,62,36,36,36,36,36,36};
     
     IndexedList<GraphErrors> MIPSummary  = new IndexedList<GraphErrors>(4);
-    IndexedList<FitData>     peakFits  = new IndexedList<FitData>(4);
-    IndexedList<FitData>     clusFits  = new IndexedList<FitData>(4);
+    IndexedList<FitData>         MipFits = new IndexedList<FitData>(4);
     
     public ECGainsApp(String name, ECEngine engine) {
         super(name,engine);    
@@ -77,9 +76,9 @@ public class ECGainsApp extends FCApplication implements ActionListener {
         engineView.setLayout(new BorderLayout());
         engineView.add(getCanvasPane(),BorderLayout.CENTER);
         engineView.add(getButtonPane(),BorderLayout.PAGE_END);
-        clusters.addCanvas("MIP");
+        clusters.addCanvas("Fits");
         clusters.addCanvas("Summary");
-        peaks.addCanvas("MIP");
+        peaks.addCanvas("Fits");
         peaks.addCanvas("Summary");
         return engineView;       
     }  
@@ -128,16 +127,12 @@ public class ECGainsApp extends FCApplication implements ActionListener {
     
     public void createHistos() {
         
-       DataGroup dg_mip = new DataGroup(1,192);
+       DataGroup dg_mip = new DataGroup(1,120);
         
         H1F h1 = new H1F() ; H2F h2 = new H2F();
         int n = 0;
         
         for (int is=1; is<7; is++) {
-            h1 = new H1F("hi_pcal_c_"+is,"hi_pcal_c_"+is,50, 0., 0.2);
-            h1.setTitleX("Sector "+is+" PCAL (GeV)");
-            h1.setTitleY("Counts");
-            dg_mip.addDataSet(h1, n); n++;
             h2 = new H2F("hi_pcal_uc_"+is,"hi_pcal_uc_"+is,50, 0., 100., 68, 1., 69.);
             h2.setTitleX("Sector "+is+" PCAL (MeV)");
             h2.setTitleY("coordU");    
@@ -151,10 +146,6 @@ public class ECGainsApp extends FCApplication implements ActionListener {
             h2.setTitleY("coordW");  
             dg_mip.addDataSet(h2, n); n++;
             
-            h1 = new H1F("hi_ecin_c_"+is,"hi_ecin_c_"+is,50, 0., 0.2);
-            h1.setTitleX("Sector "+is+" ECin (GeV)");
-            h1.setTitleY("Counts");
-            dg_mip.addDataSet(h1, n); n++;
             h2 = new H2F("hi_ecin_uc_"+is,"hi_ecin_uc_"+is,50, 0., 100., 36, 1., 37.);
             h2.setTitleX("Sector "+is+" ECin (MeV)");
             h2.setTitleY("coordU");        
@@ -168,10 +159,6 @@ public class ECGainsApp extends FCApplication implements ActionListener {
             h2.setTitleY("coordW");  
             dg_mip.addDataSet(h2, n); n++;
             
-            h1 = new H1F("hi_ecou_c_"+is,"hi_ecou_c_"+is,50, 0., 0.2);
-            h1.setTitleX("Sector "+is+" ECou (GeV)");
-            h1.setTitleY("Counts");
-            dg_mip.addDataSet(h1, n); n++;
             h2 = new H2F("hi_ecou_uc_"+is,"hi_ecou_uc_"+is,50, 0., 100., 36, 1., 37.);
             h2.setTitleX("Sector "+is+" ECou (MeV)");
             h2.setTitleY("coordU");        
@@ -195,18 +182,6 @@ public class ECGainsApp extends FCApplication implements ActionListener {
         }   
         
         for (int is=1; is<7; is++) {
-            h1 = new H1F("hi_pcal_pu_"+is,"hi_pcal_pu_"+is,25, 0., 40.);
-            h1.setTitleX("Sector "+is+" PCAL (GeV)");
-            h1.setTitleY("Counts");
-            dg_mip.addDataSet(h1, n); n++;
-            h1 = new H1F("hi_pcal_pv_"+is,"hi_pcal_pv_"+is,25, 0., 40.);
-            h1.setTitleX("Sector "+is+" PCAL (GeV)");
-            h1.setTitleY("Counts");
-            dg_mip.addDataSet(h1, n); n++;
-            h1 = new H1F("hi_pcal_pw_"+is,"hi_pcal_pw_"+is,25, 0., 40.);
-            h1.setTitleX("Sector "+is+" PCAL (GeV)");
-            h1.setTitleY("Counts");
-            dg_mip.addDataSet(h1, n); n++;
             h2 = new H2F("hi_pcal_up_"+is,"hi_pcal_up_"+is,25, 0., 40., 68, 1., 69.);
             h2.setTitleX("Sector "+is+" PCAL (MeV)");
             h2.setTitleY("coordU");    
@@ -220,18 +195,6 @@ public class ECGainsApp extends FCApplication implements ActionListener {
             h2.setTitleY("coordW");  
             dg_mip.addDataSet(h2, n); n++;
             
-            h1 = new H1F("hi_ecin_pu_"+is,"hi_ecin_pu_"+is,25, 0., 40.);
-            h1.setTitleX("Sector "+is+" ECin (GeV)");
-            h1.setTitleY("Counts");
-            dg_mip.addDataSet(h1, n); n++;
-            h1 = new H1F("hi_ecin_pv_"+is,"hi_ecin_pv_"+is,25, 0., 40.);
-            h1.setTitleX("Sector "+is+" ECin (GeV)");
-            h1.setTitleY("Counts");
-            dg_mip.addDataSet(h1, n); n++;
-            h1 = new H1F("hi_ecin_pw_"+is,"hi_ecin_pw_"+is,25, 0., 40.);
-            h1.setTitleX("Sector "+is+" ECin (GeV)");
-            h1.setTitleY("Counts");
-            dg_mip.addDataSet(h1, n); n++;
             h2 = new H2F("hi_ecin_up_"+is,"hi_ecin_up_"+is,25, 0., 40., 36, 1., 37.);
             h2.setTitleX("Sector "+is+" ECin (MeV)");
             h2.setTitleY("coordU");        
@@ -244,19 +207,7 @@ public class ECGainsApp extends FCApplication implements ActionListener {
             h2.setTitleX("Sector "+is+" ECin (MeV)");
             h2.setTitleY("coordW");  
             dg_mip.addDataSet(h2, n); n++;
-            
-            h1 = new H1F("hi_ecou_pu_"+is,"hi_ecou_pu_"+is,25, 0., 40.);
-            h1.setTitleX("Sector "+is+" ECou (GeV)");
-            h1.setTitleY("Counts");
-            dg_mip.addDataSet(h1, n); n++;
-            h1 = new H1F("hi_ecou_pv_"+is,"hi_ecou_pv_"+is,25, 0., 40.);
-            h1.setTitleX("Sector "+is+" ECou (GeV)");
-            h1.setTitleY("Counts");
-            dg_mip.addDataSet(h1, n); n++;
-            h1 = new H1F("hi_ecou_pw_"+is,"hi_ecou_pw_"+is,25, 0., 40.);
-            h1.setTitleX("Sector "+is+" ECou (GeV)");
-            h1.setTitleY("Counts");
-            dg_mip.addDataSet(h1, n); n++;
+           
             h2 = new H2F("hi_ecou_up_"+is,"hi_ecou_up_"+is,25, 0., 40., 36, 1., 37.);
             h2.setTitleX("Sector "+is+" ECou (MeV)");
             h2.setTitleY("coordU");        
@@ -337,11 +288,11 @@ public class ECGainsApp extends FCApplication implements ActionListener {
             DataBank  bank1 = event.getBank("ECAL::clusters");
             DataBank  bank2 = event.getBank("ECAL::calib");
             int[] n1 = new int[6]; int[] n4 = new int[6]; int[] n7 = new int[6];
-            float[][]   e1 = new float[6][20]; float[][][]   e1p = new float[6][3][20]; 
+            float[][]   e1c = new float[6][20]; float[][][]   e1p = new float[6][3][20]; 
+            float[][]   e4c = new float[6][20]; float[][][]   e4p = new float[6][3][20]; 
+            float[][]   e7c = new float[6][20]; float[][][]   e7p = new float[6][3][20]; 
             float[][][] cU = new float[6][3][20];
-            float[][]   e4 = new float[6][20]; float[][][]   e4p = new float[6][3][20]; 
             float[][][] cV = new float[6][3][20];
-            float[][]   e7 = new float[6][20]; float[][][]   e7p = new float[6][3][20]; 
             float[][][] cW = new float[6][3][20];
             if(bank1.rows()==bank2.rows()) {
             int rows = bank1.rows();
@@ -359,12 +310,12 @@ public class ECGainsApp extends FCApplication implements ActionListener {
                 float env = bank2.getFloat("recEV",loop);
                 float enw = bank2.getFloat("recEW",loop);
                 goodPC = il==1&&n1[is-1]<20;  goodECi = il==4&&n4[is-1]<20;  goodECo = il==7&&n7[is-1]<20; 
-                if (goodPC)  {e1[is-1][n1[is-1]]=en ; cU[is-1][0][n1[is-1]]=iU; cV[is-1][0][n1[is-1]]=iV; cW[is-1][0][n1[is-1]]=iW;}
-                if (goodECi) {e4[is-1][n4[is-1]]=en ; cU[is-1][1][n4[is-1]]=iU; cV[is-1][1][n4[is-1]]=iV; cW[is-1][1][n4[is-1]]=iW;}
-                if (goodECo) {e7[is-1][n7[is-1]]=en ; cU[is-1][2][n7[is-1]]=iU; cV[is-1][2][n7[is-1]]=iV; cW[is-1][2][n7[is-1]]=iW;}
-                if (goodPC)  {e1p[is-1][0][n1[is-1]]=enu ;e1p[is-1][1][n1[is-1]]=env; e1p[is-1][2][n1[is-1]]=enw;  n1[is-1]++;}
-                if (goodECi) {e4p[is-1][0][n4[is-1]]=enu ;e4p[is-1][1][n4[is-1]]=env; e4p[is-1][2][n4[is-1]]=enw;  n4[is-1]++;}
-                if (goodECo) {e7p[is-1][0][n7[is-1]]=enu ;e7p[is-1][1][n7[is-1]]=env; e7p[is-1][2][n7[is-1]]=enw;  n7[is-1]++;}
+                if (goodPC)  {e1c[is-1][n1[is-1]]=en; cU[is-1][0][n1[is-1]]=iU; cV[is-1][0][n1[is-1]]=iV; cW[is-1][0][n1[is-1]]=iW;}
+                if (goodECi) {e4c[is-1][n4[is-1]]=en; cU[is-1][1][n4[is-1]]=iU; cV[is-1][1][n4[is-1]]=iV; cW[is-1][1][n4[is-1]]=iW;}
+                if (goodECo) {e7c[is-1][n7[is-1]]=en; cU[is-1][2][n7[is-1]]=iU; cV[is-1][2][n7[is-1]]=iV; cW[is-1][2][n7[is-1]]=iW;}
+                if (goodPC)  {e1p[is-1][0][n1[is-1]]=enu; e1p[is-1][1][n1[is-1]]=env; e1p[is-1][2][n1[is-1]]=enw; n1[is-1]++;}
+                if (goodECi) {e4p[is-1][0][n4[is-1]]=enu; e4p[is-1][1][n4[is-1]]=env; e4p[is-1][2][n4[is-1]]=enw; n4[is-1]++;}
+                if (goodECo) {e7p[is-1][0][n7[is-1]]=enu; e7p[is-1][1][n7[is-1]]=env; e7p[is-1][2][n7[is-1]]=enw; n7[is-1]++;}
             }
             }
                 
@@ -382,41 +333,33 @@ public class ECGainsApp extends FCApplication implements ActionListener {
 //                Boolean goodPion = (is==1&&partRecEB!=null&&partRecEB.p()>0.7);
 //                if(is==1&&!goodPion) {n1[is]=0;n4[is]=0;n7[is]=0;}
                     
-                double ectot = e4[is][0]+e7[is][0] ; double etot = e1[is][0]+ectot ;
-                this.getDataGroup().getItem(4).getH2F("hi_pcal_ectot_"+iis).fill(e1[is][0]*1e3,ectot*1e3);
-                this.getDataGroup().getItem(4).getH2F("hi_pcal_ectot_max_"+iis).fill(e1[is][0]*1e3,ectot*1e3);
-                for(int n=0; n<n1[is]; n++) {this.getDataGroup().getItem(4).getH1F("hi_pcal_c_"  +iis).fill(e1[is][n]);
-                this.getDataGroup().getItem(4).getH2F("hi_pcal_uc_"+iis).fill(e1[is][n]*1e3,cU[is][0][n]);
-                this.getDataGroup().getItem(4).getH2F("hi_pcal_vc_"+iis).fill(e1[is][n]*1e3,cV[is][0][n]);
-                this.getDataGroup().getItem(4).getH2F("hi_pcal_wc_"+iis).fill(e1[is][n]*1e3,cW[is][0][n]);
+                double ectot = e4c[is][0]+e7c[is][0] ; double etot = e1c[is][0]+ectot ;
+                this.getDataGroup().getItem(4).getH2F("hi_pcal_ectot_"+iis).fill(e1c[is][0]*1e3,ectot*1e3);
+                this.getDataGroup().getItem(4).getH2F("hi_pcal_ectot_max_"+iis).fill(e1c[is][0]*1e3,ectot*1e3);
+                
+                for(int n=0; n<n1[is]; n++) {
+                this.getDataGroup().getItem(4).getH2F("hi_pcal_uc_"+iis).fill(e1c[is][n]*1e3,cU[is][0][n]);
+                this.getDataGroup().getItem(4).getH2F("hi_pcal_vc_"+iis).fill(e1c[is][n]*1e3,cV[is][0][n]);
+                this.getDataGroup().getItem(4).getH2F("hi_pcal_wc_"+iis).fill(e1c[is][n]*1e3,cW[is][0][n]);
                 this.getDataGroup().getItem(4).getH2F("hi_pcal_up_"+iis).fill(e1p[is][0][n]*1e3,cU[is][0][n]);
                 this.getDataGroup().getItem(4).getH2F("hi_pcal_vp_"+iis).fill(e1p[is][1][n]*1e3,cV[is][0][n]);
                 this.getDataGroup().getItem(4).getH2F("hi_pcal_wp_"+iis).fill(e1p[is][2][n]*1e3,cW[is][0][n]);
-                this.getDataGroup().getItem(4).getH1F("hi_pcal_pu_"+iis).fill(e1p[is][0][n]*1e3);
-                this.getDataGroup().getItem(4).getH1F("hi_pcal_pv_"+iis).fill(e1p[is][1][n]*1e3);
-                this.getDataGroup().getItem(4).getH1F("hi_pcal_pw_"+iis).fill(e1p[is][2][n]*1e3);
                 }
-                for(int n=0; n<n4[is]; n++) {this.getDataGroup().getItem(4).getH1F("hi_ecin_c_"  +iis).fill(e4[is][n]);
-                this.getDataGroup().getItem(4).getH2F("hi_ecin_uc_"+iis).fill(e4[is][n]*1e3,cU[is][1][n]);
-                this.getDataGroup().getItem(4).getH2F("hi_ecin_vc_"+iis).fill(e4[is][n]*1e3,cV[is][1][n]);
-                this.getDataGroup().getItem(4).getH2F("hi_ecin_wc_"+iis).fill(e4[is][n]*1e3,cW[is][1][n]);
+                for(int n=0; n<n4[is]; n++) {
+                this.getDataGroup().getItem(4).getH2F("hi_ecin_uc_"+iis).fill(e4c[is][n]*1e3,cU[is][1][n]);
+                this.getDataGroup().getItem(4).getH2F("hi_ecin_vc_"+iis).fill(e4c[is][n]*1e3,cV[is][1][n]);
+                this.getDataGroup().getItem(4).getH2F("hi_ecin_wc_"+iis).fill(e4c[is][n]*1e3,cW[is][1][n]);
                 this.getDataGroup().getItem(4).getH2F("hi_ecin_up_"+iis).fill(e4p[is][0][n]*1e3,cU[is][1][n]);
                 this.getDataGroup().getItem(4).getH2F("hi_ecin_vp_"+iis).fill(e4p[is][1][n]*1e3,cV[is][1][n]);
                 this.getDataGroup().getItem(4).getH2F("hi_ecin_wp_"+iis).fill(e4p[is][2][n]*1e3,cW[is][1][n]);
-                this.getDataGroup().getItem(4).getH1F("hi_ecin_pu_"+iis).fill(e4p[is][0][n]*1e3);
-                this.getDataGroup().getItem(4).getH1F("hi_ecin_pv_"+iis).fill(e4p[is][1][n]*1e3);
-                this.getDataGroup().getItem(4).getH1F("hi_ecin_pw_"+iis).fill(e4p[is][2][n]*1e3);
                 }
-                for(int n=0; n<n7[is]; n++) {this.getDataGroup().getItem(4).getH1F("hi_ecou_c_"  +iis).fill(e7[is][n]);
-                this.getDataGroup().getItem(4).getH2F("hi_ecou_uc_"+iis).fill(e7[is][n]*1e3,cU[is][2][n]);
-                this.getDataGroup().getItem(4).getH2F("hi_ecou_vc_"+iis).fill(e7[is][n]*1e3,cV[is][2][n]);
-                this.getDataGroup().getItem(4).getH2F("hi_ecou_wc_"+iis).fill(e7[is][n]*1e3,cW[is][2][n]);
+                for(int n=0; n<n7[is]; n++) {
+                this.getDataGroup().getItem(4).getH2F("hi_ecou_uc_"+iis).fill(e7c[is][n]*1e3,cU[is][2][n]);
+                this.getDataGroup().getItem(4).getH2F("hi_ecou_vc_"+iis).fill(e7c[is][n]*1e3,cV[is][2][n]);
+                this.getDataGroup().getItem(4).getH2F("hi_ecou_wc_"+iis).fill(e7c[is][n]*1e3,cW[is][2][n]);
                 this.getDataGroup().getItem(4).getH2F("hi_ecou_up_"+iis).fill(e7p[is][0][n]*1e3,cU[is][2][n]);
                 this.getDataGroup().getItem(4).getH2F("hi_ecou_vp_"+iis).fill(e7p[is][1][n]*1e3,cV[is][2][n]);
                 this.getDataGroup().getItem(4).getH2F("hi_ecou_wp_"+iis).fill(e7p[is][2][n]*1e3,cW[is][2][n]);
-                this.getDataGroup().getItem(4).getH1F("hi_ecou_pu_"+iis).fill(e7p[is][0][n]*1e3);
-                this.getDataGroup().getItem(4).getH1F("hi_ecou_pv_"+iis).fill(e7p[is][1][n]*1e3);
-                this.getDataGroup().getItem(4).getH1F("hi_ecou_pw_"+iis).fill(e7p[is][2][n]*1e3);
                 }
                 }
             }
@@ -424,26 +367,6 @@ public class ECGainsApp extends FCApplication implements ActionListener {
    
     }
         
-    public void updateCanvas(DetectorDescriptor dd) {
-        
-        this.is = dd.getSector();
-        this.la = dd.getLayer();
-        this.ic = dd.getComponent();   
-        this.idet = ilmap;      
-        
-        if (la>3) return;
-        
-        updateStrips();   
-        updateClusters(); 
-        updatePeaks();   
-        updateSummary();
-                
-     }
-    
-    private void updateStrips() {
-        
-    }
-    
     private class FitData {
         GraphErrors graph = null;
 
@@ -481,18 +404,9 @@ public class ECGainsApp extends FCApplication implements ActionListener {
             this.sigma = this.graph.getFunction().getParameter(2);                
         }
         
-        public void plotGraph(EmbeddedCanvas c) {
-            c.draw(graph);
-        }
-        
-        public void plotFit(EmbeddedCanvas c, int col){
-            c.draw(graph) ; this.graph.getFunction().setLineColor(col);
-            c.draw(this.graph.getFunction(),"same");
-        }
-        
-        public void plotFunc(EmbeddedCanvas c, int col){
+        public void plotGraph(EmbeddedCanvas c, int col) {
             this.graph.getFunction().setLineColor(col); 
-            c.draw(this.graph.getFunction(),"same");
+            c.draw(graph);
         }
         
         public GraphErrors getGraph() {
@@ -500,175 +414,130 @@ public class ECGainsApp extends FCApplication implements ActionListener {
         }
         
     }
-
-    private void updatePeaks() {
+    
+    public void updateCanvas(DetectorDescriptor dd) {
         
-        FitData fd = null;
-        H1F h1 ; H2F h2;
+        this.is = dd.getSector();
+        this.la = dd.getLayer();
+        this.ic = dd.getComponent();   
+        this.idet = ilmap;      
         
-        int    is = activeSector;
-        String il = lay[activeLayer];
-        String id = det[activeDetector];
-        
-        EmbeddedCanvas cp = this.peaks.getCanvas("Peaks");
-        EmbeddedCanvas cm = this.peaks.getCanvas("MIP");  
+        if (la>3) return;
                
-        h2 = (H2F) this.getDataGroup().getItem(4).getH2F("hi_"+id+"_"+il+"p_"+is);
-        int npmt = h2.sliceX(1).getData().length;
-        cm.clear();
-        cp.divide(3, 2);
-        if (npmt==36) cm.divide(6,6);
-        if (npmt>36)  cm.divide(8,9);
-        
-        cp.cd(0); cp.getPad(0).getAxisZ().setLog(true);
-        cp.draw(this.getDataGroup().getItem(4).getH2F("hi_"+id+"_up_"+is));
-        cp.cd(1); cp.getPad(1).getAxisZ().setLog(true);
-        cp.draw(this.getDataGroup().getItem(4).getH2F("hi_"+id+"_vp_"+is));
-        cp.cd(2); cp.getPad(2).getAxisZ().setLog(true);
-        cp.draw(this.getDataGroup().getItem(4).getH2F("hi_"+id+"_wp_"+is));  
-        
-        double min = fitMin[activeDetector];
-        double max = fitMax[activeDetector];
-        
-        cp.cd(3); cp.getPad(3).getAxisY().setLog(false); 
-        h1 = this.getDataGroup().getItem(4).getH2F("hi_"+id+"_up_"+is).projectionX();
-        fd = new FitData(h1.getGraph(),2,15);   fd.graph.getAttributes().setTitleX("Sector "+is+" "+id.toUpperCase()+" U");
-        fd.initFit(min,max); fd.fitGraph(); fd.plotFit(cp,4);
-        peakFits.add(fd,is,activeDetector,0,0);
-        
-        cp.cd(4); cp.getPad(4).getAxisY().setLog(false);  
-        h1 = this.getDataGroup().getItem(4).getH2F("hi_"+id+"_vp_"+is).projectionX();
-        fd = new FitData(h1.getGraph(),2,15);  fd.graph.getAttributes().setTitleX("Sector "+is+" "+id.toUpperCase()+" V");
-        fd.initFit(min,max); fd.fitGraph(); fd.plotFit(cp,4); 
-        peakFits.add(fd,is,activeDetector,1,0);
-        
-        cp.cd(5); cp.getPad(5).getAxisY().setLog(false);  
-        h1 = this.getDataGroup().getItem(4).getH2F("hi_"+id+"_wp_"+is).projectionX();
-        fd = new FitData(h1.getGraph(),2,15);  fd.graph.getAttributes().setTitleX("Sector "+is+" "+id.toUpperCase()+" W");
-        fd.initFit(min,max); fd.fitGraph(); fd.plotFit(cp,4); 
-        peakFits.add(fd,is,activeDetector,2,0);
-        
-        for (int i=0; i<npmt ; i++) {
-            cm.cd(i); cm.getPad(i).getAxisY().setLog(false);  
-            h1 = h2.sliceY(i); h1.setFillColor(2); h1.setTitleX("Sector "+activeSector+"  PMT "+(i+1));  
-            String title = "Sector "+is+" "+id+" "+il+(i+1);
-            fd = new FitData(h1.getGraph(),2,15) ; fd.graph.getAttributes().setTitleX(title);
-            fd.initFit(min,max); fd.fitGraph(); fd.plotFit(cm,4);
-            peakFits.add(fd,is,activeDetector,activeLayer,i+1);
-        }
-        
-        if(app.getInProcess()>1&&storeMIPGraphsDone) plotMIPSummary("p");           
+        updatePlots();
+                
+     }
+    
+    private void updatePlots() {        
+        updateMIP(peaks);
+        updateMIP(clusters);
+        updateSummary();
     }
-
-    private void updateClusters() {
+    
+    private void updateMIP(EmbeddedCanvasTabbed c) {
         
-        H1F h1 ; H2F h2;
-        
-        EmbeddedCanvas cc = this.clusters.getCanvas("Clusters");
-        EmbeddedCanvas cm = this.clusters.getCanvas("MIP");  
-        
-        int    is = activeSector;
+        EmbeddedCanvas cp = c.getCanvas(c.getName());
+        EmbeddedCanvas cf = c.getCanvas("Fits");
+        String d = c.getName().substring(0,1).toLowerCase();
+        int off = (d.equals("c")) ? 0:2;
+        int    is = activeSector; int iis=is+10*off;
         String il = lay[activeLayer];
         String id = det[activeDetector];
-                       
-        h2 = (H2F) this.getDataGroup().getItem(4).getH2F("hi_"+id+"_"+il+"c_"+activeSector);
-        int npmt = h2.sliceX(1).getData().length;
-        cm.clear();
-        cc.divide(3, 2);
-        if (npmt==36) cm.divide(6,6);
-        if (npmt>36)  cm.divide(8,9);
         
-        cc.cd(0); cc.getPad(0).getAxisZ().setLog(true);
-        cc.draw(this.getDataGroup().getItem(4).getH2F("hi_"+id+"_uc_"+activeSector));
-        cc.cd(1); cc.getPad(1).getAxisZ().setLog(true);
-        cc.draw(this.getDataGroup().getItem(4).getH2F("hi_"+id+"_vc_"+activeSector));
-        cc.cd(2); cc.getPad(2).getAxisZ().setLog(true);
-        cc.draw(this.getDataGroup().getItem(4).getH2F("hi_"+id+"_wc_"+activeSector));  
+        int  ilay = activeDetector*3+activeLayer;
+        int    np = npmt[ilay];
         
-        F1D f1 = new F1D("f1","[amp]*gaus(x,[mean],[sigma])", 0.0, 0.04);
-        f1.setParameter(0, 100.);
-        f1.setParameter(1, 0.030);
-        f1.setParameter(2, 0.015);
-        f1.setLineWidth(2);
-        f1.setLineColor(2);
+        if(app.getInProcess()==0) return;
         
-        cc.cd(3); cc.getPad(3).getAxisY().setLog(true); 
-        h1 = this.getDataGroup().getItem(4).getH1F("hi_pcal_c_"+activeSector);
-        h1.getAttributes().setFillColor(activeDetector==0 ? 4:0); cc.draw(h1); 
-        cc.cd(4); cc.getPad(4).getAxisY().setLog(true);
-        h1 = this.getDataGroup().getItem(4).getH1F("hi_ecin_c_"+activeSector);
-        h1.getAttributes().setFillColor(activeDetector==1 ? 4:0); cc.draw(h1);
-        cc.cd(5); cc.getPad(5).getAxisY().setLog(true);
-        h1 = this.getDataGroup().getItem(4).getH1F("hi_ecou_c_"+activeSector);    
-        h1.getAttributes().setFillColor(activeDetector==2 ? 4:0); cc.draw(h1);
-                
-        for (int i=0; i<npmt ; i++) {
-            h1 = h2.sliceY(i); h1.setTitleX("Sector "+activeSector+"  PMT "+(i+1));  
-            h1.setFillColor(2); h1.setOptStat(1100); 
-            cm.cd(i); cm.getPad(i).getAxisY().setLog(false); cm.draw(h1);
+        if(app.getInProcess()==1) analyzeGraphs(is,is+1,activeDetector,activeDetector+1,activeLayer,activeLayer+1,d);
+        
+        cp.divide(3, 2);
+        
+        for (int i=0; i<3; i++) {
+            cp.cd(i); cp.getPad(i).getAxisZ().setLog(true);
+            cp.draw(this.getDataGroup().getItem(4).getH2F("hi_"+id+"_"+lay[i]+d+"_"+is));
         }
         
-        //storeMIPGraphs("c");
-        //plotMIPSummary("c");        
-    }
-    
-    public void analyze() {
-        storeMIPGraphs("p");
-    }
-    
-    public void storeMIPGraphs(String ro) {
+        cp.cd(3); cp.getPad(3).getAxisY().setLog(false); cp.draw(MipFits.getItem(iis,activeDetector,0,0).getGraph());
+        cp.cd(4); cp.getPad(4).getAxisY().setLog(false); cp.draw(MipFits.getItem(iis,activeDetector,1,0).getGraph());
+        cp.cd(5); cp.getPad(5).getAxisY().setLog(false); cp.draw(MipFits.getItem(iis,activeDetector,2,0).getGraph());
         
-        H2F h2;
+        cf.clear(); if (np==36) cf.divide(6,6); if (np>36)  cf.divide(8,9);
+        
+        for (int i=0; i<np ; i++) {
+            cf.cd(i); cf.getPad(i).getAxisY().setLog(false);  
+            cf.draw(MipFits.getItem(iis,activeDetector,activeLayer,i+1).getGraph());
+        }
+        
+        if(app.getInProcess()>1) plotMIPSummary(c);           
+    }
+
+    public void analyze() {      
+        analyzeGraphs(1,7,0,3,0,3,"c");
+        analyzeGraphs(1,7,0,3,0,3,"p");
+    }
+    
+    public void analyzeGraphs(int is1, int is2, int id1, int id2, int il1, int il2, String ro) {
+        
+        H2F h2=null;
         FitData fd = null;
+        int off=0;
+        double min=1,max=20,mip=10;
         
-        for (int is=1; is<7; is++) {
-            for (int id=0; id<3; id++) {
-                double min = fitMin[id];
-                double max = fitMax[id];
+        for (int is=is1; is<is2; is++) {
+            for (int id=id1; id<id2; id++) {
+                if(ro.equals("c")) {min = fitLimc[id]; max = fitLimc[id+3]; off=0; mip=mipc[id];}
+                if(ro.equals("p")) {min = fitLimp[id]; max = fitLimp[id+3]; off=2; mip=mipp[id];}  
+                int iis = is+10*off;
                 for (int il=0; il<3; il++) {
                     h2 = this.getDataGroup().getItem(4).getH2F("hi_"+det[id]+"_"+lay[il]+ro+"_"+is);
-                    int npmt = h2.sliceX(1).getData().length;
-                    double[]  x = new double[npmt]; double[]  ymean = new double[npmt]; double[] yrms = new double[npmt];
-                    double[] xe = new double[npmt]; double[] ymeane = new double[npmt]; double[]   ye = new double[npmt]; 
-                    for (int i=0; i<npmt; i++) {                     
-                        fd = new FitData(h2.sliceY(i).getGraph(),2,15) ; fd.initFit(min,max); fd.fitGraph();
+                    fd = new FitData(h2.projectionX().getGraph(),min,max); 
+                    fd.initFit(min,max); fd.fitGraph();
+                    fd.graph.getAttributes().setTitleX(h2.getTitleX()); 
+                    MipFits.add(fd,iis,id,il,0);                    
+                }                    
+                for (int il=il1; il<il2; il++) {
+                    int np = npmt[id*3+il];
+                    double[]  x = new double[np]; double[]  ymean = new double[np]; double[] yrms = new double[np];
+                    double[] xe = new double[np]; double[] ymeane = new double[np]; double[]   ye = new double[np]; 
+                    h2 = this.getDataGroup().getItem(4).getH2F("hi_"+det[id]+"_"+lay[il]+ro+"_"+is);
+                    for (int i=0; i<np; i++) {                     
+                        fd = new FitData(h2.sliceY(i).getGraph(),min,max) ; 
+                        fd.initFit(min,max); fd.fitGraph();
+                        fd.graph.getAttributes().setTitleX("Sector "+is+" "+det[id]+" "+lay[il]+(i+1));
+                        MipFits.add(fd,iis,id,il,i+1);
                         x[i] = i+1; xe[i]=0; ye[i]=0; yrms[i]=0;
                         double mean = fd.mean;                        
                         if(mean>0) yrms[i] = fd.sigma/mean; 
-                        double mip = (ro=="c") ? mipc[id]:mipp[id];
                          ymean[i] = mean/mip;
                         ymeane[i] = fd.meane/mip;
                     }
                     GraphErrors mean = new GraphErrors("MIP_"+is+"_"+id+" "+il,x,ymean,xe,ymeane);                   
                     GraphErrors  rms = new GraphErrors("MIP_"+is+"_"+id+" "+il,x,yrms,xe,ye);                  
-                    MIPSummary.add(mean, 1,is,id,il);
-                    MIPSummary.add(rms,  2,is,id,il);                    
+                    MIPSummary.add(mean, 1+off,is,id,il);
+                    MIPSummary.add(rms,  2+off,is,id,il);                    
                 }
             }
         }
         
-        storeMIPGraphsDone = true;
-        
     }
     
-    public void plotMIPSummary(String ro) {
+    public void plotMIPSummary(EmbeddedCanvasTabbed ct) {
         
-        EmbeddedCanvas c = null;
+        EmbeddedCanvas c = ct.getCanvas("Summary");
+        String ro = ct.getName().substring(0,1).toLowerCase();
         int il=activeLayer, n=0; 
+        int off = (ro.equals("c")) ? 0:2;
         String sil = lay[activeLayer].toUpperCase();
-        int[] npmt = new int[]{68,62,62,36,36,36,36,36,36};
         String[] det ={"PCAL","ECin","ECou"};
-        if (ro=="c") c = this.clusters.getCanvas("Summary");
-        if (ro=="p") c = this.peaks.getCanvas("Summary");
         c.divide(6, 6);
 
         for (int id=0; id<3; id++) {
             F1D f1 = new F1D("p0","[a]",0.,npmt[id*3+il]); f1.setParameter(0,1);
             for (int is=1; is<7; is++) {
-               GraphErrors plot = MIPSummary.getItem(1,is,id,il);
+               GraphErrors plot = MIPSummary.getItem(1+off,is,id,il);
                c.cd(n); c.getPad(n).getAxisY().setRange(0.5, 1.5); 
-               c.getPad(n).setAxisTitleFontSize(14);
-               c.getPad(n).setTitleFontSize(14);
+               c.getPad(n).setAxisTitleFontSize(14); c.getPad(n).setTitleFontSize(14);
                if(n<6)  plot.getAttributes().setTitle("SECTOR "+is); 
                if(n==0) plot.getAttributes().setTitleY("MEAN / MIP");
                plot.getAttributes().setTitleX(det[id]+" "+sil+" PMT");
@@ -679,11 +548,11 @@ public class ECGainsApp extends FCApplication implements ActionListener {
         
         for (int id=0; id<3; id++) {
             for (int is=1; is<7; is++) {
-               GraphErrors plot = MIPSummary.getItem(2,is,id,il);
+               GraphErrors plot = MIPSummary.getItem(2+off,is,id,il);
                c.cd(n); c.getPad(n).getAxisY().setRange(0.,1.0); 
                c.getPad(n).setAxisTitleFontSize(14);
                if(n==18) plot.getAttributes().setTitleY("RMS / MEAN");
-               plot.getAttributes().setTitleX(det[id]+" PMT");
+               plot.getAttributes().setTitleX(det[id]+" "+sil+" PMT");
                n++; c.draw(plot);
             }
         }
@@ -757,8 +626,7 @@ public class ECGainsApp extends FCApplication implements ActionListener {
         this.activeSector   = Integer.parseInt(bG1.getSelection().getActionCommand());
         this.activeDetector = Integer.parseInt(bG2.getSelection().getActionCommand()); 
         this.activeLayer    = Integer.parseInt(bG3.getSelection().getActionCommand()); 
-//        updateClusters();
-        updatePeaks();
+        updatePlots();
     }    
     
 }
