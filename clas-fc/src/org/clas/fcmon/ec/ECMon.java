@@ -46,8 +46,8 @@ public class ECMon extends DetectorMonitor {
    
     public static int        calRun = 813;
     int                       detID = 0;
-    int                         is1 = 2;
-    int                         is2 = 3;  
+    int                         is1 = 1;
+    int                         is2 = 7;  
     int    nsa,nsb,tet,p1,p2,pedref = 0;
     double               PCMon_zmin = 0;
     double               PCMon_zmax = 0;
@@ -176,7 +176,7 @@ public class ECMon extends DetectorMonitor {
         ecCalib.setConstantsManager(ccdb,calRun);
         ecCalib.init(); 
         
-        ecGains = new ECGainsApp("Gains", ecPix);
+        ecGains = new ECGainsApp("Gains", ecEngine);
         ecGains.setMonitoringClass(this);
         ecGains.setApplicationClass(app);
         ecGains.init(); 
@@ -230,7 +230,7 @@ public class ECMon extends DetectorMonitor {
 
         ecRecon.init(); 
         ecEngine.init();
-        ecEngine.setVariation("clas6");
+        ecEngine.setVariation("default");
        
         ecEngine.setStripThresholds(ecPix[0].getStripThr(app.config, 1),
                                     ecPix[1].getStripThr(app.config, 1),
@@ -281,7 +281,8 @@ public class ECMon extends DetectorMonitor {
     } 
 
     @Override
-    public void dataEventAction(DataEvent de) {   
+    public void dataEventAction(DataEvent de) { 
+             
       if(app.doEng) {
           ecEngine.singleEvent = app.isSingleEvent() ; 
           ecEngine.debug       = app.debug; 
@@ -303,7 +304,9 @@ public class ECMon extends DetectorMonitor {
 			case 2: 
                 // Final analysis of full detector at end of run
 			    for (int idet=0; idet<ecPix.length; idet++) ecRecon.makeMaps(idet);
-				ecCalib.analyzeAllEngines(is1,is2,1,4);			    
+		        System.out.println("End of run");
+				ecCalib.analyzeAllEngines(is1,is2,1,4);	
+				ecGains.analyze();
 		        app.setInProcess(3); 
 		}
 	}

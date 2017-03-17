@@ -24,6 +24,7 @@ public class EmbeddedCanvasTabbed extends JPanel implements MouseMotionListener,
     public JPopupMenu          popup = null;
     private int             popupPad = 0;
     public String     selectedCanvas = null;
+    public String               name = null;
     
     private Map<String,EmbeddedCanvas>  tabbedCanvases = new LinkedHashMap<String,EmbeddedCanvas>();
    
@@ -34,6 +35,7 @@ public class EmbeddedCanvasTabbed extends JPanel implements MouseMotionListener,
     public EmbeddedCanvasTabbed(String name){
         super();
         this.setLayout(new BorderLayout());
+        this.name = name;
         initUI(name);
         initMouse();
     }
@@ -59,6 +61,10 @@ public class EmbeddedCanvasTabbed extends JPanel implements MouseMotionListener,
         this.add(actionPanel,BorderLayout.PAGE_END);
         this.addCanvas(name);
         
+    }
+    
+    public String getName() {
+        return this.name;
     }
     
     public void addCanvas(String name){        

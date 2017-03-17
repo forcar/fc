@@ -182,9 +182,7 @@ public class ECCommon {
         for(ECPeak p : peaks){
             int adc = p.getADC();
             int lay = p.getDescriptor().getLayer();
-            if(adc>ECCommon.peakThreshold[ind[lay-1]]){
-                ecPeaks.add(p);
-            }
+            if(adc>ECCommon.peakThreshold[ind[lay-1]]) ecPeaks.add(p);
         }
         return ecPeaks;
     }
