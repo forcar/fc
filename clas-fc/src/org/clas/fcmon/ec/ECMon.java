@@ -304,6 +304,7 @@ public class ECMon extends DetectorMonitor {
 			case 2: 
                 // Final analysis of full detector at end of run
 			    for (int idet=0; idet<ecPix.length; idet++) ecRecon.makeMaps(idet);
+		        System.out.println("End of run");
 				ecCalib.analyzeAllEngines(is1,is2,1,4);	
 				ecGains.analyze();
 		        app.setInProcess(3); 

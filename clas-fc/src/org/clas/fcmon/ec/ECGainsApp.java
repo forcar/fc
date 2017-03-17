@@ -14,6 +14,7 @@ import javax.swing.JSplitPane;
 import org.clas.fcmon.detector.view.EmbeddedCanvasTabbed;
 import org.clas.fcmon.tools.FCApplication;
 import org.jlab.clas.physics.Particle;
+import org.jlab.clas.physics.Vector3;
 import org.jlab.detector.base.DetectorDescriptor;
 import org.jlab.groot.base.GStyle;
 import org.jlab.groot.data.GraphErrors;
@@ -57,6 +58,7 @@ public class ECGainsApp extends FCApplication implements ActionListener {
     
     IndexedList<GraphErrors> MIPSummary  = new IndexedList<GraphErrors>(4);
     IndexedList<FitData>         MipFits = new IndexedList<FitData>(4);
+    Boolean  isAnalyzeDone = false;
     
     public ECGainsApp(String name, ECEngine engine) {
         super(name,engine);    
@@ -127,7 +129,7 @@ public class ECGainsApp extends FCApplication implements ActionListener {
     
     public void createHistos() {
         
-       DataGroup dg_mip = new DataGroup(1,120);
+       DataGroup dg_mip = new DataGroup(1,156);
         
         H1F h1 = new H1F() ; H2F h2 = new H2F();
         int n = 0;
@@ -179,6 +181,30 @@ public class ECGainsApp extends FCApplication implements ActionListener {
             h2.setTitleX("Sector "+is+" PCAL (MeV)");
             h2.setTitleY("ECTOT (MeV)");
             dg_mip.addDataSet(h2, n); n++;
+            h2 = new H2F("hi_pcal_path1_"+is,"hi_pcal_path1_"+is,50,0.,100.,118,31.,90.);
+            h2.setTitleX("Sector "+is+" PCAL (MeV)");
+            h2.setTitleY("Path12 (cm)");
+            dg_mip.addDataSet(h2, n); n++;
+            h2 = new H2F("hi_pcal_path2_"+is,"hi_pcal_path2_"+is,50,0.,100.,70,50.,120.);
+            h2.setTitleX("Sector "+is+" PCAL (MeV)");
+            h2.setTitleY("Path13 (cm)");
+            dg_mip.addDataSet(h2, n); n++;
+            h2 = new H2F("hi_ecin_path1_"+is,"hi_ecin_path1_"+is,50,0.,100.,70,50.,120.);
+            h2.setTitleX("Sector "+is+" ECin (MeV)");
+            h2.setTitleY("Path13 (cm)");
+            dg_mip.addDataSet(h2, n); n++;
+            h2 = new H2F("hi_ecin_path2_"+is,"hi_ecin_path2_"+is,50,0.,100.,66,17.,50.);
+            h2.setTitleX("Sector "+is+" ECin (MeV)");
+            h2.setTitleY("Path23 (cm)");
+            dg_mip.addDataSet(h2, n); n++;
+            h2 = new H2F("hi_ecou_path1_"+is,"hi_ecou_path1_"+is,50,0.,100.,70,50.,120.);
+            h2.setTitleX("Sector "+is+" ECou (MeV)");
+            h2.setTitleY("Path13 (cm)");
+            dg_mip.addDataSet(h2, n); n++;
+            h2 = new H2F("hi_ecou_path2_"+is,"hi_ecou_path2_"+is,50,0.,100.,66,17.,50.);
+            h2.setTitleX("Sector "+is+" ECou (MeV)");
+            h2.setTitleY("Path23 (cm)");
+            dg_mip.addDataSet(h2, n); n++;
         }   
         
         for (int is=1; is<7; is++) {
@@ -224,8 +250,7 @@ public class ECGainsApp extends FCApplication implements ActionListener {
         
         this.getDataGroup().add(dg_mip,4);        
     }        
-
-    
+   
     public void addEvent(DataEvent event) {
 
         Particle partRecEB = null;
@@ -283,14 +308,18 @@ public class ECGainsApp extends FCApplication implements ActionListener {
         
         // EC clusters
         Boolean goodPC,goodECi,goodECo;
+        IndexedList<Vector3> rl = new IndexedList<Vector3>(2);
         
         if(event.hasBank("ECAL::clusters") && event.hasBank("ECAL::calib")){
             DataBank  bank1 = event.getBank("ECAL::clusters");
             DataBank  bank2 = event.getBank("ECAL::calib");
             int[] n1 = new int[6]; int[] n4 = new int[6]; int[] n7 = new int[6];
-            float[][]   e1c = new float[6][20]; float[][][]   e1p = new float[6][3][20]; 
-            float[][]   e4c = new float[6][20]; float[][][]   e4p = new float[6][3][20]; 
-            float[][]   e7c = new float[6][20]; float[][][]   e7p = new float[6][3][20]; 
+            float[][]  e1c = new float[6][20]; float[][][]   e1p = new float[6][3][20]; 
+            float[][]  e4c = new float[6][20]; float[][][]   e4p = new float[6][3][20]; 
+            float[][]  e7c = new float[6][20]; float[][][]   e7p = new float[6][3][20]; 
+            float[][]   r1 = new float[6][20]; 
+            float[][]   r4 = new float[6][20]; 
+            float[][]   r7 = new float[6][20];
             float[][][] cU = new float[6][3][20];
             float[][][] cV = new float[6][3][20];
             float[][][] cW = new float[6][3][20];
@@ -309,10 +338,12 @@ public class ECGainsApp extends FCApplication implements ActionListener {
                 float enu = bank2.getFloat("recEU",loop);
                 float env = bank2.getFloat("recEV",loop);
                 float enw = bank2.getFloat("recEW",loop);
+                Vector3 r = new Vector3(x,y,z);
+               
                 goodPC = il==1&&n1[is-1]<20;  goodECi = il==4&&n4[is-1]<20;  goodECo = il==7&&n7[is-1]<20; 
-                if (goodPC)  {e1c[is-1][n1[is-1]]=en; cU[is-1][0][n1[is-1]]=iU; cV[is-1][0][n1[is-1]]=iV; cW[is-1][0][n1[is-1]]=iW;}
-                if (goodECi) {e4c[is-1][n4[is-1]]=en; cU[is-1][1][n4[is-1]]=iU; cV[is-1][1][n4[is-1]]=iV; cW[is-1][1][n4[is-1]]=iW;}
-                if (goodECo) {e7c[is-1][n7[is-1]]=en; cU[is-1][2][n7[is-1]]=iU; cV[is-1][2][n7[is-1]]=iV; cW[is-1][2][n7[is-1]]=iW;}
+                if (goodPC)  {e1c[is-1][n1[is-1]]=en; rl.add(r,is,0); cU[is-1][0][n1[is-1]]=iU; cV[is-1][0][n1[is-1]]=iV; cW[is-1][0][n1[is-1]]=iW;}
+                if (goodECi) {e4c[is-1][n4[is-1]]=en; rl.add(r,is,1); cU[is-1][1][n4[is-1]]=iU; cV[is-1][1][n4[is-1]]=iV; cW[is-1][1][n4[is-1]]=iW;}
+                if (goodECo) {e7c[is-1][n7[is-1]]=en; rl.add(r,is,2); cU[is-1][2][n7[is-1]]=iU; cV[is-1][2][n7[is-1]]=iV; cW[is-1][2][n7[is-1]]=iW;}
                 if (goodPC)  {e1p[is-1][0][n1[is-1]]=enu; e1p[is-1][1][n1[is-1]]=env; e1p[is-1][2][n1[is-1]]=enw; n1[is-1]++;}
                 if (goodECi) {e4p[is-1][0][n4[is-1]]=enu; e4p[is-1][1][n4[is-1]]=env; e4p[is-1][2][n4[is-1]]=enw; n4[is-1]++;}
                 if (goodECo) {e7p[is-1][0][n7[is-1]]=enu; e7p[is-1][1][n7[is-1]]=env; e7p[is-1][2][n7[is-1]]=enw; n7[is-1]++;}
@@ -332,11 +363,32 @@ public class ECGainsApp extends FCApplication implements ActionListener {
 //                if(is==1&&partRecEB!=null) System.out.println("Energy1,e1 "+partRecEB.getProperty("energy1")+" "+e1[is][0]);
 //                Boolean goodPion = (is==1&&partRecEB!=null&&partRecEB.p()>0.7);
 //                if(is==1&&!goodPion) {n1[is]=0;n4[is]=0;n7[is]=0;}
+// Target-PCAL: 6977.8 mm CCDB:/geometry/pcal/dist2tgt
+// Target-ECAL: 7303.3 mm CCDB:/geometry/ec/dist2tgt
+// PCAL-ECin: 325.5 mm
+// ECin-ECou: 14*2.2+15*10.0 = 180.8 mm
+// PCAL-ECou: 325.5+180.8= 506.3 mm
+                     
+                Vector3 v1 = rl.getItem(is+1,0); 
+                Vector3 v2 = rl.getItem(is+1,1); Vector3 v23 = new Vector3(v2.x(),v2.y(),v2.z());
+                Vector3 v3 = rl.getItem(is+1,2);
+                v2.sub(v1); v23.sub(v3); v3.sub(v1);  
+                float v12mag = (float) v2.mag();
+                float v13mag = (float) v3.mag();
+                float v23mag = (float) v23.mag();
                     
                 double ectot = e4c[is][0]+e7c[is][0] ; double etot = e1c[is][0]+ectot ;
                 this.getDataGroup().getItem(4).getH2F("hi_pcal_ectot_"+iis).fill(e1c[is][0]*1e3,ectot*1e3);
                 this.getDataGroup().getItem(4).getH2F("hi_pcal_ectot_max_"+iis).fill(e1c[is][0]*1e3,ectot*1e3);
                 
+                this.getDataGroup().getItem(4).getH2F("hi_pcal_path1_"+iis).fill(e1c[is][0]*1e3,v12mag);
+                this.getDataGroup().getItem(4).getH2F("hi_pcal_path2_"+iis).fill(e1c[is][0]*1e3,v13mag);
+                this.getDataGroup().getItem(4).getH2F("hi_ecin_path1_"+iis).fill(e4c[is][0]*1e3,v13mag);
+                this.getDataGroup().getItem(4).getH2F("hi_ecin_path2_"+iis).fill(e4c[is][0]*1e3,v23mag);
+                this.getDataGroup().getItem(4).getH2F("hi_ecou_path1_"+iis).fill(e7c[is][0]*1e3,v13mag);
+                this.getDataGroup().getItem(4).getH2F("hi_ecou_path2_"+iis).fill(e7c[is][0]*1e3,v23mag);
+                
+//                if(v12mag<34) {
                 for(int n=0; n<n1[is]; n++) {
                 this.getDataGroup().getItem(4).getH2F("hi_pcal_uc_"+iis).fill(e1c[is][n]*1e3,cU[is][0][n]);
                 this.getDataGroup().getItem(4).getH2F("hi_pcal_vc_"+iis).fill(e1c[is][n]*1e3,cV[is][0][n]);
@@ -344,7 +396,10 @@ public class ECGainsApp extends FCApplication implements ActionListener {
                 this.getDataGroup().getItem(4).getH2F("hi_pcal_up_"+iis).fill(e1p[is][0][n]*1e3,cU[is][0][n]);
                 this.getDataGroup().getItem(4).getH2F("hi_pcal_vp_"+iis).fill(e1p[is][1][n]*1e3,cV[is][0][n]);
                 this.getDataGroup().getItem(4).getH2F("hi_pcal_wp_"+iis).fill(e1p[is][2][n]*1e3,cW[is][0][n]);
+//                }
                 }
+                
+//                if(v23mag<20) {
                 for(int n=0; n<n4[is]; n++) {
                 this.getDataGroup().getItem(4).getH2F("hi_ecin_uc_"+iis).fill(e4c[is][n]*1e3,cU[is][1][n]);
                 this.getDataGroup().getItem(4).getH2F("hi_ecin_vc_"+iis).fill(e4c[is][n]*1e3,cV[is][1][n]);
@@ -361,6 +416,7 @@ public class ECGainsApp extends FCApplication implements ActionListener {
                 this.getDataGroup().getItem(4).getH2F("hi_ecou_vp_"+iis).fill(e7p[is][1][n]*1e3,cV[is][2][n]);
                 this.getDataGroup().getItem(4).getH2F("hi_ecou_wp_"+iis).fill(e7p[is][2][n]*1e3,cW[is][2][n]);
                 }
+//                }
                 }
             }
         }
@@ -381,6 +437,7 @@ public class ECGainsApp extends FCApplication implements ActionListener {
             this.graph = graph;
             this.graph.setFunction(new F1D("f","[amp]*gaus(x,[mean],[sigma])", xmin, xmax));            
             this.graph.getFunction().setLineWidth(2);
+            this.graph.getFunction().setOptStat("1100");
         };
         
         public void setGraph(GraphErrors graph) {
@@ -440,27 +497,22 @@ public class ECGainsApp extends FCApplication implements ActionListener {
         EmbeddedCanvas cf = c.getCanvas("Fits");
         String d = c.getName().substring(0,1).toLowerCase();
         int off = (d.equals("c")) ? 0:2;
-        int    is = activeSector; int iis=is+10*off;
+        int    is = activeSector; 
+        int    iis=is+10*off;
         String il = lay[activeLayer];
-        String id = det[activeDetector];
+        String id = det[activeDetector];        
+        int    np = npmt[activeDetector*3+activeLayer];
         
-        int  ilay = activeDetector*3+activeLayer;
-        int    np = npmt[ilay];
-        
-        if(app.getInProcess()==0) return;
-        
-        if(app.getInProcess()==1) analyzeGraphs(is,is+1,activeDetector,activeDetector+1,activeLayer,activeLayer+1,d);
+        if(isAnalyzeDone==false||app.getInProcess()<2) return;        
+//        if(app.getInProcess()==1) analyzeGraphs(is,is+1,activeDetector,activeDetector+1,activeLayer,activeLayer+1,d);
         
         cp.divide(3, 2);
         
         for (int i=0; i<3; i++) {
             cp.cd(i); cp.getPad(i).getAxisZ().setLog(true);
             cp.draw(this.getDataGroup().getItem(4).getH2F("hi_"+id+"_"+lay[i]+d+"_"+is));
+            cp.cd(i+3); cp.getPad(i+3).getAxisY().setLog(false); cp.draw(MipFits.getItem(iis,activeDetector,i,0).getGraph());
         }
-        
-        cp.cd(3); cp.getPad(3).getAxisY().setLog(false); cp.draw(MipFits.getItem(iis,activeDetector,0,0).getGraph());
-        cp.cd(4); cp.getPad(4).getAxisY().setLog(false); cp.draw(MipFits.getItem(iis,activeDetector,1,0).getGraph());
-        cp.cd(5); cp.getPad(5).getAxisY().setLog(false); cp.draw(MipFits.getItem(iis,activeDetector,2,0).getGraph());
         
         cf.clear(); if (np==36) cf.divide(6,6); if (np>36)  cf.divide(8,9);
         
@@ -469,12 +521,15 @@ public class ECGainsApp extends FCApplication implements ActionListener {
             cf.draw(MipFits.getItem(iis,activeDetector,activeLayer,i+1).getGraph());
         }
         
-        if(app.getInProcess()>1) plotMIPSummary(c);           
+        if(isAnalyzeDone&&app.getInProcess()>1) plotMIPSummary(c);           
     }
 
-    public void analyze() {      
+    public void analyze() {    
+        System.out.println("I am in analyze()");
         analyzeGraphs(1,7,0,3,0,3,"c");
         analyzeGraphs(1,7,0,3,0,3,"p");
+        System.out.println("Finished");
+        isAnalyzeDone = true;
     }
     
     public void analyzeGraphs(int is1, int is2, int id1, int id2, int il1, int il2, String ro) {
@@ -497,6 +552,7 @@ public class ECGainsApp extends FCApplication implements ActionListener {
                     MipFits.add(fd,iis,id,il,0);                    
                 }                    
                 for (int il=il1; il<il2; il++) {
+                    System.out.println("sector "+is+" det "+id+" lay "+il);
                     int np = npmt[id*3+il];
                     double[]  x = new double[np]; double[]  ymean = new double[np]; double[] yrms = new double[np];
                     double[] xe = new double[np]; double[] ymeane = new double[np]; double[]   ye = new double[np]; 
@@ -561,11 +617,17 @@ public class ECGainsApp extends FCApplication implements ActionListener {
         
         H2F h2;
         EmbeddedCanvas c = null;
+        String id = det[activeDetector];        
         c = this.summary.getCanvas("PCAL/ECTOT");
-        c.divide(3,2);
+        c.divide(3,4);
         for (int is=1; is<7; is++) {
-            h2 = this.getDataGroup().getItem(4).getH2F("hi_pcal_ectot_max_"+is);   
+            h2 = this.getDataGroup().getItem(4).getH2F("hi_"+id+"_path1_"+is);   
             c.cd(is-1); c.getPad(is-1).getAxisZ().setLog(true);       
+            c.draw(h2);   
+        }
+        for (int is=1; is<7; is++) {
+            h2 = this.getDataGroup().getItem(4).getH2F("hi_"+id+"_path2_"+is);   
+            c.cd(is-1+6); c.getPad(is-1+6).getAxisZ().setLog(true);       
             c.draw(h2);   
         }
         
