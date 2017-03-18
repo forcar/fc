@@ -147,6 +147,8 @@ public class ECReconstructionApp extends FCApplication {
        
        clear(0); clear(1); clear(2);
        
+       sca = (app.isCRT==true) ? 3.7:1; // For pre-installation PCAL CRT runs
+       
        if(event.hasBank("ECAL::adc")==true){
            DataBank  bank = event.getBank("ECAL::adc");
            int rows = bank.rows();
@@ -274,7 +276,7 @@ public class ECReconstructionApp extends FCApplication {
       
       for (int idet=0; idet<detlen; idet++) {
           
-          double fac = (app.isCRT==true) ? 1.4:1; // For pre-installation PCAL CRT runs
+          double fac = (app.isCRT==true) ? 6.6:1; // For pre-installation PCAL CRT runs
           
           if(event.hasBank("GenPart::true")==true) {
               genData = event.getBank("GenPart::true");
