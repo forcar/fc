@@ -56,9 +56,9 @@ public class ECGainsApp extends FCApplication implements ActionListener {
     double[]     fitLimc = {20,17,35,40,48,75};
     int[]           npmt = {68,62,62,36,36,36,36,36,36};
     
-    IndexedList<GraphErrors> MIPSummary  = new IndexedList<GraphErrors>(4);
+    IndexedList<GraphErrors>  MIPSummary = new IndexedList<GraphErrors>(4);
     IndexedList<FitData>         MipFits = new IndexedList<FitData>(4);
-    Boolean  isAnalyzeDone = false;
+    Boolean                isAnalyzeDone = false;
     
     public ECGainsApp(String name, ECEngine engine) {
         super(name,engine);    
@@ -79,9 +79,11 @@ public class ECGainsApp extends FCApplication implements ActionListener {
         engineView.add(getCanvasPane(),BorderLayout.CENTER);
         engineView.add(getButtonPane(),BorderLayout.PAGE_END);
         clusters.addCanvas("Fits");
-        clusters.addCanvas("Summary");
+        clusters.addCanvas("Mean/Mip");
+        clusters.addCanvas("RMS/Mean");
         peaks.addCanvas("Fits");
-        peaks.addCanvas("Summary");
+        peaks.addCanvas("Mean/Mip");
+        peaks.addCanvas("RMS/Mean");
         return engineView;       
     }  
     
@@ -388,7 +390,7 @@ public class ECGainsApp extends FCApplication implements ActionListener {
                 this.getDataGroup().getItem(4).getH2F("hi_ecou_path1_"+iis).fill(e7c[is][0]*1e3,v13mag);
                 this.getDataGroup().getItem(4).getH2F("hi_ecou_path2_"+iis).fill(e7c[is][0]*1e3,v23mag);
                 
-//                if(v12mag<34) {
+                if(v12mag<34) {
                 for(int n=0; n<n1[is]; n++) {
                 this.getDataGroup().getItem(4).getH2F("hi_pcal_uc_"+iis).fill(e1c[is][n]*1e3,cU[is][0][n]);
                 this.getDataGroup().getItem(4).getH2F("hi_pcal_vc_"+iis).fill(e1c[is][n]*1e3,cV[is][0][n]);
@@ -396,10 +398,10 @@ public class ECGainsApp extends FCApplication implements ActionListener {
                 this.getDataGroup().getItem(4).getH2F("hi_pcal_up_"+iis).fill(e1p[is][0][n]*1e3,cU[is][0][n]);
                 this.getDataGroup().getItem(4).getH2F("hi_pcal_vp_"+iis).fill(e1p[is][1][n]*1e3,cV[is][0][n]);
                 this.getDataGroup().getItem(4).getH2F("hi_pcal_wp_"+iis).fill(e1p[is][2][n]*1e3,cW[is][0][n]);
-//                }
+                }
                 }
                 
-//                if(v23mag<20) {
+                if(v23mag<20) {
                 for(int n=0; n<n4[is]; n++) {
                 this.getDataGroup().getItem(4).getH2F("hi_ecin_uc_"+iis).fill(e4c[is][n]*1e3,cU[is][1][n]);
                 this.getDataGroup().getItem(4).getH2F("hi_ecin_vc_"+iis).fill(e4c[is][n]*1e3,cV[is][1][n]);
@@ -416,7 +418,7 @@ public class ECGainsApp extends FCApplication implements ActionListener {
                 this.getDataGroup().getItem(4).getH2F("hi_ecou_vp_"+iis).fill(e7p[is][1][n]*1e3,cV[is][2][n]);
                 this.getDataGroup().getItem(4).getH2F("hi_ecou_wp_"+iis).fill(e7p[is][2][n]*1e3,cW[is][2][n]);
                 }
-//                }
+                }
                 }
             }
         }
@@ -424,6 +426,7 @@ public class ECGainsApp extends FCApplication implements ActionListener {
     }
         
     private class FitData {
+        
         GraphErrors graph = null;
 
         public double xmin;
@@ -432,42 +435,63 @@ public class ECGainsApp extends FCApplication implements ActionListener {
         public double mean;
         public double meane;
         public double sigma;
+        public int integral;
+        public int intmin=30;
+        public int fitcol=4;
+        Boolean doFit = false;
         
         FitData(GraphErrors graph, double xmin, double xmax) {
-            this.graph = graph;
+            setGraph(graph);
             this.graph.setFunction(new F1D("f","[amp]*gaus(x,[mean],[sigma])", xmin, xmax));            
-            this.graph.getFunction().setLineWidth(2);
-            this.graph.getFunction().setOptStat("1100");
+            this.graph.getFunction().setLineWidth(1);
+//            this.graph.getFunction().setOptStat("1100");
         };
         
         public void setGraph(GraphErrors graph) {
             this.graph = graph;
         }
         
+        public void setInt(int integral) {
+            this.integral = integral;
+            fitcol = 4;
+            if(integral>intmin) {
+                doFit = true;
+                fitcol = 1;
+            }
+        }
+        
+        public void setIntMin(int intmin) {
+            this.intmin = intmin;
+        }
+        
         public void initFit(double xmin, double xmax) {
             this.xmin = xmin;
             this.xmax = xmax;
-            this.graph.getFunction().setParameter(0, getMaxYIDataSet(graph,xmin,xmax));
-            this.graph.getFunction().setParameter(1, getMeanIDataSet(graph,xmin,xmax));
-            this.graph.getFunction().setParameter(2, getRMSIDataSet(graph,xmin,xmax));
-        }
+            amp   = getMaxYIDataSet(graph,xmin,xmax);
+            mean  = getMeanIDataSet(graph,xmin,xmax); 
+            sigma = getRMSIDataSet(graph,xmin,xmax);
+            graph.getFunction().setParameter(0, amp);
+            graph.getFunction().setParameter(1, mean);
+            graph.getFunction().setParameter(2, sigma);
+            graph.getFunction().setRange(xmin, xmax);
+         }
         
         public void fitGraph() {
-            this.graph.getFunction().setRange(xmin, xmax);
-            DataFitter.fit(this.graph.getFunction(), graph, "Q");
-            this.amp   = this.graph.getFunction().getParameter(0);
-            this.mean  = this.graph.getFunction().parameter(1).value();
-            this.meane = this.graph.getFunction().parameter(1).error();
-            this.sigma = this.graph.getFunction().getParameter(2);                
+            if (doFit) DataFitter.fit(graph.getFunction(), graph, "Q");
+            amp   = graph.getFunction().getParameter(0);
+            mean  = graph.getFunction().parameter(1).value();
+            meane = graph.getFunction().parameter(1).error();
+            sigma = graph.getFunction().getParameter(2);   
+            graph.getFunction().setLineColor(fitcol);
         }
         
         public void plotGraph(EmbeddedCanvas c, int col) {
-            this.graph.getFunction().setLineColor(col); 
+            graph.getFunction().setLineColor(col); 
             c.draw(graph);
         }
         
         public GraphErrors getGraph() {
-            return this.graph;
+            return graph;
         }
         
     }
@@ -538,18 +562,18 @@ public class ECGainsApp extends FCApplication implements ActionListener {
         FitData fd = null;
         int off=0;
         double min=1,max=20,mip=10;
-        
+        System.out.println("I am in analyzeGraphs");
         for (int is=is1; is<is2; is++) {
+            System.out.println("SectorLoop"+is);
             for (int id=id1; id<id2; id++) {
                 if(ro.equals("c")) {min = fitLimc[id]; max = fitLimc[id+3]; off=0; mip=mipc[id];}
                 if(ro.equals("p")) {min = fitLimp[id]; max = fitLimp[id+3]; off=2; mip=mipp[id];}  
                 int iis = is+10*off;
                 for (int il=0; il<3; il++) {
                     h2 = this.getDataGroup().getItem(4).getH2F("hi_"+det[id]+"_"+lay[il]+ro+"_"+is);
-                    fd = new FitData(h2.projectionX().getGraph(),min,max); 
-                    fd.initFit(min,max); fd.fitGraph();
+                    fd = new FitData(h2.projectionX().getGraph(),min,max); fd.setInt((int)h2.projectionX().getIntegral()); 
                     fd.graph.getAttributes().setTitleX(h2.getTitleX()); 
-                    MipFits.add(fd,iis,id,il,0);                    
+                    fd.initFit(min,max); fd.fitGraph(); MipFits.add(fd,iis,id,il,0);                    
                 }                    
                 for (int il=il1; il<il2; il++) {
                     System.out.println("sector "+is+" det "+id+" lay "+il);
@@ -558,10 +582,10 @@ public class ECGainsApp extends FCApplication implements ActionListener {
                     double[] xe = new double[np]; double[] ymeane = new double[np]; double[]   ye = new double[np]; 
                     h2 = this.getDataGroup().getItem(4).getH2F("hi_"+det[id]+"_"+lay[il]+ro+"_"+is);
                     for (int i=0; i<np; i++) {                     
-                        fd = new FitData(h2.sliceY(i).getGraph(),min,max) ; 
-                        fd.initFit(min,max); fd.fitGraph();
+                        System.out.println("sector "+is+" det "+id+" lay "+il+" pmt "+i);
+                        fd = new FitData(h2.sliceY(i).getGraph(),min,max); fd.setInt((int)h2.sliceY(i).getIntegral()); 
                         fd.graph.getAttributes().setTitleX("Sector "+is+" "+det[id]+" "+lay[il]+(i+1));
-                        MipFits.add(fd,iis,id,il,i+1);
+                        fd.initFit(min,max); fd.fitGraph(); MipFits.add(fd,iis,id,il,i+1);
                         x[i] = i+1; xe[i]=0; ye[i]=0; yrms[i]=0;
                         double mean = fd.mean;                        
                         if(mean>0) yrms[i] = fd.sigma/mean; 
@@ -580,38 +604,45 @@ public class ECGainsApp extends FCApplication implements ActionListener {
     
     public void plotMIPSummary(EmbeddedCanvasTabbed ct) {
         
-        EmbeddedCanvas c = ct.getCanvas("Summary");
-        String ro = ct.getName().substring(0,1).toLowerCase();
-        int il=activeLayer, n=0; 
-        int off = (ro.equals("c")) ? 0:2;
-        String sil = lay[activeLayer].toUpperCase();
-        String[] det ={"PCAL","ECin","ECou"};
-        c.divide(6, 6);
+        EmbeddedCanvas c = ct.getCanvas("Mean/Mip"); c.divide(3, 6);
+        
+        String        ro = ct.getName().substring(0,1).toLowerCase();
+        int          off = (ro.equals("c")) ? 0:2;        
+        int           id = activeDetector;
+        String[]     det = {"PCAL","ECin","ECou"};
 
-        for (int id=0; id<3; id++) {
+        for (int il=0; il<3; il++) {
             F1D f1 = new F1D("p0","[a]",0.,npmt[id*3+il]); f1.setParameter(0,1);
+            int n = 3*il;
             for (int is=1; is<7; is++) {
                GraphErrors plot = MIPSummary.getItem(1+off,is,id,il);
+               if (is==4) n=9+il*3;
                c.cd(n); c.getPad(n).getAxisY().setRange(0.5, 1.5); 
-               c.getPad(n).setAxisTitleFontSize(14); c.getPad(n).setTitleFontSize(14);
-               if(n<6)  plot.getAttributes().setTitle("SECTOR "+is); 
-               if(n==0) plot.getAttributes().setTitleY("MEAN / MIP");
-               plot.getAttributes().setTitleX(det[id]+" "+sil+" PMT");
+               c.getPad(n).setAxisTitleFontSize(14); c.getPad(n).setTitleFontSize(16);
+               if(n<3||(n>8 && n<12))  plot.getAttributes().setTitle("SECTOR "+is); 
+               if(n==0||n==9) plot.getAttributes().setTitleY("MEAN / MIP");
+               plot.getAttributes().setTitleX(det[id]+" "+lay[il].toUpperCase()+" PMT");
                n++; c.draw(plot);
                f1.setLineColor(3); f1.setLineWidth(3); c.draw(f1,"same");
             }
         }
         
-        for (int id=0; id<3; id++) {
+        c = ct.getCanvas("RMS/Mean"); c.divide(3, 6);
+
+        for (int il=0; il<3; il++) {
+            int n = 3*il;
             for (int is=1; is<7; is++) {
                GraphErrors plot = MIPSummary.getItem(2+off,is,id,il);
+               if (is==4) n=9+il*3;
                c.cd(n); c.getPad(n).getAxisY().setRange(0.,1.0); 
-               c.getPad(n).setAxisTitleFontSize(14);
-               if(n==18) plot.getAttributes().setTitleY("RMS / MEAN");
-               plot.getAttributes().setTitleX(det[id]+" "+sil+" PMT");
+               c.getPad(n).setAxisTitleFontSize(14); c.getPad(n).setTitleFontSize(16);
+               if(n<3||(n>8 && n<12))  plot.getAttributes().setTitle("SECTOR "+is); 
+               if(n==0||n==9) plot.getAttributes().setTitleY("RMS / MEAN");
+               plot.getAttributes().setTitleX(det[id]+" "+lay[il].toUpperCase()+" PMT");
                n++; c.draw(plot);
             }
         }
+        
     }
     private void updateSummary() {
         
