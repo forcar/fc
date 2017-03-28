@@ -44,7 +44,7 @@ public class ECMon extends DetectorMonitor {
     EvioDataSync             writer = null;
     Boolean                saveFile = false;
    
-    public static int        calRun = 813;
+    public static int        calRun = 2;
     int                       detID = 0;
     int                         is1 = 1;
     int                         is2 = 7;  
@@ -150,10 +150,6 @@ public class ECMon extends DetectorMonitor {
         ecMode1.setMonitoringClass(this);
         ecMode1.setApplicationClass(app);
         
-        ecEng = new ECEngineApp("ECEngine",ecPix);
-        ecEng.setMonitoringClass(this);
-        ecEng.setApplicationClass(app);
-        
         ecAdc = new ECAdcApp("ADC",ecPix);        
         ecAdc.setMonitoringClass(this);
         ecAdc.setApplicationClass(app);     
@@ -176,7 +172,11 @@ public class ECMon extends DetectorMonitor {
         ecCalib.setConstantsManager(ccdb,calRun);
         ecCalib.init(); 
         
-        ecGains = new ECGainsApp("Gains", ecEngine);
+        ecEng = new ECEngineApp("ECEngine",ecPix);
+        ecEng.setMonitoringClass(this);
+        ecEng.setApplicationClass(app);
+        
+        ecGains = new ECGainsApp("Gains");
         ecGains.setMonitoringClass(this);
         ecGains.setApplicationClass(app);
         ecGains.init(); 
@@ -282,16 +282,18 @@ public class ECMon extends DetectorMonitor {
 
     @Override
     public void dataEventAction(DataEvent de) { 
-             
+      if(app.debug) de.show();
+      ecRecon.addEvent(de);
+      
       if(app.doEng) {
           ecEngine.singleEvent = app.isSingleEvent() ; 
           ecEngine.debug       = app.debug; 
           ecEngine.isMC        = app.isMC;
           ecEngine.processDataEvent(de);     
+          ecEng.addEvent(de);
+          ecGains.addEvent(de);
           if(de instanceof EvioDataEvent&&saveFile) writer.writeEvent(de);
       }
-      ecRecon.addEvent(de);
-      ecGains.addEvent(de);
     }
 
 	@Override
@@ -306,7 +308,7 @@ public class ECMon extends DetectorMonitor {
 			    for (int idet=0; idet<ecPix.length; idet++) ecRecon.makeMaps(idet);
 		        System.out.println("End of run");
 				ecCalib.analyzeAllEngines(is1,is2,1,4);	
-				ecGains.analyze();
+				if (app.doEng) ecGains.analyze();
 		        app.setInProcess(3); 
 		}
 	}
@@ -324,13 +326,13 @@ public class ECMon extends DetectorMonitor {
         this.analyze();
         switch (app.getSelectedTabName()) {
         case "Mode1":                       ecMode1.updateCanvas(dd); break;
-        case "ECEngine":                      ecEng.updateCanvas(dd); break;
         case "ADC":                           ecAdc.updateCanvas(dd); break;
         case "TDC":                           ecTdc.updateCanvas(dd); break;
         case "Pedestal":                 ecPedestal.updateCanvas(dd); break;
         case "Pixels":                     ecPixels.updateCanvas(dd); break;
         case "Calibration":                 ecCalib.updateCanvas(dd); break;
         case "Gains":                       ecGains.updateCanvas(dd); break;
+        case "ECEngine":                      ecEng.updateCanvas(dd); break;
         case "HV":                             ecHv.updateCanvas(dd); break;
         case "Scalers":                   ecScalers.updateCanvas(dd);
         }				

@@ -55,10 +55,10 @@ public class ECAdcApp extends FCApplication {
             if (la==il) {c.draw(f1,"same"); c.draw(f2,"same");}
             h1 = dc2a.get(is,il,0).projectionY(); h1.setTitleX("Sector "+is+otab[ilm][il-1]); h1.setFillColor(0); 
             if (la==il) {h1.setFillColor(4); copy1=h1.histClone("Copy"); copy1.reset(); copy1.setBinContent(ic, h1.getBinContent(ic)); copy1.setFillColor(2);}
-            c.cd(il+2); h1.setOptStat(Integer.parseInt("10")); c.draw(h1);  if (il==la) c.draw(copy1,"same");            
+            c.cd(il+2); h1.setOptStat(Integer.parseInt("1000000")); c.draw(h1);  if (il==la) c.draw(copy1,"same");            
             h1 = dc2a.get(is,il,0).sliceY(ics[ilm][il-1]); h1.setTitleX("Sector "+is+otab[ilm][il-1]+(ics[ilm][il-1]+1)+" ADC"); h1.setFillColor(0);  
-            c.cd(il+5); h1.setOptStat(Integer.parseInt("110")); h1.setTitle(""); c.draw(h1); 
-            if (la==il) {h1=dc2a.get(is,il,0).sliceY(ic) ; h1.setOptStat(Integer.parseInt("110")); h1.setFillColor(2); 
+            c.cd(il+5); h1.setOptStat(Integer.parseInt("1000100")); h1.setTitle(""); c.draw(h1); 
+            if (la==il) {h1=dc2a.get(is,il,0).sliceY(ic) ; h1.setOptStat(Integer.parseInt("1000100")); h1.setFillColor(2); 
             h1.setTitleX("Sector "+is+otab[ilm][il-1]+(ic+1)+" ADC"); c.draw(h1);}
         }           
         c.repaint();        
@@ -87,10 +87,10 @@ public class ECAdcApp extends FCApplication {
             c.draw(f2,"same");  
             h1 = dc2a.get(is,il,1).sliceY(strip-1); h1.setTitleX("Sector "+is+otab[ilm][il-1]+strip+" ADC");  
             if (la>10&&la-10==il) h1.setFillColor(2);
-            c.cd(il+2); h1.setOptStat(Integer.parseInt("110")); h1.setTitle(""); c.draw(h1); 
+            c.cd(il+2); h1.setOptStat(Integer.parseInt("1000000")); h1.setTitle(""); c.draw(h1); 
             h1 = dc2a.get(is,il,2).sliceY(ic); h1.setTitleX("Sector "+is+otab[ilm][il-1]+strip+" Pixel "+(ic+1)+" ADC");
             if (la>10&&la-10==il) h1.setFillColor(2);
-            c.cd(il+5); h1.setOptStat(Integer.parseInt("110")); h1.setTitle(""); c.draw(h1);
+            c.cd(il+5); h1.setOptStat(Integer.parseInt("1000100")); h1.setTitle(""); c.draw(h1);
         }       
         c.repaint();        
     }

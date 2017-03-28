@@ -56,8 +56,6 @@ public class FCApplication implements ActionListener  {
     public CCPixels                                     ccPix = null;
     public FTOFPixels[]                               ftofPix = null;
     
-    public ECEngine                                    engine = null;
-    
 	public DetectorCollection<TreeMap<Integer,Object>> Lmap_a = new  DetectorCollection<TreeMap<Integer,Object>>();
 	public TreeMap<String, DetectorCollection<H1F>>     hmap1 = new TreeMap<String, DetectorCollection<H1F>>();
 	public TreeMap<String, DetectorCollection<H2F>>     hmap2 = new TreeMap<String, DetectorCollection<H2F>>();
@@ -94,9 +92,8 @@ public class FCApplication implements ActionListener  {
         this.ftofPix = ftofPix;     
     }
     
-    public FCApplication(String name, ECEngine engine) {
+    public FCApplication(String name) {
         this.appName = name;
-        this.engine = engine;
         this.addCanvas(name);
     }
      

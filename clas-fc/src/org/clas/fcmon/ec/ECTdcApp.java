@@ -24,7 +24,7 @@ public class ECTdcApp extends FCApplication {
     
     int ics[][] = new int[3][10];
     int is,la,ic,ilm ;
-    double tmin=1200,tmax=1500;
+    double tmin=400,tmax=800;
     
     public ECTdcApp(String name, ECPixels[] ecPix) {
         super(name,ecPix);    
@@ -65,10 +65,10 @@ public class ECTdcApp extends FCApplication {
         for (int il=1; il<4; il++) {
             h1 = dc2a.get(is,il,0).projectionY(); h1.setTitleX("Sector "+is+otab[ilm][il-1]); h1.setFillColor(0); 
             if (la==il) {h1.setFillColor(4); copy1=h1.histClone("Copy"); copy1.reset(); copy1.setBinContent(ic, h1.getBinContent(ic)); copy1.setFillColor(2);}
-            c.cd(il+2); h1.setOptStat(Integer.parseInt("10")); c.draw(h1);  if (il==la) c.draw(copy1,"same");            
+            c.cd(il+2); h1.setOptStat(Integer.parseInt("1000000")); c.draw(h1);  if (il==la) c.draw(copy1,"same");            
             h1 = dc2a.get(is,il,0).sliceY(ics[ilm][il-1]); h1.setTitleX("Sector "+is+otab[ilm][il-1]+(ics[ilm][il-1]+1)+" TDC"); h1.setFillColor(0);  
-            c.cd(il+5); h1.setOptStat(Integer.parseInt("110")); h1.setTitle(""); c.draw(h1); 
-            if (la==il) {h1=dc2a.get(is,il,0).sliceY(ic) ; h1.setOptStat(Integer.parseInt("110")); h1.setFillColor(2); 
+            c.cd(il+5); h1.setOptStat(Integer.parseInt("1000100")); h1.setTitle(""); c.draw(h1); 
+            if (la==il) {h1=dc2a.get(is,il,0).sliceY(ic) ; h1.setOptStat(Integer.parseInt("1000100")); h1.setFillColor(2); 
             h1.setTitleX("Sector "+is+otab[ilm][il-1]+(ic+1)+" TDC"); c.draw(h1);}
         }           
         c.repaint();        
@@ -94,9 +94,9 @@ public class ECTdcApp extends FCApplication {
             c.draw(f1,"same");
             c.draw(f2,"same");  
             h1 = dc2a.get(is,il,1).sliceY(strip-1); h1.setTitleX("Sector "+is+otab[ilm][il-1]+strip+" TDC");  
-            c.cd(il+2); h1.setOptStat(Integer.parseInt("110")); h1.setTitle(""); c.draw(h1); 
+            c.cd(il+2); h1.setOptStat(Integer.parseInt("1000100")); h1.setTitle(""); c.draw(h1); 
             h1 = dc2a.get(is,il,2).sliceY(ic); h1.setTitleX("Sector "+is+otab[ilm][il-1]+strip+" Pixel "+(ic+1)+" TDC");
-            c.cd(il+5); h1.setOptStat(Integer.parseInt("110")); h1.setTitle(""); c.draw(h1);
+            c.cd(il+5); h1.setOptStat(Integer.parseInt("1000100")); h1.setTitle(""); c.draw(h1);
         }       
         c.repaint();        
     }

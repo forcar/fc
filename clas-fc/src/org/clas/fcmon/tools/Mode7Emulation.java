@@ -75,7 +75,6 @@ public class Mode7Emulation extends JPanel implements ActionListener,ItemListene
    }
 	   
    public void init(ConstantsManager ccdb, int run, String table, int cr, int sl, int ch) {   
-      System.out.println("Mode7Emulation:init("+table+", "+cr+", "+sl+", "+ch+")");
       this.fadc = ccdb.getConstants(run, table);
       configMode7(cr,sl,ch);
       updateGUI();

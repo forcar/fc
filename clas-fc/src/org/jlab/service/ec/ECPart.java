@@ -35,9 +35,10 @@ public class ECPart {
     public static double SF1 = 0.27;
     public static double SF2 = 0.27;
     
-    public static void readMC(DataEvent event, Boolean isEvio) {
-        double ppx=0,ppy=0,ppz=0;
+    public static void readMC(DataEvent event) {
         int pid=0;
+        double ppx=0,ppy=0,ppz=0;
+        Boolean isEvio = event instanceof EvioDataEvent;        
         if(isEvio&&event.hasBank("GenPart::true")) {
             EvioDataBank bank = (EvioDataBank) event.getBank("GenPart::true");
             ppx = bank.getDouble("px",0);
@@ -83,29 +84,32 @@ public class ECPart {
     
     public List<DetectorResponse>  readEC(DataEvent event){
         List<DetectorResponse>  ecResponse = new ArrayList<DetectorResponse>();
-        Boolean isEvio = event instanceof EvioDataEvent;        
-        readMC(event, isEvio);        
+        Boolean isEvio = event instanceof EvioDataEvent;                  
         if (isEvio) ecResponse =                  readEvioEvent(event, "ECDetector::clusters", DetectorType.EC); 
         if(!isEvio) ecResponse = DetectorResponse.readHipoEvent(event, "ECAL::clusters", DetectorType.EC);
 
         return ecResponse;
     } 
     
-    public double getTwoPhoton(List<DetectorResponse> response){
+    public double getTwoPhoton(List<DetectorResponse> response, int sector){
         
         List<DetectorResponse> rPCAL = builder.getUnmatchedResponses(response, DetectorType.EC, 1);
-        if(rPCAL.size()!=2) return   0.0;
-        return processNeutralTracks(doHitMatching(response));
+        List<DetectorResponse> rSectorPCAL = DetectorResponse.getListBySector(rPCAL, DetectorType.EC, sector);
+        if (rSectorPCAL.size()!=2) return -1;
+        return processNeutralTracks(doHitMatching(response,sector));
     }
      
-    public List<DetectorParticle> doHitMatching(List<DetectorResponse> response) {
+    public List<DetectorParticle> doHitMatching(List<DetectorResponse> response, int sector) {
         
         List<DetectorParticle>  particles = new ArrayList<DetectorParticle>();
         
-        List<DetectorResponse> rPCAL  = builder.getUnmatchedResponses(response, DetectorType.EC,1);
-        List<DetectorResponse> rECIN  = builder.getUnmatchedResponses(response, DetectorType.EC,4);
-        List<DetectorResponse> rECOUT = builder.getUnmatchedResponses(response, DetectorType.EC,7);
-        
+        List<DetectorResponse>    rPC = builder.getUnmatchedResponses(response, DetectorType.EC,1);
+        List<DetectorResponse>   rECi = builder.getUnmatchedResponses(response, DetectorType.EC,4);
+        List<DetectorResponse>   rECo = builder.getUnmatchedResponses(response, DetectorType.EC,7);
+        List<DetectorResponse>  rPCAL = DetectorResponse.getListBySector(rPC,  DetectorType.EC, sector);
+        List<DetectorResponse>  rECIN = DetectorResponse.getListBySector(rECi, DetectorType.EC, sector);
+        List<DetectorResponse> rECOUT = DetectorResponse.getListBySector(rECo, DetectorType.EC, sector);
+                
         distance11=distance12=distance21=distance22=-10;
                         
         for(int i = 0; i < rPCAL.size(); i++){
@@ -143,7 +147,7 @@ public class ECPart {
         
         Vector3 n1 = p1.vector(); n1.unit();
         Vector3 n2 = p2.vector(); n2.unit();
-        
+                
         e1 = p1.getEnergy(DetectorType.EC);
         e2 = p2.getEnergy(DetectorType.EC);
 
@@ -244,8 +248,9 @@ public class ECPart {
         
         while(reader.hasEvent()){
             DataEvent event = reader.getNextEvent();
+            part.readMC(event);
             engine.processDataEvent(event);      
-            double invmass = 1e3*Math.sqrt(part.getTwoPhoton(part.readEC(event)));
+            double invmass = 1e3*Math.sqrt(part.getTwoPhoton(part.readEC(event),2));
             
             h1.fill((float)invmass,1.);                          //Two-photon invariant mass
             
