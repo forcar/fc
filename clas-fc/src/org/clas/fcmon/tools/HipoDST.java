@@ -20,10 +20,10 @@ public class HipoDST {
         System.out.println("Current event:"+current+" Nevents: "+nevents);
         for (int i=0; i<10; i++) {
             DataEvent event = reader.getNextEvent();
-            event.show();
             if(event.hasBank("Event")==true) {              
             	DataBank bank = event.getBank("Event");
-            	System.out.println("Entires="+bank.rows());
+                System.out.println("nrows="+bank.rows());
+            	bank.show();
             }
 		}	
 		reader.close();
@@ -40,16 +40,16 @@ public class HipoDST {
        int nevents = 500;
 	        
 	   for(int i = 0; i < nevents; i++){
-	       HipoGroup bank = writer.getSchemaFactory().getSchema("Event").createGroup(4);
-//	       for (int j=0; j < 2; j++) {
-	           bank.getNode("id").setInt(0, 211);
-	           bank.getNode("px").setFloat(0, (float) Math.random());
-	           bank.getNode("py").setFloat(0, (float) Math.random());
-	           bank.getNode("pz").setFloat(0, (float) Math.random());
-//	       }
-	       bank.show();
+	       HipoGroup group = writer.getSchemaFactory().getSchema("Event").createGroup(4);
+	       for (int j=0; j < 2; j++) {
+	           group.getNode("id").setInt(0, 211);
+	           group.getNode("px").setFloat(0, (float) Math.random());
+	           group.getNode("py").setFloat(0, (float) Math.random());
+	           group.getNode("pz").setFloat(0, (float) Math.random());
+	       }
+	       group.show();
 	       HipoEvent event = writer.createEvent();
-	       event.writeGroup(bank);
+	       event.writeGroup(group);
 	       writer.writeEvent(event);
 	   }
 	   writer.close();
