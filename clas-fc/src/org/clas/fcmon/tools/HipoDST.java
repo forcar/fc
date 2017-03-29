@@ -6,6 +6,7 @@ import org.jlab.hipo.io.HipoReader;
 import org.jlab.hipo.io.HipoWriter;
 import org.jlab.io.base.DataBank;
 import org.jlab.io.base.DataEvent;
+import org.jlab.io.hipo.HipoDataBank;
 import org.jlab.io.hipo.HipoDataSource;
 
 public class HipoDST {
@@ -18,7 +19,7 @@ public class HipoDST {
 		Integer current = reader.getCurrentIndex();
         Integer nevents = reader.getSize(); 
         System.out.println("Current event:"+current+" Nevents: "+nevents);
-        for (int i=0; i<10; i++) {
+        for (int i=0; i<nevents; i++) {
             DataEvent event = reader.getNextEvent();
             if(event.hasBank("Event")==true) {              
             	DataBank bank = event.getBank("Event");
@@ -37,17 +38,19 @@ public class HipoDST {
 	        
 	   writer.setCompressionType(2);
 	   writer.open("/Users/colesmith/hipo_test_ntuple.hipo");
-       int nevents = 500;
+       int nevents = 10;
 	        
-	   for(int i = 0; i < nevents; i++){
+	   for(int i = 0; i < 1; i++){
 	       HipoGroup group = writer.getSchemaFactory().getSchema("Event").createGroup(4);
-	       for (int j=0; j < 2; j++) {
-	           group.getNode("id").setInt(0, 211);
-	           group.getNode("px").setFloat(0, (float) Math.random());
-	           group.getNode("py").setFloat(0, (float) Math.random());
-	           group.getNode("pz").setFloat(0, (float) Math.random());
+	       for (int j=0; j < 3; j++) {
+	           group.getNode("id").setInt(j, 211);
+	           group.getNode("px").setFloat(j, (float) Math.random());
+	           group.getNode("py").setFloat(j, (float) Math.random());
+	           group.getNode("pz").setFloat(j, (float) Math.random());
 	       }
-	       group.show();
+	       
+	       HipoDataBank bank = new HipoDataBank(group);
+	       bank.show();
 	       HipoEvent event = writer.createEvent();
 	       event.writeGroup(group);
 	       writer.writeEvent(event);
