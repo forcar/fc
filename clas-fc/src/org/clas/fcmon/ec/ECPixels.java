@@ -274,9 +274,9 @@ public class ECPixels {
             System.out.println(" ");
         }
         for (int ic=0; ic<4; ic++) {h[ic].setOptStat(Integer.parseInt("1"));
-          String val=String.format("Max Area: %1$.3f",pixels.maxZonePixelArea[ic]);
-          h[ic].setName(String.format("Max Area: %1$.1f cm^2",pixels.maxZonePixelArea[ic]));
-          canvas.cd(ic); canvas.draw(h[ic]);
+            String val=String.format("Max Area: %1$.3f",pixels.maxZonePixelArea[ic]);
+            h[ic].setName(String.format("Max Area: %1$.1f cm^2",pixels.maxZonePixelArea[ic]));
+            canvas.cd(ic); canvas.draw(h[ic]);
         }
         frame.add(canvas);
         frame.setLocationRelativeTo(null);

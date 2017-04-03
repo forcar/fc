@@ -356,14 +356,16 @@ public class ECGainsApp extends FCApplication implements ActionListener {
         
 //        event.removeBank("ECAL::clusters");
 //        engine.processDataEvent(event);
-//        event.show();
+          if (app.isSingleEvent()) {
+              event.show();
+              if(event.hasBank("ECAL::hits")) event.getBank("ECAL::hits").show();
+          }
 //        event.removeBank("ECAL::clusters");
 //        event.show();
         
         // EC clusters
         Boolean goodPC,goodECi,goodECo;
         IndexedList<Vector3> rl = new IndexedList<Vector3>(2);
-        
         if(event.hasBank("ECAL::clusters") && event.hasBank("ECAL::calib")){
             DataBank  bank1 = event.getBank("ECAL::clusters");
             DataBank  bank2 = event.getBank("ECAL::calib");

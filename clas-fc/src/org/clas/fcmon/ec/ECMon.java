@@ -44,7 +44,7 @@ public class ECMon extends DetectorMonitor {
     EvioDataSync             writer = null;
     Boolean                saveFile = false;
    
-    public static int        calRun = 2;
+    public static int        calRun = 760;
     int                       detID = 0;
     int                         is1 = 1;
     int                         is2 = 7;  
@@ -282,7 +282,7 @@ public class ECMon extends DetectorMonitor {
 
     @Override
     public void dataEventAction(DataEvent de) { 
-      if(app.debug) de.show();
+
       ecRecon.addEvent(de);
       
       if(app.doEng) {

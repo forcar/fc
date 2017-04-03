@@ -32,6 +32,7 @@ public class ECPixelsApp extends FCApplication {
             H1F h2 = ecPix[idet].strips.hmap2.get("H2_PC_Stat").get(is,0,3).sliceY(1);
             h1.setFillColor(4); h2.setFillColor(32);
             h1.setTitleX(tit1[idet]);
+            h1.setOptStat("1000000"); h2.setOptStat("1000000");
             c.draw(h1);c.draw(h2,"same");
         }   
         
