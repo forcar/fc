@@ -123,10 +123,10 @@ public class ECMode1App extends FCApplication  {
           h2 = dc2a.get(is,il,0); h2.setTitleY("Sector "+is+otab[idet][il-1]) ; h2.setTitleX("SAMPLES (4 ns/ch)");
           canvasConfig(c,il-1,0.,100.,1.,nstr+1.,true).draw(h2);
           if (la==il) {c.draw(f1,"same"); c.draw(f2,"same");}
-          h1 = dc2a.get(is,il,0).sliceY(ics[idet][il-1]); h1.setOptStat(Integer.parseInt("10"));
+          h1 = dc2a.get(is,il,0).sliceY(ics[idet][il-1]); h1.setOptStat(Integer.parseInt("1000100"));
           h1.setTitleX("Sector "+is+otab[idet][il-1]+(ics[idet][il-1]+1)+" (4 ns/ch)"); h1.setFillColor(0);
           c.cd(il+2); h1.setTitle(" "); c.draw(h1);
-          if (la==il) {h1=dc2a.get(is,il,0).sliceY(ic) ; h1.setFillColor(2); h1.setOptStat(Integer.parseInt("10"));
+          if (la==il) {h1=dc2a.get(is,il,0).sliceY(ic) ; h1.setFillColor(2); h1.setOptStat(Integer.parseInt("1000100"));
           h1.setTitleX("Sector "+is+otab[idet][il-1]+(ic+1)+" (4 ns/ch)"); c.draw(h1);}
       }
       

@@ -55,9 +55,9 @@ public class ECPedestalApp extends FCApplication {
          }
          
          c.cd(il+3); 
-         h=hpix.sliceY(ics[il]); h.setOptStat(Integer.parseInt("110")); h.setFillColor(4); h.setTitle("") ;
+         h=hpix.sliceY(ics[il]); h.setOptStat(Integer.parseInt("1001100")); h.setFillColor(4); h.setTitle("") ;
          h.setTitleX("Sector "+is+otab[ilm][il]+(ics[il]+1)); c.draw(h);
-         if(la==il+1) {h=hpix.sliceY(ic); h.setOptStat(Integer.parseInt("110")); h.setFillColor(2); h.setTitle("") ;
+         if(la==il+1) {h=hpix.sliceY(ic); h.setOptStat(Integer.parseInt("1001100")); h.setFillColor(2); h.setTitle("") ;
          h.setTitleX("Sector "+is+otab[ilm][il]+(ic+1)) ; c.draw(h);}
       }
       

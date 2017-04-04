@@ -988,7 +988,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
 
                      c = fitADC.getCanvas("ADC"); 
                      
-                     c.cd(0); pixADC.setOptStat(Integer.parseInt("110")); pixADC.setTitle(""); c.draw(pixADC);                    
+                     c.cd(0); pixADC.setOptStat(Integer.parseInt("1000100")); pixADC.setTitle(""); c.draw(pixADC);                    
                      c.repaint();
                      
                      c = fitCh2.getCanvas("Chi^2"); 
