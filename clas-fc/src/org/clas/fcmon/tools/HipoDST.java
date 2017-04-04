@@ -169,7 +169,7 @@ public class HipoDST {
         String  inputFile="/Users/colesmith/kpp/decoded/clas12_000761_a00214.hipo";
         String outputFile="/Users/colesmith/kpp/test.hipo";
 
-        /*
+        
         OptionParser parser = new OptionParser();
         parser.addRequired("-o");
         parser.addOption("-keep", "ALL", "Selection of banks to keep in the output");
@@ -183,10 +183,12 @@ public class HipoDST {
         compression   = parser.getOption("-c").intValue();
         keepBanks     = parser.getOption("-keep").stringValue();
         debug         = parser.getOption("-d").intValue();
-*/        
+        
         inputFileList.add(0,inputFile);
         HipoDST.init();
         HipoDST.writeHipo(outputFile, compression, keepBanks, debug, inputFileList);
+        
+// DST test        
 //        HipoDST.writeDST();
 //        HipoDST.readDST();
     }
