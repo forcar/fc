@@ -35,21 +35,25 @@ public class HipoDST {
     
 	public static void readDST() {
 		
-//		HipoReader reader = new HipoReader();
-		HipoDataSource reader = new HipoDataSource();
-		reader.open("/Users/colesmith/hipo_test_ntuple.hipo");
-		Integer current = reader.getCurrentIndex();
+        HipoDataSource reader = new HipoDataSource();
+        reader.open("/Users/colesmith/hipo_test_ntuple.hipo");
+        Integer current = reader.getCurrentIndex();
         Integer nevents = reader.getSize(); 
         System.out.println("Current event:"+current+" Nevents: "+nevents);
         for (int i=0; i<nevents; i++) {
             DataEvent event = reader.getNextEvent();
-            if(event.hasBank("DST::event")==true) {              
+            if(event.hasBank("DST::event")) { 
             	DataBank bank = event.getBank("DST::event");
-                System.out.println("nrows="+bank.rows());
-            	bank.show();
+                bank.show();
+            	for (int j=0; j<bank.rows(); j++) {
+                    System.out.println("id="+bank.getByte("id", j));
+                    System.out.println("px="+bank.getFloat("px", j));
+                    System.out.println("py="+bank.getFloat("py", j));
+                    System.out.println("pz="+bank.getFloat("pz", j));
+            	}
             }
 		}	
-		reader.close();
+        reader.close();
 	}
 	
 	public static void writeDST(){
@@ -114,7 +118,6 @@ public class HipoDST {
                     }
                 }
                 writerFactory.show();
-                //writeFactory.getSchemaEvent()
             }
             int nEvents = reader.getEventCount();
             for(int nev = 0; nev < nEvents; nev++){
@@ -127,7 +130,6 @@ public class HipoDST {
                     if (debug==1) de.getBank("ECAL::clusters").show();
                     writer.writeEvent(outEvent);
                 }
-//                writer.writeEvent(outEvent);
                 progress.updateStatus();
             }
         }
@@ -169,7 +171,12 @@ public class HipoDST {
         String  inputFile="/Users/colesmith/kpp/decoded/clas12_000761_a00214.hipo";
         String outputFile="/Users/colesmith/kpp/test.hipo";
 
-        
+        if(args.length==0) {   
+            HipoDST.writeDST();
+            HipoDST.readDST();
+            return;
+        }
+                               
         OptionParser parser = new OptionParser();
         parser.addRequired("-o");
         parser.addOption("-keep", "ALL", "Selection of banks to keep in the output");
@@ -185,12 +192,10 @@ public class HipoDST {
         debug         = parser.getOption("-d").intValue();
         
         inputFileList.add(0,inputFile);
+        
         HipoDST.init();
         HipoDST.writeHipo(outputFile, compression, keepBanks, debug, inputFileList);
         
-// DST test        
-//        HipoDST.writeDST();
-//        HipoDST.readDST();
     }
     
 }
