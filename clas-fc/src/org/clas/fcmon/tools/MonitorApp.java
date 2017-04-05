@@ -31,7 +31,9 @@ import org.clas.containers.FTHashCollection;
 import org.clas.fcmon.detector.view.DetectorPane2D;
 import org.jlab.detector.base.DetectorCollection;
 import org.jlab.detector.base.DetectorDescriptor;
+import org.jlab.detector.calib.utils.ConstantsManager;
 import org.jlab.groot.graphics.EmbeddedCanvas;
+import org.jlab.utils.groups.IndexedTable;
 
 /*
  * @author gavalian
@@ -88,6 +90,8 @@ public class MonitorApp extends JFrame implements ActionListener {
     public String        geom = "0.27";
     public String      config = "muon";
     
+    public FTHashCollection rtt = null;
+    
     public DetectorCollection<LinkedList<Double>> fifo1 = new DetectorCollection<LinkedList<Double>>();
     public DetectorCollection<LinkedList<Double>> fifo2 = new DetectorCollection<LinkedList<Double>>();
     public DetectorCollection<LinkedList<Double>> fifo3 = new DetectorCollection<LinkedList<Double>>();
@@ -119,6 +123,26 @@ public class MonitorApp extends JFrame implements ActionListener {
     public void setAppName(String name) {
         this.appName = name;
     }
+    
+    public void getReverseTT(ConstantsManager ccdb) {
+        System.out.println("monitor.getReverseTT()"); 
+        IndexedTable tt = ccdb.getConstants(10,  "/daq/tt/ec");
+        rtt = new FTHashCollection<int[]>(4);
+        for(int ic=1; ic<35; ic++) {
+            for (int sl=3; sl<19; sl++) {
+                int chmax=16;
+                if (sl==6||sl==16) chmax=128;
+                for (int ch=0; ch<chmax; ch++){
+                    if (tt.hasEntry(ic,sl,ch)) {
+                        int[] dum = {ic,sl,ch}; rtt.add(dum,tt.getIntValue("sector",    ic,sl,ch),
+                                                            tt.getIntValue("layer",     ic,sl,ch),
+                                                            tt.getIntValue("component", ic,sl,ch),
+                                                            tt.getIntValue("order",     ic,sl,ch));
+                    };
+                }
+            }
+        }
+    } 
     
     public void getEnv() {        
         String   ostype = System.getenv("OSTYPE");    
@@ -347,8 +371,29 @@ public class MonitorApp extends JFrame implements ActionListener {
       });
     }
     
-    public void updateStatus(String status)  {
-        this.statusLabel.setText(status) ; 
+    public String getStatusString(DetectorDescriptor dd) {
+        
+        String comp=(dd.getLayer()==4) ? "  Pixel:":"  PMT:";  
+      
+        int is = dd.getSector();
+        int sp = viewIndex+3*detectorIndex;
+        int ic = dd.getComponent()+1;
+        int or = 0;
+        int cr = 0;
+        int sl = 0;
+        int ch = 0;
+        if (getSelectedTabName()=="TDC") or=2;
+        if (rtt.hasItem(is,sp,ic,or)) {
+            int[] dum = (int[]) rtt.getItem(is,sp,ic,or);
+            cr = dum[0]; currentCrate = cr;
+            sl = dum[1]; currentSlot  = sl;
+            ch = dum[2]; currentChan  = ch;
+        }   
+        return " Sector:"+is+"  Layer:"+sp+comp+ic+" "+" Crate:"+cr+" Slot:"+sl+" Chan:"+ch;
+    }
+    
+    public void updateStatusString(DetectorDescriptor dd)  {
+        this.statusLabel.setText(getStatusString(dd)) ; 
     }
     
     @Override

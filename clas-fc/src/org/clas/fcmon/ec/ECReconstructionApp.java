@@ -30,6 +30,7 @@ import org.jlab.geom.prim.Point3D;
 import org.jlab.io.evio.EvioDataEvent;
 import org.jlab.service.eb.EventBuilder;
 import org.jlab.service.ec.ECPart;
+import org.jlab.utils.groups.IndexedList;
 import org.jlab.io.base.DataBank;
 import org.jlab.io.base.DataEvent;
 import org.jlab.io.evio.EvioDataBank;
@@ -43,6 +44,7 @@ public class ECReconstructionApp extends FCApplication {
 
    String BankType        = null;
    int              detID = 0;
+   int is1,is2,iis1,iis2;
    
    double pcx,pcy,pcz;
    double refE=0,refP=0,refTH=25;
@@ -76,12 +78,17 @@ public class ECReconstructionApp extends FCApplication {
        System.out.println("ECReconstruction.init()");
        mondet =           (String) mon.getGlob().get("mondet");
        DetectorCollection<H1F> ecEngHist = (DetectorCollection<H1F>) mon.getGlob().get("ecEng");
+       System.out.println(ECConstants.IS1+" "+ECConstants.IS2);
+        is1 = ECConstants.IS1;
+        is2 = ECConstants.IS2;
+       iis1 = ECConstants.IS1-1;
+       iis2 = ECConstants.IS2-1;
    }
    
    public void clearHistograms() {
      
        for (int idet=0; idet<ecPix.length; idet++) {
-           for (int is=1 ; is<7 ; is++) {
+           for (int is=is1 ; is<is2 ; is++) {
                for (int il=1 ; il<4 ; il++) {
                    ecPix[idet].strips.hmap2.get("H2_a_Hist").get(is,il,0).reset();
                    ecPix[idet].strips.hmap2.get("H2_a_Hist").get(is,il,1).reset();
@@ -127,15 +134,29 @@ public class ECReconstructionApp extends FCApplication {
     }
    
    public void updateHipoData(DataEvent event) {
-       int ilay=0;
-       int idet=-1;
-       int tdc=0;
+       IndexedList<Integer> tdcs = new IndexedList<Integer>(3);
+       int ilay=0, idet=-1;
        double sca=1;
        float tdcf=0;
        
        clear(0); clear(1); clear(2);
        
        sca = (app.isCRT==true) ? 6.6:1; // For pre-installation PCAL CRT runs
+       
+       tdcs.clear();
+       
+       if(event.hasBank("ECAL::tdc")==true){
+           DataBank  bank = event.getBank("ECAL::tdc");
+           int rows = bank.rows();
+           
+           for(int i = 0; i < rows; i++){
+               int  is = bank.getByte("sector",i);
+               int  il = bank.getByte("layer",i);
+               int  ip = bank.getShort("component",i);
+               int tdc = bank.getInt("TDC",i);    
+               tdcs.add(tdc,is,il,ip);
+           }
+       }
        
        if(event.hasBank("ECAL::adc")==true){
            DataBank  bank = event.getBank("ECAL::adc");
@@ -145,12 +166,17 @@ public class ECReconstructionApp extends FCApplication {
                int  il = bank.getByte("layer",i);
                int  ip = bank.getShort("component",i);
                int adc = bank.getInt("ADC",i);
-               int ped = bank.getShort("ped", i);
+               int ped = bank.getShort("ped", i); 
+               int tdc = (tdcs.hasItem(is,il,ip)) ? tdcs.getItem(is,il,ip):0;
                idet = getDet(il);
                ilay = getLay(il);
-               
+               if (app.rtt.hasItem(is,il,ip,0)) {
+                   int[] dum = (int[]) app.rtt.getItem(is,il,ip,0);
+                   getMode7(dum[0],dum[1],dum[2]);
+               }
+               if (ped>0) ecPix[idet].strips.hmap2.get("H2_Peds_Hist").get(is,ilay,0).fill(this.pedref-ped, ip);
                if(!app.isMC) sca = (is==5)?ecc.SCALE5[il-1]:ecc.SCALE[il-1];
-               fill(idet, is, ilay, ip, adc/(int)sca, tdc, tdcf);    
+               if(isGoodSector(is)) fill(idet, is, ilay, ip, adc/(int)sca, tdc*24/1000, tdcf);    
            }
        }
    }
@@ -195,10 +221,6 @@ public class ECReconstructionApp extends FCApplication {
             idet = getDet(il);
             ilay = getLay(il);
             
-            app.currentCrate = icr;
-            app.currentSlot  = isl;
-            app.currentChan  = ich;
- 
             if (idet>-1) {
                             
             if (strip.getTDCSize()>0) {
@@ -252,7 +274,7 @@ public class ECReconstructionApp extends FCApplication {
                }               
                if (ped>0) ecPix[idet].strips.hmap2.get("H2_Peds_Hist").get(is,ilay,0).fill(this.pedref-ped, ip);
              }           
-             fill(idet, is, ilay, ip, adc, tdc, tdcf);    
+             if(isGoodSector(is)) fill(idet, is, ilay, ip, adc, tdc, tdcf);    
             }
          }
       }
@@ -327,7 +349,7 @@ public class ECReconstructionApp extends FCApplication {
                   goodstrip= true;
                   if(app.isCRT&&il==2&&ip==53) goodstrip=false;
                   tdc = ((float)tdcc-tdcmax+1364000)/1000; 
-                  if (goodstrip) fill(idet, is, il, ip, adc, tdc, tdcf); 
+                  if (goodstrip&&isGoodSector(is)) fill(idet, is, il, ip, adc, tdc, tdcf); 
               }
           }
       }  
@@ -337,7 +359,7 @@ public class ECReconstructionApp extends FCApplication {
    
    public void clear(int idet) {
             
-      for (int is=0 ; is<6 ; is++) {     
+      for (int is=iis1 ; is<iis2 ; is++) {     
           ecPix[idet].uvwa[is] = 0;
           ecPix[idet].uvwt[is] = 0;
           ecPix[idet].mpix[is] = 0;
@@ -356,7 +378,7 @@ public class ECReconstructionApp extends FCApplication {
       }       
             
       if (app.isSingleEvent()) {
-         for (int is=0 ; is<6 ; is++) {
+         for (int is=iis1 ; is<iis2 ; is++) {
             ecPix[idet].clusterXY.get(is+1).clear();
             for (int il=0 ; il<3 ; il++) {
                 ecPix[idet].strips.hmap1.get("H1_Stra_Sevd").get(is+1,il+1,0).reset();
@@ -378,6 +400,10 @@ public class ECReconstructionApp extends FCApplication {
             }
          }
       }           
+   }
+   
+   public Boolean isGoodSector(int is) {
+       return is>=is1&&is<is2;
    }
         
    public void fill(int idet, int is, int il, int ip, int adc, double tdc, double tdcf) {
@@ -408,7 +434,7 @@ public class ECReconstructionApp extends FCApplication {
    }
    
   public void processSED(int idet) {
-      for (int is=0; is<6; is++) {
+      for (int is=iis1; is<iis2; is++) {
           float[] sed7 = ecPix[idet].strips.hmap1.get("H1_Pixa_Sevd").get(is+1,1,0).getData();
           for (int il=1; il<4; il++ ){               
               for (int n=1 ; n<ecPix[idet].nha[is][il-1]+1 ; n++) {
@@ -427,7 +453,7 @@ public class ECReconstructionApp extends FCApplication {
 
        int u,v,w,ii;
 
-       for (int is=0 ; is<6 ; is++) { // Loop over sectors
+       for (int is=iis1 ; is<iis2 ; is++) { // Loop over sectors
            for (int i=0; i<ecPix[idet].nha[is][0]; i++) { // Loop over U strips
                u=ecPix[idet].strra[is][0][i];
                for (int j=0; j<ecPix[idet].nha[is][1]; j++) { // Loop over V strips
@@ -472,7 +498,7 @@ public class ECReconstructionApp extends FCApplication {
        TreeMap<Integer, Object> map= (TreeMap<Integer, Object>) ecPix[idet].Lmap_a.get(0,0,1); 
        float pixelLength[] = (float[]) map.get(1);
        
-       for (int is=0 ; is<6 ; is++) {      
+       for (int is=iis1 ; is<iis2 ; is++) {      
 
                good_ua = ecPix[idet].nha[is][0]==1;
                good_va = ecPix[idet].nha[is][1]==1;
@@ -560,7 +586,7 @@ public class ECReconstructionApp extends FCApplication {
        // Layer assignments:
        // il=1-3 (U,V,W strips) il=7 (Inner Pixels) il=8 (Outer Pixels)
          
-        for (int is=1;is<7;is++) {
+        for (int is=is1;is<is2;is++) {
            for (int il=1 ; il<4 ; il++) {
                divide(H1_a_Maps.get(is,il,0),H1_a_Maps.get(is,il,4),H1_a_Maps.get(is,il,1)); //Normalize Raw View ADC   to Events
                divide(H1_a_Maps.get(is,il,2),H1_a_Maps.get(is,il,4),H1_a_Maps.get(is,il,3)); //Normalize Raw View ADC^2 to Events
