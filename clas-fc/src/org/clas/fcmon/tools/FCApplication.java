@@ -43,14 +43,14 @@ public class FCApplication implements ActionListener  {
 	
     ColorPalette palette = new ColorPalette();
     
-    private IndexedList<DataGroup> analysisData               = new IndexedList<DataGroup>(1);    
-    private String                                 appName    = null;
-    private List<EmbeddedCanvas>                   canvases   = new ArrayList<EmbeddedCanvas>();
-    private JPanel                                 radioPane  = null;
+    private IndexedList<DataGroup>               analysisData = new IndexedList<DataGroup>(1);    
+    private String                                    appName = null;
+    private List<EmbeddedCanvas>                     canvases = new ArrayList<EmbeddedCanvas>();
+    private JPanel                                  radioPane = null;
     public JPanel                                  buttonPane = null;  
-    private CalibrationEngineView                  calibPane  = null;
-    private List<String>                           fields     = new ArrayList<String>();
-//    private List<FCParameter>                      parameters = new ArrayList<FCParameter>();
+    private CalibrationEngineView                   calibPane = null;
+    private List<String>                               fields = new ArrayList<String>();
+//    private List<FCParameter>                    parameters = new ArrayList<FCParameter>();
     
     public ECPixels[]                                   ecPix = new ECPixels[2];
     public CCPixels                                     ccPix = null;
@@ -62,6 +62,7 @@ public class FCApplication implements ActionListener  {
 	 
 	public MonitorApp      app = null;
 	public DetectorMonitor mon = null;
+	
     public TreeMap<String,JPanel>  rbPanes = new TreeMap<String,JPanel>();
     public TreeMap<String,Integer>  bStore = new TreeMap<String,Integer>();
 	

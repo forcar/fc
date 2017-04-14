@@ -145,7 +145,7 @@ public class MonitorApp extends JFrame implements ActionListener {
     } 
     
     public void getEnv() {        
-        String   ostype = System.getenv("OSTYPE").toLowerCase();    
+        String   ostype = System.getenv("OSTYPE");   
         if (ostype!=null&&ostype.equals("linux")) {
             String hostname = System.getenv("HOST");
             if(hostname.substring(0,4).equals("clon")) {
