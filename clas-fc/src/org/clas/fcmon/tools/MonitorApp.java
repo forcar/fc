@@ -124,9 +124,9 @@ public class MonitorApp extends JFrame implements ActionListener {
         this.appName = name;
     }
     
-    public void getReverseTT(ConstantsManager ccdb) {
+    public void getReverseTT(ConstantsManager ccdb, String table) {
         System.out.println("monitor.getReverseTT()"); 
-        IndexedTable tt = ccdb.getConstants(10,  "/daq/tt/ec");
+        IndexedTable tt = ccdb.getConstants(10, table);
         rtt = new FTHashCollection<int[]>(4);
         for(int ic=1; ic<35; ic++) {
             for (int sl=3; sl<19; sl++) {
@@ -371,12 +371,20 @@ public class MonitorApp extends JFrame implements ActionListener {
       });
     }
     
+    public int getsp() {
+        switch (appName) {
+        case "ECMON":   return viewIndex+3*detectorIndex; 
+        case "FTOFMON": return viewIndex+2*detectorIndex;
+        }
+        return 0;
+    }
+    
     public String getStatusString(DetectorDescriptor dd) {
         
         String comp=(dd.getLayer()==4) ? "  Pixel:":"  PMT:";  
       
         int is = dd.getSector();
-        int sp = viewIndex+3*detectorIndex;
+        int sp = getsp();
         int ic = dd.getComponent()+1;
         int or = 0;
         int cr = 0;
