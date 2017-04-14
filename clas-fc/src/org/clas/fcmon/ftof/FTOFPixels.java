@@ -141,7 +141,7 @@ public class FTOFPixels {
             for (int il=1 ; il<3 ; il++){
                 iid="s"+Integer.toString(is)+"_l"+Integer.toString(il)+"_c";
                 H2_a_Hist.add(is, il, 0, new H2F("a_raw_"+iid+0,      100,   0., 4000.,nstr, 1., nend));
-                H2_t_Hist.add(is, il, 0, new H2F("a_raw_"+iid+0,      100,1300., 1420.,nstr, 1., nend));
+                H2_t_Hist.add(is, il, 0, new H2F("a_raw_"+iid+0,      100, 450.,  850.,nstr, 1., nend));
                 H2_a_Hist.add(is, il, 3, new H2F("a_ped_"+iid+3,       40, -20.,  20., nstr, 1., nend)); 
                 H2_a_Hist.add(is, il, 5, new H2F("a_fadc_"+iid+5,     100,   0., 100., nstr, 1., nend));
                 H1_a_Sevd.add(is, il, 0, new H1F("a_sed_"+iid+0,                       nstr, 1., nend));

@@ -20,6 +20,8 @@ import org.jlab.detector.decode.CodaEventDecoder;
 import org.jlab.detector.decode.DetectorDataDgtz;
 import org.jlab.detector.decode.DetectorEventDecoder;
 import org.jlab.io.evio.EvioDataEvent;
+import org.jlab.io.base.DataBank;
+import org.jlab.io.base.DataEvent;
 import org.jlab.io.evio.EvioDataBank;
 
 //import org.clas.fcmon.jroot.*;
@@ -28,7 +30,7 @@ public class FTOFReconstructionApp extends FCApplication {
     
    FADCFitter     fitter  = new FADCFitter(1,15);
    String          mondet = null;
-   Boolean           inMC = null;
+   
    String        BankType = null;
    int              detID = 0;
 
@@ -52,7 +54,6 @@ public class FTOFReconstructionApp extends FCApplication {
    public void init() {
        System.out.println("FTOFReconstruction.init()");
        mondet = (String) mon.getGlob().get("mondet");
-//       detID  =              (int) mon.getGlob().get("detID"); 
    } 
    
    public void clearHistograms() {
@@ -78,29 +79,68 @@ public class FTOFReconstructionApp extends FCApplication {
       this.tet    = app.mode7Emulation.tet;
       this.pedref = app.mode7Emulation.pedref;
    }
-   
-   public void addEvent(EvioDataEvent event) {
-      
-       if(app.isMC==true) {
-           this.updateSimulatedData(event);
-       } else {
-           this.updateRealData(event);         
+   public void addEvent(DataEvent event) {
+       
+       if(app.getDataSource()=="ET") this.updateRawData(event);
+       
+       if(app.getDataSource()=="EVIO") {
+           if(app.isMC==true)  this.updateSimulatedData(event);
+           if(app.isMC==false) this.updateRawData(event); 
        }
-          
-      if (app.isSingleEvent()) {
-         findPixels();     // Process all pixels for SED
-         processSED();
-      } else {
-         processPixels();  // Process only single pixels 
-         processCalib();   // Quantities for display and calibration engine
-      }
-   }
+       
+       if(app.getDataSource()=="XHIPO"||app.getDataSource()=="HIPO") this.updateHipoData(event);;
+       
+       if (app.isSingleEvent()) {
+           findPixels();     // Process all pixels for SED
+           processSED();
+        } else {
+           processPixels();  // Process only single pixels 
+           processCalib();   // Quantities for display and calibration engine
+        }
+    }
    
    public String detID(int layer) {
        return "FTOF";
    }
    
-   public void updateRealData(EvioDataEvent event){
+   public void updateHipoData(DataEvent event) {
+       int iadc;
+       float adc,tdc=0,tdcf=0;
+       
+       clear(0); clear(1); clear(2);
+
+       if(event.hasBank("FTOF::adc")==true){
+           DataBank  bank = event.getBank("FTOF::adc");
+           int rows = bank.rows();
+           for(int i = 0; i < rows; i++){
+               int  is = bank.getByte("sector",i);
+               int  il = bank.getByte("layer",i);
+               int  ip = bank.getShort("component",i);
+               int  io = bank.getByte("order",i);
+                  iadc = bank.getInt("ADC",i);
+               int ped = bank.getShort("ped", i);
+               fill(il-1, is, io+1, ip, iadc, tdc, tdcf);    
+           }
+       }
+       
+       if(event.hasBank("FTOF::rawhits")==true){
+           DataBank  bank = event.getBank("FTOF::rawhits");
+           int rows = bank.rows();
+           for(int i = 0; i < rows; i++){
+               int  is = bank.getByte("sector",i);
+               int  il = bank.getByte("layer",i);
+               int  ip = bank.getShort("component",i);
+               adc = bank.getFloat("energy_left",i);
+               tdc = bank.getFloat("time_left",i);
+//               fill(il-1,is,1,ip,(int)(100*adc),(int)tdc,tdcf);
+               adc = bank.getFloat("energy_right",i);
+               tdc = bank.getFloat("time_right",i);
+//               fill(il-1,is,2,ip,(int)(100*adc),(int)tdc,tdcf);
+           }
+       }
+   }   
+   
+   public void updateRawData(DataEvent event){
 
       int adc,ped,npk,il=0;
       double tdc=0,tdcf=0;
@@ -175,13 +215,13 @@ public class FTOFReconstructionApp extends FCApplication {
              } 
 //               System.out.println(icr+" "+isl+" "+ich+" "+is+" "+il+" "+ip+" "+iord+" "+tdc+" "+adc);
             
-             fill(is, il, ip, adc, tdc, tdcf, iil-1);    
+             fill(iil-1, is, il, ip, adc, tdc, tdcf);    
             }
          }
       }
    }
    
-   public void updateSimulatedData(EvioDataEvent event) {
+   public void updateSimulatedData(DataEvent event) {
        
       float tdcmax=100000;
       int nrows, adc, tdcc, fac;
@@ -198,8 +238,6 @@ public class FTOFReconstructionApp extends FCApplication {
               for(int i=0; i < bank.rows(); i++) mc_t = bank.getDouble("avgT",i);          
           }
          
-          inMC = true; mon.putGlob("inMC",true); 
-      
           if(event.hasBank(det[idet]+"::dgtz")==true) {            
               EvioDataBank bank = (EvioDataBank) event.getBank(det[idet]+"::dgtz");
               
@@ -215,12 +253,12 @@ public class FTOFReconstructionApp extends FCApplication {
                      tdcc = bank.getInt("TDCL",i);
                      tdcf = tdcc;
                       tdc = (((float)tdcc-(float)mc_t*1000)-tdcmax+1340000)/1000; 
-                 fill(is, 1, ip, adc, tdc, tdcf, idet); 
+                 fill(idet, is, 1, ip, adc, tdc, tdcf); 
                       adc = bank.getInt("ADCR",i);
                      tdcc = bank.getInt("TDCR",i);
                      tdcf = tdcc;
                       tdc = (((float)tdcc-(float)mc_t*1000)-tdcmax+1340000)/1000; 
-                 fill(is, 2, ip, adc, tdc, tdcf, idet); 
+                 fill(idet, is, 2, ip, adc, tdc, tdcf); 
               }                     
           }         
        }         
@@ -253,9 +291,9 @@ public class FTOFReconstructionApp extends FCApplication {
        }   
    }
    
-   public void fill(int is, int il, int ip, int adc, double tdc, double tdcf, int idet) {
+   public void fill(int idet, int is, int il, int ip, int adc, double tdc, double tdcf) {
            
-       if(tdc>1200&&tdc<1500){
+       if(tdc>0&&tdc<2500){
              ftofPix[idet].nht[is-1][il-1]++; int inh = ftofPix[idet].nht[is-1][il-1];
              if (inh>nstr) inh=nstr;
              ftofPix[idet].tdcr[is-1][il-1][inh-1] = (float) tdc;

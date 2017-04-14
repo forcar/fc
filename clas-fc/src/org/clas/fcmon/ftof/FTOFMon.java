@@ -35,8 +35,8 @@ public class FTOFMon extends DetectorMonitor {
        
     public int                 calRun = 12;
     int                         detID = 0;
-    int                           is1 = 2;    //All sectors: is1=1 is2=7  Single sector: is1=s is2=s+1
-    int                           is2 = 3; 
+    int                           is1 = 1;    //All sectors: is1=1 is2=7  Single sector: is1=s is2=s+1
+    int                           is2 = 7; 
     int      nsa,nsb,tet,p1,p2,pedref = 0;
     double                 PCMon_zmin = 0;
     double                 PCMon_zmax = 0;
@@ -47,7 +47,7 @@ public class FTOFMon extends DetectorMonitor {
     TreeMap<String,Object> glob = new TreeMap<String,Object>();
 	   
     public FTOFMon(String det) {
-        super("FTOFMON", "1.0", "lcsmith");
+        super(appname, "1.0", "lcsmith");
         mondet = det;
         ftofPix[0] = new FTOFPixels("PANEL1A");
         ftofPix[1] = new FTOFPixels("PANEL1B");
@@ -79,39 +79,19 @@ public class FTOFMon extends DetectorMonitor {
         monitor.ftofDet.initButtons();
     }
     
-    public FTHashCollection getReverseTT(ConstantsManager ccdb) {
-        System.out.println("monitor.getReverseTT()"); 
-        IndexedTable tt = ccdb.getConstants(10,  "/daq/tt/ftof");
-        FTHashCollection rtt = new FTHashCollection<int[]>(4);
-        for(int ic=1; ic<35; ic++) {
-            for (int sl=3; sl<19; sl++) {
-                int chmax=16;
-                if (sl==6||sl==16) chmax=128;
-                for (int ch=0; ch<chmax; ch++){
-                    if (tt.hasEntry(ic,sl,ch)) {
-                        int[] dum = {ic,sl,ch}; rtt.add(dum,tt.getIntValue("sector",    ic,sl,ch),
-                                                            tt.getIntValue("layer",     ic,sl,ch),
-                                                            tt.getIntValue("component", ic,sl,ch),
-                                                            tt.getIntValue("order",     ic,sl,ch));
-                    };
-                }
-            }
-        }
-        return rtt;
-    }
-    
     public void initConstants() {
-        FTOFConstants.setSectors(is1,is2);
+        FTOFConstants.setSectorRange(is1,is2);
     }   
     
     public void initCCDB() {
+        System.out.println("monitor.initCCDB()"); 
         ccdb.init(Arrays.asList(new String[]{
                 "/daq/fadc/ftof",
                 "/daq/tt/ftof",
                 "/calibration/ftof/attenuation",
                 "/calibration/ftof/gain_balance",
                 "/calibration/ftof/status"}));
-        rtt = getReverseTT(ccdb); 
+        app.getReverseTT(ccdb,"/daq/tt/ftof"); 
         app.mode7Emulation.init(ccdb,calRun,"/daq/fadc/ftof", 3,3,1);        
     } 
     
@@ -204,8 +184,8 @@ public class FTOFMon extends DetectorMonitor {
         putGlob("zmin", PCMon_zmin);
         putGlob("zmax", PCMon_zmax);
         putGlob("mondet",mondet);
-        putGlob("is1",is1);
-        putGlob("is2",is2);
+        putGlob("is1",FTOFConstants.IS1);
+        putGlob("is2",FTOFConstants.IS2);
     }
     
     @Override
@@ -225,7 +205,7 @@ public class FTOFMon extends DetectorMonitor {
 	
     @Override
     public void dataEventAction(DataEvent de) {
-        ftofRecon.addEvent((EvioDataEvent) de);	
+        ftofRecon.addEvent(de);	
     }
 
     @Override
@@ -245,7 +225,7 @@ public class FTOFMon extends DetectorMonitor {
     @Override
     public void processShape(DetectorShape2D shape) { 
         DetectorDescriptor dd = shape.getDescriptor();
-        app.updateStatus(getStatusString(dd));
+        app.updateStatusString(dd);
         this.analyze();       
         switch (app.getSelectedTabName()) {
         case "Mode1":                        ftofMode1.updateCanvas(dd); break;
