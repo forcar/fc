@@ -38,6 +38,7 @@ public class ECMode1App extends FCApplication  {
    public JPanel getPanel() {
        engineView.setLayout(new BorderLayout());
        mode1.addCanvas("UVW");
+       mode1.addCanvas("SYNC");
        engineView.add(mode1);
        return engineView;
    }
@@ -54,8 +55,9 @@ public class ECMode1App extends FCApplication  {
       this.nstr = ecPix[idet].ec_nstr[la-1];    
       
       switch (mode1.selectedCanvas) {
-      case "PMT": updateEvent(); break;
-      case "UVW": updateSum();
+      case  "PMT": updateEvent(); break;
+      case  "UVW": updateSum();   break;
+      case "SYNC": updateSync();
       }
       
    }
@@ -133,6 +135,24 @@ public class ECMode1App extends FCApplication  {
       c.repaint();
       ics[idet][la-1]=ic;
       
+   }
+   
+   public void updateSync() {
+       DetectorCollection<H2F> dc2a = ecPix[1].strips.hmap2.get("H2_t_Hist"); 
+       H1F h1; H2F h2;
+       c = mode1.getCanvas("SYNC");  c.clear(); c.divide(3,4); 
+       for (int is=1; is<7; is++) {
+           h2 = dc2a.get(is,3,3) ;  h2.setTitleY("PHASE") ; h2.setTitleX("Sector "+is+" W Inner Raw TDC (ns)");   
+           canvasConfig(c,is-1,600.,700.,0.,6.,true).draw(h2);
+           c.draw(h2);
+       }
+       for (int is=1; is<7; is++) {
+           h2 = dc2a.get(is,3,4) ;  h2.setTitleY("PHASE") ; h2.setTitleX("Sector "+is+" W Inner Corrected TDC (ns)");   
+           canvasConfig(c,is-1+6,600.,700.,0.,6.,true).draw(h2);
+           c.draw(h2);
+       }
+       
+       c.repaint();   
    }
    
 }

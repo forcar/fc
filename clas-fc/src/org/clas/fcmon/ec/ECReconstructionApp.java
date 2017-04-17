@@ -1,4 +1,4 @@
-package org.clas.fcmon.ec;
+ package org.clas.fcmon.ec;
 
 import static java.lang.System.out;
 
@@ -206,6 +206,7 @@ public class ECReconstructionApp extends FCApplication {
 
       int ilay=0;
       int idet=-1;
+//    System.out.println("tbits="+codaDecoder.getTriggerBits());
       
       for (DetectorDataDgtz strip : detectorData) {
          if(strip.getDescriptor().getType().getName()=="EC") {
@@ -224,7 +225,12 @@ public class ECReconstructionApp extends FCApplication {
             if (idet>-1) {
                             
             if (strip.getTDCSize()>0) {
+                int phase_offset = 1;
+                long phase = ((codaDecoder.getTimeStamp()%6)+phase_offset)%6;
                 tdc = strip.getTDCData(0).getTime()*24./1000.;
+                if(il==6&&idet==1) ecPix[idet].strips.hmap2.get("H2_t_Hist").get(is,3,3).fill(tdc,phase);
+                tdc = tdc-phase*4.;
+                if(il==6&&idet==1) ecPix[idet].strips.hmap2.get("H2_t_Hist").get(is,3,4).fill(tdc,phase);
             }
             
             if (strip.getADCSize()>0) {     

@@ -329,6 +329,10 @@ public class ECPixels {
                 H2_Mode1_Sevd.add(is, il, 1, new H2F("b_sed_fadc_"+id+1, 100, 0., 100., nstr, 1., nend));
             }
             
+                id="s"+Integer.toString(is)+"_l"+Integer.toString(3)+"_c";
+                H2_t_Hist.add(is, 3, 3, new H2F("a_raw_"+id+2, 100, 600., 700., 6, 0., 6.));
+                H2_t_Hist.add(is, 3, 4, new H2F("a_raw_"+id+2, 100, 600., 700., 6, 0., 6.));
+            
             // Reco data
                 id="s"+Integer.toString(is)+"_l"+Integer.toString(4)+"_c";
                 H2_a_Hist.add(is, 4, 0, new H2F("a_reco_"+id+0, 200, 5.,800., 9, 1., 10.));

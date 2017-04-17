@@ -46,8 +46,8 @@ public class ECMon extends DetectorMonitor {
    
     public static int        calRun = 760;
     int                       detID = 0;
-    int                         is1 = 2;
-    int                         is2 = 3;  
+    int                         is1 = 1;
+    int                         is2 = 7;  
     int    nsa,nsb,tet,p1,p2,pedref = 0;
     double               PCMon_zmin = 0;
     double               PCMon_zmax = 0;
@@ -59,7 +59,7 @@ public class ECMon extends DetectorMonitor {
     TreeMap<String,Object> glob = new TreeMap<String,Object>();
    
     public ECMon(String det) {
-        super("ECMON","1.0","lcsmith");
+        super(appname,"1.0","lcsmith");
         mondet = det;
         ECDetector ecdet  = new ECFactory().createDetectorTilted(DataBaseLoader.getGeometryConstants(DetectorType.EC, 10, "default"));
         ecPix[0] = new ECPixels("PCAL",ecdet);
@@ -104,7 +104,7 @@ public class ECMon extends DetectorMonitor {
                 "/calibration/ec/attenuation",
                 "/calibration/ec/gain",
                 "/calibration/ec/status"}));
-        app.getReverseTT(ccdb);
+        app.getReverseTT(ccdb,"/daq/tt/ec");
         app.mode7Emulation.init(ccdb,calRun,"/daq/fadc/ec", 3,3,1);        
     }	
     
@@ -350,11 +350,13 @@ public class ECMon extends DetectorMonitor {
             String hipoFileName = app.hipoPath+mondet+idet+"_"+app.runNumber+".hipo";
             System.out.println("Writing Histograms to "+hipoFileName);
             HipoFile histofile = new HipoFile(hipoFileName);
-            histofile.addToMap("H2_a_Hist", ecPix[idet].strips.hmap2.get("H2_a_Hist")); 
-            histofile.addToMap("H1_a_Hist", ecPix[idet].strips.hmap1.get("H1_a_Hist")); 
-            histofile.addToMap("H1_a_Maps", ecPix[idet].pixels.hmap1.get("H1_a_Maps"));
-            histofile.addToMap("H2_t_Hist", ecPix[idet].strips.hmap2.get("H2_t_Hist"));
-            histofile.addToMap("H1_t_Maps", ecPix[idet].pixels.hmap1.get("H1_t_Maps"));
+            histofile.addToMap("H2_a_Hist",   ecPix[idet].strips.hmap2.get("H2_a_Hist")); 
+            histofile.addToMap("H1_a_Hist",   ecPix[idet].strips.hmap1.get("H1_a_Hist")); 
+            histofile.addToMap("H1_a_Maps",   ecPix[idet].pixels.hmap1.get("H1_a_Maps"));
+            histofile.addToMap("H2_PC_Stat",  ecPix[idet].pixels.hmap2.get("H2_PC_Stat"));
+            histofile.addToMap("H2_Peds_Hist",ecPix[idet].pixels.hmap2.get("H2_Peds_Hist"));
+            histofile.addToMap("H2_t_Hist",   ecPix[idet].strips.hmap2.get("H2_t_Hist"));
+            histofile.addToMap("H1_t_Maps",   ecPix[idet].pixels.hmap1.get("H1_t_Maps"));
             histofile.addToMap("H1_SCA", ecScalers.H1_SCA);
             histofile.addToMap("H2_SCA", ecScalers.H2_SCA);
             histofile.writeHipoFile(hipoFileName);
