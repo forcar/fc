@@ -330,8 +330,8 @@ public class ECPixels {
             }
             
                 id="s"+Integer.toString(is)+"_l"+Integer.toString(3)+"_c";
-                H2_t_Hist.add(is, 3, 3, new H2F("a_raw_"+id+2, 100, 600., 700., 6, 0., 6.));
-                H2_t_Hist.add(is, 3, 4, new H2F("a_raw_"+id+2, 100, 600., 700., 6, 0., 6.));
+                H2_t_Hist.add(is, 3, 3, new H2F("a_raw_"+id+3, 100, 600., 700., 6, 0., 6.));
+                H2_t_Hist.add(is, 3, 4, new H2F("a_raw_"+id+4, 100, 600., 700., 6, 0., 6.));
             
             // Reco data
                 id="s"+Integer.toString(is)+"_l"+Integer.toString(4)+"_c";
@@ -405,11 +405,14 @@ public class ECPixels {
         if(hipoFile!=" "){
             FCCalibrationData calib = new FCCalibrationData();
             calib.getFile(hipoFile);
-            H2_a_Hist = calib.getCollection("H2_a_Hist");
-            H1_a_Hist = calib.getCollection("H1_a_Hist");
-            H1_a_Maps = calib.getCollection("H1_a_Maps");
-            H2_t_Hist = calib.getCollection("H2_t_Hist");
-            H1_t_Maps = calib.getCollection("H1_t_Maps");
+            H2_a_Hist     = calib.getCollection("H2_a_Hist");
+            H1_a_Hist     = calib.getCollection("H1_a_Hist");
+            H1_a_Maps     = calib.getCollection("H1_a_Maps");
+            H2_t_Hist     = calib.getCollection("H2_t_Hist");
+            H1_t_Maps     = calib.getCollection("H1_t_Maps");
+            H2_PC_Stat    = calib.getCollection("H2_PC_Stat");
+            H2_Peds_Hist  = calib.getCollection("H2_Peds_Hist");
+            H2_Mode1_Hist = calib.getCollection("H2_Mode1_Hist");
         }   
         
         strips.addH1DMap("H1_a_Hist",    H1_a_Hist);

@@ -350,15 +350,18 @@ public class ECMon extends DetectorMonitor {
             String hipoFileName = app.hipoPath+mondet+idet+"_"+app.runNumber+".hipo";
             System.out.println("Writing Histograms to "+hipoFileName);
             HipoFile histofile = new HipoFile(hipoFileName);
-            histofile.addToMap("H2_a_Hist",   ecPix[idet].strips.hmap2.get("H2_a_Hist")); 
-            histofile.addToMap("H1_a_Hist",   ecPix[idet].strips.hmap1.get("H1_a_Hist")); 
-            histofile.addToMap("H1_a_Maps",   ecPix[idet].pixels.hmap1.get("H1_a_Maps"));
-            histofile.addToMap("H2_PC_Stat",  ecPix[idet].pixels.hmap2.get("H2_PC_Stat"));
-            histofile.addToMap("H2_Peds_Hist",ecPix[idet].pixels.hmap2.get("H2_Peds_Hist"));
-            histofile.addToMap("H2_t_Hist",   ecPix[idet].strips.hmap2.get("H2_t_Hist"));
-            histofile.addToMap("H1_t_Maps",   ecPix[idet].pixels.hmap1.get("H1_t_Maps"));
+            histofile.addToMap("H2_a_Hist",    ecPix[idet].strips.hmap2.get("H2_a_Hist")); 
+            histofile.addToMap("H1_a_Hist",    ecPix[idet].strips.hmap1.get("H1_a_Hist")); 
+            histofile.addToMap("H2_PC_Stat",   ecPix[idet].strips.hmap2.get("H2_PC_Stat"));
+            histofile.addToMap("H2_Peds_Hist", ecPix[idet].strips.hmap2.get("H2_Peds_Hist"));
+            histofile.addToMap("H2_Mode1_Hist",ecPix[idet].strips.hmap2.get("H2_Mode1_Hist"));
+            histofile.addToMap("H2_t_Hist",    ecPix[idet].strips.hmap2.get("H2_t_Hist"));
+            histofile.addToMap("H1_a_Maps",    ecPix[idet].pixels.hmap1.get("H1_a_Maps"));
+            histofile.addToMap("H1_t_Maps",    ecPix[idet].pixels.hmap1.get("H1_t_Maps"));
+            if (idet==0) {
             histofile.addToMap("H1_SCA", ecScalers.H1_SCA);
             histofile.addToMap("H2_SCA", ecScalers.H2_SCA);
+            }
             histofile.writeHipoFile(hipoFileName);
         }
     }
