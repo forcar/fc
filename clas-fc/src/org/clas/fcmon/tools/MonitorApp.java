@@ -158,7 +158,7 @@ public class MonitorApp extends JFrame implements ActionListener {
         } else {
             System.out.println("Running on "+ostype);
             doEpics = false;
-            setIsMC(true);
+            setIsMC(false);
             rootPath  = "/Users/colesmith/"+appName;
             xMsgHost = "localhost";
         }
