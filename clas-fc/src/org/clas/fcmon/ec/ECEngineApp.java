@@ -68,6 +68,9 @@ public class ECEngineApp extends FCApplication implements ActionListener {
        engineView.setLayout(new BorderLayout());
        engineView.add(getCanvasPane(),BorderLayout.CENTER);
        engineView.add(getButtonPane(),BorderLayout.PAGE_END);
+       strips.addCanvas("Ns");
+       peaks.addCanvas("Np");
+       clusters.addCanvas("Nc");
        mc.addCanvas("Resid");
        mc.addCanvas("SF");
        mc.addCanvas("PI0");
@@ -357,9 +360,10 @@ public class ECEngineApp extends FCApplication implements ActionListener {
           double invmass = 1e3*Math.sqrt(part.getTwoPhoton(ecClusters,is));
           double     opa = Math.acos(part.cth)*180/3.14159;
           ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,0).fill((float)invmass,6,1.); // Two-photon invariant mass
-                   
+          
+          if(nesum[0][is-1]==1) ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,0).fill(esum[is-1],8,1.);  // Total Single Cluster Energy PC=1                     
           if(nesum[0][is-1]==1 && nesum[1][is-1]==1 ) {
-              ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,0).fill(esum[is-1],5,1.);                    // Total Single Cluster Energy   
+              ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,0).fill(esum[is-1],5,1.);                    // Total Single Cluster Energy PC=1.EC=1  
               ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,3).fill(1e-3*esum[is-1],esum[is-1]/refE,1.); // S.F. vs. meas.photon energy            
           }
           
@@ -534,17 +538,20 @@ public class ECEngineApp extends FCApplication implements ActionListener {
           c.draw(h); 
 	  }
 	  
-	  // Single Cluster total energy
-     
+	  // Single Cluster total energy     
       h = ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,0).sliceY((int)4) ; h.setTitleX("Total Single Cluster Energy (MeV)"); h.setFillColor(2);          
-      h.setOptStat(Integer.parseInt("11001100")); 
-      c.cd(ii);  c.getPad(ii).getAxisX().setRange(0.,xmx2*2); ii++;
+//      h.setOptStat(Integer.parseInt("11001100")); 
+      h.setOptStat(Integer.parseInt("1000100")); 
+      c.cd(ii);  c.getPad(ii).getAxisX().setRange(0.,xmx2*2.2); ii++;
       c.draw(h);      
+      h = ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,0).sliceY((int)7) ; h.setFillColor(32);          
+      h.setOptStat(Integer.parseInt("1000000")); 
+      c.draw(h,"same");
       
       // Cluster total energy
       h = ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,0).sliceY((int)6) ; h.setTitleX("Total Cluster Energy (MeV)"); h.setFillColor(2);          
       h.setOptStat(Integer.parseInt("11001100")); 
-      c.cd(ii);  c.getPad(ii).getAxisX().setRange(0.,xmx2*2); ii++;
+      c.cd(ii);  c.getPad(ii).getAxisX().setRange(0.,xmx2*2.2); ii++;
       c.draw(h);
       
       c.repaint();
