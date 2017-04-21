@@ -358,6 +358,7 @@ public class ECGainsApp extends FCApplication implements ActionListener {
 //        engine.processDataEvent(event);
           if (app.isSingleEvent()) {
               event.show();
+              if(event.hasBank("ECAL::adc")) event.getBank("ECAL::adc").show();
               if(event.hasBank("ECAL::hits")) event.getBank("ECAL::hits").show();
           }
 //        event.removeBank("ECAL::clusters");

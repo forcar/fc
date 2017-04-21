@@ -211,13 +211,13 @@ public class ECEngineApp extends FCApplication implements ActionListener {
            refTH = Math.acos(ppz/refP)*180/3.14159;
        }
            
-       if(event.hasBank("PCAL::true")==true) {
-           mcData = event.getBank("PCAL::true");
+       if(event.hasBank("ECAL::true")==true) {
+           mcData = event.getBank("ECAL::true");
            for(int i=0; i < mcData.rows(); i++) {
-               double pcX = mcData.getDouble("avgX",i);
-               double pcY = mcData.getDouble("avgY",i);
-               double pcZ = mcData.getDouble("avgZ",i);
-               double pcT = mcData.getDouble("avgT",i);
+               float pcX = mcData.getFloat("avgX",i);
+               float pcY = mcData.getFloat("avgY",i);
+               float pcZ = mcData.getFloat("avgZ",i);
+               float pcT = mcData.getFloat("avgT",i);
                if(pcT<tmax){pcx=pcX; pcy=pcY; pcz=pcZ ; tmax = pcT;}
            }
        }
@@ -470,7 +470,7 @@ public class ECEngineApp extends FCApplication implements ActionListener {
          F1D f2 = new F1D("p0","[a]",0.,ecPix[ilm].ec_nstr[il-1]+1); 
          f2.setParameter(0,0.1*ecPix[ilm].getPeakThr(app.config,il));
          f2.setLineColor(2);
-         h1 = ecPix[ilm].strips.hmap1.get("H1_Stra_Sevd").get(is,il,1); h1.setFillColor(0);
+         h1 = ecPix[ilm].strips.hmap1.get("H1_Stra_Sevd").get(is,il,1); h1.setFillColor(1);
          h2 = ecPix[ilm].strips.hmap1.get("H1_Stra_Sevd").get(is,il,0); h2.setFillColor(4); 
          h1.setTitleX(dtab[ilm]+otab[il-1]+"PMT"); h1.setTitleY(" ");
          if (il==1) h1.setTitleY("Strip Energy (MeV)"); 
