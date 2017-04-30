@@ -145,7 +145,8 @@ public class MonitorApp extends JFrame implements ActionListener {
     } 
     
     public void getEnv() {        
-        String   ostype = System.getenv("OSTYPE");   
+        String ostype = System.getenv("OSTYPE"); 
+        
         if (ostype!=null&&ostype.equals("linux")) {
             String hostname = System.getenv("HOST");
             if(hostname.substring(0,4).equals("clon")) {
@@ -154,14 +155,17 @@ public class MonitorApp extends JFrame implements ActionListener {
               setIsMC(false);
               rootPath = "/home/clasrun/"+appName;              
               xMsgHost = "129.57.167.227"; //clondaq4
-           }
-        } else {
+            }
+        }
+        
+        if (ostype!=null&&ostype.equals("darwin")) {
             System.out.println("Running on "+ostype);
             doEpics = false;
             setIsMC(false);
             rootPath  = "/Users/colesmith/"+appName;
             xMsgHost = "localhost";
         }
+        
         hipoPath  = rootPath+"/HIPO/";
         calibPath = rootPath+"/CALIB/";
            hvPath = rootPath+"/HV/";
@@ -173,22 +177,21 @@ public class MonitorApp extends JFrame implements ActionListener {
         
         this.setLayout(new BorderLayout());   
     	
+        this.detectorPane       = new JPanel();
         this.detectorView       = new DetectorPane2D();
         this.infoPane           = new JPanel();
-        this.detectorPane       = new JPanel();
         
         detectorPane.setLayout(new BorderLayout());
         this.detectorPane.add(detectorView,BorderLayout.CENTER);
         this.detectorPane.add(infoPane,BorderLayout.PAGE_END);
         
+        this.canvasPane         = new JPanel();
         this.canvasTabbedPane   = new JTabbedPane();    
         this.buttonPane         = new JPanel();
-        this.canvasPane         = new JPanel();
         
         canvasPane.setLayout(new BorderLayout());
         this.canvasPane.add(canvasTabbedPane,BorderLayout.CENTER);
         this.canvasPane.add(buttonPane,BorderLayout.PAGE_END);
-
         
 // InfoPane label
         
