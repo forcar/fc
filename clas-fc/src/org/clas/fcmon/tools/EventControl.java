@@ -19,6 +19,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import org.clas.fcmon.detector.view.DetectorPane2D;
+import org.jlab.clas.physics.Vector3;
 import org.jlab.io.base.DataEvent;
 import org.jlab.io.base.DataSource;
 //import org.jlab.evio.clas12.EvioDataEvent;
@@ -30,6 +31,7 @@ import org.jlab.io.evio.EvioRingSource;
 import org.jlab.io.evio.EvioSource;
 import org.jlab.io.hipo.HipoDataSource;
 import org.jlab.io.hipo.HipoRingSource;
+import org.jlab.utils.groups.IndexedList;
 
 public class EventControl extends JPanel implements ActionListener, ChangeListener {
 	
@@ -70,11 +72,13 @@ public class EventControl extends JPanel implements ActionListener, ChangeListen
     public int           stopFPS = 0;
     int                nEtEvents = 0;
     int              threadDelay = 0;
+    int             currentEvent = 0;
     
     private java.util.Timer    processTimer  = null;	
 	
     DetectorMonitor monitoringClass;
     DetectorPane2D detectorView;
+    IndexedList<DataEvent> eventList = new IndexedList<DataEvent>(1);
 	
     public void setPluginClass(DetectorMonitor monitoringClass, DetectorPane2D detectorView) {
       this.monitoringClass = monitoringClass;
@@ -249,14 +253,21 @@ public class EventControl extends JPanel implements ActionListener, ChangeListen
         if(e.getActionCommand().compareTo("<")==0){
             isSingleEvent = true;
             if(evReader.hasEvent()){
-                if(evReader.getCurrentIndex()>=2){
-                    
-                    DataEvent event = evReader.getPreviousEvent();
-                    Integer current = evReader.getCurrentIndex();
+                currentEvent = evReader.getCurrentIndex();
+                DataEvent event = null;
+                if(currentEvent>=2){                    
+                    DataEvent   dum = evReader.getPreviousEvent();
+                    currentEvent = evReader.getCurrentIndex();
+                    if(eventList.hasItem(currentEvent)) {
+                        event = eventList.getItem(currentEvent);
+                    }else{
+                        System.out.println("WARNING:EVENT "+currentEvent+" NOT FOUND IN eventList");
+                        event = dum;
+                    }
                     Integer nevents = evReader.getSize();
-                    this.statusLabel.setText("   EVENTS IN FILE : " + nevents.toString() + "  CURRENT : " + current.toString());
+                    this.statusLabel.setText("   EVENTS IN FILE : " + nevents.toString() + "  CURRENT : " + currentEvent);
 
-                    if(evReader.getCurrentIndex()==2){
+                    if(currentEvent==2){
                         buttonPrev.setEnabled(false);
                     }
                     if(event!=null){
@@ -285,6 +296,7 @@ public class EventControl extends JPanel implements ActionListener, ChangeListen
         }
         
         if(e.getActionCommand().compareTo(">>")==0){
+            eventList.clear();
             monitoringClass.go();
         	isSingleEvent = false;
         	isRunning     = true;
@@ -412,11 +424,14 @@ public class EventControl extends JPanel implements ActionListener, ChangeListen
     	    if(evReader.hasEvent()){
     	        
     	        DataEvent event = evReader.getNextEvent();
-    		    int current = evReader.getCurrentIndex();
+    		    currentEvent    = evReader.getCurrentIndex();
+                if(isSingleEvent) {
+                    eventList.add(event,currentEvent);
+                    monitoringClass.analyze();    
+                }
     		    int nevents = evReader.getSize();  
-    		    if(isSingleEvent) monitoringClass.analyze();
-                if(current>100&&current%5000==0) monitoringClass.analyze();
-    		    this.statusLabel.setText("   EVENTS IN FILE : " + nevents + "  CURRENT : " + current);
+                if(currentEvent>100&&currentEvent%5000==0) monitoringClass.analyze();
+    		    this.statusLabel.setText("   EVENTS IN FILE : " + nevents + "  CURRENT : " + currentEvent);
         
     		    try {
                     Thread.sleep(threadDelay);
