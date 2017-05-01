@@ -198,16 +198,16 @@ public class ECEngineApp extends FCApplication implements ActionListener {
        DataBank mcData,genData = null;
        double tmax = 30;
        
-       if(event.hasBank("GenPart::true")==true) {
-           genData = event.getBank("GenPart::true");
-           int    pid = genData.getInt("pid", 0);
-           double ppx = genData.getDouble("px",0);
-           double ppy = genData.getDouble("py",0);
-           double ppz = genData.getDouble("pz",0);
+       if(event.hasBank("MC::Particle")==true) {
+           genData = event.getBank("MC::Particle");
+           int   pid = genData.getInt("pid", 0);
+           float ppx = genData.getFloat("px",0);
+           float ppy = genData.getFloat("py",0);
+           float ppz = genData.getFloat("pz",0);
            double  rm = 0.;
            if (pid==111) rm=0.1349764; // pizero mass               
            refP  = Math.sqrt(ppx*ppx+ppy*ppy+ppz*ppz);  
-           refE  = Math.sqrt(refP*refP+rm*rm);            
+           refE  = Math.sqrt(refP*refP+rm*rm);    
            refTH = Math.acos(ppz/refP)*180/3.14159;
        }
            
@@ -375,7 +375,7 @@ public class ECEngineApp extends FCApplication implements ActionListener {
       
           if (app.config=="pi0") {
               if (invmass>95 && invmass<200) {
-                  ecPix[0].strips.hmap1.get("H1_a_Hist").get(is,4,0).fill((float)(1e3*Math.sqrt(part.tpi2)-refE)); // Pizero total energy error
+                  ecPix[0].strips.hmap1.get("H1_a_Hist").get(is,4,0).fill((float)(1e3*(Math.sqrt(part.tpi2)-refE))); // Pizero total energy error
                   ecPix[0].strips.hmap1.get("H1_a_Hist").get(is,4,1).fill(Math.acos(part.cpi0)*180/3.14159-refTH); // Pizero theta angle error
                   ecPix[0].strips.hmap1.get("H1_a_Hist").get(is,4,2).fill((float)part.X);                          // Pizero energy asymmetry
                   ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,4).fill(opa,(float)part.X);      
