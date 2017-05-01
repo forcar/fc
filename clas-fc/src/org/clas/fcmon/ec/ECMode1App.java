@@ -37,10 +37,14 @@ public class ECMode1App extends FCApplication  {
    
    public JPanel getPanel() {
        engineView.setLayout(new BorderLayout());
-       mode1.addCanvas("UVW");
-       mode1.addCanvas("SYNC");
-       engineView.add(mode1);
+       engineView.add(getCanvasPane(),BorderLayout.CENTER);
        return engineView;
+   }
+   
+   public EmbeddedCanvasTabbed getCanvasPane() {
+       mode1.addCanvas("UVW");
+       mode1.addCanvas("SYNC");  
+       return mode1;
    }
    
    public void updateCanvas(DetectorDescriptor dd) {

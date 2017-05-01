@@ -27,6 +27,7 @@ import org.jlab.detector.calib.utils.ConstantsManager;
 import org.clas.containers.FTHashCollection;
 import org.clas.fcmon.detector.view.DetectorShape2D;
 import org.jlab.groot.ui.PaveText;
+import org.jlab.utils.groups.IndexedList;
 import org.jlab.utils.groups.IndexedTable;
 import org.jlab.geom.detector.ec.ECDetector;
 import org.jlab.geom.detector.ec.ECFactory;
@@ -51,7 +52,9 @@ public class ECPixels {
     public TreeMap<Integer,List<double[]>>             peakXY = new TreeMap<Integer, List<double[]>>();
     public DetectorCollection<TreeMap<Integer,Object>> Lmap_a = new DetectorCollection<TreeMap<Integer,Object>>();
     public DetectorCollection<TreeMap<Integer,Object>> Lmap_t = new DetectorCollection<TreeMap<Integer,Object>>();
-
+    public IndexedList<double[]>                     Lmap_a_z = new IndexedList<double[]>(2);
+    public IndexedList<double[]>                     Lmap_t_z = new IndexedList<double[]>(2);
+    
     public Pixels     pixels = new Pixels();
     public Strips     strips = new Strips();
     public Pixel       pixel = null;
@@ -72,6 +75,7 @@ public class ECPixels {
     int         mpix[] = new    int[6];
     int         esum[] = new    int[6];
     int ecadcpix[][][] = new    int[6][3][6916];
+    int ectdcpix[][][] = new    int[6][3][6916];
     int   ecsumpix[][] = new    int[6][6916];
     int    ecpixel[][] = new    int[6][6916]; 
     
@@ -127,6 +131,27 @@ public class ECPixels {
 //    this.testStrips();
 //    this.testPixels();
         
+    }
+    
+    public void getLmapMinMax(int is1, int is2, int il, int opt){
+        TreeMap<Integer,Object> map = null;
+        double min,max,avg,aavg=0,tavg=0;
+        double[] a = {1000,0,0};
+        double[] t = {1000,0,0};
+        for (int is=is1 ; is<is2; is++) {
+            map = Lmap_a.get(is, il, opt);
+            min = (double) map.get(2); max = (double) map.get(3); avg = (double) map.get(4);
+            if (min<a[0]) a[0]=min; if (max>a[1]) a[1]=max; aavg+=avg;
+            map = Lmap_t.get(is, il, opt);
+            min = (double) map.get(2); max = (double) map.get(3); avg = (double) map.get(4);
+            if (min<t[0]) t[0]=min; if (max>t[1]) t[1]=max; tavg+=avg;
+        }
+
+        a[2]=aavg/(is2-is1);
+        t[2]=tavg/(is2-is1);
+                
+        Lmap_a_z.add(a,il,opt);
+        Lmap_t_z.add(t,il,opt);        
     }
     
     public void init() {
@@ -293,7 +318,8 @@ public class ECPixels {
         DetectorCollection<H2F> H2_t_Hist   = new DetectorCollection<H2F>();
         DetectorCollection<H1F> H1_a_Maps   = new DetectorCollection<H1F>();
         DetectorCollection<H1F> H1_t_Maps   = new DetectorCollection<H1F>();
-        DetectorCollection<H2F> H2_PC_Stat    = new DetectorCollection<H2F>();  
+        DetectorCollection<H2F> H2_PCa_Stat = new DetectorCollection<H2F>();  
+        DetectorCollection<H2F> H2_PCt_Stat = new DetectorCollection<H2F>();  
         DetectorCollection<H2F> H2_Peds_Hist  = new DetectorCollection<H2F>();  
         DetectorCollection<H2F> H2_Tdif_Hist  = new DetectorCollection<H2F>();  
         DetectorCollection<H2F> H2_Mode1_Hist = new DetectorCollection<H2F>();  
@@ -395,11 +421,14 @@ public class ECPixels {
                 H1_t_Maps.add(is, 7, 3, new H1F("d_nepix_"   +id+3, npix, 1., pend));    
                         
                 id="s"+Integer.toString(is)+"_l"+Integer.toString(0)+"_c";
-                H2_PC_Stat.add(is, 0, 0, new H2F("a_evt_"+id+0, nstr, 1., nend,  3, 1., 4.));              
-                H2_PC_Stat.add(is, 0, 1, new H2F("b_adc_"+id+1, nstr, 1., nend,  3, 1., 4.));              
-                H2_PC_Stat.add(is, 0, 2, new H2F("c_tdc_"+id+2, nstr, 1., nend,  3, 1., 4.));                       
-                H2_PC_Stat.add(is, 0, 3, new H2F("d_pix_"+id+3,   50,-1.,    1,  3, 1., 4.));                       
-                H2_PC_Stat.add(is, 0, 4, new H2F("e_pix_"+id+4,   50, 0.,  1.1,  4, 0., 4.));                       
+                H2_PCa_Stat.add(is, 0, 0, new H2F("a_evt_"+id+0, nstr, 1., nend,  3, 1., 4.));              
+                H2_PCa_Stat.add(is, 0, 1, new H2F("b_adc_"+id+1, nstr, 1., nend,  3, 1., 4.));              
+                H2_PCt_Stat.add(is, 0, 0, new H2F("a_evt_"+id+0, nstr, 1., nend,  3, 1., 4.));              
+                H2_PCt_Stat.add(is, 0, 1, new H2F("b_tdc_"+id+1, nstr, 1., nend,  3, 1., 4.));              
+                H2_PCa_Stat.add(is, 0, 3, new H2F("a_pix_"+id+3,   50,-1.,    1,  3, 1., 4.));                       
+                H2_PCa_Stat.add(is, 0, 4, new H2F("b_pix_"+id+4,   50, 0.,  1.1,  4, 0., 4.));                       
+                H2_PCt_Stat.add(is, 0, 3, new H2F("a_pix_"+id+3,   50,-1.,    1,  3, 1., 4.));                       
+                H2_PCt_Stat.add(is, 0, 4, new H2F("b_pix_"+id+4,   50, 0.,  1.1,  4, 0., 4.));                       
         }
         
         if(hipoFile!=" "){
@@ -410,7 +439,8 @@ public class ECPixels {
             H1_a_Maps     = calib.getCollection("H1_a_Maps");
             H2_t_Hist     = calib.getCollection("H2_t_Hist");
             H1_t_Maps     = calib.getCollection("H1_t_Maps");
-            H2_PC_Stat    = calib.getCollection("H2_PC_Stat");
+            H2_PCa_Stat   = calib.getCollection("H2_PCa_Stat");
+            H2_PCt_Stat   = calib.getCollection("H2_PCt_Stat");
             H2_Peds_Hist  = calib.getCollection("H2_Peds_Hist");
             H2_Mode1_Hist = calib.getCollection("H2_Mode1_Hist");
         }   
@@ -424,7 +454,8 @@ public class ECPixels {
         strips.addH1DMap("H1_Pixt_Sevd", H1_Pixt_Sevd);
         strips.addH1DMap("H1_Stra_Sevd", H1_Stra_Sevd);
         strips.addH1DMap("H1_Strt_Sevd", H1_Strt_Sevd);
-        strips.addH2DMap("H2_PC_Stat",   H2_PC_Stat);
+        strips.addH2DMap("H2_PCa_Stat",  H2_PCa_Stat);
+        strips.addH2DMap("H2_PCt_Stat",  H2_PCt_Stat);
         strips.addH2DMap("H2_Peds_Hist", H2_Peds_Hist);
         strips.addH2DMap("H2_Tdif_Hist", H2_Tdif_Hist);
         strips.addH2DMap("H2_Mode1_Hist",H2_Mode1_Hist);

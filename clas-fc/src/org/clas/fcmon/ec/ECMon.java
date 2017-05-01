@@ -195,7 +195,10 @@ public class ECMon extends DetectorMonitor {
         for (int i=0; i<ecPix.length; i++)   ecPix[i].init();
         initEngine();
         for (int i=0; i<ecPix.length; i++)   ecPix[i].Lmap_a.add(0,0,0, ecRecon.toTreeMap(ecPix[i].ec_cmap));
+        for (int i=0; i<ecPix.length; i++)   ecPix[i].Lmap_t.add(0,0,0, ecRecon.toTreeMap(ecPix[i].ec_cmap));
         for (int i=0; i<ecPix.length; i++)   ecPix[i].Lmap_a.add(0,0,1, ecRecon.toTreeMap(ecPix[i].ec_zmap));
+        for (int i=0; i<ecPix.length; i++)   ecPix[i].getLmapMinMax(0,1,0,0); 
+
     }
     
     public void initEngine() {
@@ -209,7 +212,7 @@ public class ECMon extends DetectorMonitor {
 
         ecRecon.init(); 
         ecEngine.init();
-        ecEngine.setVariation("default");
+        ecEngine.setVariation("clas6");
        
         ecEngine.setStripThresholds(ecPix[0].getStripThr(app.config, 1),
                                     ecPix[1].getStripThr(app.config, 1),
@@ -294,15 +297,17 @@ public class ECMon extends DetectorMonitor {
     
     @Override    
     public void update(DetectorShape2D shape) {
-        ecDet.update(shape); //Get color for this shape from maps
+        //From DetectorView2D.DetectorViewLayer2D.drawLayer: Update color map of shape
+        ecDet.update(shape); 
 //      ecCalib.updateDetectorView(shape); //For status maps
     }	
     
     @Override
-    public void processShape(DetectorShape2D shape) {		
+    public void processShape(DetectorShape2D shape) {	
+        // From updateGUI timer or mouseover : process entering a new detector shape and repaint
         DetectorDescriptor dd = shape.getDescriptor();
-        app.updateStatusString(dd);
-        this.analyze();
+        app.updateStatusString(dd); // For strip/pixel ID and reverse translation table
+        this.analyze(); // Refresh color maps 
         switch (app.getSelectedTabName()) {
         case "Mode1":                       ecMode1.updateCanvas(dd); break;
         case "ADC":                           ecAdc.updateCanvas(dd); break;

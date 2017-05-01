@@ -19,6 +19,7 @@ import org.clas.fcmon.ec.ECPixels;
 import org.clas.fcmon.ftof.FTOFPixels;
 import org.jlab.detector.base.DetectorCollection;
 import org.jlab.detector.base.DetectorDescriptor;
+import org.jlab.utils.groups.IndexedList;
 //import org.root.attr.ColorPalette;
 
 /**
@@ -40,7 +41,6 @@ public class FCDetector {
     public TreeMap<String,JPanel>  rbPanes = new TreeMap<String,JPanel>();
     public TreeMap<String,Integer>  bStore = new TreeMap<String,Integer>();
     
-    public DetectorCollection<TreeMap<Integer,Object>> Lmap_a = new DetectorCollection<TreeMap<Integer,Object>>();
     
     public int is,layer,ic;
     public int panel,opt,io,of,lay,l1,l2;
@@ -50,6 +50,7 @@ public class FCDetector {
     int     nStrips[] = new int[6];
     double PCMon_zmin = 0;
     double PCMon_zmax = 0;
+    double zmin,zmax,zavg;
     
     public FCDetector(ECPixels[] ecPix) {
         this.ecPix = ecPix;    
@@ -107,6 +108,7 @@ public class FCDetector {
         lay   = 0;
         opt   = 0;
         
+//        System.out.println("is,layer,comp,ilmap,omap= "+is+" "+layer+" "+ic+" "+ilmap+" "+omap);
         if (panel==1) opt = 1;
         if (layer<4)  lay = layer;
         if (layer==4) lay = 7;
@@ -169,6 +171,9 @@ public class FCDetector {
     
     public void update(DetectorShape2D shape) {
         
+        DetectorCollection<TreeMap<Integer,Object>> dc = null;
+        IndexedList<double[]>  mapz = null;
+        Boolean useTDC;
         ColorPalette pal = null;
         DetectorDescriptor dd = shape.getDescriptor();
         this.getDetIndices(dd);
@@ -176,25 +181,30 @@ public class FCDetector {
         
         double colorfraction=1;
         
+        useTDC = (app.getSelectedTabName()=="TDC");
+       
         Boolean peakShapes = (opt==0&&layer==0);
+        
+        switch (appName) {
+        case   "ECDet": if(!useTDC) dc = ecPix[ilmap].Lmap_a; mapz=ecPix[ilmap].Lmap_a_z ; 
+                        if( useTDC) dc = ecPix[ilmap].Lmap_t; mapz=ecPix[ilmap].Lmap_t_z ;break;
+        case "FTOFDet": if(!useTDC) dc = ftofPix[ilmap].Lmap_a; 
+                        if( useTDC) dc = ftofPix[ilmap].Lmap_t; break;     
+        case   "CCDet": if(!useTDC) dc = ccPix.Lmap_a; 
+                        if( useTDC) dc = ccPix.Lmap_t;
+        }
         
         // Update shape color map depending on process status and layer
         // layers 1-6 reserved for strip views, layers >7 for pixel views
         // Lmap_a stores live colormap of detector shape elements
        
         if (app.getInProcess()==0){ // Assign default colors upon starting GUI (before event processing)
-             if(layer<7) colorfraction = (double)ic/nStrips[ilmap]; 
-            if(layer>=7) colorfraction = getcolor((TreeMap<Integer, Object>) ecPix[ilmap].Lmap_a.get(0,0,0), ic);  
+            if(layer <  7) colorfraction = (double)ic/nStrips[ilmap]; 
+            if(layer >= 7) colorfraction = getcolor(dc.get(0,0,0),ic,mapz.getItem(0,0));
         }
 
-        if (app.getInProcess()>0&&!peakShapes){ 
-            switch (appName){
-            case   "ECDet": colorfraction = getcolor((TreeMap<Integer, Object>)   ecPix[ilmap].Lmap_a.get(is,layer,opt), ic);break;
-            case "FTOFDet": colorfraction = getcolor((TreeMap<Integer, Object>) ftofPix[ilmap].Lmap_a.get(is,layer,opt), ic);break;
-            case   "CCDet": colorfraction = getcolor((TreeMap<Integer, Object>)          ccPix.Lmap_a.get(is,layer,opt), ic);
-            }
-        }
-        
+        if (app.getInProcess()>0&&!peakShapes) colorfraction = getcolor(dc.get(is,layer,opt),ic,mapz.getItem(layer,opt));
+                
         if (colorfraction<0.05) colorfraction = 0.05;
         pal = palette3;
         if (appName=="ECDet" && app.isSingleEvent() && !peakShapes) {
@@ -213,16 +223,17 @@ public class FCDetector {
 
     }
     
-    public double getcolor(TreeMap<Integer,Object> map, int component) {
+    public double getcolor(TreeMap<Integer,Object> map, int component, double[] zmap) {
         
         double color=0;
         double smax=4000.;
 
         if (!map.containsKey(1)) return color;
+        
         float val[] = (float[]) map.get(1); 
-        double rmin = (double)   map.get(2);
-        double rmax = (double)   map.get(3);
-        double  avg = (double)   map.get(4);
+        double rmin = zmap[0];
+        double rmax = zmap[1];
+        double  avg = zmap[2];
         float     z =  val[component];
         
         if (z==0) return 0;
@@ -232,7 +243,7 @@ public class FCDetector {
         if (app.getInProcess()==0)  color=(double)(z-rmin)/(rmax-rmin);
         double pixMin = app.displayControl.pixMin ; double pixMax = app.displayControl.pixMax;
         if (app.getInProcess()!=0) {
-//          if (!app.isSingleEvent()) color=(double)(Math.log10(z)-pixMin*Math.log10(rmin))/(pixMax*Math.log10(rmax)-pixMin*Math.log10(rmin));
+//          if (!app.isSingleEvent()) color=(double)(Math.log10(z)-Math.log10(pixMin))/(Math.log10(pixMax)-Math.log10(pixMin));
 //          if ( app.isSingleEvent()) color=(double)(z-pixMin*rmin)/(smax*pixMax-rmin*pixMin);
           if (!app.isSingleEvent()) color=(double)(z-rmin*pixMin)/(10*avg*pixMax-rmin*pixMin) ;
           if ( app.isSingleEvent()) color=(double)(z-rmin*pixMin)/(rmax*pixMax-rmin*pixMin) ;

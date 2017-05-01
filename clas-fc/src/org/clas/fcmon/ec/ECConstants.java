@@ -1,5 +1,7 @@
 package org.clas.fcmon.ec;
 
+import org.jlab.utils.groups.IndexedList;
+
 public class ECConstants {
     
     public static int IS1 = 0 ;

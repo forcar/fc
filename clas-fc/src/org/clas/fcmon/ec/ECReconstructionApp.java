@@ -377,8 +377,8 @@ public class ECReconstructionApp extends FCApplication {
                  ecPix[idet].strra[is][il][ip]    = 0;
                  ecPix[idet].strrt[is][il][ip]    = 0;
                  ecPix[idet].adcr[is][il][ip]     = 0;
-                 ecPix[idet].ftdcr[is][il][ip]    = 0;
                  ecPix[idet].tdcr[is][il][ip]     = 0;
+                 ecPix[idet].ftdcr[is][il][ip]    = 0;
              }
           }               
       }       
@@ -389,11 +389,14 @@ public class ECReconstructionApp extends FCApplication {
             for (int il=0 ; il<3 ; il++) {
                 ecPix[idet].strips.hmap1.get("H1_Stra_Sevd").get(is+1,il+1,0).reset();
                 ecPix[idet].strips.hmap1.get("H1_Stra_Sevd").get(is+1,il+1,1).reset();
+                ecPix[idet].strips.hmap1.get("H1_Strt_Sevd").get(is+1,il+1,0).reset();
+                ecPix[idet].strips.hmap1.get("H1_Strt_Sevd").get(is+1,il+1,1).reset();
                 ecPix[idet].strips.hmap2.get("H2_Mode1_Hist").get(is+1,il+1,0).reset();
                 ecPix[idet].strips.hmap2.get("H2_Mode1_Sevd").get(is+1,il+1,0).reset();
                 ecPix[idet].strips.hmap2.get("H2_Mode1_Sevd").get(is+1,il+1,1).reset();
                 for (int ip=0; ip<ecPix[idet].pixels.getNumPixels() ; ip++) {
                     ecPix[idet].ecadcpix[is][il][ip] = 0;                
+                    ecPix[idet].ectdcpix[is][il][ip] = 0;                
                 }
                 
             }
@@ -402,7 +405,8 @@ public class ECReconstructionApp extends FCApplication {
                 ecPix[idet].ecsumpix[is][ip] = 0;
             }
             for (int il=0 ; il<1 ; il++) {
-               ecPix[idet].strips.hmap1.get("H1_Pixa_Sevd").get(is+1,il+1,0).reset();
+                ecPix[idet].strips.hmap1.get("H1_Pixa_Sevd").get(is+1,il+1,0).reset();
+                ecPix[idet].strips.hmap1.get("H1_Pixt_Sevd").get(is+1,il+1,0).reset();
             }
          }
       }           
@@ -421,7 +425,8 @@ public class ECReconstructionApp extends FCApplication {
            ecPix[idet].tdcr[is-1][il-1][inh-1] = tdc;
            ecPix[idet].strrt[is-1][il-1][inh-1] = ip;                  
            ecPix[idet].strips.hmap2.get("H2_t_Hist").get(is,il,0).fill(tdc,ip,1.);
-           ecPix[idet].strips.hmap2.get("H2_PC_Stat").get(is,0,2).fill(ip,il,tdc);
+           ecPix[idet].strips.hmap2.get("H2_PCt_Stat").get(is,0,0).fill(ip,il,1.);
+           ecPix[idet].strips.hmap2.get("H2_PCt_Stat").get(is,0,1).fill(ip,il,tdc);
        }
        
        ecPix[idet].strips.hmap1.get("H1_Stra_Sevd").get(is,il,1).fill(ip,0.1*adc);
@@ -434,8 +439,8 @@ public class ECReconstructionApp extends FCApplication {
            ecPix[idet].ftdcr[is-1][il-1][inh-1] = tdcf;
            ecPix[idet].strra[is-1][il-1][inh-1] = ip;
            ecPix[idet].strips.hmap2.get("H2_a_Hist").get(is,il,0).fill(adc,ip,1.);  
-           ecPix[idet].strips.hmap2.get("H2_PC_Stat").get(is,0,0).fill(ip,il,1.);
-           ecPix[idet].strips.hmap2.get("H2_PC_Stat").get(is,0,1).fill(ip,il,adc);
+           ecPix[idet].strips.hmap2.get("H2_PCa_Stat").get(is,0,0).fill(ip,il,1.);
+           ecPix[idet].strips.hmap2.get("H2_PCa_Stat").get(is,0,1).fill(ip,il,adc);
        }   
    }
    
@@ -504,7 +509,9 @@ public class ECReconstructionApp extends FCApplication {
        TreeMap<Integer, Object> map= (TreeMap<Integer, Object>) ecPix[idet].Lmap_a.get(0,0,1); 
        float pixelLength[] = (float[]) map.get(1);
        
-       for (int is=iis1 ; is<iis2 ; is++) {      
+       for (int is=iis1 ; is<iis2 ; is++) {  
+           
+               // Process FADC data
 
                good_ua = ecPix[idet].nha[is][0]==1;
                good_va = ecPix[idet].nha[is][1]==1;
@@ -522,15 +529,15 @@ public class ECReconstructionApp extends FCApplication {
                pixel = ecPix[idet].pixels.getPixelNumber(ecPix[idet].strra[is][0][0],ecPix[idet].strra[is][1][0],ecPix[idet].strra[is][2][0]);
                good_pixel = pixel!=0;
 
-                              ecPix[idet].strips.hmap2.get("H2_PC_Stat").get(is+1,0,3).fill(ecPix[idet].uvwa[is]-2.0,1.,1.);
-               if (good_uvwa) ecPix[idet].strips.hmap2.get("H2_PC_Stat").get(is+1,0,3).fill(ecPix[idet].uvwa[is]-2.0,2.,1.);
+                              ecPix[idet].strips.hmap2.get("H2_PCa_Stat").get(is+1,0,3).fill(ecPix[idet].uvwa[is]-2.0,1.,1.);
+               if (good_uvwa) ecPix[idet].strips.hmap2.get("H2_PCa_Stat").get(is+1,0,3).fill(ecPix[idet].uvwa[is]-2.0,2.,1.);
                
                if (good_dalitz && good_pixel && good_uvwa) { //Dalitz condition AND valid pixel AND NU=NV=NW=1
                    
                    double area = ecPix[idet].pixels.getZoneNormalizedArea(pixel);
                    int    zone = ecPix[idet].pixels.getZone(pixel);
                    
-                   ecPix[idet].strips.hmap2.get("H2_PC_Stat").get(is+1,0,4).fill(area,zone,1.);
+                   ecPix[idet].strips.hmap2.get("H2_PCa_Stat").get(is+1,0,4).fill(area,zone,1.);
                    ecPix[idet].pixels.hmap1.get("H1_a_Maps").get(is+1,7,0).fill(pixel,1.0); // Events per pixel                  
                    ecPix[idet].pixels.hmap1.get("H1_a_Maps").get(is+1,7,3).fill(pixel,1.0/ecPix[idet].pixels.getNormalizedArea(pixel)); //Normalized to pixel area
                    
@@ -547,21 +554,32 @@ public class ECReconstructionApp extends FCApplication {
                    }
                }  
                
+               // Process TDC data
+
                good_ut = ecPix[idet].nht[is][0]==1;
                good_vt = ecPix[idet].nht[is][1]==1;
                good_wt = ecPix[idet].nht[is][2]==1;
                
                good_uvwt = good_ut && good_vt && good_wt; //Multiplicity test (NU=NV=NW=1)                 
                
-               if (idet>0)  good_dalitz = (ecPix[idet].uvwt[is]-2.0)>0.02 && (ecPix[idet].uvwt[is]-2.0)<0.056; //EC               
-               if (idet==0) good_dalitz = Math.abs(ecPix[idet].uvwt[is]-2.0)<0.1; //PCAL
+               if (idet==0) good_dalitz = Math.abs(ecPix[idet].uvwt[is]-2.0)<0.1;                              //PCAL dalitz
+               if (idet>0)  good_dalitz = (ecPix[idet].uvwt[is]-2.0)>0.02 && (ecPix[idet].uvwt[is]-2.0)<0.056; //ECAL dalitz                
                
                pixel  = ecPix[idet].pixels.getPixelNumber(ecPix[idet].strrt[is][0][0],ecPix[idet].strrt[is][1][0],ecPix[idet].strrt[is][2][0]);
                good_pixel  = pixel!=0;
+               
+                              ecPix[idet].strips.hmap2.get("H2_PCt_Stat").get(is+1,0,3).fill(ecPix[idet].uvwt[is]-2.0,1.,1.);
+               if (good_uvwt) ecPix[idet].strips.hmap2.get("H2_PCt_Stat").get(is+1,0,3).fill(ecPix[idet].uvwt[is]-2.0,2.,1.);
 
-               if (good_uvwt && good_dalitz && good_pixel) { 
+               if (good_dalitz && good_pixel && good_uvwt) { 
+                   
+                   double area = ecPix[idet].pixels.getZoneNormalizedArea(pixel);
+                   int    zone = ecPix[idet].pixels.getZone(pixel);
+                   
+                   ecPix[idet].strips.hmap2.get("H2_PCt_Stat").get(is+1,0,4).fill(area,zone,1.);
                    ecPix[idet].pixels.hmap1.get("H1_t_Maps").get(is+1,7,0).fill(pixel,1.0);
                    ecPix[idet].pixels.hmap1.get("H1_t_Maps").get(is+1,7,3).fill(pixel,1.0/ecPix[idet].pixels.getNormalizedArea(pixel)); //Normalized to pixel area
+                   
                    for (int il=1; il<4 ; il++){
                        ecPix[idet].strips.hmap2.get("H2_t_Hist").get(is+1,il,1).fill(ecPix[idet].tdcr[is][il-1][0],ecPix[idet].strrt[is][il-1][0],1.0) ;
                        ecPix[idet].strips.hmap2.get("H2_t_Hist").get(is+1,il,2).fill(ecPix[idet].tdcr[is][il-1][0],pixel,1.0);                       
@@ -600,40 +618,53 @@ public class ECReconstructionApp extends FCApplication {
                ecPix[idet].Lmap_a.add(is,il,   0, toTreeMap(H2_a_Hist.get(is,il,0).projectionY().getData()));  //Strip View ADC  
                ecPix[idet].Lmap_a.add(is,il+10,0, toTreeMap(H1_a_Maps.get(is,il,1).getData()));                //Pixel View ADC 
                ecPix[idet].Lmap_t.add(is,il,   0, toTreeMap(H2_t_Hist.get(is,il,0).projectionY().getData()));  //Strip View TDC  
-               ecPix[idet].Lmap_t.add(is,il,   1, toTreeMap(H1_t_Maps.get(is,il,1).getData()));                //Pixel View TDC  
+               ecPix[idet].Lmap_t.add(is,il+10,0, toTreeMap(H1_t_Maps.get(is,il,1).getData()));                //Pixel View TDC                
            }
            
            divide(H1_a_Maps.get(is, 7, 1),H1_a_Maps.get(is, 7, 0),H1_a_Maps.get(is, 7, 2)); // Normalize Raw ADC Sum to Events
            divide(H1_t_Maps.get(is, 7, 1),H1_t_Maps.get(is, 7, 0),H1_t_Maps.get(is, 7, 2)); // Normalize Raw TDC Sum to Events 
-           ecPix[idet].Lmap_a.add(is, 7,0, toTreeMap(H1_a_Maps.get(is,7,0).getData())); //Pixel Events  
-           printit=true; ecPix[idet].Lmap_a.add(is, 7,1, toTreeMap(H1_a_Maps.get(is,7,3).getData())); printit=false;//Pixel Events Normalized  
-           ecPix[idet].Lmap_a.add(is, 9,0, toTreeMap(H1_a_Maps.get(is,7,2).getData())); //Pixel U+V+W ADC     
-           ecPix[idet].Lmap_t.add(is, 7,2, toTreeMap(H1_t_Maps.get(is,7,2).getData())); //Pixel U+V+W TDC  
+           ecPix[idet].Lmap_a.add(is, 7,0, toTreeMap(H1_a_Maps.get(is,7,0).getData())); //Pixel ADC Events  
+           ecPix[idet].Lmap_t.add(is, 7,0, toTreeMap(H1_t_Maps.get(is,7,0).getData())); //Pixel TDC Events  
+           ecPix[idet].Lmap_a.add(is, 7,1, toTreeMap(H1_a_Maps.get(is,7,3).getData())); //Pixel ADC Events Normalized  
+           ecPix[idet].Lmap_t.add(is, 7,1, toTreeMap(H1_t_Maps.get(is,7,3).getData())); //Pixel TDC Events Normalized  
+           ecPix[idet].Lmap_a.add(is, 9,0, toTreeMap(H1_a_Maps.get(is,7,2).getData())); //Pixel ADC U+V+W    
+           ecPix[idet].Lmap_t.add(is, 9,0, toTreeMap(H1_t_Maps.get(is,7,2).getData())); //Pixel TDC U+V+W   
+           
            if (app.isSingleEvent()){
                for (int il=1 ; il<4 ; il++) ecPix[idet].Lmap_a.add(is,il,0,   toTreeMap(H1_Stra_Sevd.get(is,il,0).getData())); 
                for (int il=1 ; il<2 ; il++) ecPix[idet].Lmap_a.add(is,il+6,0, toTreeMap(H1_Pixa_Sevd.get(is,il,0).getData())); 
            }
        }
-     
+        
+       ecPix[idet].getLmapMinMax(is1,is2,1,0); 
+       ecPix[idet].getLmapMinMax(is1,is2,2,0); 
+       ecPix[idet].getLmapMinMax(is1,is2,3,0); 
+       ecPix[idet].getLmapMinMax(is1,is2,11,0); 
+       ecPix[idet].getLmapMinMax(is1,is2,12,0); 
+       ecPix[idet].getLmapMinMax(is1,is2,13,0); 
+       ecPix[idet].getLmapMinMax(is1,is2,7,0); 
+       ecPix[idet].getLmapMinMax(is1,is2,7,1); 
+       ecPix[idet].getLmapMinMax(is1,is2,9,0); 
    }
-
+   
    public TreeMap<Integer, Object> toTreeMap(float dat[]) {
        TreeMap<Integer, Object> hcontainer = new TreeMap<Integer, Object>();
        hcontainer.put(1, dat);
        float[] b = Arrays.copyOf(dat, dat.length);
-       double min=100000,max=0,bsum=0;
+       double min=100000,max=0,bsum=0,ratio=0;
        int nbsum=0;
        for (int i =0 ; i < b.length; i++){
            if (b[i] !=0 && b[i] < min) min=b[i];
            if (b[i] !=0 && b[i] > max) max=b[i];
            if (b[i]>0) {bsum=bsum+b[i]; nbsum++;}
        }
+       if (nbsum>0) ratio=bsum/nbsum;
        // Arrays.sort(b);
        // double min = b[0]; double max=b[b.length-1];
        if (min<=0) min=0.01;
        hcontainer.put(2, min);
        hcontainer.put(3, max);
-       hcontainer.put(4,bsum/nbsum);
+       hcontainer.put(4,ratio);
        return hcontainer;        
    }
 
