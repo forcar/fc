@@ -19,8 +19,11 @@ import org.jlab.service.ec.ECEngine;
 import org.jlab.utils.benchmark.ProgressPrintout;
 import org.jlab.utils.options.OptionParser;
 
-// L.C. Smith
-// Based on hipo-io/src/main/java/org/jlab/hipo/tests/WriterTests.java and other code by G. Gavalian 
+// L.C. Smith, G. Gavalian
+// Code below adapted from clas12rec/clas-reco/src/main/java/org/jlab/clas/reco/io/HipoFileUtils.java 
+// Used to filter data based on result of method saveEvent.  In this example I use ECEngine to recreate
+// ECAL::clusters and cut on the number of cluster to reject cosmics
+
 
 public class HipoDST {
     
@@ -33,65 +36,8 @@ public class HipoDST {
         ecEngine.setStripThresholds(15,20,20);
         ecEngine.setPeakThresholds(15,20,20);
         ecEngine.setClusterCuts(6,10,10);
-
     }
 
-    // Code below tests writing and reading customized banks in HIPO without need of JSON file
-    // Would be used to create mini-DSTs from filtering decoded or cooked HIPO files
-	public static void readDST() {
-		
-        HipoDataSource reader = new HipoDataSource();
-        reader.open("/Users/colesmith/hipo_test_ntuple.hipo");
-        Integer current = reader.getCurrentIndex();
-        Integer nevents = reader.getSize(); 
-        System.out.println("Current event:"+current+" Nevents: "+nevents);
-        for (int i=0; i<nevents; i++) {
-            DataEvent event = reader.getNextEvent();
-            if(event.hasBank("DST::event")) { 
-            	DataBank bank = event.getBank("DST::event");
-                bank.show();
-            	for (int j=0; j<bank.rows(); j++) {
-                    System.out.println("id="+bank.getByte("id", j));
-                    System.out.println("px="+bank.getFloat("px", j));
-                    System.out.println("py="+bank.getFloat("py", j));
-                    System.out.println("pz="+bank.getFloat("pz", j));
-            	}
-            }
-		}	
-        reader.close();
-	}
-	
-	public static void writeDST(){
-		    
-	   HipoWriter writer = new HipoWriter();
-	        
-       writer.defineSchema(new Schema("{20,DST::event}[1,id,BYTE][2,px,FLOAT][3,py,FLOAT][4,pz,FLOAT]"));	        
-       writer.setCompressionType(2);
-       writer.open("/Users/colesmith/hipo_test_ntuple.hipo");
-       int nevents = 1;
-       int id = 127;
-       for(int i = 0; i < nevents; i++){
-           HipoGroup group = writer.getSchemaFactory().getSchema("DST::event").createGroup(4);
-           for (int j=0; j < 4; j++) {
-               group.getNode("id").setByte(j, (byte)id);
-               group.getNode("px").setFloat(j, (float) Math.random());
-               group.getNode("py").setFloat(j, (float) Math.random());
-               group.getNode("pz").setFloat(j, (float) Math.random());
-           }
-	       
-           HipoDataBank bank = new HipoDataBank(group);
-           bank.show();
-           HipoEvent event = writer.createEvent();
-           event.writeGroup(group);
-           writer.writeEvent(event);
-       }
-       writer.close();
-    }
-	
-	// Code below adapted from clas12rec/clas-reco/src/main/java/org/jlab/clas/reco/io/HipoFileUtils.java 
-	// Used to filter data based on result of method saveEvent.  In this example I used ECEngine to recreate
-	// ECAL::clusters and cut on the number of cluster to reject cosmics
-	
     public static void writeHipo(String outputName, int compression, String keep, int debug, List<String> files){
         
         HipoWriter writer = new HipoWriter();
@@ -108,7 +54,7 @@ public class HipoDST {
             reader.open(files.get(i));
             if(i==0){
                 SchemaFactory factory = reader.getSchemaFactory();
-                System.out.println(" OPENNING FIRST FILE : " + files.get(i));
+                System.out.println(" OPENING FIRST FILE : " + files.get(i));
                 System.out.println(" Scanning Schema FACTORY");
                 List<Schema> list = factory.getSchemaList();
         
@@ -158,7 +104,8 @@ public class HipoDST {
                 int det = idet[bank.getByte("layer", loop)];   
                 clust[sec-1][det]++;
             }
-            for (int s=0; s<6; s++) { //Cluster multiplicity filter to reject cosmics
+            //Cluster multiplicity filter to reject cosmics
+            for (int s=0; s<6; s++) { 
                 good_clust[s]=clust[s][0]>0&&clust[s][0]<3&&
                               clust[s][1]>0&&clust[s][1]<3&&
                               clust[s][2]>0&&clust[s][2]<3;
@@ -168,6 +115,60 @@ public class HipoDST {
         return good_clust[0]||good_clust[1]||good_clust[2]||good_clust[3]||good_clust[4]||good_clust[5];                
     }
     
+    // Code below tests writing and reading customized banks in HIPO without need of JSON file
+    // Would be used to create mini-DSTs from filtering decoded or cooked HIPO files
+    // Based on hipo-io/src/main/java/org/jlab/hipo/tests/WriterTests.java 
+    
+    public static void readDST() {
+        
+        HipoDataSource reader = new HipoDataSource();
+        reader.open("/Users/colesmith/hipo_test_ntuple.hipo");
+        Integer current = reader.getCurrentIndex();
+        Integer nevents = reader.getSize(); 
+        System.out.println("Current event:"+current+" Nevents: "+nevents);
+        for (int i=0; i<nevents; i++) {
+            DataEvent event = reader.getNextEvent();
+            if(event.hasBank("DST::event")) { 
+                DataBank bank = event.getBank("DST::event");
+                bank.show();
+                for (int j=0; j<bank.rows(); j++) {
+                    System.out.println("id="+bank.getByte("id", j));
+                    System.out.println("px="+bank.getFloat("px", j));
+                    System.out.println("py="+bank.getFloat("py", j));
+                    System.out.println("pz="+bank.getFloat("pz", j));
+                }
+            }
+        }   
+        reader.close();
+    }
+    
+    public static void writeDST(){
+            
+       HipoWriter writer = new HipoWriter();
+            
+       writer.defineSchema(new Schema("{20,DST::event}[1,id,BYTE][2,px,FLOAT][3,py,FLOAT][4,pz,FLOAT]"));           
+       writer.setCompressionType(2);
+       writer.open("/Users/colesmith/hipo_test_ntuple.hipo");
+       int nevents = 1;
+       int id = 127;
+       for(int i = 0; i < nevents; i++){
+           HipoGroup group = writer.getSchemaFactory().getSchema("DST::event").createGroup(4);
+           for (int j=0; j < 4; j++) {
+               group.getNode("id").setByte(j, (byte)id);
+               group.getNode("px").setFloat(j, (float) Math.random());
+               group.getNode("py").setFloat(j, (float) Math.random());
+               group.getNode("pz").setFloat(j, (float) Math.random());
+           }
+           
+           HipoDataBank bank = new HipoDataBank(group);
+           bank.show();
+           HipoEvent event = writer.createEvent();
+           event.writeGroup(group);
+           writer.writeEvent(event);
+       }
+       writer.close();
+    }
+        
     public static void main(String[] args){   
 
         List<String> inputFileList = new ArrayList<String>();
@@ -195,7 +196,7 @@ public class HipoDST {
         keepBanks     = parser.getOption("-keep").stringValue();
         debug         = parser.getOption("-d").intValue();
         
-        inputFileList.add(0,inputFile);
+//        inputFileList.add(0,inputFile);
         
         HipoDST.init();
         HipoDST.writeHipo(outputFile, compression, keepBanks, debug, inputFileList);
