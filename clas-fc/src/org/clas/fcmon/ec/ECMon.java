@@ -343,7 +343,6 @@ public class ECMon extends DetectorMonitor {
             String hipoFileName = app.hipoPath+mondet+idet+"_"+app.runNumber+".hipo";
             System.out.println("Reading Histograms from "+hipoFileName);
             ecPix[idet].initHistograms(hipoFileName);
-            ecRecon.makeMaps(idet);
           }
           app.setInProcess(2);          
     }

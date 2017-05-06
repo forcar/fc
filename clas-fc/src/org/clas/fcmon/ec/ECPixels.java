@@ -147,9 +147,9 @@ public class ECPixels {
             if (min<t[0]) t[0]=min; if (max>t[1]) t[1]=max; tavg+=avg;
         }
 
-        a[2]=aavg/(is2-is1);
-        t[2]=tavg/(is2-is1);
-                
+        a[2]=Math.min(500000,aavg/(is2-is1));
+        t[2]=Math.min(500000,tavg/(is2-is1));
+        
         Lmap_a_z.add(a,il,opt);
         Lmap_t_z.add(t,il,opt);        
     }
@@ -318,6 +318,7 @@ public class ECPixels {
         DetectorCollection<H2F> H2_t_Hist   = new DetectorCollection<H2F>();
         DetectorCollection<H1F> H1_a_Maps   = new DetectorCollection<H1F>();
         DetectorCollection<H1F> H1_t_Maps   = new DetectorCollection<H1F>();
+        DetectorCollection<H2F> H2_PC_Stat  = new DetectorCollection<H2F>();  
         DetectorCollection<H2F> H2_PCa_Stat = new DetectorCollection<H2F>();  
         DetectorCollection<H2F> H2_PCt_Stat = new DetectorCollection<H2F>();  
         DetectorCollection<H2F> H2_Peds_Hist  = new DetectorCollection<H2F>();  
@@ -399,23 +400,25 @@ public class ECPixels {
                 H1_a_Maps.add(is, il, 1, new H1F("b_napix_"  +id+1, npix, 1., pend)); //normalized adc weighted pixel
                 H1_a_Maps.add(is, il, 2, new H1F("c_apix2_"  +id+2, npix, 1., pend)); //adc^2 weighted pixel
                 H1_a_Maps.add(is, il, 3, new H1F("d_napix2_" +id+3, npix, 1., pend)); //normalized adc^2 weighted pixel
-                H1_a_Maps.add(is, il, 4, new H1F("e_epix_"   +id+4, npix, 1., pend)); //event weighted pixel
-                H1_t_Maps.add(is, il, 0, new H1F("a_tdcpix_" +id+0, npix, 1., pend)); 
-                H1_t_Maps.add(is, il, 1, new H1F("b_pixt_"   +id+1, npix, 1., pend));                  
+                H1_a_Maps.add(is, il, 4, new H1F("e_aepix_"  +id+4, npix, 1., pend)); //event weighted adc pixel
+                H1_t_Maps.add(is, il, 0, new H1F("a_tpix_"   +id+0, npix, 1., pend)); //tdc weighted pixel
+                H1_t_Maps.add(is, il, 1, new H1F("b_ntpix_"  +id+1, npix, 1., pend)); //normalized tdc weighted pixel
+                H1_t_Maps.add(is, il, 2, new H1F("b_tpix2_"  +id+2, npix, 1., pend)); //tdc^2 weighted pixel                 
+                H1_t_Maps.add(is, il, 4, new H1F("e_tepix_"  +id+4, npix, 1., pend)); //event weighted tdc pixel                 
             }
             for (int il=1 ; il<3 ; il++) {
                 // Single Event Pixel Occupancy
                 id="s"+Integer.toString(is)+"_l"+Integer.toString(il)+"_c";
                 H1_Pixa_Sevd.add(is, il, 0, new H1F("a_pix_"+id+0, npix,  1., pend));
-                H1_Pixt_Sevd.add(is, il, 0, new H1F("a_pix_"+id+0, npix,  1., pend));
+                H1_Pixt_Sevd.add(is, il, 0, new H1F("t_pix_"+id+0, npix,  1., pend));
             }           
                 // Non-layer Pixel Maps
                 id="s"+Integer.toString(is)+"_l"+Integer.toString(7)+"_c";
-                H1_a_Maps.add(is, 7, 0, new H1F("a_epix_"    +id+0, npix, 1., pend)); // event weighted pixel
+                H1_a_Maps.add(is, 7, 0, new H1F("a_aepix_"   +id+0, npix, 1., pend)); // event weighted pixel
                 H1_a_Maps.add(is, 7, 1, new H1F("b_asumpix_" +id+1, npix, 1., pend)); // adc   U+V+W weighted pixel
                 H1_a_Maps.add(is, 7, 2, new H1F("c_nsumpix_" +id+2, npix, 1., pend)); // adc   U+V+W weighted normalized pixel
                 H1_a_Maps.add(is, 7, 3, new H1F("d_nepix_"   +id+3, npix, 1., pend)); // event weighted normalized pixel
-                H1_t_Maps.add(is, 7, 0, new H1F("a_epix_"    +id+0, npix, 1., pend));    
+                H1_t_Maps.add(is, 7, 0, new H1F("a_tepix_"   +id+0, npix, 1., pend));    
                 H1_t_Maps.add(is, 7, 1, new H1F("b_tsumpix_" +id+1, npix, 1., pend));    
                 H1_t_Maps.add(is, 7, 2, new H1F("c_nsumpix_" +id+2, npix, 1., pend));  
                 H1_t_Maps.add(is, 7, 3, new H1F("d_nepix_"   +id+3, npix, 1., pend));    
@@ -429,6 +432,8 @@ public class ECPixels {
                 H2_PCa_Stat.add(is, 0, 4, new H2F("b_pix_"+id+4,   50, 0.,  1.1,  4, 0., 4.));                       
                 H2_PCt_Stat.add(is, 0, 3, new H2F("a_pix_"+id+3,   50,-1.,    1,  3, 1., 4.));                       
                 H2_PCt_Stat.add(is, 0, 4, new H2F("b_pix_"+id+4,   50, 0.,  1.1,  4, 0., 4.));                       
+                H2_PC_Stat.add(is, 0, 3, new H2F("a_pix_"+id+3,   50,-1.,    1,  3, 1., 4.));                       
+                H2_PC_Stat.add(is, 0, 4, new H2F("b_pix_"+id+4,   50, 0.,  1.1,  4, 0., 4.));                       
         }
         
         if(hipoFile!=" "){
@@ -439,6 +444,7 @@ public class ECPixels {
             H1_a_Maps     = calib.getCollection("H1_a_Maps");
             H2_t_Hist     = calib.getCollection("H2_t_Hist");
             H1_t_Maps     = calib.getCollection("H1_t_Maps");
+            H2_PC_Stat    = calib.getCollection("H2_PC_Stat");
             H2_PCa_Stat   = calib.getCollection("H2_PCa_Stat");
             H2_PCt_Stat   = calib.getCollection("H2_PCt_Stat");
             H2_Peds_Hist  = calib.getCollection("H2_Peds_Hist");
@@ -454,6 +460,7 @@ public class ECPixels {
         strips.addH1DMap("H1_Pixt_Sevd", H1_Pixt_Sevd);
         strips.addH1DMap("H1_Stra_Sevd", H1_Stra_Sevd);
         strips.addH1DMap("H1_Strt_Sevd", H1_Strt_Sevd);
+        strips.addH2DMap("H2_PC_Stat",   H2_PC_Stat);
         strips.addH2DMap("H2_PCa_Stat",  H2_PCa_Stat);
         strips.addH2DMap("H2_PCt_Stat",  H2_PCt_Stat);
         strips.addH2DMap("H2_Peds_Hist", H2_Peds_Hist);

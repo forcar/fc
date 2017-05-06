@@ -186,10 +186,12 @@ public class FCDetector {
         Boolean peakShapes = (opt==0&&layer==0);
         
         switch (appName) {
-        case   "ECDet": if(!useTDC) dc = ecPix[ilmap].Lmap_a; mapz=ecPix[ilmap].Lmap_a_z ; 
-                        if( useTDC) dc = ecPix[ilmap].Lmap_t; mapz=ecPix[ilmap].Lmap_t_z ;break;
-        case "FTOFDet": if(!useTDC) dc = ftofPix[ilmap].Lmap_a; 
-                        if( useTDC) dc = ftofPix[ilmap].Lmap_t; break;     
+        case   "ECDet": if(!useTDC) {dc = ecPix[ilmap].Lmap_a; mapz=ecPix[ilmap].Lmap_a_z ;}
+                        if( useTDC) {dc = ecPix[ilmap].Lmap_t; mapz=ecPix[ilmap].Lmap_t_z ;} 
+                        break;
+        case "FTOFDet": if(!useTDC) dc = ftofPix[ilmap].Lmap_a;
+                        if( useTDC) dc = ftofPix[ilmap].Lmap_t; 
+                        break;     
         case   "CCDet": if(!useTDC) dc = ccPix.Lmap_a; 
                         if( useTDC) dc = ccPix.Lmap_t;
         }
@@ -202,7 +204,11 @@ public class FCDetector {
             if(layer <  7) colorfraction = (double)ic/nStrips[ilmap]; 
             if(layer >= 7) colorfraction = getcolor(dc.get(0,0,0),ic,mapz.getItem(0,0));
         }
+        
+        //double[] junk = ecPix[ilmap].Lmap_a_z.getItem(1,0);
+        //System.out.println("ilmap,junk = "+ilmap+" "+junk[0]+" "+junk[1]+" "+junk[2]);
 
+        if(app.debug) System.out.println("layer,opt = "+layer+" "+opt);
         if (app.getInProcess()>0&&!peakShapes) colorfraction = getcolor(dc.get(is,layer,opt),ic,mapz.getItem(layer,opt));
                 
         if (colorfraction<0.05) colorfraction = 0.05;
@@ -234,8 +240,9 @@ public class FCDetector {
         double rmin = zmap[0];
         double rmax = zmap[1];
         double  avg = zmap[2];
+        if(app.getSelectedTabName()=="TDC") {rmin=600;rmax=700;avg=650;}
         float     z =  val[component];
-        
+        //if(app.debug) System.out.println(rmin+" "+rmax+" "+avg);
         if (z==0) return 0;
         rmax=avg;
         PCMon_zmax = rmax*1.2; mon.getGlob().put("PCMon_zmax", PCMon_zmax);
@@ -245,12 +252,12 @@ public class FCDetector {
         if (app.getInProcess()!=0) {
 //          if (!app.isSingleEvent()) color=(double)(Math.log10(z)-Math.log10(pixMin))/(Math.log10(pixMax)-Math.log10(pixMin));
 //          if ( app.isSingleEvent()) color=(double)(z-pixMin*rmin)/(smax*pixMax-rmin*pixMin);
-          if (!app.isSingleEvent()) color=(double)(z-rmin*pixMin)/(10*avg*pixMax-rmin*pixMin) ;
+          if (!app.isSingleEvent()) color=(double)(z-rmin*pixMin)/(2*rmax*pixMax-rmin*pixMin) ;
           if ( app.isSingleEvent()) color=(double)(z-rmin*pixMin)/(rmax*pixMax-rmin*pixMin) ;
         }
         
         // Set color bar min,max
-        app.getDetectorView().getView().zmax = rmax*pixMax;
+        app.getDetectorView().getView().zmax = 10*rmax*pixMax;
         app.getDetectorView().getView().zmin = rmin*pixMin;
         
         if (color>1)   color=1;

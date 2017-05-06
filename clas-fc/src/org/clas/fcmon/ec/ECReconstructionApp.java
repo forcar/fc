@@ -418,11 +418,11 @@ public class ECReconstructionApp extends FCApplication {
         
    public void fill(int idet, int is, int il, int ip, int adc, double tdc, double tdcf) {
 
-       if(tdc>0&&tdc<1500){
+       if(tdc>400&&tdc<800){
            ecPix[idet].uvwt[is-1]=ecPix[idet].uvwt[is-1]+ecPix[idet].uvw_dalitz(idet,il,ip); //Dalitz tdc 
            ecPix[idet].nht[is-1][il-1]++; int inh = ecPix[idet].nht[is-1][il-1];
            if (inh>nstr) inh=nstr;
-           ecPix[idet].tdcr[is-1][il-1][inh-1] = tdc;
+           ecPix[idet].tdcr[is-1][il-1][inh-1]  = tdc;
            ecPix[idet].strrt[is-1][il-1][inh-1] = ip;                  
            ecPix[idet].strips.hmap2.get("H2_t_Hist").get(is,il,0).fill(tdc,ip,1.);
            ecPix[idet].strips.hmap2.get("H2_PCt_Stat").get(is,0,0).fill(ip,il,1.);
@@ -435,7 +435,7 @@ public class ECReconstructionApp extends FCApplication {
            ecPix[idet].uvwa[is-1]=ecPix[idet].uvwa[is-1]+ecPix[idet].uvw_dalitz(idet,il,ip); //Dalitz adc
            ecPix[idet].nha[is-1][il-1]++; int inh = ecPix[idet].nha[is-1][il-1];
            if (inh>nstr) inh=nstr;
-           ecPix[idet].adcr[is-1][il-1][inh-1] = adc;
+           ecPix[idet].adcr[is-1][il-1][inh-1]  = adc;
            ecPix[idet].ftdcr[is-1][il-1][inh-1] = tdcf;
            ecPix[idet].strra[is-1][il-1][inh-1] = ip;
            ecPix[idet].strips.hmap2.get("H2_a_Hist").get(is,il,0).fill(adc,ip,1.);  
@@ -560,7 +560,11 @@ public class ECReconstructionApp extends FCApplication {
                good_vt = ecPix[idet].nht[is][1]==1;
                good_wt = ecPix[idet].nht[is][2]==1;
                
-               good_uvwt = good_ut && good_vt && good_wt; //Multiplicity test (NU=NV=NW=1)                 
+               good_uvwt = good_ut && good_vt && good_wt; //Multiplicity test (NU=NV=NW=1)    
+               
+               good_pix[0] = good_ut&&ecPix[idet].tdcr[is][0][0]>500&&ecPix[idet].tdcr[is][0][0]<800;  
+               good_pix[1] = good_vt&&ecPix[idet].tdcr[is][1][0]>500&&ecPix[idet].tdcr[is][1][0]<800;  
+               good_pix[2] = good_wt&&ecPix[idet].tdcr[is][2][0]>500&&ecPix[idet].tdcr[is][2][0]<800;  
                
                if (idet==0) good_dalitz = Math.abs(ecPix[idet].uvwt[is]-2.0)<0.1;                              //PCAL dalitz
                if (idet>0)  good_dalitz = (ecPix[idet].uvwt[is]-2.0)>0.02 && (ecPix[idet].uvwt[is]-2.0)<0.056; //ECAL dalitz                
@@ -581,10 +585,15 @@ public class ECReconstructionApp extends FCApplication {
                    ecPix[idet].pixels.hmap1.get("H1_t_Maps").get(is+1,7,3).fill(pixel,1.0/ecPix[idet].pixels.getNormalizedArea(pixel)); //Normalized to pixel area
                    
                    for (int il=1; il<4 ; il++){
-                       ecPix[idet].strips.hmap2.get("H2_t_Hist").get(is+1,il,1).fill(ecPix[idet].tdcr[is][il-1][0],ecPix[idet].strrt[is][il-1][0],1.0) ;
-                       ecPix[idet].strips.hmap2.get("H2_t_Hist").get(is+1,il,2).fill(ecPix[idet].tdcr[is][il-1][0],pixel,1.0);                       
-                       ecPix[idet].pixels.hmap1.get("H1_t_Maps").get(is+1,7,1).fill(pixel,ecPix[idet].tdcr[is][il-1][0]);
-                       ecPix[idet].pixels.hmap1.get("H1_t_Maps").get(is+1,il,0).fill(pixel,ecPix[idet].tdcr[is][il-1][0]);
+                       double tdcc = ecPix[idet].tdcr[is][il-1][0];
+                       if (good_pix[il-1]) {
+                         ecPix[idet].pixels.hmap1.get("H1_t_Maps").get(is+1,il,4).fill(pixel,1.0); // Events per pixel
+                         ecPix[idet].strips.hmap2.get("H2_t_Hist").get(is+1,il,1).fill(tdcc,ecPix[idet].strrt[is][il-1][0],1.0) ;
+                         ecPix[idet].strips.hmap2.get("H2_t_Hist").get(is+1,il,2).fill(tdcc,pixel,1.0);                        
+                         ecPix[idet].pixels.hmap1.get("H1_t_Maps").get(is+1,7,1).fill(pixel,tdcc);
+                         ecPix[idet].pixels.hmap1.get("H1_t_Maps").get(is+1,il,0).fill(pixel,tdcc);
+                         ecPix[idet].pixels.hmap1.get("H1_t_Maps").get(is+1,il,2).fill(pixel,Math.pow(tdcc,2));
+                       }
                    }
                }   
        }  
@@ -614,7 +623,7 @@ public class ECReconstructionApp extends FCApplication {
            for (int il=1 ; il<4 ; il++) {
                divide(H1_a_Maps.get(is,il,0),H1_a_Maps.get(is,il,4),H1_a_Maps.get(is,il,1)); //Normalize Raw View ADC   to Events
                divide(H1_a_Maps.get(is,il,2),H1_a_Maps.get(is,il,4),H1_a_Maps.get(is,il,3)); //Normalize Raw View ADC^2 to Events
-               divide(H1_t_Maps.get(is,il,0),H1_t_Maps.get(is,il,0),H1_t_Maps.get(is,il,1)); //Normalize Raw View TDC   to Events
+//               divide(H1_t_Maps.get(is,il,0),H1_t_Maps.get(is,il,4),H1_t_Maps.get(is,il,1)); //Normalize Raw View TDC   to Events
                ecPix[idet].Lmap_a.add(is,il,   0, toTreeMap(H2_a_Hist.get(is,il,0).projectionY().getData()));  //Strip View ADC  
                ecPix[idet].Lmap_a.add(is,il+10,0, toTreeMap(H1_a_Maps.get(is,il,1).getData()));                //Pixel View ADC 
                ecPix[idet].Lmap_t.add(is,il,   0, toTreeMap(H2_t_Hist.get(is,il,0).projectionY().getData()));  //Strip View TDC  
@@ -645,6 +654,7 @@ public class ECReconstructionApp extends FCApplication {
        ecPix[idet].getLmapMinMax(is1,is2,7,0); 
        ecPix[idet].getLmapMinMax(is1,is2,7,1); 
        ecPix[idet].getLmapMinMax(is1,is2,9,0); 
+       
    }
    
    public TreeMap<Integer, Object> toTreeMap(float dat[]) {

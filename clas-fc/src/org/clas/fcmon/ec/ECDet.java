@@ -50,7 +50,7 @@ public class ECDet extends FCDetector {
          addButtons("DET","View","PC.0.ECi.1.ECo.2");
          addButtons("LAY","View","U.0.V.1.W.2.PIX.3");
          addButtons("PMT","Map","EVT.0.ADC.1.TDC.2");
-         addButtons("PIX","Map","EVT.0.NEVT.1.U PIX.11.V PIX.12.W PIX.13.ADC U+V+W.9");
+         addButtons("PIX","Map","EVT.0.NEVT.1.U PIX.11.V PIX.12.W PIX.13.U+V+W.9");
      
          app.getDetectorView().addMapButtons();
          app.getDetectorView().addViewButtons();
