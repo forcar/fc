@@ -21,7 +21,7 @@ public class FTOFMon extends DetectorMonitor {
     FTOFPixels              ftofPix[] = new FTOFPixels[3];
     ConstantsManager             ccdb = new ConstantsManager();
     FTHashCollection              rtt = null;      
-    FTOFDetector              ftofDet = null;  
+    FTOFDet              ftofDet = null;  
     
     FTOFReconstructionApp   ftofRecon = null;
     FTOFMode1App            ftofMode1 = null;
@@ -97,10 +97,10 @@ public class FTOFMon extends DetectorMonitor {
     
     public void initDetector() {
         System.out.println("monitor.initDetector()"); 
-        ftofDet = new FTOFDetector("FTOFDet",ftofPix);
+        ftofDet = new FTOFDet("FTOFDet",ftofPix);
         ftofDet.setMonitoringClass(this);
         ftofDet.setApplicationClass(app);
-        ftofDet.init(is1,is2);
+        ftofDet.init();
     }
 	
     public void makeApps() {
@@ -209,24 +209,33 @@ public class FTOFMon extends DetectorMonitor {
     }
 
     @Override
+    public void analyze() {
+        
+        switch (app.getInProcess()) {
+        case 1: 
+            for (int idet=0; idet<ftofPix.length; idet++) ftofRecon.makeMaps(idet); 
+            break;
+        case 2:
+            for (int idet=0; idet<ftofPix.length; idet++) ftofRecon.makeMaps(idet); 
+            System.out.println("End of run");                 
+            ftofCalib.engines[0].analyze();
+            app.setInProcess(3);
+        }
+    }
+    
+    @Override
     public void update(DetectorShape2D shape) {
+        //From DetectorView2D.DetectorViewLayer2D.drawLayer: Update color map of shape
         ftofDet.update(shape);
 //        ftofCalib.updateDetectorView(shape);
     }
-		
-    @Override
-    public void analyze() {
-        if (app.getInProcess()==1||app.getInProcess()==2) {
-            ftofRecon.makeMaps();	
-            ftofCalib.engines[0].analyze();
-        }
-    }
-
+        
     @Override
     public void processShape(DetectorShape2D shape) { 
+        // From updateGUI timer or mouseover : process entering a new detector shape and repaint
         DetectorDescriptor dd = shape.getDescriptor();
-        app.updateStatusString(dd);
-        this.analyze();       
+        app.updateStatusString(dd); // For strip/pixel ID and reverse translation table
+        this.analyze();  // Refresh color maps      
         switch (app.getSelectedTabName()) {
         case "Mode1":                        ftofMode1.updateCanvas(dd); break;
         case "ADC":                            ftofAdc.updateCanvas(dd); break;
@@ -241,27 +250,6 @@ public class FTOFMon extends DetectorMonitor {
     public void loadHV(int is1, int is2, int il1, int il2) {
         ftofHv.loadHV(is1,is2,il1,il2);
     }  
-    
-    public String getStatusString(DetectorDescriptor dd) {
-        
-        String comp=(dd.getLayer()==4) ? "  Pixel:":"  PMT:";  
-      
-        int is = dd.getSector();
-        int sp = app.viewIndex+2*app.detectorIndex;
-        int ic = dd.getComponent()+1;
-        int or = 0;
-        int cr = 0;
-        int sl = 0;
-        int ch = 0;
-        if (app.getSelectedTabName()=="TDC") or=2;
-        if (rtt.hasItem(is,sp,ic,or)) {
-            int[] dum = (int[]) rtt.getItem(is,sp,ic,or);
-            cr = dum[0];
-            sl = dum[1];
-            ch = dum[2];
-        }   
-        return " Sector:"+is+"  Layer:"+sp+comp+ic+" "+" Crate:"+cr+" Slot:"+sl+" Chan:"+ch;
-    }
     
     @Override
     public void resetEventListener() {
@@ -278,7 +266,6 @@ public class FTOFMon extends DetectorMonitor {
           String hipoFileName = app.hipoPath+mondet+idet+"_"+app.runNumber+".hipo";
           System.out.println("Reading Histograms from "+hipoFileName);
           ftofPix[idet].initHistograms(hipoFileName);
-          ftofRecon.makeMaps();
         }
         app.setInProcess(2);          
     }
@@ -298,6 +285,7 @@ public class FTOFMon extends DetectorMonitor {
     
     @Override
     public void close() {
+        System.out.println("monitor.close()");
         app.displayControl.setFPS(1);
     }
     

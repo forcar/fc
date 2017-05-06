@@ -189,8 +189,8 @@ public class FCDetector {
         case   "ECDet": if(!useTDC) {dc = ecPix[ilmap].Lmap_a; mapz=ecPix[ilmap].Lmap_a_z ;}
                         if( useTDC) {dc = ecPix[ilmap].Lmap_t; mapz=ecPix[ilmap].Lmap_t_z ;} 
                         break;
-        case "FTOFDet": if(!useTDC) dc = ftofPix[ilmap].Lmap_a;
-                        if( useTDC) dc = ftofPix[ilmap].Lmap_t; 
+        case "FTOFDet": if(!useTDC) {dc = ftofPix[ilmap].Lmap_a; mapz=ftofPix[ilmap].Lmap_a_z;}
+                        if( useTDC) {dc = ftofPix[ilmap].Lmap_t; mapz=ftofPix[ilmap].Lmap_t_z;}  
                         break;     
         case   "CCDet": if(!useTDC) dc = ccPix.Lmap_a; 
                         if( useTDC) dc = ccPix.Lmap_t;

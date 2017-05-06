@@ -20,6 +20,7 @@ import org.jlab.detector.decode.CodaEventDecoder;
 import org.jlab.detector.decode.DetectorDataDgtz;
 import org.jlab.detector.decode.DetectorEventDecoder;
 import org.jlab.io.evio.EvioDataEvent;
+import org.jlab.utils.groups.IndexedList;
 import org.jlab.io.base.DataBank;
 import org.jlab.io.base.DataEvent;
 import org.jlab.io.evio.EvioDataBank;
@@ -33,10 +34,14 @@ public class FTOFReconstructionApp extends FCApplication {
    
    String        BankType = null;
    int              detID = 0;
+   
+   int is1,is2,iis1,iis2;
 
-   CodaEventDecoder            newdecoder = new CodaEventDecoder();
+   CodaEventDecoder           codaDecoder = new CodaEventDecoder();
    DetectorEventDecoder   detectorDecoder = new DetectorEventDecoder();
    List<DetectorDataDgtz>  detectorData   = new ArrayList<DetectorDataDgtz>();
+   
+   FTOFConstants                   ftofcc = new FTOFConstants();  
    
    double[]                sed7=null,sed8=null;
    TreeMap<Integer,Object> map7=null,map8=null; 
@@ -54,12 +59,16 @@ public class FTOFReconstructionApp extends FCApplication {
    public void init() {
        System.out.println("FTOFReconstruction.init()");
        mondet = (String) mon.getGlob().get("mondet");
+       is1 = FTOFConstants.IS1;
+       is2 = FTOFConstants.IS2;
+      iis1 = FTOFConstants.IS1-1;
+      iis2 = FTOFConstants.IS2-1;
    } 
    
    public void clearHistograms() {
        
        for (int idet=0; idet<ftofPix.length; idet++) {
-           for (int is=1 ; is<7 ; is++) {
+           for (int is=is1 ; is<is2 ; is++) {
                ftofPix[idet].strips.hmap2.get("H2_a_Hist").get(is,0,0).reset();
                ftofPix[idet].strips.hmap2.get("H2_t_Hist").get(is,0,0).reset();
                for (int il=1 ; il<3 ; il++) {
@@ -79,6 +88,7 @@ public class FTOFReconstructionApp extends FCApplication {
       this.tet    = app.mode7Emulation.tet;
       this.pedref = app.mode7Emulation.pedref;
    }
+   
    public void addEvent(DataEvent event) {
        
        if(app.getDataSource()=="ET") this.updateRawData(event);
@@ -99,45 +109,53 @@ public class FTOFReconstructionApp extends FCApplication {
         }
     }
    
-   public String detID(int layer) {
-       return "FTOF";
-   }
+//   public String detID(int layer) {
+//       return "FTOF";
+//   }
    
    public void updateHipoData(DataEvent event) {
-       int iadc;
-       float adc,tdc=0,tdcf=0;
        
-       clear(0); clear(1); clear(2);
+       IndexedList<Integer> tdcs = new IndexedList<Integer>(4);
+       long phase = 0;
+       
+       clear(0); clear(1); clear(2); tdcs.clear();
+       
+       if(event.hasBank("RUN::config")){
+           DataBank bank = event.getBank("RUN::config");
+           phase = bank.getLong("timestamp",0);
+       }
 
-       if(event.hasBank("FTOF::adc")==true){
+       if(event.hasBank("FTOF::tdc")){
+           DataBank  bank = event.getBank("FTOF::tdc");
+           int rows = bank.rows();
+           
+           for(int i = 0; i < rows; i++){
+               int  is = bank.getByte("sector",i);
+               int  il = bank.getByte("layer",i);
+               int  lr = bank.getByte("order",i);                       
+               int  ip = bank.getShort("component",i);
+               int tdc = bank.getInt("TDC",i);    
+               tdcs.add(tdc,is,il,lr,ip);
+           }
+       }
+              
+       if(event.hasBank("FTOF::adc")){
            DataBank  bank = event.getBank("FTOF::adc");
            int rows = bank.rows();
            for(int i = 0; i < rows; i++){
                int  is = bank.getByte("sector",i);
                int  il = bank.getByte("layer",i);
+               int  lr = bank.getByte("order",i);
                int  ip = bank.getShort("component",i);
-               int  io = bank.getByte("order",i);
-                  iadc = bank.getInt("ADC",i);
+               int adc = bank.getInt("ADC",i);
+               int tdcf = bank.getInt("time",i);
                int ped = bank.getShort("ped", i);
-               fill(il-1, is, io+1, ip, iadc, tdc, tdcf);    
+               int tdc = (tdcs.hasItem(is,il,lr,ip)) ? tdcs.getItem(is,il,lr,ip):0;
+               
+               fill(il-1, is, lr+1, ip, adc, tdc, tdcf);    
            }
        }
        
-       if(event.hasBank("FTOF::rawhits")==true){
-           DataBank  bank = event.getBank("FTOF::rawhits");
-           int rows = bank.rows();
-           for(int i = 0; i < rows; i++){
-               int  is = bank.getByte("sector",i);
-               int  il = bank.getByte("layer",i);
-               int  ip = bank.getShort("component",i);
-               adc = bank.getFloat("energy_left",i);
-               tdc = bank.getFloat("time_left",i);
-//               fill(il-1,is,1,ip,(int)(100*adc),(int)tdc,tdcf);
-               adc = bank.getFloat("energy_right",i);
-               tdc = bank.getFloat("time_right",i);
-//               fill(il-1,is,2,ip,(int)(100*adc),(int)tdc,tdcf);
-           }
-       }
    }   
    
    public void updateRawData(DataEvent event){
@@ -146,7 +164,7 @@ public class FTOFReconstructionApp extends FCApplication {
       double tdc=0,tdcf=0;
       String AdcType ;
       
-      List<DetectorDataDgtz>  dataSet = newdecoder.getDataEntries((EvioDataEvent) event);
+      List<DetectorDataDgtz>  dataSet = codaDecoder.getDataEntries((EvioDataEvent) event);
       
       detectorDecoder.translate(dataSet);   
       detectorDecoder.fitPulses(dataSet);
@@ -175,7 +193,10 @@ public class FTOFReconstructionApp extends FCApplication {
                 
             if (strip.getTDCSize()>0) {
                 il=iord-1;
+                int phase_offset = 1;
+                long phase = ((codaDecoder.getTimeStamp()%6)+phase_offset)%6;
                 tdc = strip.getTDCData(0).getTime()*24./1000.;
+                tdc = tdc-phase*4;
             }
             
             if (strip.getADCSize()>0) {     
@@ -361,37 +382,46 @@ public class FTOFReconstructionApp extends FCApplication {
        TreeMap<Integer, Object> hcontainer = new TreeMap<Integer, Object>();
        hcontainer.put(1, dat);
        float[] b = Arrays.copyOf(dat, dat.length);
-       double min=100000,max=0,bsum=0;
+       double min=100000,max=0,bsum=0,ratio=0;
        int nbsum=0;
        for (int i =0 ; i < b.length; i++){
            if (b[i] !=0 && b[i] < min) min=b[i];
            if (b[i] !=0 && b[i] > max) max=b[i];
            if (b[i]>0) {bsum=bsum+b[i]; nbsum++;}    
        }
-       // Arrays.sort(b);
+       if (nbsum>0) ratio=bsum/nbsum;
+      // Arrays.sort(b);
        // double min = b[0]; double max=b[b.length-1];
        if (min<=0) min=0.01;
        hcontainer.put(2, min);
        hcontainer.put(3, max);
-       hcontainer.put(4,bsum/nbsum);
+       hcontainer.put(4,ratio);
        return hcontainer;        
    }
 
-   public void makeMaps() {
+   public void makeMaps(int idet) {
+       DetectorCollection<H2F> H2_a_Hist = new DetectorCollection<H2F>();
+       DetectorCollection<H2F> H2_t_Hist = new DetectorCollection<H2F>();
+       DetectorCollection<H1F> H1_a_Sevd = new DetectorCollection<H1F>();
        
-       for (int idet=0; idet<ftofPix.length ; idet++) {
-           DetectorCollection<H2F> H2_a_Hist = new DetectorCollection<H2F>();
-           DetectorCollection<H1F> H1_a_Sevd = new DetectorCollection<H1F>();
-           H2_a_Hist = ftofPix[idet].strips.hmap2.get("H2_a_Hist");
-           H1_a_Sevd = ftofPix[idet].strips.hmap1.get("H1_a_Sevd");
-               for (int is=1;is<7;is++) {
-                   for (int il=1 ; il<3 ; il++) {
-                       if (!app.isSingleEvent()) ftofPix[idet].Lmap_a.add(is,il,0, toTreeMap(H2_a_Hist.get(is,il,0).projectionY().getData())); //Strip View ADC 
-                       if  (app.isSingleEvent()) ftofPix[idet].Lmap_a.add(is,il,0, toTreeMap(H1_a_Sevd.get(is,il,0).getData()));           
-                   }
-               } 
+       H2_a_Hist = ftofPix[idet].strips.hmap2.get("H2_a_Hist");
+       H2_t_Hist = ftofPix[idet].strips.hmap2.get("H2_t_Hist");
+       H1_a_Sevd = ftofPix[idet].strips.hmap1.get("H1_a_Sevd");
+       
+       for (int is=is1;is<is2;is++) {
+           for (int il=1 ; il<3 ; il++) {
+               if (!app.isSingleEvent()) ftofPix[idet].Lmap_a.add(is,il,0, toTreeMap(H2_a_Hist.get(is,il,0).projectionY().getData())); //Strip View ADC 
+               if (!app.isSingleEvent()) ftofPix[idet].Lmap_t.add(is,il,0, toTreeMap(H2_t_Hist.get(is,il,0).projectionY().getData())); //Strip View TDC 
+               if  (app.isSingleEvent()) ftofPix[idet].Lmap_a.add(is,il,0, toTreeMap(H1_a_Sevd.get(is,il,0).getData()));           
            }
-       }    
+       } 
+       
+       ftofPix[idet].getLmapMinMax(is1,is2,1,0); 
+       ftofPix[idet].getLmapMinMax(is1,is2,2,0); 
+
+   }  
+   
+   
 }
     
     

@@ -9,6 +9,7 @@ import org.jlab.detector.base.DetectorCollection;
 import org.jlab.detector.calib.utils.DatabaseConstantProvider;
 import org.jlab.groot.data.H1F;
 import org.jlab.groot.data.H2F;
+import org.jlab.utils.groups.IndexedList;
 import org.jlab.utils.groups.IndexedTable;
 
 public class FTOFPixels {
@@ -30,6 +31,8 @@ public class FTOFPixels {
     
     public DetectorCollection<TreeMap<Integer,Object>> Lmap_a = new DetectorCollection<TreeMap<Integer,Object>>();
     public DetectorCollection<TreeMap<Integer,Object>> Lmap_t = new DetectorCollection<TreeMap<Integer,Object>>();
+    public IndexedList<double[]>                     Lmap_a_z = new IndexedList<double[]>(2);
+    public IndexedList<double[]>                     Lmap_t_z = new IndexedList<double[]>(2);
     
     int id;
 	public int nstr;
@@ -44,7 +47,27 @@ public class FTOFPixels {
         pixdef();
         pixrot();
     }
-	
+    public void getLmapMinMax(int is1, int is2, int il, int opt){
+        TreeMap<Integer,Object> map = null;
+        double min,max,avg,aavg=0,tavg=0;
+        double[] a = {1000,0,0};
+        double[] t = {1000,0,0};
+        for (int is=is1 ; is<is2; is++) {
+            map = Lmap_a.get(is, il, opt);
+            min = (double) map.get(2); max = (double) map.get(3); avg = (double) map.get(4);
+            if (min<a[0]) a[0]=min; if (max>a[1]) a[1]=max; aavg+=avg;
+            map = Lmap_t.get(is, il, opt);
+            min = (double) map.get(2); max = (double) map.get(3); avg = (double) map.get(4);
+            if (min<t[0]) t[0]=min; if (max>t[1]) t[1]=max; tavg+=avg;
+        }
+
+        a[2]=Math.min(500000,aavg/(is2-is1));
+        t[2]=Math.min(500000,tavg/(is2-is1));
+        
+        Lmap_a_z.add(a,il,opt);
+        Lmap_t_z.add(t,il,opt);        
+    }	
+    
     public void init() {
         System.out.println("FTOFPixels.init():");
         Lmap_a.clear();
