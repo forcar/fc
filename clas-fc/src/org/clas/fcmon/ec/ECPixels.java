@@ -341,8 +341,8 @@ public class ECPixels {
                 id="s"+Integer.toString(is)+"_l"+Integer.toString(il)+"_c";
                 H2_a_Hist.add(is, il, 0, new H2F("a_raw_"+id+0, 125,   0., 250., nstr, 1., nend));
                 H2_a_Hist.add(is, il, 1, new H2F("b_pix_"+id+1, 125,   0., 250., nstr, 1., nend));
-                H2_t_Hist.add(is, il, 0, new H2F("a_raw_"+id+0, 100,   400., 800., nstr, 1., nend));
-                H2_t_Hist.add(is, il, 1, new H2F("b_pix_"+id+1, 100,   400., 800., nstr, 1., nend));
+                H2_t_Hist.add(is, il, 0, new H2F("a_raw_"+id+0, 100,   450., 850., nstr, 1., nend));
+                H2_t_Hist.add(is, il, 1, new H2F("b_pix_"+id+1, 100,   450., 850., nstr, 1., nend));
                 // Pedestal Noise  
                 H2_Peds_Hist.add(is, il, 0, new H2F("a_ped_"+id+0,  20, -10.,  10., nstr, 1., nend)); 
                 // Mode1  
@@ -351,6 +351,7 @@ public class ECPixels {
                 H1_Stra_Sevd.add(is, il, 0, new H1F("a_sed_stra_"+id+0, nstr,  1., nend));
                 H1_Stra_Sevd.add(is, il, 1, new H1F("b_sed_stra_"+id+1, nstr,  1., nend));
                 H1_Strt_Sevd.add(is, il, 0, new H1F("a_sed_strt_"+id+0, nstr,  1., nend));
+                H1_Strt_Sevd.add(is, il, 1, new H1F("b_sed_strt_"+id+0, nstr,  1., nend));
                 // Single Event fADC bins
                 H2_Mode1_Sevd.add(is, il, 0, new H2F("a_sed_fadc_"+id+0, 100, 0., 100., nstr, 1., nend));
                 H2_Mode1_Sevd.add(is, il, 1, new H2F("b_sed_fadc_"+id+1, 100, 0., 100., nstr, 1., nend));
@@ -394,7 +395,7 @@ public class ECPixels {
                 // Occupancy 
                 id="s"+Integer.toString(is)+"_l"+Integer.toString(il)+"_c";
                 H2_a_Hist.add(is, il, 2, new H2F("c_pix_"+id+2,  25,   0., 250., npix, 1., pend));
-                H2_t_Hist.add(is, il, 2, new H2F("c_pix_"+id+2,  40, 400., 800., npix, 1., pend));
+                H2_t_Hist.add(is, il, 2, new H2F("c_pix_"+id+2,  40, 450., 850., npix, 1., pend));
                 // Layer Maps
                 H1_a_Maps.add(is, il, 0, new H1F("a_apix_"   +id+0, npix, 1., pend)); //adc weighted pixel
                 H1_a_Maps.add(is, il, 1, new H1F("b_napix_"  +id+1, npix, 1., pend)); //normalized adc weighted pixel
