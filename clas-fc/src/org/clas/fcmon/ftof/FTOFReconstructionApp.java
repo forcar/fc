@@ -115,14 +115,17 @@ public class FTOFReconstructionApp extends FCApplication {
    
    public void updateHipoData(DataEvent event) {
        
-       IndexedList<Integer> tdcs = new IndexedList<Integer>(4);
+       IndexedList<Double> tdcs = new IndexedList<Double>(4);
        long phase = 0;
        
        clear(0); clear(1); clear(2); tdcs.clear();
        
        if(event.hasBank("RUN::config")){
            DataBank bank = event.getBank("RUN::config");
-           phase = bank.getLong("timestamp",0);
+           phase = bank.getLong("timestamp",0);                
+           int phase_offset = 1;
+           phase = (bank.getLong("timestamp", 0)%6+phase_offset)%6;
+
        }
 
        if(event.hasBank("FTOF::tdc")){
@@ -134,8 +137,8 @@ public class FTOFReconstructionApp extends FCApplication {
                int  il = bank.getByte("layer",i);
                int  lr = bank.getByte("order",i);                       
                int  ip = bank.getShort("component",i);
-               int tdc = bank.getInt("TDC",i);    
-               tdcs.add(tdc,is,il,lr,ip);
+               double tdc = bank.getInt("TDC",i)*24/1000.-phase*4.;
+               tdcs.add(tdc,is,il,lr-2,ip);
            }
        }
               
@@ -148,11 +151,10 @@ public class FTOFReconstructionApp extends FCApplication {
                int  lr = bank.getByte("order",i);
                int  ip = bank.getShort("component",i);
                int adc = bank.getInt("ADC",i);
-               int tdcf = bank.getInt("time",i);
+               float tdcf = bank.getFloat("time",i);
                int ped = bank.getShort("ped", i);
-               int tdc = (tdcs.hasItem(is,il,lr,ip)) ? tdcs.getItem(is,il,lr,ip):0;
-               
-               fill(il-1, is, lr+1, ip, adc, tdc, tdcf);    
+               double tdc = (tdcs.hasItem(is,il,lr,ip)) ? tdcs.getItem(is,il,lr,ip):0.;
+               if(isGoodSector(is)) fill(il-1, is, lr+1, ip, adc, tdc, tdcf);    
            }
        }
        
@@ -173,7 +175,10 @@ public class FTOFReconstructionApp extends FCApplication {
       
       clear(0); clear(1); clear(2);
       int nsum=0;
-     
+      
+      int phase_offset = 1;
+      long phase = ((codaDecoder.getTimeStamp()%6)+phase_offset)%6;
+           
       for (DetectorDataDgtz strip : detectorData) {
          if(strip.getDescriptor().getType().getName()=="FTOF") {
             adc=ped=pedref=npk=0 ; tdc=tdcf=0;
@@ -193,8 +198,6 @@ public class FTOFReconstructionApp extends FCApplication {
                 
             if (strip.getTDCSize()>0) {
                 il=iord-1;
-                int phase_offset = 1;
-                long phase = ((codaDecoder.getTimeStamp()%6)+phase_offset)%6;
                 tdc = strip.getTDCData(0).getTime()*24./1000.;
                 tdc = tdc-phase*4;
             }
@@ -236,7 +239,7 @@ public class FTOFReconstructionApp extends FCApplication {
              } 
 //               System.out.println(icr+" "+isl+" "+ich+" "+is+" "+il+" "+ip+" "+iord+" "+tdc+" "+adc);
             
-             fill(iil-1, is, il, ip, adc, tdc, tdcf);    
+             if(isGoodSector(is)) fill(iil-1, is, il, ip, adc, tdc, tdcf);    
             }
          }
       }
@@ -311,6 +314,10 @@ public class FTOFReconstructionApp extends FCApplication {
            }
        }   
    }
+   
+   public Boolean isGoodSector(int is) {
+       return is>=is1&&is<is2;
+   } 
    
    public void fill(int idet, int is, int il, int ip, int adc, double tdc, double tdcf) {
            
