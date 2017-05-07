@@ -44,6 +44,7 @@ public class ECReconstructionApp extends FCApplication {
 
    String BankType        = null;
    int              detID = 0;
+   
    int is1,is2,iis1,iis2;
    
    double pcx,pcy,pcz;
@@ -57,9 +58,6 @@ public class ECReconstructionApp extends FCApplication {
    ECConstants                        ecc = new ECConstants();
    DataBank                mcData,genData = null;
    ECPart                            part = new ECPart(); 
-   
-   public DetectorCollection<TreeMap<Integer,Object>> Lmap_a = new DetectorCollection<TreeMap<Integer,Object>>();
-   public DetectorCollection<TreeMap<Integer,Object>> Lmap_t = new DetectorCollection<TreeMap<Integer,Object>>();
    
    double[]                sed7=null,sed8=null;
    TreeMap<Integer,Object> map7=null,map8=null; 

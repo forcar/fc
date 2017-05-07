@@ -50,7 +50,7 @@ import org.jlab.geom.prim.Transformation3D;
  *
  * @author gavalian
  */
-public class CLAS12GeometryViewer extends Application {
+public class CLAS12GeometryViewerOld extends Application {
     
     
     
@@ -169,12 +169,12 @@ public class CLAS12GeometryViewer extends Application {
         mat.setSpecularColor(new Color(0.4,0.4,0.8,0.4));
         //mat.setSpecularPower(0.5);
 
-        DCGeant4Factory  factory = new DCGeant4Factory();
-        Geant4Basic  g4v   = factory.getRegion(1);
-        List<MeshView>  meshes = Geant4Mesh.getMesh(g4v);
-        for(MeshView mesh : meshes) mesh.setMaterial(mat);
-        root.getChildren().addAll(meshes);
-        System.out.println(" Meshes Size = " + meshes.size());
+//        DCGeant4Factory  factory = new DCGeant4Factory();
+//        Geant4Basic  g4v   = factory.getRegion(1);
+//        List<MeshView>  meshes = Geant4Mesh.getMesh(g4v);
+//        for(MeshView mesh : meshes) mesh.setMaterial(mat);
+//        root.getChildren().addAll(meshes);
+//        System.out.println(" Meshes Size = " + meshes.size());
         /*
         
         Geant4Basic  dcLayer = factory.getLayer(100, 120, 1.0, 

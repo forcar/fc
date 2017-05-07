@@ -24,7 +24,7 @@ public class ECTdcApp extends FCApplication {
     
     int ics[][] = new int[3][10];
     int is,la,ic,ilm ;
-    double tmin=400,tmax=800;
+    double tmin=450,tmax=850;
     
     public ECTdcApp(String name, ECPixels[] ecPix) {
         super(name,ecPix);    
