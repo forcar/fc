@@ -173,8 +173,13 @@ public class ECReconstructionApp extends FCApplication {
                    getMode7(dum[0],dum[1],dum[2]);
                }
                if (ped>0) ecPix[idet].strips.hmap2.get("H2_Peds_Hist").get(is,ilay,0).fill(this.pedref-ped, ip);
-               if(!app.isMC) sca = (is==5)?ecc.SCALE5[il-1]:ecc.SCALE[il-1];
-               if(isGoodSector(is)) fill(idet, is, ilay, ip, adc/(int)sca, tdc*24/1000, tdcf);    
+               sca = (is==5)?ecc.SCALE5[il-1]:ecc.SCALE[il-1];
+               if( app.isMC&&app.variation=="clas6") sca = 1.0;
+               if(isGoodSector(is)) {
+                   adc = adc/(int)sca;
+                   fill(idet, is, ilay, ip, adc, tdc*24/1000, tdcf);  
+                   fillSED(idet, is, ilay, ip, adc, tdc*24/1000);
+               }
            }
        }
    }
@@ -220,6 +225,8 @@ public class ECReconstructionApp extends FCApplication {
             idet = getDet(il);
             ilay = getLay(il);
             
+            double sca = (is==5)?ecc.SCALE5[il-1]:ecc.SCALE[il-1];
+            
             if (idet>-1) {
                             
             if (strip.getTDCSize()>0) {
@@ -234,7 +241,6 @@ public class ECReconstructionApp extends FCApplication {
             if (strip.getADCSize()>0) {     
                 
                AdcType = strip.getADCData(0).getPulseSize()>0 ? "ADCPULSE":"ADCFPGA";
-               double sca = (is==5)?ecc.SCALE5[il-1]:ecc.SCALE[il-1];
                
                if(AdcType=="ADCFPGA") { // FADC MODE 7
                    
@@ -260,7 +266,6 @@ public class ECReconstructionApp extends FCApplication {
                   if (app.mode7Emulation.User_pedref==0) fitter.fit(this.nsa,this.nsb,this.tet,0,pulse);                  
                   if (app.mode7Emulation.User_pedref==1) fitter.fit(this.nsa,this.nsb,this.tet,pedref,pulse);   
                   
-                  adc = fitter.adc/(int)sca;
                   ped = fitter.pedsum;
                   
                   float pped=0;                  
@@ -277,8 +282,14 @@ public class ECReconstructionApp extends FCApplication {
                   }
                }               
                if (ped>0) ecPix[idet].strips.hmap2.get("H2_Peds_Hist").get(is,ilay,0).fill(this.pedref-ped, ip);
-             }           
-             if(isGoodSector(is)) fill(idet, is, ilay, ip, adc, tdc, tdcf);    
+             }  
+            
+             if(isGoodSector(is)) {
+                 adc = fitter.adc/(int)sca;
+                 fill(idet, is, ilay, ip, adc, tdc, tdcf);                     
+                 fillSED(idet, is, ilay, ip, adc, tdc*24/1000);
+             }
+  
             }
          }
       }
@@ -413,6 +424,12 @@ public class ECReconstructionApp extends FCApplication {
    public Boolean isGoodSector(int is) {
        return is>=is1&&is<is2;
    }
+   
+   public void fillSED(int idet, int is, int il, int ip, int adc, double tdc) {
+       double sca = 10; int idil=idet*3+il;
+       if(!app.isMC||(app.isMC&&app.variation=="default")) sca  = (is==5)?ecc.AtoE5[idil-1]:ecc.AtoE[idil-1];
+       ecPix[idet].strips.hmap1.get("H1_Stra_Sevd").get(is,il,1).fill(ip,adc/sca);       
+   }
         
    public void fill(int idet, int is, int il, int ip, int adc, double tdc, double tdcf) {
 
@@ -426,9 +443,7 @@ public class ECReconstructionApp extends FCApplication {
            ecPix[idet].strips.hmap2.get("H2_PCt_Stat").get(is,0,0).fill(ip,il,1.);
            ecPix[idet].strips.hmap2.get("H2_PCt_Stat").get(is,0,1).fill(ip,il,tdc);
        }
-       
-       ecPix[idet].strips.hmap1.get("H1_Stra_Sevd").get(is,il,1).fill(ip,0.1*adc);
-       
+              
        if(adc>ecPix[idet].getStripThr(app.config,il)){
            ecPix[idet].uvwa[is-1]=ecPix[idet].uvwa[is-1]+ecPix[idet].uvw_dalitz(idet,il,ip); //Dalitz adc
            ecPix[idet].nha[is-1][il-1]++; int inh = ecPix[idet].nha[is-1][il-1];
@@ -447,7 +462,10 @@ public class ECReconstructionApp extends FCApplication {
           float[] sed7 = ecPix[idet].strips.hmap1.get("H1_Pixa_Sevd").get(is+1,1,0).getData();
           for (int il=1; il<4; il++ ){               
               for (int n=1 ; n<ecPix[idet].nha[is][il-1]+1 ; n++) {
-                  int ip=ecPix[idet].strra[is][il-1][n-1]; float ad= (float) 0.1*ecPix[idet].adcr[is][il-1][n-1];
+                    double sca = 10; int idil=idet*3+il;
+                    if(!app.isMC||(app.isMC&&app.variation=="default")) sca  = (is==5)?ecc.AtoE5[idil-1]:ecc.AtoE[idil-1];
+                    int ip =         ecPix[idet].strra[is][il-1][n-1]; 
+                  float ad = (float) (ecPix[idet].adcr[is][il-1][n-1]/sca);
                   ecPix[idet].strips.hmap1.get("H1_Stra_Sevd").get(is+1,il,0).fill(ip,ad);
                   ecPix[idet].strips.putpixels(il,ip,ad,sed7);
               }

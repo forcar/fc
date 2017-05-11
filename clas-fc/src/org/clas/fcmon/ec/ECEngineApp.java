@@ -301,14 +301,14 @@ public class ECEngineApp extends FCApplication implements ActionListener {
         
       } 
       
+      // Monitor EC cluster data
+            
       ECPart                        part = new ECPart();      
       EventBuilder               builder = new EventBuilder();
       List<List<DetectorResponse>>   res = new ArrayList<List<DetectorResponse>>();      
       part.setGeom(app.geom);  part.setConfig(app.config);      
       List<DetectorResponse>  ecClusters = part.readEC(event);   
       
-      // Monitor EC cluster data
-            
       if (ecClusters.size()>0) {
           
       for (int idet=0; idet<3; idet++) {
@@ -357,27 +357,28 @@ public class ECEngineApp extends FCApplication implements ActionListener {
           
       for (int is=1; is<7; is++) {
           
-          double invmass = 1e3*Math.sqrt(part.getTwoPhoton(ecClusters,is));
-          double     opa = Math.acos(part.cth)*180/3.14159;
-          ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,0).fill((float)invmass,6,1.); // Two-photon invariant mass
-          
-          if(nesum[0][is-1]==1) ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,0).fill(esum[is-1],8,1.);  // Total Single Cluster Energy PC=1                     
-          if(nesum[0][is-1]==1 && nesum[1][is-1]==1 ) {
-              ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,0).fill(esum[is-1],5,1.);                    // Total Single Cluster Energy PC=1.EC=1  
-              ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,3).fill(1e-3*esum[is-1],esum[is-1]/refE,1.); // S.F. vs. meas.photon energy            
+          if(nesum[0][is-1]==1) { 
+              ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,0).fill(esum[is-1],8,1.);                         // Total Single Cluster Energy PC=1                     
+              ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,3).fill(1e-3*esum[is-1],1e-3*esum[is-1]/refE,1.); // S.F. vs. meas.photon energy  
+              if(nesum[1][is-1]==1) ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,0).fill(esum[is-1],5,1.);   // Total Single Cluster Energy PC=1.EC=1 
           }
-          
-          if(nesum[0][is-1]>1 && nesum[1][is-1]>0) {
-              ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,0).fill(esum[is-1],7,1.);          // Total Cluster Energy            
-              ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,2).fill(part.e1,part.SF1,1.);      // S.F. vs. meas. photon energy            
-              ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,7,2).fill(opa,part.e1c*part.e2c,1.); // E1*E2 vs opening angle            
-          }            
-      
+                    
           if (app.config=="pi0") {
+              
+              double invmass = 1e3*Math.sqrt(part.getTwoPhoton(ecClusters,is));
+              double     opa = Math.acos(part.cth)*180/3.14159;
+              ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,0).fill((float)invmass,6,1.); // Two-photon invariant mass
+              
+              if(nesum[0][is-1]>1 && nesum[1][is-1]>0) {
+                  ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,0).fill(esum[is-1],7,1.);          // Total Cluster Energy            
+                  ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,2).fill(part.e1,part.SF1,1.);      // S.F. vs. meas. photon energy            
+                  ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,7,2).fill(opa,part.e1c*part.e2c,1.); // E1*E2 vs opening angle            
+              }            
+                        
               if (invmass>95 && invmass<200) {
                   ecPix[0].strips.hmap1.get("H1_a_Hist").get(is,4,0).fill((float)(1e3*(Math.sqrt(part.tpi2)-refE))); // Pizero total energy error
-                  ecPix[0].strips.hmap1.get("H1_a_Hist").get(is,4,1).fill(Math.acos(part.cpi0)*180/3.14159-refTH); // Pizero theta angle error
-                  ecPix[0].strips.hmap1.get("H1_a_Hist").get(is,4,2).fill((float)part.X);                          // Pizero energy asymmetry
+                  ecPix[0].strips.hmap1.get("H1_a_Hist").get(is,4,1).fill(Math.acos(part.cpi0)*180/3.14159-refTH);   // Pizero theta angle error
+                  ecPix[0].strips.hmap1.get("H1_a_Hist").get(is,4,2).fill((float)part.X);                            // Pizero energy asymmetry
                   ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,4).fill(opa,(float)part.X);      
                   ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,9,1).fill(part.distance11,1,1.); // Pizero photon 1 PCAL-ECinner cluster error
                   ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,9,1).fill(part.distance12,2,1.); // Pizero photon 2 PCAL-ECinner cluster error
@@ -476,7 +477,7 @@ public class ECEngineApp extends FCApplication implements ActionListener {
          if (il==1) h1.setTitleY("Strip Energy (MeV)"); 
          c.cd(ii); 
          c.getPad(ii).getAxisX().setRange(0.,ecPix[ilm].ec_nstr[il-1]+1);
-         c.getPad(ii).getAxisY().setRange(0.,1.2*zmax*app.displayControl.pixMax); ii++;
+         c.getPad(ii).getAxisY().setRange(0.,5*zmax*app.displayControl.pixMax); ii++;
          c.draw(h1);
          c.draw(h2,"same"); 
          c.draw(f1,"same");
