@@ -153,7 +153,7 @@ public class ECCommon {
                int        adc = bank.getInt("ADC",row);
                ECStrip  strip = new ECStrip(sector, layer, component);
                strip.setADC(adc);
-               strip.setTDC(bank.getFloat("time",row));               
+               //strip.setTDC(0bank.getFloat("time",row));               
                double sca = (sector==5)?AtoE5[ind[layer-1]]:AtoE[ind[layer-1]]; 
                if (variation=="clas6") sca = 1.0;
                if(strip.getADC()>sca*ECCommon.stripThreshold[ind[layer-1]]) strips.add(strip);                       
