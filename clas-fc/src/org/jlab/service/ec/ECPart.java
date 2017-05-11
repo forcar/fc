@@ -20,6 +20,7 @@ import org.jlab.io.base.DataEvent;
 import org.jlab.io.evio.EvioDataBank;
 import org.jlab.io.evio.EvioDataEvent;
 import org.jlab.io.evio.EvioSource;
+import org.jlab.io.hipo.HipoDataSource;
 import org.jlab.service.eb.EBConstants;
 import org.jlab.service.eb.EventBuilder;
 
@@ -34,6 +35,8 @@ public class ECPart {
     public static String config = null;
     public static double SF1 = 0.27;
     public static double SF2 = 0.27;
+    public int n2hit=0;
+    public int n2rec=0;
     
     public static void readMC(DataEvent event) {
         int pid=0;
@@ -151,7 +154,7 @@ public class ECPart {
         e1 = p1.getEnergy(DetectorType.EC);
         e2 = p2.getEnergy(DetectorType.EC);
 
-        SF1 = getSF(geom,e1); e1c=e1/SF1;
+        SF1 = getSF(geom,e1); e1c = e1/SF1;
         Particle g1 = new Particle(22,
                 n1.x()*e1c,
                 n1.y()*e1c,
@@ -174,15 +177,17 @@ public class ECPart {
          cth = g1.cosTheta(g2);
          
         // Require 2 photons in PCAL and ECinner
-         
-        if(p1.getResponse(DetectorType.EC, 1)!=null&&
-           p1.getResponse(DetectorType.EC, 4)!=null&&
-           p2.getResponse(DetectorType.EC, 1)!=null&& 
-           p2.getResponse(DetectorType.EC, 4)!=null) {                
+        
+        n2hit++;
+        if((p1.getResponse(DetectorType.EC, 1)!=null  &&
+            p1.getResponse(DetectorType.EC, 4)!=null) ||
+           (p2.getResponse(DetectorType.EC, 1)!=null && 
+            p2.getResponse(DetectorType.EC, 4)!=null)) {                
               X = (e1c-e2c)/(e1c+e2c);
            tpi2 = 2*mpi0*mpi0/(1-cth)/(1-X*X);
            cpi0 = (e1c*cth1+e2c*cth2)/Math.sqrt(e1c*e1c+e2c*e2c+2*e1c*e2c*cth);
            g1.combine(g2, +1);
+           n2rec++;
            return g1.mass2();
         }
         
@@ -212,17 +217,17 @@ public class ECPart {
     
     public static void main(String[] args){
         
-        ECEngine   engine = new ECEngine();
-        EvioSource reader = new EvioSource();
-        ECPart       part = new ECPart();
+        ECEngine       engine = new ECEngine();
+        HipoDataSource reader = new HipoDataSource();
+        ECPart           part = new ECPart();
         
-        String evioPath = "/Users/colesmith/coatjava/data/pizero/";
+        String evioPath = "/Users/colesmith/clas12/coatjava-local/data/pizero/hipo/";
         // GEMC file: 10k 2.0 GeV pizeros thrown at 25 deg into Sector 2 using GEMC 2.4 geometry
         // JLAB: evioPath = "/lustre/expphy/work/hallb/clas12/lcsmith/clas12/forcar/gemc/evio/";
         
         if (args.length == 0) { 
 //            reader.open(evioPath+"fc-pizero-10k-s2-25deg-oldgeom.evio");
-            reader.open(evioPath+"fc-pizero-10k-s2-newgeom.evio");
+            reader.open(evioPath+"fc-pizero-10k-s2-newgeom.hipo");
         } else {
             String inputFile = args[0];
             reader.open(inputFile);
@@ -233,18 +238,22 @@ public class ECPart {
         engine.setVariation("clas6");
         engine.setCalRun(2);
         engine.setStripThresholds(10,9,8);
+//        engine.setStripThresholds(5,5,5);
         engine.setPeakThresholds(18,20,15);
+//        engine.setPeakThresholds(5,5,5);
         engine.setClusterCuts(7,15,20);
         part.setGeom("2.5");
         
         H1F h1 = new H1F("Invariant Mass",50,10.,200);         
-        h1.setOptStat(Integer.parseInt("1100")); h1.setTitleX("Pizero Invariant Mass (MeV)");
+        h1.setOptStat("11010000111"); h1.setTitleX("Pizero Invariant Mass (MeV)");
         H1F h2 = new H1F("Energy Asymmetry",50,-1.0,1.0);      
         h2.setOptStat(Integer.parseInt("1100")); h2.setTitleX("X:(E1-E2)/(E1+E2)");
         H1F h3 = new H1F("Pizero Energy Error",50,-500.,500.); 
         h3.setOptStat(Integer.parseInt("1100")); h3.setTitleX("Pizero Energy Error (MeV)");
         H1F h4 = new H1F("Pizero Theta Error",50,-1.,1.);      
         h4.setOptStat(Integer.parseInt("1100")); h4.setTitleX("Pizero Theta Error (deg)");
+        
+        int nimcut = 0;
         
         while(reader.hasEvent()){
             DataEvent event = reader.getNextEvent();
@@ -254,12 +263,15 @@ public class ECPart {
             
             h1.fill((float)invmass,1.);                          //Two-photon invariant mass
             
-            if (invmass>60 && invmass<200) {
+            if (invmass>80 && invmass<200) {
                 h2.fill((float)part.X);                          //Pizero energy asymmetry
-                h3.fill((float)(1e3*Math.sqrt(part.tpi2)-refE)); //Pizero total energy error
+                h3.fill((float)(1e3*(Math.sqrt(part.tpi2)-refE))); //Pizero total energy error
                 h4.fill(Math.acos(part.cpi0)*180/3.14159-refTH); //Pizero theta angle error
+                nimcut++;
             }
         }
+        System.out.println("n2hit,n2rec,nimcut="+part.n2hit+" "+part.n2rec+" "+nimcut);
+        System.out.println("Eff1= "+(float)part.n2rec/(float)part.n2hit+" Eff2= "+(float)nimcut/(float)part.n2hit);
         
         JFrame frame = new JFrame("Pizero Reconstruction");
         frame.setSize(800,800);
