@@ -39,6 +39,10 @@ public class ECCommon {
     public static Boolean   singleEvent = false;
     public static String      variation = "default";
     
+    private static double[] AtoE  = {15,10,10};    // SCALED ADC to Energy in MeV
+    private static double[] AtoE5 = {15,5,5};     // For Sector 5 ECAL
+    
+    
     public static DetectorCollection<H1F> H1_ecEng = new DetectorCollection<H1F>();
     
     static int ind[]  = {0,0,0,1,1,1,2,2,2}; 
@@ -79,8 +83,10 @@ public class ECCommon {
         Collections.sort(ecStrips);
         
         manager.setVariation(variation);
+        
         IndexedTable   atten  = manager.getConstants(run, "/calibration/ec/attenuation");
         IndexedTable    gain  = manager.getConstants(run, "/calibration/ec/gain");
+        
         for(ECStrip strip : ecStrips){
             int sector    = strip.getDescriptor().getSector();
             int layer     = strip.getDescriptor().getLayer();
@@ -97,7 +103,8 @@ public class ECCommon {
             strip.setAttenuation( atten.getDoubleValue("A", sector,layer,component),
                                   atten.getDoubleValue("B", sector,layer,component),
                                   atten.getDoubleValue("C", sector,layer,component));
-            strip.setGain(gain.getDoubleValue("gain", sector,layer,component));                    }
+            strip.setGain(gain.getDoubleValue("gain", sector,layer,component));      
+        }
         return ecStrips;
     }
     
@@ -146,8 +153,10 @@ public class ECCommon {
                int        adc = bank.getInt("ADC",row);
                ECStrip  strip = new ECStrip(sector, layer, component);
                strip.setADC(adc);
-               strip.setTDC(0);
-               if(strip.getADC()>ECCommon.stripThreshold[ind[layer-1]]) strips.add(strip);                       
+               strip.setTDC(bank.getFloat("time",row));               
+               double sca = (sector==5)?AtoE5[ind[layer-1]]:AtoE[ind[layer-1]]; 
+               if (variation=="clas6") sca = 1.0;
+               if(strip.getADC()>sca*ECCommon.stripThreshold[ind[layer-1]]) strips.add(strip);                       
            }
         }
        return strips;
@@ -182,7 +191,10 @@ public class ECCommon {
         for(ECPeak p : peaks){
             int adc = p.getADC();
             int lay = p.getDescriptor().getLayer();
-            if(adc>ECCommon.peakThreshold[ind[lay-1]]) ecPeaks.add(p);
+            int sec = p.getDescriptor().getSector();
+            double sca = (sec==5)?AtoE5[ind[lay-1]]:AtoE[ind[lay-1]]; 
+            if (variation=="clas6") sca = 1.0;
+            if(adc>sca*ECCommon.peakThreshold[ind[lay-1]]) ecPeaks.add(p);
         }
         return ecPeaks;
     }

@@ -208,7 +208,9 @@ public class ECEngine extends ReconstructionEngine {
             bankS.setFloat("energy", h, (float) strips.get(h).getEnergy());
             bankS.setFloat("time",   h, (float) strips.get(h).getTime());                
         }
-       
+        
+//        de.removeBank("ECAL::peaks");
+               
         DataBank  bankP =  de.createBank("ECAL::peaks", peaks.size());
         for(int p = 0; p < peaks.size(); p++){
             bankP.setByte("sector",  p,  (byte) peaks.get(p).getDescriptor().getSector());
@@ -270,21 +272,21 @@ public class ECEngine extends ReconstructionEngine {
     }
     
     public void setStripThresholds(int thr0, int thr1, int thr2) {
-        System.out.println("ECEngine: Strip ADC thresholds = "+thr0+" "+thr1+" "+thr2);
+        System.out.println("ECEngine: Strip ADC thresholds (MeV*10) = "+thr0+" "+thr1+" "+thr2);
         ECCommon.stripThreshold[0] = thr0;
         ECCommon.stripThreshold[1] = thr1;
         ECCommon.stripThreshold[2] = thr2;
     }
     
     public void setPeakThresholds(int thr0, int thr1, int thr2) {
-        System.out.println("ECEngine: Peak ADC thresholds = "+thr0+" "+thr1+" "+thr2);
+        System.out.println("ECEngine: Peak ADC thresholds (MeV*10) = "+thr0+" "+thr1+" "+thr2);
         ECCommon.peakThreshold[0] = thr0;
         ECCommon.peakThreshold[1] = thr1;
         ECCommon.peakThreshold[2] = thr2;
     }   
     
     public void setClusterCuts(float err0, float err1, float err2) {
-        System.out.println("ECEngine: Cluster Dalitz Cuts = "+err0+" "+err1+" "+err2);
+        System.out.println("ECEngine: Cluster Dalitz Cuts (cm) = "+err0+" "+err1+" "+err2);
         ECCommon.clusterError[0] = err0;
         ECCommon.clusterError[1] = err1;
         ECCommon.clusterError[2] = err2;
@@ -307,7 +309,7 @@ public class ECEngine extends ReconstructionEngine {
         ecDetector =  GeometryFactory.getDetector(DetectorType.EC);
         
         setCalRun(2);
-        setVariation("default");
+        setVariation("clas6");
         setStripThresholds(10,9,8);
         setPeakThresholds(18,20,15);
         setClusterCuts(7,15,20);
