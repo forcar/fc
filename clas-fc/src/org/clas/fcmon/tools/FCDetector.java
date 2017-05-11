@@ -208,7 +208,7 @@ public class FCDetector {
         //double[] junk = ecPix[ilmap].Lmap_a_z.getItem(1,0);
         //System.out.println("ilmap,junk = "+ilmap+" "+junk[0]+" "+junk[1]+" "+junk[2]);
 
-        if(app.debug) System.out.println("layer,opt = "+layer+" "+opt);
+//        if(app.debug) System.out.println("layer,opt = "+layer+" "+opt);
         if (app.getInProcess()>0&&!peakShapes) colorfraction = getcolor(dc.get(is,layer,opt),ic,mapz.getItem(layer,opt));
                 
         if (colorfraction<0.05) colorfraction = 0.05;
