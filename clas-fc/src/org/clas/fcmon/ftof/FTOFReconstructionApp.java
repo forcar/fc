@@ -117,11 +117,15 @@ public class FTOFReconstructionApp extends FCApplication {
        
        IndexedList<Double> tdcs = new IndexedList<Double>(4);
        long phase = 0;
+       int trigger = 0;
+       int bitsec = 0;
        
        clear(0); clear(1); clear(2); tdcs.clear();
        
        if(event.hasBank("RUN::config")){
            DataBank bank = event.getBank("RUN::config");
+           trigger=bank.getInt("trigger", 0);
+           bitsec = (int) (Math.log10(trigger>>24)/0.301+1);
            phase = bank.getLong("timestamp",0);                
            int phase_offset = 1;
            phase = (bank.getLong("timestamp", 0)%6+phase_offset)%6;
@@ -154,7 +158,7 @@ public class FTOFReconstructionApp extends FCApplication {
                float tdcf = bank.getFloat("time",i);
                int ped = bank.getShort("ped", i);
                double tdc = (tdcs.hasItem(is,il,lr,ip)) ? tdcs.getItem(is,il,lr,ip):0.;
-               if(isGoodSector(is)) fill(il-1, is, lr+1, ip, adc, tdc, tdcf);    
+               if(isGoodSector(is)&&(is==bitsec)) fill(il-1, is, lr+1, ip, adc, tdc, tdcf);    
            }
        }
        
