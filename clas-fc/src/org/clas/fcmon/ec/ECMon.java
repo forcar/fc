@@ -45,9 +45,10 @@ public class ECMon extends DetectorMonitor {
     Boolean                saveFile = false;
    
     public static int        calRun = 760;
+    public static String  variation = "clas6";
     int                       detID = 0;
-    int                         is1 = 1;
-    int                         is2 = 7;  
+    int                         is1 = 2;
+    int                         is2 = 3;  
     int    nsa,nsb,tet,p1,p2,pedref = 0;
     double               PCMon_zmin = 0;
     double               PCMon_zmax = 0;
@@ -76,6 +77,7 @@ public class ECMon extends DetectorMonitor {
         }
         app.setPluginClass(monitor);
         app.setAppName(appname);
+        app.setVariation(variation);
         app.makeGUI();
         app.getEnv();
         monitor.initConstants();
@@ -212,7 +214,7 @@ public class ECMon extends DetectorMonitor {
 
         ecRecon.init(); 
         ecEngine.init();
-        ecEngine.setVariation("clas6");
+        ecEngine.setVariation(app.variation);
        
         ecEngine.setStripThresholds(ecPix[0].getStripThr(app.config, 1),
                                     ecPix[1].getStripThr(app.config, 1),

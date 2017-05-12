@@ -77,6 +77,7 @@ public class MonitorApp extends JFrame implements ActionListener {
     public int      viewIndex = 1;
     public boolean    doEpics = false;
     public String     appName = null;
+    public String   variation = "default";
     public String    rootPath = ".";
     public String    hipoPath = null;
     public String   calibPath = null;
@@ -122,6 +123,10 @@ public class MonitorApp extends JFrame implements ActionListener {
     
     public void setAppName(String name) {
         this.appName = name;
+    }
+    
+    public void setVariation(String variation) {
+        this.variation = variation;
     }
     
     public void getReverseTT(ConstantsManager ccdb, String table) {
