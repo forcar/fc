@@ -151,12 +151,12 @@ public class MonitorApp extends JFrame implements ActionListener {
     
     public void getEnv() {        
         String ostype = System.getenv("OSTYPE"); 
-        
-        if (ostype!=null&&ostype.equals("linux")) {
+        System.out.println("OSTYPE = "+ostype);
+        if (ostype!=null&&(ostype.equals("linux")||ostype.equals("Linux"))) {
             String hostname = System.getenv("HOST");
             if(hostname.substring(0,4).equals("clon")) {
               System.out.println("Running on "+hostname);
-              doEpics = true;
+              doEpics = false;
               setIsMC(false);
               rootPath = "/home/clasrun/"+appName;              
               xMsgHost = "129.57.167.227"; //clondaq4
