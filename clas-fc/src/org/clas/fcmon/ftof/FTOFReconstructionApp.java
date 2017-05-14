@@ -166,7 +166,7 @@ public class FTOFReconstructionApp extends FCApplication {
    
    public void updateRawData(DataEvent event){
 
-      int adc,ped,npk,il=0;
+      int adc,ped,npk,il=0,trigger,bitsec=0;
       double tdc=0,tdcf=0;
       String AdcType ;
       
@@ -178,13 +178,15 @@ public class FTOFReconstructionApp extends FCApplication {
       this.detectorData.addAll(dataSet);
       
       clear(0); clear(1); clear(2);
-      int nsum=0;
       
       int phase_offset = 1;
       long phase = ((codaDecoder.getTimeStamp()%6)+phase_offset)%6;
            
+      trigger = codaDecoder.getTriggerBits();
+      bitsec = (int) (Math.log10(trigger>>24)/0.301+1);
+
       for (DetectorDataDgtz strip : detectorData) {
-         if(strip.getDescriptor().getType().getName()=="FTOF") {
+         if((is==bitsec)&&strip.getDescriptor().getType().getName()=="FTOF") {
             adc=ped=pedref=npk=0 ; tdc=tdcf=0;
             int icr = strip.getDescriptor().getCrate(); 
             int isl = strip.getDescriptor().getSlot(); 

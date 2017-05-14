@@ -132,16 +132,27 @@ public class ECReconstructionApp extends FCApplication {
     }
    
    public void updateHipoData(DataEvent event) {
-       IndexedList<Integer> tdcs = new IndexedList<Integer>(3);
+       IndexedList<Double> tdcs = new IndexedList<Double>(3);
        int ilay=0, idet=-1;
-       double sca=1;
-       float tdcf=0;
+       double  sca = 1;
+       float  tdcf = 0;
+       long  phase = 0;
+       int trigger = 0;
+       int  bitsec = 0;
        
-       clear(0); clear(1); clear(2);
+       clear(0); clear(1); clear(2); tdcs.clear();
        
        sca = (app.isCRT==true) ? 6.6:1; // For pre-installation PCAL CRT runs
        
-       tdcs.clear();
+       if(event.hasBank("RUN::config")){
+           DataBank bank = event.getBank("RUN::config");
+           trigger=bank.getInt("trigger", 0);
+           bitsec = (int) (Math.log10(trigger>>24)/0.301+1);
+           phase = bank.getLong("timestamp",0);                
+           int phase_offset = 1;
+           phase = (bank.getLong("timestamp", 0)%6+phase_offset)%6;
+
+       }
        
        if(event.hasBank("ECAL::tdc")==true){
            DataBank  bank = event.getBank("ECAL::tdc");
@@ -151,7 +162,7 @@ public class ECReconstructionApp extends FCApplication {
                int  is = bank.getByte("sector",i);
                int  il = bank.getByte("layer",i);
                int  ip = bank.getShort("component",i);
-               int tdc = bank.getInt("TDC",i);    
+               double tdc = bank.getInt("TDC",i)*24/1000.-phase*4.;
                tdcs.add(tdc,is,il,ip);
            }
        }
@@ -165,7 +176,7 @@ public class ECReconstructionApp extends FCApplication {
                int  ip = bank.getShort("component",i);
                int adc = bank.getInt("ADC",i);
                int ped = bank.getShort("ped", i); 
-               int tdc = (tdcs.hasItem(is,il,ip)) ? tdcs.getItem(is,il,ip):0;
+               double tdc = (tdcs.hasItem(is,il,ip)) ? tdcs.getItem(is,il,ip):0;
                idet = getDet(il);
                ilay = getLay(il);
                if (app.rtt.hasItem(is,il,ip,0)) {
@@ -175,10 +186,10 @@ public class ECReconstructionApp extends FCApplication {
                if (ped>0) ecPix[idet].strips.hmap2.get("H2_Peds_Hist").get(is,ilay,0).fill(this.pedref-ped, ip);
                sca = (is==5)?ecc.SCALE5[il-1]:ecc.SCALE[il-1];
                if( app.isMC&&app.variation=="clas6") sca = 1.0;
-               if(isGoodSector(is)) {
+               if(isGoodSector(is)&&(is==bitsec)) {
                    adc = adc/(int)sca;
-                   fill(idet, is, ilay, ip, adc, tdc*24/1000, tdcf);  
-                   fillSED(idet, is, ilay, ip, adc, tdc*24/1000);
+                   fill(idet, is, ilay, ip, adc, tdc, tdcf);  
+                   fillSED(idet, is, ilay, ip, adc, tdc);
                }
            }
        }
@@ -194,7 +205,7 @@ public class ECReconstructionApp extends FCApplication {
      
    public void updateRawData(DataEvent event){
 
-      int adc,npk,ped;
+      int adc,npk,ped,trigger,bitsec=0;
       double tdc=0,tdcf=0;
       String AdcType ;
       
@@ -206,18 +217,26 @@ public class ECReconstructionApp extends FCApplication {
       this.detectorData.addAll(dataSet);
       
       clear(0); clear(1); clear(2);
+      
+      int phase_offset = 1;
+      long phase = ((codaDecoder.getTimeStamp()%6)+phase_offset)%6;
+      
+      trigger = codaDecoder.getTriggerBits();
+      bitsec = (int) (Math.log10(trigger>>24)/0.301+1);
 
       int ilay=0;
       int idet=-1;
 //    System.out.println("tbits="+codaDecoder.getTriggerBits());
+       
       
       for (DetectorDataDgtz strip : detectorData) {
-         if(strip.getDescriptor().getType().getName()=="EC") {
+         int is  = strip.getDescriptor().getSector();
+         if((is==bitsec)&&strip.getDescriptor().getType().getName()=="EC") {
+//         if(strip.getDescriptor().getType().getName()=="EC") {
             adc=npk=ped=pedref=0 ; tdc=tdcf=0;
             int icr = strip.getDescriptor().getCrate(); 
             int isl = strip.getDescriptor().getSlot(); 
             int ich = strip.getDescriptor().getChannel(); 
-            int is  = strip.getDescriptor().getSector();
             int il  = strip.getDescriptor().getLayer(); // 1-3: PCAL 4-9: ECAL
             int ip  = strip.getDescriptor().getComponent();
             int iord= strip.getDescriptor().getOrder(); 
@@ -230,8 +249,6 @@ public class ECReconstructionApp extends FCApplication {
             if (idet>-1) {
                             
             if (strip.getTDCSize()>0) {
-                int phase_offset = 1;
-                long phase = ((codaDecoder.getTimeStamp()%6)+phase_offset)%6;
                 tdc = strip.getTDCData(0).getTime()*24./1000.;
                 if(il==6&&idet==1) ecPix[idet].strips.hmap2.get("H2_t_Hist").get(is,3,3).fill(tdc,phase);
                 tdc = tdc-phase*4.;
