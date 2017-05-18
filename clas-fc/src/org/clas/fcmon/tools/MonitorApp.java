@@ -4,6 +4,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -12,17 +14,20 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.util.LinkedList;
 import java.util.TreeMap;
- 
+import java.util.concurrent.TimeUnit;
+
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -33,6 +38,7 @@ import org.jlab.detector.base.DetectorCollection;
 import org.jlab.detector.base.DetectorDescriptor;
 import org.jlab.detector.calib.utils.ConstantsManager;
 import org.jlab.groot.graphics.EmbeddedCanvas;
+import org.jlab.io.hipo.HipoDataSync;
 import org.jlab.utils.groups.IndexedTable;
 
 /*
@@ -47,6 +53,7 @@ public class MonitorApp extends JFrame implements ActionListener {
     JTabbedPane      canvasTabbedPane;
     JSplitPane             vSplitPane; 
     JSplitPane	           hSplitPane;
+    JScrollPane            scrollPane;
 	
     JPanel  detectorPane;
     JPanel  infoPane;
@@ -56,6 +63,9 @@ public class MonitorApp extends JFrame implements ActionListener {
     JTextField   runno = new JTextField(4);
     JCheckBox    mcBtn = null;
     
+    JButton openBtn  = null;
+    JButton closeBtn = null;
+    
     TreeMap<String,EmbeddedCanvas>  paneCanvas = new TreeMap<String,EmbeddedCanvas>();
 	
     JPanel  controlsPanel0 = null;        
@@ -63,6 +73,9 @@ public class MonitorApp extends JFrame implements ActionListener {
     JPanel  controlsPanel2 = null;
     JPanel  controlsPanel3 = null;
 	
+    public FCCLASDecoder           decoder = new FCCLASDecoder();
+    
+    String                    HipoFileName = "TEST.HIPO";
     EventControl              eventControl = null;    
     public DisplayControl   displayControl = null;	
     public Mode7Emulation   mode7Emulation = null;
@@ -151,11 +164,12 @@ public class MonitorApp extends JFrame implements ActionListener {
     
     public void getEnv() {        
         String ostype = System.getenv("OSTYPE"); 
-        System.out.println("OSTYPE = "+ostype);
+        System.out.println("monitor.getEnv(): OSTYPE = "+ostype);
+        
         if (ostype!=null&&(ostype.equals("linux")||ostype.equals("Linux"))) {
             String hostname = System.getenv("HOST");
             if(hostname.substring(0,4).equals("clon")) {
-              System.out.println("Running on "+hostname);
+              System.out.println("monitor.getEnv(): Running on "+hostname);
               doEpics = false;
               setIsMC(false);
               rootPath = "/home/clasrun/"+appName;              
@@ -164,7 +178,7 @@ public class MonitorApp extends JFrame implements ActionListener {
         }
         
         if (ostype!=null&&ostype.equals("darwin")) {
-            System.out.println("Running on "+ostype);
+            System.out.println("monitor.getEnv(): Running on "+ostype);
             doEpics = false;
             setIsMC(false);
             rootPath  = "/Users/colesmith/"+appName;
@@ -197,6 +211,7 @@ public class MonitorApp extends JFrame implements ActionListener {
         canvasPane.setLayout(new BorderLayout());
         this.canvasPane.add(canvasTabbedPane,BorderLayout.CENTER);
         this.canvasPane.add(buttonPane,BorderLayout.PAGE_END);
+
         
 // InfoPane label
         
@@ -216,8 +231,16 @@ public class MonitorApp extends JFrame implements ActionListener {
                 };
             }
         });         
-        mcBtn.setSelected(true);
+        mcBtn.setSelected(true);        
         buttonPane.add(mcBtn);
+        
+        openBtn = new JButton("Open HIPO");
+        openBtn.addActionListener(this);
+        buttonPane.add(openBtn);  
+        
+        closeBtn = new JButton("Close HIPO");
+        closeBtn.addActionListener(this);
+        buttonPane.add(closeBtn);   
         
         JButton resetBtn = new JButton("Clear Histos");
         resetBtn.addActionListener(this);
@@ -310,6 +333,10 @@ public class MonitorApp extends JFrame implements ActionListener {
         this.canvasTabbedPane.addTab(name, frame);
     }
     
+    public void addScrollPane(String name) {
+        this.canvasTabbedPane.addTab(name, this.scrollPane);     
+   }
+    
     public EmbeddedCanvas getCanvas(String name){
         return this.paneCanvas.get(name);
     }  
@@ -364,7 +391,7 @@ public class MonitorApp extends JFrame implements ActionListener {
     
     public void setSelectedTab(int index) {
         this.canvasTabbedPane.setSelectedComponent(this.canvasTabbedPane.getComponent(index));
-        System.out.println("Selected Tab is "+this.canvasTabbedPane.getTitleAt(index));
+        System.out.println("monitor.setSelectedTab: Selected Tab is "+this.canvasTabbedPane.getTitleAt(index));
     }
     
     public void addChangeListener() {    
@@ -377,6 +404,31 @@ public class MonitorApp extends JFrame implements ActionListener {
          }
          }
       });
+    }
+    
+    public class TextAreaOutputStream extends OutputStream {
+        private javax.swing.JTextArea jTextArea1;
+
+        /**
+         * Creates a new instance of TextAreaOutputStream which writes
+         * to the specified instance of javax.swing.JTextArea control.
+         *
+         * @param textArea   A reference to the javax.swing.JTextArea
+         *                  control to which the output must be redirected to.
+         */
+        public TextAreaOutputStream( JTextArea textArea ) {
+            this.jTextArea1 = textArea;
+        }
+
+        public void write( int b ) throws IOException {
+            jTextArea1.append( String.valueOf( ( char )b ) );
+            jTextArea1.setCaretPosition(jTextArea1.getDocument().getLength());
+        }
+
+        public void write(char[] cbuf, int off, int len) throws IOException {
+            jTextArea1.append(new String(cbuf, off, len));
+            jTextArea1.setCaretPosition(jTextArea1.getDocument().getLength());
+        }
     }
     
     public int getsp() {
@@ -401,9 +453,9 @@ public class MonitorApp extends JFrame implements ActionListener {
         if (getSelectedTabName()=="TDC") or=2;
         if (rtt.hasItem(is,sp,ic,or)) {
             int[] dum = (int[]) rtt.getItem(is,sp,ic,or);
-            cr = dum[0]; currentCrate = cr;
-            sl = dum[1]; currentSlot  = sl;
-            ch = dum[2]; currentChan  = ch;
+            currentCrate = cr = dum[0];  
+            currentSlot  = sl = dum[1];  
+            currentChan  = ch = dum[2]; 
         }   
         return " Sector:"+is+"  Layer:"+sp+comp+ic+" "+" Crate:"+cr+" Slot:"+sl+" Chan:"+ch;
     }
@@ -412,8 +464,32 @@ public class MonitorApp extends JFrame implements ActionListener {
         this.statusLabel.setText(getStatusString(dd)) ; 
     }
     
+    public void openHIPOAction() {
+        openBtn.setOpaque(true);
+        openBtn.setBackground(Color.GREEN);
+        decoder.openHipoFile(hipoPath);        
+    }
+    public void closeHIPOAction() {
+        openBtn.setBackground(Color.RED);
+        eventControl.buttonStop.doClick();
+        pause(2000);
+        openBtn.setOpaque(false);
+        openBtn.setBackground(Color.WHITE);
+        decoder.closeHipoFile();  
+    }
+    
+    public void pause(int msec) {
+        try {
+            Thread.sleep(msec);
+        } catch(InterruptedException ex) {
+            Thread.currentThread().interrupt();
+        }
+    }
+    
     @Override
     public void actionPerformed(ActionEvent e) {
+        if(e.getActionCommand().compareTo("Open HIPO")==0)    openHIPOAction();
+        if(e.getActionCommand().compareTo("Close HIPO")==0)   closeHIPOAction();
         if(e.getActionCommand().compareTo("Clear Histos")==0) monitoringClass.reset();
         if(e.getActionCommand().compareTo("Write Histos")==0) monitoringClass.writeHipoFile();
         if(e.getActionCommand().compareTo("Read Histos")==0)  monitoringClass.readHipoFile();
