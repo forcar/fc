@@ -24,6 +24,7 @@ import javax.swing.JTextField;
 import org.clas.fcmon.detector.view.DetectorShape2D;
 import org.clas.fcmon.detector.view.EmbeddedCanvasTabbed;
 import org.clas.fcmon.tools.FCApplication;
+import org.jlab.clas.detector.CalorimeterResponse;
 import org.jlab.clas.detector.DetectorResponse;
 import org.jlab.detector.base.DetectorCollection;
 import org.jlab.detector.base.DetectorDescriptor;
@@ -303,16 +304,16 @@ public class ECEngineApp extends FCApplication implements ActionListener {
       
       // Monitor EC cluster data
             
-      ECPart                        part = new ECPart();      
-      EventBuilder               builder = new EventBuilder();
-      List<List<DetectorResponse>>   res = new ArrayList<List<DetectorResponse>>();      
+      ECPart                   part = new ECPart();      
+      EventBuilder               eb = new EventBuilder();
+      List<List<CalorimeterResponse>>   res = new ArrayList<List<CalorimeterResponse>>();      
       part.setGeom(app.geom);  part.setConfig(app.config);      
-      List<DetectorResponse>  ecClusters = part.readEC(event);   
+      List<CalorimeterResponse>  ecClusters = part.readEC(event);   
       
       if (ecClusters.size()>0) {
           
       for (int idet=0; idet<3; idet++) {
-          res.add(builder.getUnmatchedResponses(ecClusters, DetectorType.EC,iidet[idet]));
+          res.add(eb.getUnmatchedResponses(ecClusters, DetectorType.EC,iidet[idet]));
           for(int i = 0; i < res.get(idet).size(); i++){
               int        is = res.get(idet).get(i).getDescriptor().getSector();
               double energy = res.get(idet).get(i).getEnergy();
