@@ -46,18 +46,21 @@ public class ECAdcApp extends FCApplication {
         H1F copy1=null;
         H1F h1; H2F h2;
           
-        c.divide(3,3);       
+        c.divide(3,4);       
         c.setAxisFontSize(14);
         
         for (int il=1; il<4; il++) {
+            h2 = dc2a.get(is,il,3); h2.setTitleY("Sector "+is+otab[ilm][il-1]) ; h2.setTitleX("ADC");
+            canvasConfig(c,il-1,0.,40.,1.,ecPix[ilm].ec_nstr[il-1]+1.,true).draw(h2);
+            if (la==il) {c.draw(f1,"same"); c.draw(f2,"same");}
             h2 = dc2a.get(is,il,0); h2.setTitleY("Sector "+is+otab[ilm][il-1]) ; h2.setTitleX("ADC");
-            canvasConfig(c,il-1,0.,250.,1.,ecPix[ilm].ec_nstr[il-1]+1.,true).draw(h2);
+            canvasConfig(c,il+2,0.,250.,1.,ecPix[ilm].ec_nstr[il-1]+1.,true).draw(h2);
             if (la==il) {c.draw(f1,"same"); c.draw(f2,"same");}
             h1 = dc2a.get(is,il,0).projectionY(); h1.setTitleX("Sector "+is+otab[ilm][il-1]); h1.setFillColor(0); 
             if (la==il) {h1.setFillColor(4); copy1=h1.histClone("Copy"); copy1.reset(); copy1.setBinContent(ic, h1.getBinContent(ic)); copy1.setFillColor(2);}
-            c.cd(il+2); h1.setOptStat(Integer.parseInt("1000000")); c.draw(h1);  if (il==la) c.draw(copy1,"same");            
+            c.cd(il+5); h1.setOptStat(Integer.parseInt("1000000")); c.draw(h1);  if (il==la) c.draw(copy1,"same");            
             h1 = dc2a.get(is,il,0).sliceY(ics[ilm][il-1]); h1.setTitleX("Sector "+is+otab[ilm][il-1]+(ics[ilm][il-1]+1)+" ADC"); h1.setFillColor(0);  
-            c.cd(il+5); h1.setOptStat(Integer.parseInt("1000100")); h1.setTitle(""); c.draw(h1); 
+            c.cd(il+8); h1.setOptStat(Integer.parseInt("1000100")); h1.setTitle(""); c.draw(h1); 
             if (la==il) {h1=dc2a.get(is,il,0).sliceY(ic) ; h1.setOptStat(Integer.parseInt("1000100")); h1.setFillColor(2); 
             h1.setTitleX("Sector "+is+otab[ilm][il-1]+(ic+1)+" ADC"); c.draw(h1);}
         }           

@@ -147,12 +147,12 @@ public class ECMode1App extends FCApplication  {
        c = mode1.getCanvas("SYNC");  c.clear(); c.divide(3,4); 
        for (int is=1; is<7; is++) {
            h2 = dc2a.get(is,3,3) ;  h2.setTitleY("PHASE") ; h2.setTitleX("Sector "+is+" W Inner Raw TDC (ns)");   
-           canvasConfig(c,is-1,600.,700.,0.,6.,true).draw(h2);
+           canvasConfig(c,is-1,600.,750.,0.,6.,true).draw(h2);
            c.draw(h2);
        }
        for (int is=1; is<7; is++) {
            h2 = dc2a.get(is,3,4) ;  h2.setTitleY("PHASE") ; h2.setTitleX("Sector "+is+" W Inner Corrected TDC (ns)");   
-           canvasConfig(c,is-1+6,600.,700.,0.,6.,true).draw(h2);
+           canvasConfig(c,is-1+6,600.,750.,0.,6.,true).draw(h2);
            c.draw(h2);
        }
        

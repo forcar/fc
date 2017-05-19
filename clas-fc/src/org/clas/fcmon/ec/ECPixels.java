@@ -83,7 +83,7 @@ public class ECPixels {
     int        nht[][] = new    int[6][3];
     int    strra[][][] = new    int[6][3][68]; 
     int    strrt[][][] = new    int[6][3][68]; 
-    int     adcr[][][] = new    int[6][3][68];      
+    float   adcr[][][] = new  float[6][3][68];      
     double ftdcr[][][] = new double[6][3][68];      
     double  tdcr[][][] = new double[6][3][68]; 	
     
@@ -341,6 +341,7 @@ public class ECPixels {
                 id="s"+Integer.toString(is)+"_l"+Integer.toString(il)+"_c";
                 H2_a_Hist.add(is, il, 0, new H2F("a_raw_"+id+0, 125,   0., 250., nstr, 1., nend));
                 H2_a_Hist.add(is, il, 1, new H2F("b_pix_"+id+1, 125,   0., 250., nstr, 1., nend));
+                H2_a_Hist.add(is, il, 3, new H2F("b_low_"+id+2, 80,   0., 40., nstr, 1., nend));
                 H2_t_Hist.add(is, il, 0, new H2F("a_raw_"+id+0, 100,   450., 850., nstr, 1., nend));
                 H2_t_Hist.add(is, il, 1, new H2F("b_pix_"+id+1, 100,   450., 850., nstr, 1., nend));
                 // Pedestal Noise  
@@ -358,8 +359,8 @@ public class ECPixels {
             }
             
                 id="s"+Integer.toString(is)+"_l"+Integer.toString(3)+"_c";
-                H2_t_Hist.add(is, 3, 3, new H2F("a_raw_"+id+3, 100, 600., 700., 6, 0., 6.));
-                H2_t_Hist.add(is, 3, 4, new H2F("a_raw_"+id+4, 100, 600., 700., 6, 0., 6.));
+                H2_t_Hist.add(is, 3, 3, new H2F("a_raw_"+id+3, 100, 600., 750., 6, 0., 6.));
+                H2_t_Hist.add(is, 3, 4, new H2F("a_raw_"+id+4, 100, 600., 750., 6, 0., 6.));
             
             // Reco data
                 id="s"+Integer.toString(is)+"_l"+Integer.toString(4)+"_c";

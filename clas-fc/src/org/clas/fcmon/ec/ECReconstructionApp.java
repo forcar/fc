@@ -192,9 +192,9 @@ public class ECReconstructionApp extends FCApplication {
                if(app.debug) System.out.println("Sector,Layer,PMT,ADC : "+is+" "+il+" "+ip+" "+adc);
                if(isGoodSector(is)&&(is==bitsec)) {
 //               if(isGoodSector(is)) {
-                   adc = adc/(int)sca;
-                   fill(idet, is, ilay, ip, adc, tdc, tdcf);  
-                   fillSED(idet, is, ilay, ip, adc, tdc);
+                   float sadc = (float) adc / (float) sca;
+                   fill(idet, is, ilay, ip, sadc, tdc, tdcf);  
+                   fillSED(idet, is, ilay, ip, (int) sadc, tdc);
                }
            }
        }
@@ -259,10 +259,10 @@ public class ECReconstructionApp extends FCApplication {
                }
             }
            if (pd>0) ecPix[idet].strips.hmap2.get("H2_Peds_Hist").get(is,ilay,0).fill(this.pedref-pd, ic);
-           int adc = ad/(int)sca;
+           float sadc = (float) ad / (float) sca;
            if(isGoodSector(is)) {
-                  fill(idet, is, ilay, ic, adc, tdc, tdc);                     
-               fillSED(idet, is, ilay, ic, adc, tdc);
+                  fill(idet, is, ilay, ic, sadc, tdc, tdc);                     
+               fillSED(idet, is, ilay, ic, (int) sadc, tdc);
            }           
        }
        
@@ -281,7 +281,8 @@ public class ECReconstructionApp extends FCApplication {
      
    public void updateRawDataOld(DataEvent event){
 
-      int adc,npk,ped,trigger,evno,bitsec=0;
+      int npk,ped,trigger,evno,bitsec=0;
+      float adc;
       long timestamp;
       double tdc=0,tdcf=0;
       String AdcType ;
@@ -386,7 +387,7 @@ public class ECReconstructionApp extends FCApplication {
              if(isGoodSector(is)) {
                  adc = fitter.adc/(int)sca;
                  fill(idet, is, ilay, ip, adc, tdc, tdcf);                     
-                 fillSED(idet, is, ilay, ip, adc, tdc*24/1000);
+                 fillSED(idet, is, ilay, ip, (int) adc, tdc*24/1000);
              }
   
             }
@@ -526,7 +527,7 @@ public class ECReconstructionApp extends FCApplication {
        ecPix[idet].strips.hmap1.get("H1_Stra_Sevd").get(is,il,1).fill(ip,adc/sca);       
    }
         
-   public void fill(int idet, int is, int il, int ip, int adc, double tdc, double tdcf) {
+   public void fill(int idet, int is, int il, int ip, float adc, double tdc, double tdcf) {
 
        if(tdc>400&&tdc<800){
            ecPix[idet].uvwt[is-1]=ecPix[idet].uvwt[is-1]+ecPix[idet].uvw_dalitz(idet,il,ip); //Dalitz tdc 
@@ -538,6 +539,8 @@ public class ECReconstructionApp extends FCApplication {
            ecPix[idet].strips.hmap2.get("H2_PCt_Stat").get(is,0,0).fill(ip,il,1.);
            ecPix[idet].strips.hmap2.get("H2_PCt_Stat").get(is,0,1).fill(ip,il,tdc);
        }
+       
+       ecPix[idet].strips.hmap2.get("H2_a_Hist").get(is,il,3).fill(adc,ip,1.);  
               
        if(adc>ecPix[idet].getStripThr(app.config,il)){
            ecPix[idet].uvwa[is-1]=ecPix[idet].uvwa[is-1]+ecPix[idet].uvw_dalitz(idet,il,ip); //Dalitz adc
@@ -585,9 +588,9 @@ public class ECReconstructionApp extends FCApplication {
                        int dalitz = u+v+w;
                        if (dalitz==73||dalitz==74) { // Dalitz test
                            ecPix[idet].mpix[is]++;      ii = ecPix[idet].mpix[is]-1;
-                           ecPix[idet].ecadcpix[is][0][ii] = ecPix[idet].adcr[is][0][i];
-                           ecPix[idet].ecadcpix[is][1][ii] = ecPix[idet].adcr[is][1][i];
-                           ecPix[idet].ecadcpix[is][2][ii] = ecPix[idet].adcr[is][2][i];
+                           ecPix[idet].ecadcpix[is][0][ii] = (int) ecPix[idet].adcr[is][0][i];
+                           ecPix[idet].ecadcpix[is][1][ii] = (int) ecPix[idet].adcr[is][1][i];
+                           ecPix[idet].ecadcpix[is][2][ii] = (int) ecPix[idet].adcr[is][2][i];
 
                            ecPix[idet].ecsumpix[is][ii] = ecPix[idet].ecadcpix[is][0][ii]
                                                          +ecPix[idet].ecadcpix[is][1][ii]
