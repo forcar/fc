@@ -67,7 +67,7 @@ public class FCApplication implements ActionListener  {
     public TreeMap<String,Integer>  bStore = new TreeMap<String,Integer>();
 	
 	public int is,layer,ic;
-	public int panel,opt,io,of,lay,l1,l2;
+	public int panel,opt,io,of,lay,l1,l2,is1,is2,iis1,iis2,bitsec;
 
     private String             buttonSelect;
     private int                buttonIndex;
@@ -334,4 +334,8 @@ public class FCApplication implements ActionListener  {
         return canvas;
     }  
     
+    public Boolean isGoodSector(int is) {
+        if (!app.isTB) bitsec=is;
+        return is>=is1&&is<is2&&(bitsec==is);       
+    }     
 }

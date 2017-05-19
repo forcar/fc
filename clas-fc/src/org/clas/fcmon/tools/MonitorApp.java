@@ -62,6 +62,7 @@ public class MonitorApp extends JFrame implements ActionListener {
     JPanel  buttonPane = null;
     JTextField   runno = new JTextField(4);
     JCheckBox    mcBtn = null;
+    JCheckBox    tbBtn = null;
     
     JButton openBtn  = null;
     JButton closeBtn = null;
@@ -99,6 +100,7 @@ public class MonitorApp extends JFrame implements ActionListener {
     public String   runNumber = "100";
     public boolean      debug = false;
     public boolean       isMC = false;
+    public boolean       isTB = false;
     public boolean      isCRT = false;
     public boolean      doEng = false;
     public String        geom = "0.27";
@@ -233,6 +235,19 @@ public class MonitorApp extends JFrame implements ActionListener {
         });         
         mcBtn.setSelected(true);        
         buttonPane.add(mcBtn);
+        
+        tbBtn = new JCheckBox("TrigBit");
+        tbBtn.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                if(e.getStateChange() == ItemEvent.SELECTED) {
+                    isTB = true;
+                } else {
+                    isTB = false;
+                };
+            }
+        });         
+        tbBtn.setSelected(true);        
+        buttonPane.add(tbBtn);
         
         openBtn = new JButton("Open HIPO");
         openBtn.addActionListener(this);

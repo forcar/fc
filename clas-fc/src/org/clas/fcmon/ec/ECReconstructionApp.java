@@ -45,8 +45,6 @@ public class ECReconstructionApp extends FCApplication {
    String BankType        = null;
    int              detID = 0;
    
-   int is1,is2,iis1,iis2;
-   
    double pcx,pcy,pcz;
    double refE=0,refP=0,refTH=25;
    Boolean printit = false;
@@ -219,6 +217,8 @@ public class ECReconstructionApp extends FCApplication {
        clear(0); clear(1); clear(2); tdcs.clear();
        
        app.decoder.initEvent(event);
+       bitsec = app.decoder.bitsec;
+       
        List<DetectorDataDgtz> adcDGTZ = app.decoder.getEntriesADC(DetectorType.EC);
        List<DetectorDataDgtz> tdcDGTZ = app.decoder.getEntriesTDC(DetectorType.EC);
 
@@ -262,7 +262,7 @@ public class ECReconstructionApp extends FCApplication {
             }
            if (pd>0) ecPix[idet].strips.hmap2.get("H2_Peds_Hist").get(is,ilay,0).fill(this.pedref-pd, ic);
            int adc = ad/(int)sca;
-           if(isGoodSector(is)&&(is==app.decoder.bitsec)) {
+           if(isGoodSector(is)) {
                   fill(idet, is, ilay, ic, adc, tdc, tdc);                     
                fillSED(idet, is, ilay, ic, adc, tdc);
            }           
@@ -520,11 +520,7 @@ public class ECReconstructionApp extends FCApplication {
             }
          }
       }           
-   }
-   
-   public Boolean isGoodSector(int is) {
-       return is>=is1&&is<is2;
-   }
+   }  
    
    public void fillSED(int idet, int is, int il, int ip, int adc, double tdc) {
        double sca = 10; int idil=idet*3+il;

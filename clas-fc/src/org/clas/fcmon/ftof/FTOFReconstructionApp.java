@@ -16,6 +16,7 @@ import org.jlab.groot.data.H2F;
 
 //clas12rec
 import org.jlab.detector.base.DetectorCollection;
+import org.jlab.detector.base.DetectorType;
 import org.jlab.detector.decode.CodaEventDecoder;
 import org.jlab.detector.decode.DetectorDataDgtz;
 import org.jlab.detector.decode.DetectorEventDecoder;
@@ -35,11 +36,9 @@ public class FTOFReconstructionApp extends FCApplication {
    String        BankType = null;
    int              detID = 0;
    
-   int is1,is2,iis1,iis2;
-
    CodaEventDecoder           codaDecoder = new CodaEventDecoder();
    DetectorEventDecoder   detectorDecoder = new DetectorEventDecoder();
-   List<DetectorDataDgtz>  detectorData   = new ArrayList<DetectorDataDgtz>();
+   List<DetectorDataDgtz>        dataList = new ArrayList<DetectorDataDgtz>();
    
    FTOFConstants                   ftofcc = new FTOFConstants();  
    
@@ -116,20 +115,22 @@ public class FTOFReconstructionApp extends FCApplication {
    public void updateHipoData(DataEvent event) {
        
        IndexedList<Double> tdcs = new IndexedList<Double>(4);
+       
+       int evno;
        long phase = 0;
        int trigger = 0;
-       int bitsec = 0;
+       long timestamp = 0;
        
        clear(0); clear(1); clear(2); tdcs.clear();
        
        if(event.hasBank("RUN::config")){
            DataBank bank = event.getBank("RUN::config");
-           trigger=bank.getInt("trigger", 0);
-           bitsec = (int) (Math.log10(trigger>>24)/0.301+1);
-           phase = bank.getLong("timestamp",0);                
+           timestamp = bank.getLong("timestamp",0);
+           trigger   = bank.getInt("trigger",0);
+           evno      = bank.getInt("event",0);         
            int phase_offset = 1;
-           phase = (bank.getLong("timestamp", 0)%6+phase_offset)%6;
-
+           phase = ((timestamp%6)+phase_offset)%6;
+           bitsec = (int) (Math.log10(trigger>>24)/0.301+1);
        }
 
        if(event.hasBank("FTOF::tdc")){
@@ -158,13 +159,81 @@ public class FTOFReconstructionApp extends FCApplication {
                float tdcf = bank.getFloat("time",i);
                int ped = bank.getShort("ped", i);
                double tdc = (tdcs.hasItem(is,il,lr,ip)) ? tdcs.getItem(is,il,lr,ip):0.;
-               if(isGoodSector(is)&&(is==bitsec)) fill(il-1, is, lr+1, ip, adc, tdc, tdcf);    
+               if(isGoodSector(is)) fill(il-1, is, lr+1, ip, adc, tdc, tdcf);    
            }
        }
        
-   }   
+   }  
    
-   public void updateRawData(DataEvent event){
+   public void updateRawData(DataEvent event) {
+       
+       IndexedList<Double> tdcs = new IndexedList<Double>(4);
+       
+       clear(0); clear(1); clear(2); tdcs.clear();
+       
+       app.decoder.initEvent(event);
+       bitsec = app.decoder.bitsec;
+       
+       List<DetectorDataDgtz> adcDGTZ = app.decoder.getEntriesADC(DetectorType.FTOF);
+       List<DetectorDataDgtz> tdcDGTZ = app.decoder.getEntriesTDC(DetectorType.FTOF);
+
+       for (int i=0; i < tdcDGTZ.size(); i++) {
+           int is = tdcDGTZ.get(i).getDescriptor().getSector();
+           int il = tdcDGTZ.get(i).getDescriptor().getLayer();
+           int lr = tdcDGTZ.get(i).getDescriptor().getOrder();
+           int ic = tdcDGTZ.get(i).getDescriptor().getComponent();
+           int it = tdcDGTZ.get(i).getTDCData(0).getTime();
+           double tdc = it*24/1000.;
+           tdcs.add(tdc,is,il,lr-2,ic);
+       }
+       
+       for (int i=0; i < adcDGTZ.size(); i++) {
+           int cr = adcDGTZ.get(i).getDescriptor().getCrate();
+           int sl = adcDGTZ.get(i).getDescriptor().getSlot();
+           int ch = adcDGTZ.get(i).getDescriptor().getChannel();
+           int is = adcDGTZ.get(i).getDescriptor().getSector();
+           int il = adcDGTZ.get(i).getDescriptor().getLayer();
+           int lr = adcDGTZ.get(i).getDescriptor().getOrder();
+           int ic = adcDGTZ.get(i).getDescriptor().getComponent();
+           int ad = adcDGTZ.get(i).getADCData(0).getADC();
+           int pd = adcDGTZ.get(i).getADCData(0).getPedestal();
+           int t0 = adcDGTZ.get(i).getADCData(0).getTimeCourse();           
+           short[] pulse = adcDGTZ.get(i).getADCData(0).getPulseArray();
+           
+           double tdc = (tdcs.hasItem(is,il,lr,ic)) ? tdcs.getItem(is,il,lr,ic):0;           
+           tdc = tdc-app.decoder.phase*4.;  
+           
+           getMode7(cr,sl,ch); 
+           
+           for (int ii=0 ; ii< pulse.length ; ii++) {
+               ftofPix[il-1].strips.hmap2.get("H2_a_Hist").get(is,lr+1,5).fill(ii,ic,pulse[ii]-pd);
+               if (app.isSingleEvent()) {
+                  ftofPix[il-1].strips.hmap2.get("H2_a_Sevd").get(is,lr+1,0).fill(ii,ic,pulse[ii]-pd);
+                  int w1 = t0-this.nsb ; int w2 = t0+this.nsa;
+                  if (ad>0&&ii>=w1&&ii<=w2) ftofPix[il-1].strips.hmap2.get("H2_a_Sevd").get(is,lr+1,1).fill(ii,ic,pulse[ii]-pd);                     
+               }
+            }
+//           if (pd>0) ftofPix[il-1].strips.hmap2.get("H2_a_Hist").get(is,lr+1,3).fill(this.pedref-pd, ic);
+
+           if(isGoodSector(is)) {
+                  fill(il-1, is, lr+1, ic, ad, tdc, tdc);                     
+           }           
+       }
+       
+       if (app.decoder.isHipoFileOpen) writeHipoOutput();
+       
+   }
+   
+   public void writeHipoOutput() {
+       
+       DataEvent  decodedEvent = app.decoder.getDataEvent();
+       DataBank   header = app.decoder.createHeaderBank(decodedEvent);
+       decodedEvent.appendBanks(header);
+       app.decoder.writer.writeEvent(decodedEvent);
+              
+   } 
+   
+   public void updateRawDataOld(DataEvent event){
 
       int adc,ped,npk,il=0,trigger,bitsec=0;
       double tdc=0,tdcf=0;
@@ -174,8 +243,8 @@ public class FTOFReconstructionApp extends FCApplication {
       
       detectorDecoder.translate(dataSet);   
       detectorDecoder.fitPulses(dataSet);
-      this.detectorData.clear();
-      this.detectorData.addAll(dataSet);
+      this.dataList.clear();
+      this.dataList.addAll(dataSet);
       
       clear(0); clear(1); clear(2);
       
@@ -185,7 +254,7 @@ public class FTOFReconstructionApp extends FCApplication {
       trigger = codaDecoder.getTriggerBits();
       bitsec = (int) (Math.log10(trigger>>24)/0.301+1);
 
-      for (DetectorDataDgtz strip : detectorData) {
+      for (DetectorDataDgtz strip : dataList) {
          if((is==bitsec)&&strip.getDescriptor().getType().getName()=="FTOF") {
             adc=ped=pedref=npk=0 ; tdc=tdcf=0;
             int icr = strip.getDescriptor().getCrate(); 
@@ -320,14 +389,11 @@ public class FTOFReconstructionApp extends FCApplication {
            }
        }   
    }
-   
-   public Boolean isGoodSector(int is) {
-       return is>=is1&&is<is2;
-   } 
+
    
    public void fill(int idet, int is, int il, int ip, int adc, double tdc, double tdcf) {
            
-       if(tdc>0&&tdc<2500){
+       if(tdc>400&&tdc<800){
              ftofPix[idet].nht[is-1][il-1]++; int inh = ftofPix[idet].nht[is-1][il-1];
              if (inh>nstr) inh=nstr;
              ftofPix[idet].tdcr[is-1][il-1][inh-1] = (float) tdc;
