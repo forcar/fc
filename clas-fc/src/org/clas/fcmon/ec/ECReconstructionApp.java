@@ -138,7 +138,6 @@ public class ECReconstructionApp extends FCApplication {
        long  phase = 0;
        int trigger = 0;
        long timestamp = 0;
-       int  bitsec = 0;
        
        clear(0); clear(1); clear(2); tdcs.clear();
        
@@ -154,7 +153,6 @@ public class ECReconstructionApp extends FCApplication {
            int phase_offset = 1;
            phase = ((timestamp%6)+phase_offset)%6;
            bitsec = (int) (Math.log10(trigger>>24)/0.301+1);
-           if(app.debug) System.out.println("Event: "+evno+" Trigger Sector: "+bitsec);
        }
        
        if(event.hasBank("ECAL::tdc")==true){
