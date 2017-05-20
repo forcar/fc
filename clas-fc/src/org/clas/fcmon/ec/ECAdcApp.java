@@ -45,7 +45,7 @@ public class ECAdcApp extends FCApplication {
 
         H1F copy1=null;
         H1F h1; H2F h2;
-          
+       
         c.divide(3,4);       
         c.setAxisFontSize(14);
         
@@ -77,8 +77,6 @@ public class ECAdcApp extends FCApplication {
         c.divide(3,3);
         c.setAxisFontSize(14);
         c.setStatBoxFontSize(12);
-        
-//        System.out.println("la= "+la);
                           
         for (int il=1; il<4; il++) {
             h2 = dc2a.get(is,il,1); h2.setTitleY("Sector "+is+otab[ilm][il-1]) ; h2.setTitleX("ADC");
@@ -90,7 +88,8 @@ public class ECAdcApp extends FCApplication {
             c.draw(f2,"same");  
             h1 = dc2a.get(is,il,1).sliceY(strip-1); h1.setTitleX("Sector "+is+otab[ilm][il-1]+strip+" ADC");  
             if (la>10&&la-10==il) h1.setFillColor(2);
-            c.cd(il+2); h1.setOptStat(Integer.parseInt("1000000")); h1.setTitle(""); c.draw(h1); 
+            c.cd(il+2); c.getPad(il+2).getAxisY().setAutoScale(true);
+            h1.setOptStat(Integer.parseInt("1000000")); h1.setTitle(""); c.draw(h1); 
             h1 = dc2a.get(is,il,2).sliceY(ic); h1.setTitleX("Sector "+is+otab[ilm][il-1]+strip+" Pixel "+(ic+1)+" ADC");
             if (la>10&&la-10==il) h1.setFillColor(2);
             c.cd(il+5); h1.setOptStat(Integer.parseInt("1000100")); h1.setTitle(""); c.draw(h1);
