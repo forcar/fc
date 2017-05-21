@@ -341,7 +341,7 @@ public class ECPixels {
                 id="s"+Integer.toString(is)+"_l"+Integer.toString(il)+"_c";
                 H2_a_Hist.add(is, il, 0, new H2F("a_raw_"+id+0, 125,   0., 250., nstr, 1., nend));
                 H2_a_Hist.add(is, il, 1, new H2F("b_pix_"+id+1, 125,   0., 250., nstr, 1., nend));
-                H2_a_Hist.add(is, il, 3, new H2F("b_low_"+id+2, 80,   0., 40., nstr, 1., nend));
+                H2_a_Hist.add(is, il, 3, new H2F("b_low_"+id+3, 80,    0., 40., nstr, 1., nend));
                 H2_t_Hist.add(is, il, 0, new H2F("a_raw_"+id+0, 100,   450., 850., nstr, 1., nend));
                 H2_t_Hist.add(is, il, 1, new H2F("b_pix_"+id+1, 100,   450., 850., nstr, 1., nend));
                 // Pedestal Noise  
@@ -352,7 +352,7 @@ public class ECPixels {
                 H1_Stra_Sevd.add(is, il, 0, new H1F("a_sed_stra_"+id+0, nstr,  1., nend));
                 H1_Stra_Sevd.add(is, il, 1, new H1F("b_sed_stra_"+id+1, nstr,  1., nend));
                 H1_Strt_Sevd.add(is, il, 0, new H1F("a_sed_strt_"+id+0, nstr,  1., nend));
-                H1_Strt_Sevd.add(is, il, 1, new H1F("b_sed_strt_"+id+0, nstr,  1., nend));
+                H1_Strt_Sevd.add(is, il, 1, new H1F("b_sed_strt_"+id+1, nstr,  1., nend));
                 // Single Event fADC bins
                 H2_Mode1_Sevd.add(is, il, 0, new H2F("a_sed_fadc_"+id+0, 100, 0., 100., nstr, 1., nend));
                 H2_Mode1_Sevd.add(is, il, 1, new H2F("b_sed_fadc_"+id+1, 100, 0., 100., nstr, 1., nend));
