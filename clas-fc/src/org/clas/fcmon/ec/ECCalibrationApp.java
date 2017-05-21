@@ -467,6 +467,9 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
         EmbeddedCanvasTabbed   fitCof = new EmbeddedCanvasTabbed("COEF");
         CalibrationConstants    cctab = null;
         IndexedTable            atten = null; 
+        IndexedTable             gain = null; 
+        IndexedTable           fitmin = null; 
+        IndexedTable           fitmax = null; 
         RangeSlider            slider = null;
         
         public final double[][] PARAM = {{1,1,1,1,1,1,1,1,1},
@@ -483,10 +486,11 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
         Boolean   isStr = false;
         int    pixStrip = 1;
         
-        double xSliderMin = 0.0;
-        double xSliderMax = 100.0;
-        double currentRangeMin = 0.0;
+        double      xSliderMin =   0.0;
+        double      xSliderMax = 100.0;
+        double currentRangeMin =   0.0;
         double currentRangeMax = 100.0;
+        
         String sliderMode = "Strip";
         
         double[] xp     = new double[nstr];
@@ -509,7 +513,8 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
         double[] ccdbBe = new double[nstr];
         double[] ccdbCe = new double[nstr];
         double[] ccdbACe= new double[nstr];
-        
+        double[] ccdbGAIN  = new double[nstr];
+        double[] ccdbGAINe = new double[nstr];
         
         double[] vgain  = new double[nstr];
         double[] vgaine = new double[nstr]; 
@@ -540,7 +545,8 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
             this.is1=is1;
             this.is2=is2;
             
-            atten = ccdb.getConstants(calrun, names[ATTEN]);
+            atten   = ccdb.getConstants(calrun, names[ATTEN]);
+            gain    = ccdb.getConstants(calrun, names[GAIN]);
 
             makeNewTable(is1,is2);
 
@@ -573,8 +579,8 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
                             calib.setDoubleValue(0.00, "Berr",  is, sl, ip);
                             calib.setDoubleValue(0.00, "C",     is, sl, ip);
                             calib.setDoubleValue(0.00, "Cerr",  is, sl, ip);
-                            calib.setDoubleValue(0.04, "FitMin",is, sl, ip);
-                            calib.setDoubleValue(0.95, "FitMax",is, sl, ip);
+                            calib.setDoubleValue(atten.getDoubleValue("FitMin", is,sl,ip), "FitMin",is, sl, ip);
+                            calib.setDoubleValue(atten.getDoubleValue("FitMax", is,sl,ip), "FitMax",is, sl, ip);
                         }
                     }
                 }
@@ -915,6 +921,11 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
                          ccdbA[ip] = atten.getDoubleValue("A",is,sl,ip+1);
                          ccdbB[ip] = atten.getDoubleValue("B",is,sl,ip+1);
                          ccdbC[ip] = atten.getDoubleValue("C",is,sl,ip+1);
+                         int gsca = 1;
+                         if (ilmap==0) gsca = 15;
+                         if (ilmap>0)  gsca = (is==5) ? 5:10;
+                         ccdbGAIN[ip]  = 1./(gain.getDoubleValue("gain",is,sl,ip+1)*gsca);
+                         ccdbGAINe[ip] = gain.getDoubleValue("gainErr",is,sl,ip+1)*gsca/(ccdbGAIN[ip]*ccdbGAIN[ip]);
                          ccdbAC[ip]= ccdbA[ip]+ccdbC[ip];
                          ccdbAe[ip]  = 0.;
                          ccdbBe[ip]  = 0.;
@@ -953,6 +964,9 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
                      GraphErrors ccdbBGraph = new GraphErrors("dbB",xp,ccdbB,xpe,ccdbBe); 
                      GraphErrors ccdbCGraph = new GraphErrors("dbC",xp,ccdbC,xpe,ccdbCe); 
                      GraphErrors ccdbACGraph = new GraphErrors("dbAC",xp,ccdbAC,xpe,ccdbACe); 
+                     GStyle.getGraphErrorsAttributes().setLineColor(1);
+                     GraphErrors ccdbGAINGraph = new GraphErrors("dbGAIN",xp,ccdbGAIN,xpe,ccdbGAINe);
+                     GStyle.getGraphErrorsAttributes().setLineColor(2);
                      GStyle.getGraphErrorsAttributes().setMarkerColor(2);
                      GStyle.getGraphErrorsAttributes().setFillStyle(2);
                        
@@ -1008,7 +1022,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
                      c.cd(2); c.getPad(2).getAxisX().setRange(0.,xmax);c.getPad(2).getAxisY().setRange(0.,2.);
                      c.draw(ccdbCGraph) ; c.draw(parCGraph,"same"); c.draw(parCGraphi,"same");
                      c.cd(3); c.getPad(3).getAxisX().setRange(0.,xmax);c.getPad(3).getAxisY().setRange(0.,2.);
-                     c.draw(ccdbACGraph) ; c.draw(parACGraph,"same"); c.draw(parACGraphi,"same"); 
+                     c.draw(ccdbGAINGraph) ; c.draw(parACGraph,"same"); c.draw(parACGraphi,"same"); 
                      c.repaint();
                       
                   }
