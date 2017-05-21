@@ -20,6 +20,7 @@ import org.jlab.groot.data.GraphErrors;
  */
 public class FCCalibrationData {
     HipoFile hipofile;
+    int ioff=0;
     
     public void getFile(String filename){
         HipoFile file = new HipoFile(filename);
@@ -31,6 +32,7 @@ public class FCCalibrationData {
     	ArrayList arrayl = this.hipofile.getArrayList(dirname);
     	for (Object obj : arrayl) {
     		String obj_label = getObjlabel(obj);
+    		ioff = (obj_label.contains("low")) ? 7:0; // Needed only for runs 1126,1127
     		DC.add(getIndex(obj_label,"_s"),getIndex(obj_label,"_l"),getIndex(obj_label,"_c"),obj);
     	}    
     return DC;
@@ -59,7 +61,7 @@ public class FCCalibrationData {
     } 
 
     private int getIndex(String name, String lab){
-    	int i1=name.indexOf(lab)+2;
+    	int i1=name.indexOf(lab)+2+(lab=="_l"?ioff:0);  
         return parseInt(name.substring(i1,i1+1));
     }    
 
