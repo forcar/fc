@@ -468,8 +468,6 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
         CalibrationConstants    cctab = null;
         IndexedTable            atten = null; 
         IndexedTable             gain = null; 
-        IndexedTable           fitmin = null; 
-        IndexedTable           fitmax = null; 
         RangeSlider            slider = null;
         
         public final double[][] PARAM = {{1,1,1,1,1,1,1,1,1},
