@@ -127,13 +127,14 @@ public class ECMode1App extends FCApplication  {
           
       for (int il=1; il<4 ; il++) {
           h2 = dc2a.get(is,il,0); h2.setTitleY("Sector "+is+otab[idet][il-1]) ; h2.setTitleX("SAMPLES (4 ns/ch)");
-          canvasConfig(c,il-1,0.,100.,1.,nstr+1.,true).draw(h2);
-          if (la==il) {c.draw(f1,"same"); c.draw(f2,"same");}
+          canvasConfig(c,il-1,0.,100.,1.,nstr+1.,true).draw(h2);           
+          if (la==il) {c.draw(f1,"same"); c.draw(f2,"same");}          
           h1 = dc2a.get(is,il,0).sliceY(ics[idet][il-1]); h1.setOptStat(Integer.parseInt("1000100"));
           h1.setTitleX("Sector "+is+otab[idet][il-1]+(ics[idet][il-1]+1)+" (4 ns/ch)"); h1.setFillColor(0);
           c.cd(il+2); h1.setTitle(" "); c.draw(h1);
           if (la==il) {h1=dc2a.get(is,il,0).sliceY(ic) ; h1.setFillColor(2); h1.setOptStat(Integer.parseInt("1000100"));
           h1.setTitleX("Sector "+is+otab[idet][il-1]+(ic+1)+" (4 ns/ch)"); c.draw(h1);}
+          
       }
       
       c.repaint();
@@ -142,18 +143,19 @@ public class ECMode1App extends FCApplication  {
    }
    
    public void updateSync() {
+       
        DetectorCollection<H2F> dc2a = ecPix[1].strips.hmap2.get("H2_t_Hist"); 
-       H1F h1; H2F h2;
+       H2F h2;
+       
        c = mode1.getCanvas("SYNC");  c.clear(); c.divide(3,4); 
+       
        for (int is=1; is<7; is++) {
            h2 = dc2a.get(is,3,3) ;  h2.setTitleY("PHASE") ; h2.setTitleX("Sector "+is+" W Inner Raw TDC (ns)");   
            canvasConfig(c,is-1,600.,750.,0.,6.,true).draw(h2);
-           c.draw(h2);
        }
        for (int is=1; is<7; is++) {
            h2 = dc2a.get(is,3,4) ;  h2.setTitleY("PHASE") ; h2.setTitleX("Sector "+is+" W Inner Corrected TDC (ns)");   
            canvasConfig(c,is-1+6,600.,750.,0.,6.,true).draw(h2);
-           c.draw(h2);
        }
        
        c.repaint();   

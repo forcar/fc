@@ -54,7 +54,7 @@ public class ECAdcApp extends FCApplication {
             canvasConfig(c,il-1,0.,40.,1.,ecPix[ilm].ec_nstr[il-1]+1.,true).draw(h2);
             if (la==il) {c.draw(f1,"same"); c.draw(f2,"same");}
             h2 = dc2a.get(is,il,0); h2.setTitleY("Sector "+is+otab[ilm][il-1]) ; h2.setTitleX("ADC");
-            canvasConfig(c,il+2,0.,250.,1.,ecPix[ilm].ec_nstr[il-1]+1.,true).draw(h2);
+            canvasConfig(c,il+2,0.,250.,1.,ecPix[ilm].ec_nstr[il-1]+1.,true).draw(h2); 
             if (la==il) {c.draw(f1,"same"); c.draw(f2,"same");}
             h1 = dc2a.get(is,il,0).projectionY(); h1.setTitleX("Sector "+is+otab[ilm][il-1]); h1.setFillColor(0); 
             if (la==il) {h1.setFillColor(4); copy1=h1.histClone("Copy"); copy1.reset(); copy1.setBinContent(ic, h1.getBinContent(ic)); copy1.setFillColor(2);}
