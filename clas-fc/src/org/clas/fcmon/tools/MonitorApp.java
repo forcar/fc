@@ -63,6 +63,7 @@ public class MonitorApp extends JFrame implements ActionListener {
     JTextField   runno = new JTextField(4);
     JCheckBox    mcBtn = null;
     JCheckBox    tbBtn = null;
+    JCheckBox epicsBtn = null;
     
     JButton openBtn  = null;
     JButton closeBtn = null;
@@ -236,6 +237,21 @@ public class MonitorApp extends JFrame implements ActionListener {
         mcBtn.setSelected(true);        
         buttonPane.add(mcBtn);
         
+        epicsBtn = new JCheckBox("EPICS");
+        epicsBtn.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                if(e.getStateChange() == ItemEvent.SELECTED) {
+                    doEpics = true;
+                    monitoringClass.initEpics(doEpics);
+                } else {
+                    doEpics = false;
+                    monitoringClass.initEpics(doEpics);
+                };
+            }
+        });         
+        epicsBtn.setSelected(false);         
+        buttonPane.add(epicsBtn);
+
         tbBtn = new JCheckBox("TrigBit");
         tbBtn.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
@@ -402,6 +418,10 @@ public class MonitorApp extends JFrame implements ActionListener {
     
     public String getSelectedTabName(){
         return this.selectedTabName;
+    }
+    
+    public void startEpics() {
+        epicsBtn.doClick();
     }
     
     public void setSelectedTab(int index) {

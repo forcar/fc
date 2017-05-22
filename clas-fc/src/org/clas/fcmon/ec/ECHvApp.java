@@ -44,21 +44,29 @@ public class ECHvApp extends FCEpics implements ActionListener {
         super(name, det);
     }
     
-    public void init(Boolean online) {
-        this.online = online;
+    public void init() {
+        this.online = true;
         this.is1=ECConstants.IS1;
         this.is2=ECConstants.IS2; 
         setPvNames(this.detName,0);
         sectorSelected=is1;
         layerSelected=1;
         channelSelected=1;
-        initHistos();        
+        initHistos();    
+    }
+    
+    public void startEPICS() {
         createContext();
         setCaNames(this.detName,0);
         initFifos();
         this.timer = new Timer(delay,action);  
         this.timer.setDelay(delay);
         this.timer.start();       
+    }
+    
+    public void stopEPICS() {
+        if(this.timer.isRunning()) this.timer.stop();
+        destroyContext();
     }
     
     public JPanel getPanel() {        

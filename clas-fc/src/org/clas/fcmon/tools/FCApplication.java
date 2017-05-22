@@ -326,9 +326,10 @@ public class FCApplication implements ActionListener  {
     }
     
     public EmbeddedCanvas canvasConfig(EmbeddedCanvas canvas, int num, double xmin, double xmax, double ymin, double ymax, boolean linlog) {
-        canvas.cd(num);
-        canvas.getPad(num).getAxisX().setRange(xmin,xmax);
-        canvas.getPad(num).getAxisY().setRange(ymin,ymax);
+        canvas.cd(num);        
+        if (xmin!=xmax) canvas.getPad(num).getAxisX().setRange(xmin,xmax);
+        if (ymin!=ymax) canvas.getPad(num).getAxisY().setRange(ymin,ymax);
+        if (ymin==ymax) canvas.getPad(num).getAxisY().setAutoScale(true);
         canvas.getPad(num).getAxisZ().setAutoScale(true);
         canvas.getPad(num).getAxisFrame().getAxisZ().setLog(linlog);
         return canvas;

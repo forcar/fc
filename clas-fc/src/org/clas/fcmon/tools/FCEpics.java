@@ -13,6 +13,7 @@ import java.util.concurrent.TimeoutException;
 
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
+import javax.swing.Timer;
 
 import org.clas.fcmon.detector.view.EmbeddedCanvasTabbed;
 import org.epics.ca.Channel;
@@ -68,7 +69,7 @@ public class FCEpics  {
     public int is1,is2;
     public int sectorSelected, layerSelected, channelSelected;
     public Boolean online = false;
-	
+    
 	public FCEpics(String name, String det){
 	    System.out.println("Initializing detector "+det);
 	    this.appName = name;
@@ -248,6 +249,6 @@ public class FCEpics  {
 	public String getPvString(String det, int grp, int sector, int layer, int channel, String action) {
 	    String pv = "B_DET_"+detAlias(det,layer)+"_"+grps[grp]+"_SEC"+sector+"_"+layToStr(det,layer)+"_E"+chanToStr(channel);
 	    return pv+":"+action;
-	}
-	     
+	} 
+    
 }

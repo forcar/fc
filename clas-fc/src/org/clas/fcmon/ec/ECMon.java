@@ -45,10 +45,10 @@ public class ECMon extends DetectorMonitor {
     Boolean                saveFile = false;
    
     public static int        calRun = 760;
-    public static String  variation = "clas6";
+    public static String  variation = "default";
     int                       detID = 0;
-    int                         is1 = 2;
-    int                         is2 = 3;  
+    int                         is1 = 1;
+    int                         is2 = 7;  
     int    nsa,nsb,tet,p1,p2,pedref = 0;
     double               PCMon_zmin = 0;
     double               PCMon_zmax = 0;
@@ -85,7 +85,6 @@ public class ECMon extends DetectorMonitor {
         monitor.initGlob();
         monitor.makeApps();
         monitor.addCanvas();
-        monitor.initEPICS();
         monitor.init();
         monitor.initDetector();
         app.init();
@@ -165,10 +164,14 @@ public class ECMon extends DetectorMonitor {
         ecHv = new ECHvApp("HV","EC");
         ecHv.setMonitoringClass(this);
         ecHv.setApplicationClass(app);  
+        ecHv.init();
         
         ecScalers = new ECScalersApp("Scalers","EC");
         ecScalers.setMonitoringClass(this);
-        ecScalers.setApplicationClass(app);     
+        ecScalers.setApplicationClass(app);    
+        ecScalers.init();
+        
+        if(app.xMsgHost=="localhost") app.startEpics();
     }
     
     public void addCanvas() {
@@ -229,10 +232,11 @@ public class ECMon extends DetectorMonitor {
         
     }
     
-    public void initEPICS() {
+    public void initEpics(Boolean doEpics) {
         System.out.println("monitor.initScalers():Initializing EPICS Channel Access");
-        ecHv.init(app.doEpics);        
-        ecScalers.init(app.doEpics);         
+        if (app.xMsgHost=="localhost") {ecHv.online=false ; ecScalers.online=false;}
+        if ( doEpics) {ecHv.startEPICS(); ecScalers.startEPICS();}
+        if (!doEpics) {ecHv.stopEPICS();  ecScalers.stopEPICS();}
     }
 	
     public void initGlob() {
@@ -390,4 +394,5 @@ public class ECMon extends DetectorMonitor {
         app.displayControl.setFPS(10);
         
     }	
+
 }

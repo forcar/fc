@@ -29,6 +29,7 @@ public abstract class DetectorMonitor implements IDataEventListener, DetectorLis
     public abstract void readHipoFile();
     public abstract void loadHV(int is1, int is2, int il1, int il2);
     public abstract void initEngine();
+    public abstract void initEpics(Boolean isEpics);
     public abstract TreeMap<String,Object> getGlob();
     public abstract void putGlob(String name, Object obj);
     public String getName(){ return moduleName;}
