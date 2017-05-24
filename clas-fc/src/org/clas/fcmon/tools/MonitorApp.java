@@ -97,7 +97,7 @@ public class MonitorApp extends JFrame implements ActionListener {
     public String    hipoPath = null;
     public String   calibPath = null;
     public String      hvPath = null;
-    public String    xMsgHost = null;
+    public String    xMsgHost = "localhost";
     public String   runNumber = "100";
     public boolean      debug = false;
     public boolean       isMC = false;
@@ -234,7 +234,7 @@ public class MonitorApp extends JFrame implements ActionListener {
                 };
             }
         });         
-        mcBtn.setSelected(true);        
+        mcBtn.setSelected(false);        
         buttonPane.add(mcBtn);
         
         epicsBtn = new JCheckBox("EPICS");
