@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.swing.JFrame;
 
+import org.jlab.clas.detector.CalorimeterResponse;
 import org.jlab.clas.detector.DetectorParticle;
 import org.jlab.clas.detector.DetectorResponse;
 import org.jlab.clas.physics.GenericKinematicFitter;
@@ -27,7 +28,7 @@ import org.jlab.service.eb.EventBuilder;
 
 public class ECPart {
 	
-    EventBuilder builder = new EventBuilder();
+    EventBuilder eb = new EventBuilder();
     public static double distance11,distance12,distance21,distance22;
     public static double e1,e2,e1c,e2c,cth,cth1,cth2,X,tpi2,cpi0,refE,refP,refTH;
     static double mpi0 = 0.1349764;
@@ -63,15 +64,15 @@ public class ECPart {
         refTH = Math.acos(ppz/refP)*180/3.14159;        
     }
     
-    public static List<DetectorResponse> readEvioEvent(DataEvent event, String bankName, DetectorType type) {
-        List<DetectorResponse> responseList = new ArrayList<DetectorResponse>();
+    public static List<CalorimeterResponse> readEvioEvent(DataEvent event, String bankName, DetectorType type) {
+        List<CalorimeterResponse> responseList = new ArrayList<CalorimeterResponse>();
         if(event.hasBank(bankName)==true){
             EvioDataBank bank = (EvioDataBank) event.getBank(bankName);
             int nrows = bank.rows();
             for(int row = 0; row < nrows; row++){
                 int sector = bank.getInt("sector", row);
                 int  layer = bank.getInt("layer",  row);
-                DetectorResponse  response = new DetectorResponse(sector,layer,0);
+                CalorimeterResponse  response = new CalorimeterResponse(sector,layer,0);
                 response.getDescriptor().setType(type);
                 double x = bank.getDouble("X", row);
                 double y = bank.getDouble("Y", row);
@@ -85,33 +86,33 @@ public class ECPart {
         return responseList;                      
     }
     
-    public List<DetectorResponse>  readEC(DataEvent event){
-        List<DetectorResponse>  ecResponse = new ArrayList<DetectorResponse>();
+    public List<CalorimeterResponse>  readEC(DataEvent event){
+        List<CalorimeterResponse>  responseECAL = new ArrayList<CalorimeterResponse>();
         Boolean isEvio = event instanceof EvioDataEvent;                  
-        if (isEvio) ecResponse =                  readEvioEvent(event, "ECDetector::clusters", DetectorType.EC); 
-        if(!isEvio) ecResponse = DetectorResponse.readHipoEvent(event, "ECAL::clusters", DetectorType.EC);
-
-        return ecResponse;
+        if (isEvio) responseECAL =                     readEvioEvent(event, "ECDetector::clusters", DetectorType.EC); 
+        if(!isEvio) responseECAL = CalorimeterResponse.readHipoEvent(event, "ECAL::clusters", DetectorType.EC);
+        eb.addCalorimeterResponses(responseECAL);
+        return responseECAL;
     } 
     
-    public double getTwoPhoton(List<DetectorResponse> response, int sector){
+    public double getTwoPhoton(List<CalorimeterResponse> response, int sector){
         
-        List<DetectorResponse> rPCAL = builder.getUnmatchedResponses(response, DetectorType.EC, 1);
-        List<DetectorResponse> rSectorPCAL = DetectorResponse.getListBySector(rPCAL, DetectorType.EC, sector);
+        List<CalorimeterResponse> rPC = eb.getUnmatchedResponses(response, DetectorType.EC, 1);
+        List<CalorimeterResponse> rSectorPCAL = CalorimeterResponse.getListBySector(rPC, DetectorType.EC, sector);
         if (rSectorPCAL.size()!=2) return -1;
         return processNeutralTracks(doHitMatching(response,sector));
     }
      
-    public List<DetectorParticle> doHitMatching(List<DetectorResponse> response, int sector) {
+    public List<DetectorParticle> doHitMatching(List<CalorimeterResponse> response, int sector) {
         
         List<DetectorParticle>  particles = new ArrayList<DetectorParticle>();
         
-        List<DetectorResponse>    rPC = builder.getUnmatchedResponses(response, DetectorType.EC,1);
-        List<DetectorResponse>   rECi = builder.getUnmatchedResponses(response, DetectorType.EC,4);
-        List<DetectorResponse>   rECo = builder.getUnmatchedResponses(response, DetectorType.EC,7);
-        List<DetectorResponse>  rPCAL = DetectorResponse.getListBySector(rPC,  DetectorType.EC, sector);
-        List<DetectorResponse>  rECIN = DetectorResponse.getListBySector(rECi, DetectorType.EC, sector);
-        List<DetectorResponse> rECOUT = DetectorResponse.getListBySector(rECo, DetectorType.EC, sector);
+        List<CalorimeterResponse>    rPC = eb.getUnmatchedResponses(response, DetectorType.EC,1);
+        List<CalorimeterResponse>   rECi = eb.getUnmatchedResponses(response, DetectorType.EC,4);
+        List<CalorimeterResponse>   rECo = eb.getUnmatchedResponses(response, DetectorType.EC,7);
+        List<CalorimeterResponse>  rPCAL = CalorimeterResponse.getListBySector(rPC,  DetectorType.EC, sector);
+        List<CalorimeterResponse>  rECIN = CalorimeterResponse.getListBySector(rECi, DetectorType.EC, sector);
+        List<CalorimeterResponse> rECOUT = CalorimeterResponse.getListBySector(rECo, DetectorType.EC, sector);
                 
         distance11=distance12=distance21=distance22=-10;
                         
@@ -124,22 +125,21 @@ public class ECPart {
         
         int index=0;
         
-        index  = p1.getDetectorHit(rECIN,DetectorType.EC,4,EBConstants.ECIN_MATCHING);
+        index  = p1.getCalorimeterHit(rECIN,DetectorType.EC,4,EBConstants.ECIN_MATCHING);
         if(index>=0){p1.addResponse(rECIN.get(index),true); rECIN.get(index).setAssociation(0);
         distance11 = p1.getDistance(rECIN.get(index)).length();}
         
-        index  = p1.getDetectorHit(rECOUT,DetectorType.EC,7,EBConstants.ECOUT_MATCHING);
+        index  = p1.getCalorimeterHit(rECOUT,DetectorType.EC,7,EBConstants.ECOUT_MATCHING);
         if(index>=0){p1.addResponse(rECOUT.get(index),true); rECOUT.get(index).setAssociation(0);
         distance12 = p1.getDistance(rECOUT.get(index)).length();}
         
-        index  = p2.getDetectorHit(rECIN,DetectorType.EC,4,EBConstants.ECIN_MATCHING);
+        index  = p2.getCalorimeterHit(rECIN,DetectorType.EC,4,EBConstants.ECIN_MATCHING);
         if(index>=0){p2.addResponse(rECIN.get(index),true); rECIN.get(index).setAssociation(1);
         distance21 = p2.getDistance(rECIN.get(index)).length();}
         
-        index  = p2.getDetectorHit(rECOUT,DetectorType.EC,7,EBConstants.ECOUT_MATCHING);
+        index  = p2.getCalorimeterHit(rECOUT,DetectorType.EC,7,EBConstants.ECOUT_MATCHING);
         if(index>=0){p2.addResponse(rECOUT.get(index),true); rECOUT.get(index).setAssociation(1);
         distance22 = p2.getDistance(rECOUT.get(index)).length();}
-        
         return particles;
     }
        
@@ -179,10 +179,10 @@ public class ECPart {
         // Require 2 photons in PCAL and ECinner
         
         n2hit++;
-        if((p1.getResponse(DetectorType.EC, 1)!=null  &&
-            p1.getResponse(DetectorType.EC, 4)!=null) ||
-           (p2.getResponse(DetectorType.EC, 1)!=null && 
-            p2.getResponse(DetectorType.EC, 4)!=null)) {                
+        if((p1.getCalorimeterResponse(DetectorType.EC, 1)!=null  &&
+            p1.getCalorimeterResponse(DetectorType.EC, 4)!=null) ||
+           (p2.getCalorimeterResponse(DetectorType.EC, 1)!=null && 
+            p2.getCalorimeterResponse(DetectorType.EC, 4)!=null)) {                
               X = (e1c-e2c)/(e1c+e2c);
            tpi2 = 2*mpi0*mpi0/(1-cth)/(1-X*X);
            cpi0 = (e1c*cth1+e2c*cth2)/Math.sqrt(e1c*e1c+e2c*e2c+2*e1c*e2c*cth);
@@ -221,7 +221,7 @@ public class ECPart {
         HipoDataSource reader = new HipoDataSource();
         ECPart           part = new ECPart();
         
-        String evioPath = "/Users/colesmith/clas12/coatjava-local/data/pizero/hipo/";
+        String evioPath = "/Users/colesmith/clas12/gemc/pizero/hipo/";
         // GEMC file: 10k 2.0 GeV pizeros thrown at 25 deg into Sector 2 using GEMC 2.4 geometry
         // JLAB: evioPath = "/lustre/expphy/work/hallb/clas12/lcsmith/clas12/forcar/gemc/evio/";
         
@@ -260,13 +260,12 @@ public class ECPart {
             part.readMC(event);
             engine.processDataEvent(event);      
             double invmass = 1e3*Math.sqrt(part.getTwoPhoton(part.readEC(event),2));
-            
-            h1.fill((float)invmass,1.);                          //Two-photon invariant mass
+            h1.fill((float)invmass,1.);                            //Two-photon invariant mass
             
             if (invmass>80 && invmass<200) {
-                h2.fill((float)part.X);                          //Pizero energy asymmetry
+                h2.fill((float)part.X);                            //Pizero energy asymmetry
                 h3.fill((float)(1e3*(Math.sqrt(part.tpi2)-refE))); //Pizero total energy error
-                h4.fill(Math.acos(part.cpi0)*180/3.14159-refTH); //Pizero theta angle error
+                h4.fill(Math.acos(part.cpi0)*180/3.14159-refTH);   //Pizero theta angle error
                 nimcut++;
             }
         }
