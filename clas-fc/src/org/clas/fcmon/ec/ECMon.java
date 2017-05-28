@@ -363,6 +363,8 @@ public class ECMon extends DetectorMonitor {
             histofile.addToMap("H2_a_Hist",    ecPix[idet].strips.hmap2.get("H2_a_Hist")); 
             histofile.addToMap("H1_a_Hist",    ecPix[idet].strips.hmap1.get("H1_a_Hist")); 
             histofile.addToMap("H2_PC_Stat",   ecPix[idet].strips.hmap2.get("H2_PC_Stat"));
+            histofile.addToMap("H2_PCa_Stat",  ecPix[idet].strips.hmap2.get("H2_PCa_Stat"));
+            histofile.addToMap("H2_PCt_Stat",  ecPix[idet].strips.hmap2.get("H2_PCt_Stat"));
             histofile.addToMap("H2_Peds_Hist", ecPix[idet].strips.hmap2.get("H2_Peds_Hist"));
             histofile.addToMap("H2_Mode1_Hist",ecPix[idet].strips.hmap2.get("H2_Mode1_Hist"));
             histofile.addToMap("H2_t_Hist",    ecPix[idet].strips.hmap2.get("H2_t_Hist"));
