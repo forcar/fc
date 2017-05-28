@@ -73,7 +73,8 @@ public class DisplayControl extends JPanel {
                 zMin = slider.getValue();
                 zMax = slider.getUpperValue();
 //                pixMin = Math.pow(10, zMin/10); pixMax = Math.pow(10, zMax/10);
-                pixMin = 0.01*zMin; pixMax = Math.exp(-Math.pow(zMax-SLIDER_MAX,2)/2000.);  
+                pixMin = 0.01*zMin; pixMax = 0.01*zMax;
+               // pixMax = Math.exp(-Math.pow(zMax-SLIDER_MAX,2)/2000.);  
                 rangeSliderValue1.setText(String.valueOf("" + String.format("%4.0f", zMin)));
                 rangeSliderValue2.setText(String.valueOf("" + String.format("%4.0f", zMax)));
                 detectorView.getView().updateGUI();
