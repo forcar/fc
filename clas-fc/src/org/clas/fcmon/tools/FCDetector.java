@@ -240,25 +240,31 @@ public class FCDetector {
         double rmin = zmap[0];
         double rmax = zmap[1];
         double  avg = zmap[2];
-        if(app.getSelectedTabName()=="TDC") {rmin=600;rmax=700;avg=650;}
+        double rmaxx = avg*3;
+//        if(app.getSelectedTabName()=="TDC") {rmin=600;rmax=700;rmaxx=rmax;}
         float     z =  val[component];
-        //if(app.debug) System.out.println(rmin+" "+rmax+" "+avg);
+        if(app.debug) System.out.println(z+" "+rmin+" "+rmax+" "+avg);
         if (z==0) return 0;
-        rmax=avg;
+        
         PCMon_zmax = rmax*1.2; mon.getGlob().put("PCMon_zmax", PCMon_zmax);
 
         if (app.getInProcess()==0)  color=(double)(z-rmin)/(rmax-rmin);
         double pixMin = app.displayControl.pixMin ; double pixMax = app.displayControl.pixMax;
+        
+        double    rmn = (rmaxx-rmin)*pixMin+rmin-(rmaxx-rmin)*0.1;
+        double    rmx = (rmaxx-rmin)*pixMax+rmin;
         if (app.getInProcess()!=0) {
 //          if (!app.isSingleEvent()) color=(double)(Math.log10(z)-Math.log10(pixMin))/(Math.log10(pixMax)-Math.log10(pixMin));
 //          if ( app.isSingleEvent()) color=(double)(z-pixMin*rmin)/(smax*pixMax-rmin*pixMin);
-          if (!app.isSingleEvent()) color=(double)(z-rmin*pixMin)/(2*rmax*pixMax-rmin*pixMin) ;
-          if ( app.isSingleEvent()) color=(double)(z-rmin*pixMin)/(rmax*pixMax-rmin*pixMin) ;
+//            if (!app.isSingleEvent()) color=(double)(z-rmin*pixMin)/(5*rmax*pixMax-rmin*pixMin) ;
+//            if ( app.isSingleEvent()) color=(double)(z-rmin*pixMin)/(rmax*pixMax-rmin*pixMin) ;
+            if (!app.isSingleEvent()) color=(double)(z-rmn)/(rmx-rmn) ;            
+            if ( app.isSingleEvent()) color=(double)(z-rmin*pixMin)/(rmax*pixMax-rmin*pixMin) ;
         }
         
         // Set color bar min,max
-        app.getDetectorView().getView().zmax = 10*rmax*pixMax;
-        app.getDetectorView().getView().zmin = rmin*pixMin;
+        app.getDetectorView().getView().zmax = rmx;
+        app.getDetectorView().getView().zmin = rmn;
         
         if (color>1)   color=1;
         if (color<=0)  color=0.;
