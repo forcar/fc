@@ -163,7 +163,7 @@ public class ECReconstructionApp extends FCApplication {
                int  is = bank.getByte("sector",i);
                int  il = bank.getByte("layer",i);
                int  ip = bank.getShort("component",i);
-               double tdc = bank.getInt("TDC",i)*24/1000.-phase*4.;
+               double tdc = bank.getInt("TDC",i)*24/1000.;
                if(app.debug) System.out.println("Sector,Layer,PMT,TDC : "+is+" "+il+" "+ip+" "+tdc);
                tdcs.add(tdc,is,il,ip);
            }
@@ -182,6 +182,9 @@ public class ECReconstructionApp extends FCApplication {
                double tdc = (tdcs.hasItem(is,il,ip)) ? tdcs.getItem(is,il,ip):0;
                idet = getDet(il);
                ilay = getLay(il);
+               if(il==6&&idet==1) ecPix[idet].strips.hmap2.get("H2_t_Hist").get(is,3,3).fill(tdc,phase);
+               tdc = tdc-phase*4.; if (app.debug) System.out.println("TDC = "+tdc);
+               if(il==6&&idet==1) ecPix[idet].strips.hmap2.get("H2_t_Hist").get(is,3,4).fill(tdc,phase);
                if (app.rtt.hasItem(is,il,ip,0)) {
                    int[] dum = (int[]) app.rtt.getItem(is,il,ip,0);
                    getMode7(dum[0],dum[1],dum[2]);
@@ -190,8 +193,7 @@ public class ECReconstructionApp extends FCApplication {
                sca = (is==5)?ecc.SCALE5[il-1]:ecc.SCALE[il-1];
                if( app.isMC&&app.variation=="clas6") sca = 1.0;
                if(app.debug) System.out.println("Sector,Layer,PMT,ADC : "+is+" "+il+" "+ip+" "+adc);
-               if(isGoodSector(is)&&(is==bitsec)) {
-//               if(isGoodSector(is)) {
+               if(isGoodSector(is)) {
                    float sadc = (float) adc / (float) sca;
                    fill(idet, is, ilay, ip, sadc, tdc, tdcf);  
                    fillSED(idet, is, ilay, ip, (int) sadc, tdc);
@@ -230,10 +232,11 @@ public class ECReconstructionApp extends FCApplication {
        }
        
        for (int i=0; i < adcDGTZ.size(); i++) {
+           int is = adcDGTZ.get(i).getDescriptor().getSector();
+           if (isGoodSector(is)) {
            int cr = adcDGTZ.get(i).getDescriptor().getCrate();
            int sl = adcDGTZ.get(i).getDescriptor().getSlot();
            int ch = adcDGTZ.get(i).getDescriptor().getChannel();
-           int is = adcDGTZ.get(i).getDescriptor().getSector();
            int il = adcDGTZ.get(i).getDescriptor().getLayer();
            int ic = adcDGTZ.get(i).getDescriptor().getComponent();
            int ad = adcDGTZ.get(i).getADCData(0).getADC();
@@ -260,9 +263,8 @@ public class ECReconstructionApp extends FCApplication {
             }
            if (pd>0) ecPix[idet].strips.hmap2.get("H2_Peds_Hist").get(is,ilay,0).fill(this.pedref-pd, ic);
            float sadc = (float) ad / (float) sca;
-           if(isGoodSector(is)) {
-                  fill(idet, is, ilay, ic, sadc, tdc, tdc);                     
-               fillSED(idet, is, ilay, ic, (int) sadc, tdc);
+           fill(idet, is, ilay, ic, sadc, tdc, tdc);                     
+           fillSED(idet, is, ilay, ic, (int) sadc, tdc);
            }           
        }
        
@@ -737,7 +739,7 @@ public class ECReconstructionApp extends FCApplication {
            for (int il=1 ; il<4 ; il++) {
                divide(H1_a_Maps.get(is,il,0),H1_a_Maps.get(is,il,4),H1_a_Maps.get(is,il,1)); //Normalize Raw View ADC   to Events
                divide(H1_a_Maps.get(is,il,2),H1_a_Maps.get(is,il,4),H1_a_Maps.get(is,il,3)); //Normalize Raw View ADC^2 to Events
-//               divide(H1_t_Maps.get(is,il,0),H1_t_Maps.get(is,il,4),H1_t_Maps.get(is,il,1)); //Normalize Raw View TDC   to Events
+               divide(H1_t_Maps.get(is,il,0),H1_t_Maps.get(is,il,4),H1_t_Maps.get(is,il,1)); //Normalize Raw View TDC   to Events
                ecPix[idet].Lmap_a.add(is,il,   0, toTreeMap(H2_a_Hist.get(is,il,0).projectionY().getData()));  //Strip View ADC  
                ecPix[idet].Lmap_a.add(is,il+10,0, toTreeMap(H1_a_Maps.get(is,il,1).getData()));                //Pixel View ADC 
                ecPix[idet].Lmap_t.add(is,il,   0, toTreeMap(H2_t_Hist.get(is,il,0).projectionY().getData()));  //Strip View TDC  
