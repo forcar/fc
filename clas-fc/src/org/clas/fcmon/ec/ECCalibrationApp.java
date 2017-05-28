@@ -968,21 +968,14 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
                      GStyle.getGraphErrorsAttributes().setMarkerColor(2);
                      GStyle.getGraphErrorsAttributes().setFillStyle(2);
                        
-                     parAGraph.getAttributes().setTitleX(otab[ilmap][il-1]) ;  ccdbAGraph.getAttributes().setTitleX(otab[ilmap][il-1]) ; 
-                     parAGraph.getAttributes().setTitleY("A")  ;               ccdbAGraph.getAttributes().setTitleY("A")  ;
-                     parAGraph.getAttributes().setTitle(" ");
-                     parBGraph.getAttributes().setTitleX(otab[ilmap][il-1]) ; ccdbBGraph.getAttributes().setTitleX(otab[ilmap][il-1]) ;
-                     parBGraph.getAttributes().setTitleY("B") ;               ccdbBGraph.getAttributes().setTitleY("B")  ;
-                     parBGraph.getAttributes().setTitle(" ");
-                     parCGraph.getAttributes().setTitleX(otab[ilmap][il-1]) ; ccdbCGraph.getAttributes().setTitleX(otab[ilmap][il-1]) ;
-                     parCGraph.getAttributes().setTitleY("C") ;               ccdbCGraph.getAttributes().setTitleY("C")  ;
-                     parCGraph.getAttributes().setTitle(" ");
-                     parACGraph.getAttributes().setTitleX(otab[ilmap][il-1]) ; ccdbACGraph.getAttributes().setTitleX(otab[ilmap][il-1]) ;
-                     parACGraph.getAttributes().setTitleY("A+C") ;             ccdbACGraph.getAttributes().setTitleY("A+C")  ;
-                     parACGraph.getAttributes().setTitle(" ");
-                     chi2Graph.getAttributes().setTitleX(otab[ilmap][il-1]) ;  
-                     chi2Graph.getAttributes().setTitleY("REDUCED CHI^2"); 
-                     chi2Graph.getAttributes().setTitle(" ");
+                     ccdbAGraph.setTitleX(otab[ilmap][il-1])    ; ccdbAGraph.setTitleY("A")  ;
+                     ccdbBGraph.setTitleX(otab[ilmap][il-1])    ; ccdbBGraph.setTitleY("B")  ;
+                     ccdbCGraph.setTitleX(otab[ilmap][il-1])    ; ccdbCGraph.setTitleY("C")  ;
+                     ccdbGAINGraph.setTitleX(otab[ilmap][il-1]) ; ccdbGAINGraph.setTitleY("A+C")  ;
+                     
+                     chi2Graph.setTitleX(otab[ilmap][il-1]) ;  
+                     chi2Graph.setTitleY("REDUCED CHI^2"); 
+                     chi2Graph.setTitle(" ");
                       
                      F1D f1 = new F1D("p0","[a]",0,nstr+1); f1.setParameter(0,scale); f1.setLineWidth(1);
                                
@@ -1021,6 +1014,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
                      c.draw(ccdbCGraph) ; c.draw(parCGraph,"same"); c.draw(parCGraphi,"same");
                      c.cd(3); c.getPad(3).getAxisX().setRange(0.,xmax);c.getPad(3).getAxisY().setRange(0.,2.);
                      c.draw(ccdbGAINGraph) ; c.draw(parACGraph,"same"); c.draw(parACGraphi,"same"); 
+                     
                      c.repaint();
                       
                   }
