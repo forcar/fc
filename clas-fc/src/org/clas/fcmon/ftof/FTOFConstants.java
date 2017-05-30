@@ -2,6 +2,7 @@ package org.clas.fcmon.ftof;
 
 public class FTOFConstants {
     
+    public static double TOFFSET = 450;  // FADC/TDC offset in ns
     public static int IS1 = 0 ;
     public static int IS2 = 0 ;  
     

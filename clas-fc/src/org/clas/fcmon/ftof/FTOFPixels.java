@@ -28,6 +28,8 @@ public class FTOFPixels {
     int    strrt[][][] = new    int[6][2][62]; 
     int     adcr[][][] = new    int[6][2][62];      
     float   tdcr[][][] = new  float[6][2][62]; 
+    float     tf[][][] = new  float[6][2][62]; 
+    float     ph[][][] = new  float[6][2][62]; 
     
     public DetectorCollection<TreeMap<Integer,Object>> Lmap_a = new DetectorCollection<TreeMap<Integer,Object>>();
     public DetectorCollection<TreeMap<Integer,Object>> Lmap_t = new DetectorCollection<TreeMap<Integer,Object>>();
@@ -154,6 +156,7 @@ public class FTOFPixels {
         DetectorCollection<H2F> H2_a_Hist = new DetectorCollection<H2F>();
         DetectorCollection<H2F> H2_t_Hist = new DetectorCollection<H2F>();
         DetectorCollection<H2F> H2_a_Sevd = new DetectorCollection<H2F>();
+        DetectorCollection<H2F> H2_t_Sevd = new DetectorCollection<H2F>();
         
         double nend = nstr+1;  
         
@@ -170,6 +173,7 @@ public class FTOFPixels {
                 H1_a_Sevd.add(is, il, 0, new H1F("a_sed_"+iid+0,                       nstr, 1., nend));
                 H2_a_Sevd.add(is, il, 0, new H2F("a_sed_fadc_"+iid+0, 100,   0., 100., nstr, 1., nend));
                 H2_a_Sevd.add(is, il, 1, new H2F("a_sed_fadc_"+iid+1, 100,   0., 100., nstr, 1., nend));
+                H2_t_Sevd.add(is, il, 0, new H2F("a_sed_fadc_"+iid+0, 200,   0., 100., nstr, 1., nend));
             }
         }       
 
@@ -185,6 +189,7 @@ public class FTOFPixels {
         strips.addH2DMap("H2_a_Hist",  H2_a_Hist);
         strips.addH2DMap("H2_t_Hist",  H2_t_Hist);
         strips.addH2DMap("H2_a_Sevd",  H2_a_Sevd);
+        strips.addH2DMap("H2_t_Sevd",  H2_t_Sevd);
     } 
     
 }

@@ -70,7 +70,6 @@ public class FTOFMon extends DetectorMonitor {
         monitor.initGlob();
         monitor.makeApps();
         monitor.addCanvas();
-        monitor.initEPICS();
         monitor.init();
         monitor.initDetector();
         app.init();
@@ -137,10 +136,14 @@ public class FTOFMon extends DetectorMonitor {
         ftofHv = new FTOFHvApp("HV","FTOF");
         ftofHv.setMonitoringClass(this);
         ftofHv.setApplicationClass(app);  
+        ftofHv.init();
         
         ftofScalers = new FTOFScalersApp("Scalers","FTOF");
         ftofScalers.setMonitoringClass(this);
-        ftofScalers.setApplicationClass(app);  
+        ftofScalers.setApplicationClass(app); 
+        ftofScalers.init();
+        
+        if(app.xMsgHost=="localhost") app.startEpics();
     }
 	
     public void addCanvas() {
@@ -166,12 +169,6 @@ public class FTOFMon extends DetectorMonitor {
         System.out.println("monitor.initApps()");
         for (int i=0; i<ftofPix.length; i++)   ftofPix[i].init();
         ftofRecon.init();
-    }
-    
-    public void initEPICS() {
-        System.out.println("monitor.initScalers():Initializing EPICS Channel Access");
-        ftofHv.init(app.doEpics);        
-        ftofScalers.init(app.doEpics);         
     }
     
     public void initGlob() {
@@ -305,6 +302,15 @@ public class FTOFMon extends DetectorMonitor {
     public void initEngine() {
         // TODO Auto-generated method stub
         
-    }   
+    }
+
+    @Override
+    public void initEpics(Boolean doEpics) {
+        // TODO Auto-generated method stub
+        System.out.println("monitor.initEpics():Initializing EPICS Channel Access");
+        if (app.xMsgHost=="localhost") {ftofHv.online=false ; ftofScalers.online=false;}
+        if ( doEpics) {ftofHv.startEPICS(); ftofScalers.startEPICS();}
+        if (!doEpics) {ftofHv.stopEPICS();  ftofScalers.stopEPICS();}
+    }
     
 }

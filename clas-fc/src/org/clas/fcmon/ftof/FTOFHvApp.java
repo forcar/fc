@@ -43,8 +43,7 @@ public class FTOFHvApp extends FCEpics implements ActionListener {
         super(name, det);
     }
     
-    public void init(Boolean online) {
-        this.online = online;
+    public void init() {
         this.is1=FTOFConstants.IS1;
         this.is2=FTOFConstants.IS2;
         setPvNames(this.detName,0);
@@ -52,13 +51,21 @@ public class FTOFHvApp extends FCEpics implements ActionListener {
         layerSelected=1;
         channelSelected=1;
         initHistos();
+    }
+    
+    public void startEPICS() {
         createContext();
         setCaNames(this.detName,0);
         initFifos();
         this.timer = new Timer(delay,action);  
         this.timer.setDelay(delay);
-        this.timer.start();
+        this.timer.start();       
     }
+    
+    public void stopEPICS() {
+        if(this.timer.isRunning()) this.timer.stop();
+        destroyContext();
+    }   
     
     public JPanel getPanel() {        
         engineView.setLayout(new BorderLayout());
