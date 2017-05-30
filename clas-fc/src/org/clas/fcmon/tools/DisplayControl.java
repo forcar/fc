@@ -22,7 +22,7 @@ public class DisplayControl extends JPanel {
     
     static final int SLIDER_MIN = 1;
     static final int SLIDER_MAX = 100;
-    static final int SLIDER_MIN_INIT = 100;
+    static final int SLIDER_MIN_INIT = 1;
     static final int SLIDER_MAX_INIT = 100;
               
     double zMin,zMax;
