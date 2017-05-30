@@ -18,7 +18,7 @@ import org.jlab.detector.decode.DetectorDataDgtz;
 public class FCCLASDecoder {
        
     public CodaEventDecoder          codaDecoder = null; 
-    public DetectorEventDecoder  detectorDecoder = null;
+    public FCDetectorEventDecoder  detectorDecoder = null;
     public List<DetectorDataDgtz>       dataList = new ArrayList<DetectorDataDgtz>();    
     public HipoDataSync                   writer = null;
     public HipoDataEvent               hipoEvent = null;
@@ -39,7 +39,7 @@ public class FCCLASDecoder {
         System.out.println("*FCCLASDecoder*");
         System.out.println("***************");
         codaDecoder = new CodaEventDecoder();
-        detectorDecoder = new DetectorEventDecoder();
+        detectorDecoder = new FCDetectorEventDecoder();
         writer = new HipoDataSync();
         hipoEvent = (HipoDataEvent) writer.createEvent();
     }
