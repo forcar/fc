@@ -35,6 +35,7 @@ public class FTOFMode1App extends FCApplication {
     public JPanel getPanel() {
         engineView.setLayout(new BorderLayout());
         mode1.addCanvas("Sum");
+        mode1.addCanvas("AvsT");
         engineView.add(mode1);
         return engineView;
     }    
@@ -52,7 +53,8 @@ public class FTOFMode1App extends FCApplication {
         
         switch (mode1.selectedCanvas) {
         case "Event": updateEvent(); break;
-        case   "Sum": updateSum();
+        case   "Sum": updateSum(); break;
+        case  "AvsT": updateAvsT();
         }
         
      } 
@@ -133,6 +135,23 @@ public class FTOFMode1App extends FCApplication {
         c.repaint();
         ics[idet][lr-1]=ic;
         
-     }    
+     } 
+    
+    public void updateAvsT() {
+        
+        DetectorCollection<H2F> dc2a = ftofPix[idet].strips.hmap2.get("H2_a_Hist");       
+        
+        H2F h2;
+        
+        c = mode1.getCanvas("AvsT");  c.clear(); c.divide(2,1);       
+       
+        for (int il=1; il<3; il++) {
+            h2=dc2a.get(is,il,1); h2.setTitleY("Sector "+is+otab[il-1]+" TDC") ; h2.setTitleX("Sector "+is+otab[il-1]+" FADC");
+            canvasConfig(c,il-1,0.,4000.,300.,1200.,true).draw(h2);            
+        }
+        
+        c.repaint();
+        
+    }
     
 }

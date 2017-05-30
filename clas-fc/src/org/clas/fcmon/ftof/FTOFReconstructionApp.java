@@ -321,7 +321,8 @@ public class FTOFReconstructionApp extends FCApplication {
              ftofPix[idet].strips.hmap2.get("H2_t_Hist").get(is,il,0).fill(tdc,ip,1.0);
              }
        
-       
+       ftofPix[idet].strips.hmap2.get("H2_a_Hist").get(is,il,1).fill(adc,tdc,1.0);
+              
        if(adc>thrcc){
              ftofPix[idet].nha[is-1][il-1]++; int inh = ftofPix[idet].nha[is-1][il-1];
              if (inh>nstr) inh=nstr;
