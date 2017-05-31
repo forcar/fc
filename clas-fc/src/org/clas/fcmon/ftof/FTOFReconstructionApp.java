@@ -120,6 +120,7 @@ public class FTOFReconstructionApp extends FCApplication {
        long phase = 0;
        int trigger = 0;
        long timestamp = 0;
+       float[] tdcc = new float[1];
        
        clear(0); clear(1); clear(2); tdcs.clear();
        
@@ -158,8 +159,8 @@ public class FTOFReconstructionApp extends FCApplication {
                int adc = bank.getInt("ADC",i);
                float t = bank.getFloat("time",i);               
                int ped = bank.getShort("ped", i);
-               float tdc = (tdcs.hasItem(is,il,lr,ip)) ? tdcs.getItem(is,il,lr,ip):0;
-               if(isGoodSector(is)) fill(il-1, is, lr+1, ip, adc, tdc, t, t);    
+               tdcc[0] = (tdcs.hasItem(is,il,lr,ip)) ? tdcs.getItem(is,il,lr,ip):0;
+               if(isGoodSector(is)) fill(il-1, is, lr+1, ip, adc, tdcc, t, t);    
            }
        }
        
@@ -167,7 +168,7 @@ public class FTOFReconstructionApp extends FCApplication {
    
    public void updateRawData(DataEvent event) {
        
-       IndexedList<Float> tdcs = new IndexedList<Float>(4);
+       IndexedList<List<Float>> tdcs = new IndexedList<List<Float>>(4);
        
        clear(0); clear(1); clear(2); tdcs.clear();
        
@@ -178,33 +179,42 @@ public class FTOFReconstructionApp extends FCApplication {
        List<DetectorDataDgtz> tdcDGTZ = app.decoder.getEntriesTDC(DetectorType.FTOF);
 
        for (int i=0; i < tdcDGTZ.size(); i++) {
-           int is = tdcDGTZ.get(i).getDescriptor().getSector();
-           int il = tdcDGTZ.get(i).getDescriptor().getLayer();
-           int lr = tdcDGTZ.get(i).getDescriptor().getOrder();
-           int ic = tdcDGTZ.get(i).getDescriptor().getComponent();
-           int it = tdcDGTZ.get(i).getTDCData(0).getTime();
-           float tdc = (float) it*24/1000;
-           tdcs.add(tdc,is,il,lr-2,ic);
+           DetectorDataDgtz ddd=tdcDGTZ.get(i);
+           int is = ddd.getDescriptor().getSector();
+           int il = ddd.getDescriptor().getLayer();
+           int lr = ddd.getDescriptor().getOrder();
+           int ic = ddd.getDescriptor().getComponent();
+           if(!tdcs.hasItem(is,il,lr-2,ic)) tdcs.add(new ArrayList<Float>(),is,il,lr-2,ic);
+               tdcs.getItem(is,il,lr-2,ic).add((float) ddd.getTDCData(0).getTime()*24/1000);              
        }
        
        for (int i=0; i < adcDGTZ.size(); i++) {
-           int is = adcDGTZ.get(i).getDescriptor().getSector();
+           DetectorDataDgtz ddd=adcDGTZ.get(i);
+           int is = ddd.getDescriptor().getSector();
            if (isGoodSector(is)) {
-           int cr = adcDGTZ.get(i).getDescriptor().getCrate();
-           int sl = adcDGTZ.get(i).getDescriptor().getSlot();
-           int ch = adcDGTZ.get(i).getDescriptor().getChannel();
-           int il = adcDGTZ.get(i).getDescriptor().getLayer();
-           int lr = adcDGTZ.get(i).getDescriptor().getOrder();
-           int ic = adcDGTZ.get(i).getDescriptor().getComponent();
-           int ad = adcDGTZ.get(i).getADCData(0).getADC();
-           int pd = adcDGTZ.get(i).getADCData(0).getPedestal();
-           int t0 = adcDGTZ.get(i).getADCData(0).getTimeCourse();  
-           float tf = (float) adcDGTZ.get(i).getADCData(0).getTime();
-           float ph = (float) adcDGTZ.get(i).getADCData(0).getHeight()-pd;
-           short[]    pulse = adcDGTZ.get(i).getADCData(0).getPulseArray();
+           int cr = ddd.getDescriptor().getCrate();
+           int sl = ddd.getDescriptor().getSlot();
+           int ch = ddd.getDescriptor().getChannel();
+           int il = ddd.getDescriptor().getLayer();
+           int lr = ddd.getDescriptor().getOrder();
+           int ic = ddd.getDescriptor().getComponent();
+           int ad = ddd.getADCData(0).getADC();
+           int pd = ddd.getADCData(0).getPedestal();
+           int t0 = ddd.getADCData(0).getTimeCourse();  
+           float tf = (float) ddd.getADCData(0).getTime();
+           float ph = (float) ddd.getADCData(0).getHeight()-pd;
+           short[]    pulse = ddd.getADCData(0).getPulseArray();
            
-           float tdc = (tdcs.hasItem(is,il,lr,ic)) ? tdcs.getItem(is,il,lr,ic):0;           
-           tdc = tdc-app.decoder.phase*4;  
+           Float[] tdcc; float[] tdc;
+           
+           if (tdcs.hasItem(is,il,lr,ic)) {
+               List<Float> list = new ArrayList<Float>();
+               list = tdcs.getItem(is,il,lr,ic); tdcc=new Float[list.size()]; list.toArray(tdcc);
+               tdc  = new float[list.size()];
+               for (int ii=0; ii<tdcc.length; ii++) tdc[ii] = tdcc[ii]-app.decoder.phase*4;  
+           } else {
+               tdc = new float[1];
+           }
            
            getMode7(cr,sl,ch); 
            
@@ -240,8 +250,9 @@ public class FTOFReconstructionApp extends FCApplication {
        
       float tdcmax=100000;
       int nrows, adc, tdcc, fac;
-      float mc_t=0,tdc=0,tdcf=0;
-
+      float mc_t=0,tdcf=0;
+      float[] tdc = new float[1];
+      
       String det[] = {"FTOF1A","FTOF1B","FTOF2B"}; // FTOF.xml banknames
       
       clear(0); clear(1); clear(2);
@@ -267,12 +278,12 @@ public class FTOFReconstructionApp extends FCApplication {
                       adc = bank.getInt("ADCL",i);
                      tdcc = bank.getInt("TDCL",i);
                      tdcf = tdcc;
-                      tdc = (((float)tdcc-(float)mc_t*1000)-tdcmax+1340000)/1000; 
+                   tdc[0] = (((float)tdcc-(float)mc_t*1000)-tdcmax+1340000)/1000; 
                  fill(idet, is, 1, ip, adc, tdc, tdcf, tdcf); 
                       adc = bank.getInt("ADCR",i);
                      tdcc = bank.getInt("TDCR",i);
                      tdcf = tdcc;
-                      tdc = (((float)tdcc-(float)mc_t*1000)-tdcmax+1340000)/1000; 
+                   tdc[0] = (((float)tdcc-(float)mc_t*1000)-tdcmax+1340000)/1000; 
                  fill(idet, is, 2, ip, adc, tdc, tdcf, tdcf); 
               }                     
           }         
@@ -310,19 +321,23 @@ public class FTOFReconstructionApp extends FCApplication {
    }
 
    
-   public void fill(int idet, int is, int il, int ip, int adc, float tdc, float tdcf, float adph) {
+   public void fill(int idet, int is, int il, int ip, int adc, float[] tdc, float tdcf, float adph) {
+
+       for (int ii=0; ii<tdc.length; ii++) {
            
-       if(tdc>450&&tdc<850){
+       if(tdc[ii]>450&&tdc[ii]<850){
              ftofPix[idet].nht[is-1][il-1]++; int inh = ftofPix[idet].nht[is-1][il-1];
              if (inh>nstr) inh=nstr;
              ftofPix[idet].ph[is-1][il-1][inh-1] = adph;
-             ftofPix[idet].tdcr[is-1][il-1][inh-1] = (float) tdc;
+             ftofPix[idet].tdcr[is-1][il-1][inh-1] = (float) tdc[ii];
              ftofPix[idet].strrt[is-1][il-1][inh-1] = ip;
-             ftofPix[idet].strips.hmap2.get("H2_t_Hist").get(is,il,0).fill(tdc,ip,1.0);
+             ftofPix[idet].strips.hmap2.get("H2_t_Hist").get(is,il,0).fill(tdc[ii],ip,1.0);
              }
        
-       ftofPix[idet].strips.hmap2.get("H2_a_Hist").get(is,il,1).fill(adc,tdc,1.0);
-              
+       ftofPix[idet].strips.hmap2.get("H2_a_Hist").get(is,il,1).fill(adc,tdc[ii],1.0);
+          
+       }
+       
        if(adc>thrcc){
              ftofPix[idet].nha[is-1][il-1]++; int inh = ftofPix[idet].nha[is-1][il-1];
              if (inh>nstr) inh=nstr;
