@@ -52,6 +52,7 @@ public class ECReconstructionApp extends FCApplication {
    CodaEventDecoder           codaDecoder = new CodaEventDecoder();
    DetectorEventDecoder   detectorDecoder = new DetectorEventDecoder();
    List<DetectorDataDgtz>        dataList = new ArrayList<DetectorDataDgtz>();    
+   IndexedList<List<Float>>          tdcs = new IndexedList<List<Float>>(3);
   
    ECConstants                        ecc = new ECConstants();
    DataBank                mcData,genData = null;
@@ -112,7 +113,7 @@ public class ECReconstructionApp extends FCApplication {
       
       if (app.isSingleEvent()) {
 //         for (int idet=0; idet<ecPix.length; idet++) findPixels(idet);  // Process all pixels for SED
-         for (int idet=0; idet<ecPix.length; idet++) processSED(idet);
+          processSED();
       } else {
          for (int idet=0; idet<ecPix.length; idet++) processPixels(idet); // Process only single pixels 
  //         processCalib();  // Process only single pixels 
@@ -130,20 +131,19 @@ public class ECReconstructionApp extends FCApplication {
     }
    
    public void updateHipoData(DataEvent event) {
-       IndexedList<Double> tdcs = new IndexedList<Double>(3);
-       int ilay=0, idet=-1;
-       double  sca = 1;
-       float  tdcf = 0;
-       int evno;
-       long  phase = 0;
-       int trigger = 0;
-       long timestamp = 0;
+
+       int       ilay =  0;
+       int       idet = -1;
+       int       evno =  0;
+       int    trigger =  0;
+       double     sca =  1;
+       float     tdcf =  0;
+       long     phase =  0;
+       long timestamp =  0;
        
        clear(0); clear(1); clear(2); tdcs.clear();
        
        sca = (app.isCRT==true) ? 6.6:1; // For pre-installation PCAL CRT runs
-       
-       if(app.debug) System.out.println(" ");
        
        if(event.hasBank("RUN::config")){
            DataBank bank = event.getBank("RUN::config");
@@ -158,44 +158,67 @@ public class ECReconstructionApp extends FCApplication {
        if(event.hasBank("ECAL::tdc")==true){
            DataBank  bank = event.getBank("ECAL::tdc");
            int rows = bank.rows();
-           if(app.debug) System.out.println("TDC hits: "+rows);
            for(int i = 0; i < rows; i++){
                int  is = bank.getByte("sector",i);
                int  il = bank.getByte("layer",i);
                int  ip = bank.getShort("component",i);
-               double tdc = bank.getInt("TDC",i)*24/1000.;
-               if(app.debug) System.out.println("Sector,Layer,PMT,TDC : "+is+" "+il+" "+ip+" "+tdc);
-               tdcs.add(tdc,is,il,ip);
+               if(!tdcs.hasItem(is,il,ip)) tdcs.add(new ArrayList<Float>(),is,il,ip);
+               tdcs.getItem(is,il,ip).add((float) bank.getInt("TDC",i)*24/1000);              
            }
        }
        
        if(event.hasBank("ECAL::adc")==true){
            DataBank  bank = event.getBank("ECAL::adc");
            int rows = bank.rows();
-           if(app.debug) System.out.println("ADC hits: "+rows);
            for(int i = 0; i < rows; i++){
                int  is = bank.getByte("sector",i);
                int  il = bank.getByte("layer",i);
                int  ip = bank.getShort("component",i);
                int adc = bank.getInt("ADC",i);
+               float t = bank.getFloat("time",i);               
                int ped = bank.getShort("ped", i); 
-               double tdc = (tdcs.hasItem(is,il,ip)) ? tdcs.getItem(is,il,ip):0;
+               
+               Float[] tdcc; float[] tdc; 
+               
+               if (tdcs.hasItem(is,il,ip)) {
+                   List<Float> list = new ArrayList<Float>();
+                   list = tdcs.getItem(is,il,ip); tdcc=new Float[list.size()]; list.toArray(tdcc);
+                   tdc  = new float[list.size()];
+                   for (int ii=0; ii<tdcc.length; ii++) tdc[ii] = tdcc[ii]-phase*4;  
+               } else {
+                   tdc = new float[1];
+               }
+               
                idet = getDet(il);
                ilay = getLay(il);
-               if(il==6&&idet==1) ecPix[idet].strips.hmap2.get("H2_t_Hist").get(is,3,3).fill(tdc,phase);
-               tdc = tdc-phase*4.; if (app.debug) System.out.println("TDC = "+tdc);
-               if(il==6&&idet==1) ecPix[idet].strips.hmap2.get("H2_t_Hist").get(is,3,4).fill(tdc,phase);
+               
+               sca = (float) ((is==5)?ecc.SCALE5[il-1]:ecc.SCALE[il-1]);
+               if(app.isMC&&app.variation=="clas6") sca = 1;
+               float sadc = (float) (adc / sca);
+               
+               for (int ii=0 ; ii< 100 ; ii++) {
+                   float wgt = (ii==(int)(t/4)) ? sadc:0;
+                   ecPix[idet].strips.hmap2.get("H2_Mode1_Hist").get(is,ilay,0).fill(ii,ip,wgt);
+                   if (app.isSingleEvent()) {
+                       ecPix[idet].strips.hmap2.get("H2_Mode1_Sevd").get(is,ilay,0).fill(ii,ip,wgt);
+                   }
+               }   
+               
+               if(il==6&&idet==1) {
+                  ecPix[idet].strips.hmap2.get("H2_t_Hist").get(is,3,3).fill((double) tdc[0]+phase*4,(double) phase);
+                  ecPix[idet].strips.hmap2.get("H2_t_Hist").get(is,3,4).fill(tdc[0],phase);
+               }
+               
                if (app.rtt.hasItem(is,il,ip,0)) {
                    int[] dum = (int[]) app.rtt.getItem(is,il,ip,0);
                    getMode7(dum[0],dum[1],dum[2]);
                }
+               
                if (ped>0) ecPix[idet].strips.hmap2.get("H2_Peds_Hist").get(is,ilay,0).fill(this.pedref-ped, ip);
-               sca = (is==5)?ecc.SCALE5[il-1]:ecc.SCALE[il-1];
-               if( app.isMC&&app.variation=="clas6") sca = 1.0;
-               if(app.debug) System.out.println("Sector,Layer,PMT,ADC : "+is+" "+il+" "+ip+" "+adc);
+               
+               
                if(isGoodSector(is)) {
-                   float sadc = (float) adc / (float) sca;
-                   fill(idet, is, ilay, ip, sadc, tdc, tdcf);  
+                      fill(idet, is, ilay, ip, sadc, tdc, t, sadc);  
                    fillSED(idet, is, ilay, ip, (int) sadc, tdc);
                }
            }
@@ -212,9 +235,8 @@ public class ECReconstructionApp extends FCApplication {
    
    public void updateRawData(DataEvent event) {
        
-       IndexedList<Double> tdcs = new IndexedList<Double>(3);
-       
        clear(0); clear(1); clear(2); tdcs.clear();
+       DetectorDataDgtz ddd;
        
        app.decoder.initEvent(event);
        bitsec = app.decoder.bitsec;
@@ -223,178 +245,75 @@ public class ECReconstructionApp extends FCApplication {
        List<DetectorDataDgtz> tdcDGTZ = app.decoder.getEntriesTDC(DetectorType.EC);
 
        for (int i=0; i < tdcDGTZ.size(); i++) {
-           int is = tdcDGTZ.get(i).getDescriptor().getSector();
-           int il = tdcDGTZ.get(i).getDescriptor().getLayer();
-           int ic = tdcDGTZ.get(i).getDescriptor().getComponent();
-           int it = tdcDGTZ.get(i).getTDCData(0).getTime();
-           double tdc = it*24/1000.;
-           tdcs.add(tdc,is,il,ic);
+           ddd=tdcDGTZ.get(i);
+           int is = ddd.getDescriptor().getSector();
+           int il = ddd.getDescriptor().getLayer();
+           int ip = ddd.getDescriptor().getComponent();
+           if(!tdcs.hasItem(is,il,ip)) tdcs.add(new ArrayList<Float>(),is,il,ip);
+           tdcs.getItem(is,il,ip).add((float) ddd.getTDCData(0).getTime()*24/1000);              
        }
        
        for (int i=0; i < adcDGTZ.size(); i++) {
-           int is = adcDGTZ.get(i).getDescriptor().getSector();
+           ddd=adcDGTZ.get(i);
+           int is = ddd.getDescriptor().getSector();
            if (isGoodSector(is)) {
-           int cr = adcDGTZ.get(i).getDescriptor().getCrate();
-           int sl = adcDGTZ.get(i).getDescriptor().getSlot();
-           int ch = adcDGTZ.get(i).getDescriptor().getChannel();
-           int il = adcDGTZ.get(i).getDescriptor().getLayer();
-           int ic = adcDGTZ.get(i).getDescriptor().getComponent();
-           int ad = adcDGTZ.get(i).getADCData(0).getADC();
-           int pd = adcDGTZ.get(i).getADCData(0).getPedestal();
-           int t0 = adcDGTZ.get(i).getADCData(0).getTimeCourse();           
+           int cr = ddd.getDescriptor().getCrate();
+           int sl = ddd.getDescriptor().getSlot();
+           int ch = ddd.getDescriptor().getChannel();
+           int il = ddd.getDescriptor().getLayer();
+           int ip = ddd.getDescriptor().getComponent();
+           int ad = ddd.getADCData(0).getADC();
+           int pd = ddd.getADCData(0).getPedestal();
+           int t0 = ddd.getADCData(0).getTimeCourse();           
+           float tf = (float) ddd.getADCData(0).getTime();
+           float ph = (float) ddd.getADCData(0).getHeight()-pd;
            short[] pulse = adcDGTZ.get(i).getADCData(0).getPulseArray();
            
-           int idet = getDet(il); int ilay = getLay(il);
+           float phase = app.decoder.phase;
            
-           double tdc = (tdcs.hasItem(is,il,ic)) ? tdcs.getItem(is,il,ic):0;           
-           if(il==6&&idet==1) ecPix[idet].strips.hmap2.get("H2_t_Hist").get(is,3,3).fill(tdc,app.decoder.phase);
-           tdc = tdc-app.decoder.phase*4.; if (app.debug) System.out.println("TDC = "+tdc);
-           if(il==6&&idet==1) ecPix[idet].strips.hmap2.get("H2_t_Hist").get(is,3,4).fill(tdc,app.decoder.phase);
+           Float[] tdcc; float[] tdc;
            
-           double sca = (is==5)?ecc.SCALE5[il-1]:ecc.SCALE[il-1];
+           if (tdcs.hasItem(is,il,ip)) {
+               List<Float> list = new ArrayList<Float>();
+               list = tdcs.getItem(is,il,ip); tdcc=new Float[list.size()]; list.toArray(tdcc);
+               tdc  = new float[list.size()];
+               for (int ii=0; ii<tdcc.length; ii++) tdc[ii] = tdcc[ii]-phase*4;  
+           } else {
+               tdc = new float[1];
+           }
+           
+           int idet = getDet(il); 
+           int ilay = getLay(il);
+           
+           
+           if(il==6&&idet==1) {
+               ecPix[idet].strips.hmap2.get("H2_t_Hist").get(is,3,3).fill((double) tdc[0]+phase*4,(double) phase);
+               ecPix[idet].strips.hmap2.get("H2_t_Hist").get(is,3,4).fill(tdc[0],phase);
+            }
+           
            getMode7(cr,sl,ch); 
+           
            for (int ii=0 ; ii< pulse.length ; ii++) {
-               ecPix[idet].strips.hmap2.get("H2_Mode1_Hist").get(is,ilay,0).fill(ii,ic,pulse[ii]-pd);
+               ecPix[idet].strips.hmap2.get("H2_Mode1_Hist").get(is,ilay,0).fill(ii,ip,pulse[ii]-pd);
                if (app.isSingleEvent()) {
-                  ecPix[idet].strips.hmap2.get("H2_Mode1_Sevd").get(is,ilay,0).fill(ii,ic,pulse[ii]-pd);
+                  ecPix[idet].strips.hmap2.get("H2_Mode1_Sevd").get(is,ilay,0).fill(ii,ip,pulse[ii]-pd);
                   int w1 = t0-this.nsb ; int w2 = t0+this.nsa;
-                  if (ad>0&&ii>=w1&&ii<=w2) ecPix[idet].strips.hmap2.get("H2_Mode1_Sevd").get(is,ilay,1).fill(ii,ic,pulse[ii]-pd);                     
+                  if (ad>0&&ii>=w1&&ii<=w2) ecPix[idet].strips.hmap2.get("H2_Mode1_Sevd").get(is,ilay,1).fill(ii,ip,pulse[ii]-pd);                     
                }
             }
-           if (pd>0) ecPix[idet].strips.hmap2.get("H2_Peds_Hist").get(is,ilay,0).fill(this.pedref-pd, ic);
-           float sadc = (float) ad / (float) sca;
-           fill(idet, is, ilay, ic, sadc, tdc, tdc);                     
-           fillSED(idet, is, ilay, ic, (int) sadc, tdc);
-           }           
+           
+           if (pd>0) ecPix[idet].strips.hmap2.get("H2_Peds_Hist").get(is,ilay,0).fill(this.pedref-pd, ip);
+           
+           float sca = (float) ((is==5)?ecc.SCALE5[il-1]:ecc.SCALE[il-1]);
+           float sadc = ad / sca;
+           fill(idet, is, ilay, ip, sadc, tdc, tf, ph);                     
+           fillSED(idet, is, ilay, ip, (int) sadc, tdc);
+           
+           }    // Good sector        
        }
        
        if (app.decoder.isHipoFileOpen) writeHipoOutput();
        
-   }
-   
-   public void writeHipoOutput() {
-       
-       DataEvent  decodedEvent = app.decoder.getDataEvent();
-       DataBank   header = app.decoder.createHeaderBank(decodedEvent);
-       decodedEvent.appendBanks(header);
-       app.decoder.writer.writeEvent(decodedEvent);
-              
-   }
-     
-   public void updateRawDataOld(DataEvent event){
-
-      int npk,ped,trigger,evno,bitsec=0;
-      float adc;
-      long timestamp;
-      double tdc=0,tdcf=0;
-      String AdcType ;
-      
-      dataList = codaDecoder.getDataEntries((EvioDataEvent) event);     
-      detectorDecoder.translate(dataList);   
-      detectorDecoder.fitPulses(dataList);
-      
-      clear(0); clear(1); clear(2);
-            
-      if(app.debug) System.out.println(" ");
-      
-      timestamp = codaDecoder.getTimeStamp();
-      trigger   = codaDecoder.getTriggerBits();
-      evno      = codaDecoder.getEventNumber();
-      
-      int phase_offset = 1;
-      long phase = ((timestamp%6)+phase_offset)%6;
-      bitsec = (int) (Math.log10(trigger>>24)/0.301+1);
-      
-      if(app.debug) System.out.println("Event: "+evno+" Trigger Sector: "+bitsec);
-
-      int ilay=0;
-      int idet=-1;
-//    System.out.println("tbits="+codaDecoder.getTriggerBits());
-             
-      for (DetectorDataDgtz strip : dataList) {
-         int is  = strip.getDescriptor().getSector();
-         if((is==bitsec)&&strip.getDescriptor().getType().getName()=="EC") {
-//         if(strip.getDescriptor().getType().getName()=="EC") {
-            adc=npk=ped=pedref=0 ; tdc=tdcf=0;
-            int icr = strip.getDescriptor().getCrate(); 
-            int isl = strip.getDescriptor().getSlot(); 
-            int ich = strip.getDescriptor().getChannel(); 
-            int il  = strip.getDescriptor().getLayer(); // 1-3: PCAL 4-9: ECAL
-            int ip  = strip.getDescriptor().getComponent();
-            int iord= strip.getDescriptor().getOrder(); 
-//            System.out.println(icr+" "+isl+" "+ich+" "+is+" "+il);
-            idet = getDet(il);
-            ilay = getLay(il);
-            
-            double sca = (is==5)?ecc.SCALE5[il-1]:ecc.SCALE[il-1];
-            
-            if (idet>-1) {
-                            
-            if (strip.getTDCSize()>0) {
-                tdc = strip.getTDCData(0).getTime()*24./1000.;
-                if(il==6&&idet==1) ecPix[idet].strips.hmap2.get("H2_t_Hist").get(is,3,3).fill(tdc,phase);
-                tdc = tdc-phase*4.; if (app.debug) System.out.println("TDC = "+tdc);
-                if(il==6&&idet==1) ecPix[idet].strips.hmap2.get("H2_t_Hist").get(is,3,4).fill(tdc,phase);
-            }
-            
-            System.out.println(strip.getADCSize());
-            
-            if (strip.getADCSize()>0) {     
-                
-               AdcType = strip.getADCData(0).getPulseSize()>0 ? "ADCPULSE":"ADCFPGA";
-               
-               if(AdcType=="ADCFPGA") { // FADC MODE 7
-                  
-                  adc = strip.getADCData(0).getIntegral();
-                  ped = strip.getADCData(0).getPedestal();
-                  npk = strip.getADCData(0).getHeight();
-                 tdcf = strip.getADCData(0).getTime();  
-                 
-                  getMode7(icr,isl,ich); 
-
-                  if (app.mode7Emulation.User_pedref==0) adc = (adc-ped*(this.nsa+this.nsb))/(int)sca;
-                  if (app.mode7Emulation.User_pedref==1) adc = (adc-this.pedref*(this.nsa+this.nsb))/(int)sca;
-               }   
-               
-               if (AdcType=="ADCPULSE") { // FADC MODE 1
-                   
-                  for (int i=0 ; i<strip.getADCData(0).getPulseSize();i++) {               
-                     pulse[i] = (short) strip.getADCData(0).getPulseValue(i);
-                  }
-                  
-                  getMode7(icr,isl,ich); 
-                  
-                  if (app.mode7Emulation.User_pedref==0) fitter.fit(this.nsa,this.nsb,this.tet,0,pulse);                  
-                  if (app.mode7Emulation.User_pedref==1) fitter.fit(this.nsa,this.nsb,this.tet,pedref,pulse);   
-                  
-                  ped = fitter.pedsum;
-                  
-                  float pped=0;                  
-                  if (app.mode7Emulation.User_pedref==0) pped=this.pedref;                  
-                  if (app.mode7Emulation.User_pedref==1) pped=ped;   
-                  
-                  for (int i=0 ; i< pulse.length ; i++) {
-                     ecPix[idet].strips.hmap2.get("H2_Mode1_Hist").get(is,ilay,0).fill(i,ip,pulse[i]-pped);
-                     if (app.isSingleEvent()) {
-                        ecPix[idet].strips.hmap2.get("H2_Mode1_Sevd").get(is,ilay,0).fill(i,ip,pulse[i]-pped);
-                        int w1 = fitter.t0-this.nsb ; int w2 = fitter.t0+this.nsa;
-                        if (fitter.adc>0&&i>=w1&&i<=w2) ecPix[idet].strips.hmap2.get("H2_Mode1_Sevd").get(is,ilay,1).fill(i,ip,pulse[i]-pped);                     
-                     }
-                  }
-                  if(app.debug) System.out.println("Sector,Layer,PMT,ADC,TDC : "+is+" "+il+" "+ip+" "+fitter.adc+" "+tdc);
-               }               
-               if (ped>0) ecPix[idet].strips.hmap2.get("H2_Peds_Hist").get(is,ilay,0).fill(this.pedref-ped, ip);
-             }  
-            
-             if(isGoodSector(is)) {
-                 adc = fitter.adc/(int)sca;
-                 fill(idet, is, ilay, ip, adc, tdc, tdcf);                     
-                 fillSED(idet, is, ilay, ip, (int) adc, tdc*24/1000);
-             }
-  
-            }
-         }
-      }
    }
    
    public void updateSimulatedData(DataEvent event) {
@@ -402,7 +321,9 @@ public class ECReconstructionApp extends FCApplication {
       float tdcmax=2000000;
       double tmax = 30;
       int adc, tdcc, detlen=0;
-      double mc_t=0.,tdc=0,tdcf=0;
+      double mc_t=0.;
+      float[] tdc= new float[1]; 
+      float tdcf=0;
       boolean goodstrip = true;
       
       String det[] = {"PCAL","EC"}; // EC.xml banknames
@@ -465,14 +386,22 @@ public class ECReconstructionApp extends FCApplication {
                   //System.out.println("Sector "+is+" Stack "+ic+" View "+il+" Strip "+ip+" Det "+idet+" ADC "+adc);
                   goodstrip= true;
                   if(app.isCRT&&il==2&&ip==53) goodstrip=false;
-                  tdc = ((float)tdcc-tdcmax+1364000)/1000; 
-                  if (goodstrip&&isGoodSector(is)) fill(idet, is, il, ip, adc, tdc, tdcf); 
+                  tdc[0] = ((float)tdcc-tdcmax+1364000)/1000; 
+                  if (goodstrip&&isGoodSector(is)) fill(idet, is, il, ip, adc, tdc, tdcf, tdcf); 
               }
           }
       }  
       //System.out.println(" ");
    }
 
+   public void writeHipoOutput() {
+       
+       DataEvent  decodedEvent = app.decoder.getDataEvent();
+       DataBank   header = app.decoder.createHeaderBank(decodedEvent);
+       decodedEvent.appendBanks(header);
+       app.decoder.writer.writeEvent(decodedEvent);
+              
+   }
    
    public void clear(int idet) {
             
@@ -485,11 +414,12 @@ public class ECReconstructionApp extends FCApplication {
              ecPix[idet].nha[is][il] = 0;
              ecPix[idet].nht[is][il] = 0;
              for (int ip=0 ; ip<ecPix[idet].ec_nstr[il] ; ip++) {
-                 ecPix[idet].strra[is][il][ip]    = 0;
-                 ecPix[idet].strrt[is][il][ip]    = 0;
-                 ecPix[idet].adcr[is][il][ip]     = 0;
-                 ecPix[idet].tdcr[is][il][ip]     = 0;
-                 ecPix[idet].ftdcr[is][il][ip]    = 0;
+                 ecPix[idet].strra[is][il][ip] = 0;
+                 ecPix[idet].strrt[is][il][ip] = 0;
+                 ecPix[idet].adcr[is][il][ip]  = 0;
+                 ecPix[idet].tdcr[is][il][ip]  = 0;
+                 ecPix[idet].tf[is][il][ip]    = 0;
+                 ecPix[idet].ph[is][il][ip]    = 0;
              }
           }               
       }       
@@ -505,6 +435,7 @@ public class ECReconstructionApp extends FCApplication {
                 ecPix[idet].strips.hmap2.get("H2_Mode1_Hist").get(is+1,il+1,0).reset();
                 ecPix[idet].strips.hmap2.get("H2_Mode1_Sevd").get(is+1,il+1,0).reset();
                 ecPix[idet].strips.hmap2.get("H2_Mode1_Sevd").get(is+1,il+1,1).reset();
+                ecPix[idet].strips.hmap2.get("H2_Mode1_Sevd").get(is+1,il+1,2).reset();
                 for (int ip=0; ip<ecPix[idet].pixels.getNumPixels() ; ip++) {
                     ecPix[idet].ecadcpix[is][il][ip] = 0;                
                     ecPix[idet].ectdcpix[is][il][ip] = 0;                
@@ -512,7 +443,7 @@ public class ECReconstructionApp extends FCApplication {
                 
             }
             for (int ip=0; ip<ecPix[idet].pixels.getNumPixels() ; ip++) {
-                ecPix[idet].ecpixel[is][ip] = 0;                
+                ecPix[idet].ecpixel[is][ip]  = 0;                
                 ecPix[idet].ecsumpix[is][ip] = 0;
             }
             for (int il=0 ; il<1 ; il++) {
@@ -523,33 +454,40 @@ public class ECReconstructionApp extends FCApplication {
       }           
    }  
    
-   public void fillSED(int idet, int is, int il, int ip, int adc, double tdc) {
+   public void fillSED(int idet, int is, int il, int ip, int adc, float[] tdc) {
        double sca = 10; int idil=idet*3+il;
        if(!app.isMC||(app.isMC&&app.variation=="default")) sca  = (is==5)?ecc.AtoE5[idil-1]:ecc.AtoE[idil-1];
        ecPix[idet].strips.hmap1.get("H1_Stra_Sevd").get(is,il,1).fill(ip,adc/sca);       
    }
         
-   public void fill(int idet, int is, int il, int ip, float adc, double tdc, double tdcf) {
+   public void fill(int idet, int is, int il, int ip, float adc, float[] tdc, float tdcf, float adph) {
 
-       if(tdc>400&&tdc<800){
+       for (int ii=0; ii<tdc.length; ii++) {
+           
+       if(tdc[ii]>450&&tdc[ii]<850){
            ecPix[idet].uvwt[is-1]=ecPix[idet].uvwt[is-1]+ecPix[idet].uvw_dalitz(idet,il,ip); //Dalitz tdc 
            ecPix[idet].nht[is-1][il-1]++; int inh = ecPix[idet].nht[is-1][il-1];
            if (inh>nstr) inh=nstr;
-           ecPix[idet].tdcr[is-1][il-1][inh-1]  = tdc;
+           ecPix[idet].tdcr[is-1][il-1][inh-1]  = tdc[ii];
            ecPix[idet].strrt[is-1][il-1][inh-1] = ip;                  
-           ecPix[idet].strips.hmap2.get("H2_t_Hist").get(is,il,0).fill(tdc,ip,1.);
+           ecPix[idet].ph[is-1][il-1][inh-1]    = adph;
+           ecPix[idet].strips.hmap2.get("H2_t_Hist").get(is,il,0).fill(tdc[ii],ip,1.);
            ecPix[idet].strips.hmap2.get("H2_PCt_Stat").get(is,0,0).fill(ip,il,1.);
-           ecPix[idet].strips.hmap2.get("H2_PCt_Stat").get(is,0,1).fill(ip,il,tdc);
+           ecPix[idet].strips.hmap2.get("H2_PCt_Stat").get(is,0,1).fill(ip,il,tdc[ii]);
+       }
+       
+       ecPix[idet].strips.hmap2.get("H2_a_Hist").get(is,il,4).fill(adc,tdc[ii],1.0);   
+       
        }
        
        ecPix[idet].strips.hmap2.get("H2_a_Hist").get(is,il,3).fill(adc,ip,1.);  
-              
+        
        if(adc>ecPix[idet].getStripThr(app.config,il)){
            ecPix[idet].uvwa[is-1]=ecPix[idet].uvwa[is-1]+ecPix[idet].uvw_dalitz(idet,il,ip); //Dalitz adc
            ecPix[idet].nha[is-1][il-1]++; int inh = ecPix[idet].nha[is-1][il-1];
            if (inh>nstr) inh=nstr;
            ecPix[idet].adcr[is-1][il-1][inh-1]  = adc;
-           ecPix[idet].ftdcr[is-1][il-1][inh-1] = tdcf;
+           ecPix[idet].tf[is-1][il-1][inh-1]    = tdcf;
            ecPix[idet].strra[is-1][il-1][inh-1] = ip;
            ecPix[idet].strips.hmap2.get("H2_a_Hist").get(is,il,0).fill(adc,ip,1.);  
            ecPix[idet].strips.hmap2.get("H2_PCa_Stat").get(is,0,0).fill(ip,il,1.);
@@ -557,23 +495,33 @@ public class ECReconstructionApp extends FCApplication {
        }   
    }
    
-  public void processSED(int idet) {
+  public void processSED() {
+      
+      for (int idet=0; idet<ecPix.length; idet++) {
       for (int is=iis1; is<iis2; is++) {
           float[] sed7 = ecPix[idet].strips.hmap1.get("H1_Pixa_Sevd").get(is+1,1,0).getData();
-          for (int il=1; il<4; il++ ){               
-              for (int n=1 ; n<ecPix[idet].nha[is][il-1]+1 ; n++) {
+          for (int il=0; il<3; il++ ){               
+              for (int n=1 ; n<ecPix[idet].nha[is][il]+1 ; n++) {
                     double sca = 10; int idil=idet*3+il;
-                    if(!app.isMC||(app.isMC&&app.variation=="default")) sca  = (is==4)?ecc.AtoE5[idil-1]:ecc.AtoE[idil-1];
-                    int ip =         ecPix[idet].strra[is][il-1][n-1]; 
-                  float ad = (float) (ecPix[idet].adcr[is][il-1][n-1]/sca);
-                  ecPix[idet].strips.hmap1.get("H1_Stra_Sevd").get(is+1,il,0).fill(ip,ad);
-                  ecPix[idet].strips.putpixels(il,ip,ad,sed7);
+                    if(!app.isMC||(app.isMC&&app.variation=="default")) sca  = (is==4)?ecc.AtoE5[idil]:ecc.AtoE[idil];
+                    int ip =         ecPix[idet].strra[is][il][n-1]; 
+                  float ad = (float) (ecPix[idet].adcr[is][il][n-1]/sca);
+                  ecPix[idet].strips.hmap1.get("H1_Stra_Sevd").get(is+1,il+1,0).fill(ip,ad);
+                  ecPix[idet].strips.putpixels(il+1,ip,ad,sed7);
+              }
+              for (int n=0 ; n<ecPix[idet].nht[is][il] ; n++) {
+                  int ip=ecPix[idet].strrt[is][il][n]; float td=(float) ecPix[idet].tdcr[is][il][n];
+                  double tdc = 0.25*(td-ECConstants.TOFFSET);
+                  float  wgt = (float) ecPix[idet].ph[is][il][n];
+                  wgt = (wgt > 0) ? wgt:1000;
+                  ecPix[idet].strips.hmap2.get("H2_Mode1_Sevd").get(is+1,il+1,2).fill((float)tdc,ip,wgt);
               }
           }
           for (int i=0; i<sed7.length; i++) {
               ecPix[idet].strips.hmap1.get("H1_Pixa_Sevd").get(is+1,1,0).setBinContent(i, sed7[i]);  
           }
       }  
+      }
   }
   
    public void findPixels(int idet) {

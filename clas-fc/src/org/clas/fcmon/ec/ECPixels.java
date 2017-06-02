@@ -84,8 +84,9 @@ public class ECPixels {
     int    strra[][][] = new    int[6][3][68]; 
     int    strrt[][][] = new    int[6][3][68]; 
     float   adcr[][][] = new  float[6][3][68];      
-    double ftdcr[][][] = new double[6][3][68];      
     double  tdcr[][][] = new double[6][3][68]; 	
+    float     tf[][][] = new  float[6][3][68]; 
+    float     ph[][][] = new  float[6][3][68]; 
     
     int[][] sthrMuon = {{15,15,15},{20,20,20},{20,20,20}};
     int[][] sthrPhot = {{10,10,10},{9,9,9},{8,8,8}};
@@ -342,6 +343,7 @@ public class ECPixels {
                 H2_a_Hist.add(is, il, 0, new H2F("a_raw_"+id+0, 125,   0., 250., nstr, 1., nend));
                 H2_a_Hist.add(is, il, 1, new H2F("b_pix_"+id+1, 125,   0., 250., nstr, 1., nend));
                 H2_a_Hist.add(is, il, 3, new H2F("b_raw_"+id+3, 80,    0., 40., nstr, 1., nend));
+                H2_a_Hist.add(is, il, 4, new H2F("a_raw_"+id+4, 100,   0., 200.,100, 300.,1200.));
                 H2_t_Hist.add(is, il, 0, new H2F("a_raw_"+id+0, 100,   450., 850., nstr, 1., nend));
                 H2_t_Hist.add(is, il, 1, new H2F("b_pix_"+id+1, 100,   450., 850., nstr, 1., nend));
                 // Pedestal Noise  
@@ -356,6 +358,7 @@ public class ECPixels {
                 // Single Event fADC bins
                 H2_Mode1_Sevd.add(is, il, 0, new H2F("a_sed_fadc_"+id+0, 100, 0., 100., nstr, 1., nend));
                 H2_Mode1_Sevd.add(is, il, 1, new H2F("b_sed_fadc_"+id+1, 100, 0., 100., nstr, 1., nend));
+                H2_Mode1_Sevd.add(is, il, 2, new H2F("c_sed_fadc_"+id+2, 200, 0., 100., nstr, 1., nend));
             }
             
                 id="s"+Integer.toString(is)+"_l"+Integer.toString(3)+"_c";

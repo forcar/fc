@@ -43,6 +43,7 @@ public class ECMode1App extends FCApplication  {
    
    public EmbeddedCanvasTabbed getCanvasPane() {
        mode1.addCanvas("UVW");
+       mode1.addCanvas("AvsT");
        mode1.addCanvas("SYNC");  
        return mode1;
    }
@@ -60,6 +61,7 @@ public class ECMode1App extends FCApplication  {
       
       switch (mode1.selectedCanvas) {
       case  "PMT": updateEvent(); break;
+      case "AvsT": updateAvsT();  break;
       case  "UVW": updateSum();   break;
       case "SYNC": updateSync();
       }
@@ -116,12 +118,13 @@ public class ECMode1App extends FCApplication  {
    public void updateSum() {
        
       DetectorCollection<H2F> dc2a = ecPix[idet].strips.hmap2.get("H2_Mode1_Hist");        
+      DetectorCollection<H2F> dc2t = ecPix[idet].strips.hmap2.get("H2_Mode1_Sevd");        
       H1F h1; H2F h2;
       
       F1D f1 = new F1D("p0","[a]",0.,100.); 
       F1D f2 = new F1D("p0","[a]",0.,100.); 
-      f1.setParameter(0,ic+1); f1.setLineWidth(1); f1.setLineColor(2);
-      f2.setParameter(0,ic+2); f2.setLineWidth(1); f2.setLineColor(2);
+      f1.setParameter(0,ic+1); f1.setLineWidth(1); f1.setLineColor(0);
+      f2.setParameter(0,ic+2); f2.setLineWidth(1); f2.setLineColor(0);
              
       c = mode1.getCanvas("UVW");  c.clear(); c.divide(3,2);       
           
@@ -129,17 +132,35 @@ public class ECMode1App extends FCApplication  {
           h2 = dc2a.get(is,il,0); h2.setTitleY("Sector "+is+otab[idet][il-1]) ; h2.setTitleX("SAMPLES (4 ns/ch)");
           canvasConfig(c,il-1,0.,100.,1.,nstr+1.,true).draw(h2);           
           if (la==il) {c.draw(f1,"same"); c.draw(f2,"same");}          
-          h1 = dc2a.get(is,il,0).sliceY(ics[idet][il-1]); h1.setOptStat(Integer.parseInt("1000100"));
-          h1.setTitleX("Sector "+is+otab[idet][il-1]+(ics[idet][il-1]+1)+" (4 ns/ch)"); h1.setFillColor(0);
+          h1 = dc2a.get(is,il,0).sliceY(ic); h1.setOptStat(Integer.parseInt("1000100"));
+          h1.setTitleX("Sector "+is+otab[idet][il-1]+(ic+1)+" (4 ns/ch)"); h1.setFillColor(0);
           c.cd(il+2); h1.setTitle(" "); c.draw(h1);
           if (la==il) {h1=dc2a.get(is,il,0).sliceY(ic) ; h1.setFillColor(2); h1.setOptStat(Integer.parseInt("1000100"));
           h1.setTitleX("Sector "+is+otab[idet][il-1]+(ic+1)+" (4 ns/ch)"); c.draw(h1);}
-          
+          if (app.isSingleEvent()) {h1=dc2t.get(is,il,2).sliceY(ic) ; h1.setFillColor(4); c.draw(h1,"same");}
+         
       }
       
       c.repaint();
-      ics[idet][la-1]=ic;
+//      ics[idet][la-1]=ic;
       
+   }
+   
+   public void updateAvsT() {
+       
+       DetectorCollection<H2F> dc2a = ecPix[idet].strips.hmap2.get("H2_a_Hist");       
+       
+       H2F h2;
+       
+       c = mode1.getCanvas("AvsT");  c.clear(); c.divide(3,2);       
+      
+       for (int il=1; il<4; il++) {
+           h2=dc2a.get(is,il,4); h2.setTitleY("Sector "+is+otab[idet][il-1]+" TDC") ; h2.setTitleX("Sector "+is+otab[il-1]+" FADC");
+           canvasConfig(c,il-1,0.,200.,300.,1200.,true).draw(h2);            
+       }
+       
+       c.repaint();
+       
    }
    
    public void updateSync() {
