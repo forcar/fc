@@ -345,6 +345,7 @@ public class FTOFReconstructionApp extends FCApplication {
              ftofPix[idet].ph[is-1][il-1][inh-1] = adph;
              ftofPix[idet].tdcr[is-1][il-1][inh-1] = (float) tdc[ii];
              ftofPix[idet].strrt[is-1][il-1][inh-1] = ip;
+             ftofPix[idet].ph[is-1][il-1][inh-1] = adph;
              ftofPix[idet].strips.hmap2.get("H2_t_Hist").get(is,il,0).fill(tdc[ii],ip,1.0);
              }
        
@@ -357,7 +358,6 @@ public class FTOFReconstructionApp extends FCApplication {
              if (inh>nstr) inh=nstr;
              ftofPix[idet].adcr[is-1][il-1][inh-1] = adc;
              ftofPix[idet].tf[is-1][il-1][inh-1] = tdcf;
-             ftofPix[idet].ph[is-1][il-1][inh-1] = adph;
              ftofPix[idet].strra[is-1][il-1][inh-1] = ip;
              ftofPix[idet].strips.hmap2.get("H2_a_Hist").get(is,il,0).fill(adc,ip,1.0);
              } 
