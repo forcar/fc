@@ -114,15 +114,15 @@ public class FCCLASDecoder {
 
     public List<DetectorDataDgtz>  getEntriesTDC(DetectorType type, 
             List<DetectorDataDgtz> entries){
-        List<DetectorDataDgtz>  adc = new ArrayList<DetectorDataDgtz>();
+        List<DetectorDataDgtz>  tdc = new ArrayList<DetectorDataDgtz>();
         for(DetectorDataDgtz entry : entries){
             if(entry.getDescriptor().getType()==type){
                 if(entry.getTDCSize()>0&&entry.getADCSize()==0){
-                    adc.add(entry);
+                    tdc.add(entry);
                 }
             }
         }
-        return adc;
+        return tdc;
     }    
     
     public DataBank getDataBankADC(String name, DetectorType type){
