@@ -155,7 +155,7 @@ public class ECMode1App extends FCApplication  {
        c = mode1.getCanvas("AvsT");  c.clear(); c.divide(3,2);       
       
        for (int il=1; il<4; il++) {
-           h2=dc2a.get(is,il,4); h2.setTitleY("Sector "+is+otab[idet][il-1]+" TDC") ; h2.setTitleX("Sector "+is+otab[il-1]+" FADC");
+           h2=dc2a.get(is,il,4); h2.setTitleY("Sector "+is+otab[idet][il-1]+" TDC") ; h2.setTitleX("Sector "+is+otab[idet][il-1]+" FADC");
            canvasConfig(c,il-1,0.,200.,300.,1200.,true).draw(h2);            
        }
        
