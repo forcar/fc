@@ -179,10 +179,10 @@ public class ECPart {
         // Require 2 photons in PCAL and ECinner
         
         n2hit++;
-        if((p1.getCalorimeterResponse(DetectorType.EC, 1)!=null  &&
-            p1.getCalorimeterResponse(DetectorType.EC, 4)!=null) ||
-           (p2.getCalorimeterResponse(DetectorType.EC, 1)!=null && 
-            p2.getCalorimeterResponse(DetectorType.EC, 4)!=null)) {                
+        if((myCalorimeterResponse(p1,DetectorType.EC, 1)!=null  &&
+            myCalorimeterResponse(p1,DetectorType.EC, 4)!=null) ||
+           (myCalorimeterResponse(p2,DetectorType.EC, 1)!=null && 
+            myCalorimeterResponse(p2,DetectorType.EC, 4)!=null)) {                
               X = (e1c-e2c)/(e1c+e2c);
            tpi2 = 2*mpi0*mpi0/(1-cth)/(1-X*X);
            cpi0 = (e1c*cth1+e2c*cth2)/Math.sqrt(e1c*e1c+e2c*e2c+2*e1c*e2c*cth);
@@ -198,6 +198,14 @@ public class ECPart {
         //System.out.println(particles.get(1));
         //System.out.println(gen);
     }
+    
+    public CalorimeterResponse  myCalorimeterResponse(DetectorParticle p, DetectorType type, int layer){
+        List<CalorimeterResponse> calorimeterStore = p.getCalorimeterResponses();
+        for(CalorimeterResponse res : calorimeterStore){
+            if(res.getDescriptor().getType()==type&&res.getDescriptor().getLayer()==layer) return res;    
+        }
+        return null;
+    }   
     
     public void setGeom(String geom) {
         this.geom = geom;
