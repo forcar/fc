@@ -329,7 +329,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
         @Override
         public synchronized void analyze(int idet, int is1, int is2, int il1, int il2, int ip1, int ip2) {
             
-            if(isUseTable) return;
+            if(isUseTable||!app.doEpics) return;
             
             for (int is=is1; is<is2; is++) {
                 for (int il=il1; il<il2; il++) {
