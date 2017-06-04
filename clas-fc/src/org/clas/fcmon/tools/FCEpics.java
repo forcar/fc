@@ -158,7 +158,7 @@ public class FCEpics  {
         setCaActionNames(det,grp,"vset");     
         break;
         case 1:
-        setCaActionNames(det,grp,"c3"); 
+        setCaActionNames(det,grp,"c4"); 
         break;  
         case 2: 
         setCaActionNames(det,grp,"c1"); 
@@ -192,7 +192,7 @@ public class FCEpics  {
             setPvActionNames(det,grp,"pwonoff"); 
             break;
             case 1:  
-            setPvActionNames(det,grp,"c3"); break;
+            setPvActionNames(det,grp,"c4"); break;
             case 2: 
             setPvActionNames(det,grp,"c1"); break;
         }
