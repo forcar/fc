@@ -152,7 +152,7 @@ public class ECReconstructionApp extends FCApplication {
            evno      = bank.getInt("event",0);         
            int phase_offset = 1;
            phase = ((timestamp%6)+phase_offset)%6;
-           bitsec = (int) (Math.log10(trigger>>24)/0.301+1);
+           app.bitsec = (int) (Math.log10(trigger>>24)/0.301+1);
        }
        
        if(event.hasBank("ECAL::tdc")==true){
@@ -174,7 +174,7 @@ public class ECReconstructionApp extends FCApplication {
                int  is = bank.getByte("sector",i);
                int  il = bank.getByte("layer",i);
                int  ip = bank.getShort("component",i);
-               int adc = bank.getInt("ADC",i);
+               int adc = Math.abs(bank.getInt("ADC",i));
                float t = bank.getFloat("time",i);               
                int ped = bank.getShort("ped", i); 
                
@@ -239,7 +239,7 @@ public class ECReconstructionApp extends FCApplication {
        DetectorDataDgtz ddd;
        
        app.decoder.initEvent(event);
-       bitsec = app.decoder.bitsec;
+       app.bitsec = app.decoder.bitsec;
        
        List<DetectorDataDgtz> adcDGTZ = app.decoder.getEntriesADC(DetectorType.EC);
        List<DetectorDataDgtz> tdcDGTZ = app.decoder.getEntriesTDC(DetectorType.EC);
