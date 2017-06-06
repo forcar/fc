@@ -67,7 +67,7 @@ public class FCApplication implements ActionListener  {
     public TreeMap<String,Integer>  bStore = new TreeMap<String,Integer>();
 	
 	public int is,layer,ic;
-	public int panel,opt,io,of,lay,l1,l2,is1,is2,iis1,iis2,bitsec;
+	public int panel,opt,io,of,lay,l1,l2,is1,is2,iis1,iis2;
 
     private String             buttonSelect;
     private int                buttonIndex;
@@ -333,10 +333,10 @@ public class FCApplication implements ActionListener  {
         canvas.getPad(num).getAxisZ().setAutoScale(true);
         canvas.getPad(num).getAxisFrame().getAxisZ().setLog(linlog);
         return canvas;
-    }  
+    } 
     
-    public Boolean isGoodSector(int is) {
-        if (!app.isTB) bitsec=is;
-        return is>=is1&&is<is2&&(bitsec==is);       
-    }     
+    public Boolean isGoodTrigger(int is) {return (app.isTB)? is==app.bitsec:true;}
+           
+    public Boolean isGoodSector(int is) {return is>=is1&&is<is2&&isGoodTrigger(is);}      
+     
 }
