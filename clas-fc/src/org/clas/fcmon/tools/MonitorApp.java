@@ -90,6 +90,7 @@ public class MonitorApp extends JFrame implements ActionListener {
     public int   currentChan  = 0;
     public int  detectorIndex = 0;
     public int      viewIndex = 1;
+    public int         bitsec = 0;
     public boolean    doEpics = false;
     public String     appName = null;
     public String   variation = "default";
