@@ -63,6 +63,8 @@ public class ECEngineApp extends FCApplication implements ActionListener {
       super(name,ecPix);
       initCanvas();
       createPopupMenu();
+      is1 = ECConstants.IS1;
+      is2 = ECConstants.IS2;
    }
    
    public JPanel getPanel() {        
@@ -236,7 +238,7 @@ public class ECEngineApp extends FCApplication implements ActionListener {
        if (app.isSingleEvent()) {
            for (int i=0; i<3; i++) app.getDetectorView().getView().removeLayer("L"+i);
            for (int i=0; i<3; i++) app.getDetectorView().getView().addLayer("L"+i);
-           for (int is=1; is<7; is++ ) {
+           for (int is=is1; is<is2; is++ ) {
                for (int ilm=0; ilm<3; ilm++) {
                    ecPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,4,0).reset();
                    ecPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,5,0).reset();
@@ -356,8 +358,9 @@ public class ECEngineApp extends FCApplication implements ActionListener {
           }
       }
           
-      for (int is=1; is<7; is++) {
+      for (int is=is1; is<is2; is++) {
           
+          if (isGoodSector(is)) {
           if(nesum[0][is-1]==1) { 
               ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,0).fill(esum[is-1],8,1.);                         // Total Single Cluster Energy PC=1                     
               ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,3).fill(1e-3*esum[is-1],1e-3*esum[is-1]/refE,1.); // S.F. vs. meas.photon energy  
@@ -387,6 +390,7 @@ public class ECEngineApp extends FCApplication implements ActionListener {
                   ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,9,1).fill(part.distance22,4,1.); // Pizero photon 2 PCAL-ECouter cluster error     
                   if (app.debug) System.out.println(part.distance11+" "+part.distance12+" "+part.distance21+" "+part.distance22);
               }
+          }
           }
       }
       
