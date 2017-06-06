@@ -62,7 +62,7 @@ public class ECMode1App extends FCApplication  {
       switch (mode1.selectedCanvas) {
       case  "PMT": updateEvent(); break;
       case "AvsT": updateAvsT();  break;
-      case  "UVW": updateSum();   break;
+      case  "UVW": updateUVW();   break;
       case "SYNC": updateSync();
       }
       
@@ -115,12 +115,12 @@ public class ECMode1App extends FCApplication  {
       c.repaint();
    }
    
-   public void updateSum() {
+   public void updateUVW() {
        
       DetectorCollection<H2F> dc2a = ecPix[idet].strips.hmap2.get("H2_Mode1_Hist");        
       DetectorCollection<H2F> dc2t = ecPix[idet].strips.hmap2.get("H2_Mode1_Sevd");        
       H1F h1; H2F h2;
-      
+     
       F1D f1 = new F1D("p0","[a]",0.,100.); 
       F1D f2 = new F1D("p0","[a]",0.,100.); 
       f1.setParameter(0,ic+1); f1.setLineWidth(1); f1.setLineColor(0);
@@ -129,8 +129,8 @@ public class ECMode1App extends FCApplication  {
       c = mode1.getCanvas("UVW");  c.clear(); c.divide(3,2);       
           
       for (int il=1; il<4 ; il++) {
-          h2 = dc2a.get(is,il,0); h2.setTitleY("Sector "+is+otab[idet][il-1]) ; h2.setTitleX("SAMPLES (4 ns/ch)");
-          canvasConfig(c,il-1,0.,100.,1.,nstr+1.,true).draw(h2);           
+          h2 = dc2a.get(is,il,0); h2.setTitleY("Sector "+is+otab[idet][il-1]) ; h2.setTitleX("SAMPLES (4 ns/ch)");         
+          canvasConfig(c,il-1,0.,100.,1.,nstr+1.,true).draw(h2);          
           if (la==il) {c.draw(f1,"same"); c.draw(f2,"same");}          
           h1 = dc2a.get(is,il,0).sliceY(ic); h1.setOptStat(Integer.parseInt("1000100"));
           h1.setTitleX("Sector "+is+otab[idet][il-1]+(ic+1)+" (4 ns/ch)"); h1.setFillColor(0);
