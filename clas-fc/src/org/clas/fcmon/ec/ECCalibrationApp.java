@@ -202,7 +202,32 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
            }
         }
     }
-        
+    
+    public int getLay(int index) {
+        int[] il = {1,2,3,1,2,3,1,2,3}; // layer 1-3: PCAL 4-6: ECinner 7-9: ECouter  
+        return il[index-1];
+     } 
+    
+    public int getDet(int index) {
+        int[] il = {1,1,1,2,2,2,3,3,3}; 
+        return il[index-1];
+     } 
+    
+    public String getLayName(int index) {
+        String[] il = {"U","V","W"};  
+        return il[index-1];
+     } 
+    
+    public String getDetName(int index) {
+        String[] il = {"PC","ECi","ECo"};  
+        return il[index-1];
+     }    
+    
+    public String getMapName(int index) {
+         String[] il = {"U PIX","V PIX","W PIX"};  
+         return il[index-1];
+    } 
+    
     public void constantsEvent(CalibrationConstants cc, int col, int row) {
 
         String str_sector    = (String) cc.getValueAt(row, 0);
@@ -217,10 +242,20 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
         selectedLayer  = Integer.parseInt(str_layer);
         selectedPaddle = Integer.parseInt(str_component);
         
-        DetectorDescriptor dd = new DetectorDescriptor();
-        dd.setSectorLayerComponent(selectedSector,selectedLayer,selectedPaddle-1);
+//        DetectorDescriptor dd = new DetectorDescriptor();
+//        dd.setSectorLayerComponent(selectedSector,getLay(selectedLayer),selectedPaddle-1);
         app.setFPS(0);
-        updateCanvas(dd);
+        
+        app.getDetectorView().selectViewButton("DET", getDetName(getDet(selectedLayer)));
+        
+        if (app.getDetectorView().checkViewButton("LAY","PIX")) {
+            app.getDetectorView().selectMapButton("PIX", getMapName(getLay(selectedLayer)));
+        } else {
+            app.getDetectorView().selectViewButton("LAY", getLayName(getLay(selectedLayer)));            
+        }
+        
+        ECCalibrationEngine engine = getSelectedEngine();
+        engine.drawPlots(selectedSector,getLay(selectedLayer),selectedPaddle-1);        
         
     }
     
