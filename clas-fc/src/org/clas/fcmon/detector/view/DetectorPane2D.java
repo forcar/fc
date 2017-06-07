@@ -34,10 +34,11 @@ public class DetectorPane2D extends JPanel {
     DetectorView2D        view2D = new DetectorView2D();
     
     public TreeMap<String,JPanel>  rbPanes = new TreeMap<String,JPanel>();
-    public TreeMap<String,Integer>  bStore = new TreeMap<String,Integer>();
+    public TreeMap<String,String>  bStore = new TreeMap<String,String>();
     
     List<List<buttonMap>>    viewStore = new ArrayList<List<buttonMap>>();
     List<List<buttonMap>>     mapStore = new ArrayList<List<buttonMap>>();
+    
     List<FCApplication>   FCAListeners = new ArrayList<FCApplication>();
     List<FCDetector>      FCDListeners = new ArrayList<FCDetector>();
     
@@ -102,6 +103,40 @@ public class DetectorPane2D extends JPanel {
         mapStore.add(store);
     }
     
+    public void selectViewButton(String group, String name) {
+        for(List<buttonMap> bg: viewStore) {
+            for(buttonMap bn: bg) {
+                if (bn.group.equals(group)&&bn.name.equals(name)) {bn.b.doClick(); return;}
+            }
+        }
+    }
+    
+    public Boolean checkViewButton(String group, String name) {
+        for(List<buttonMap> bg: viewStore) {
+            for(buttonMap bn: bg) {
+                if (bn.group.equals(group)&&bn.name.equals(name)) return bn.b.isSelected();
+            }
+        }
+        return false;
+    }  
+    
+    public int getMapKey(String group, String name) {
+        for(List<buttonMap> bg: mapStore) {
+            for(buttonMap bn: bg) {
+                if (bn.group.equals(group)&&bn.name.equals(name)) {return bn.key;}
+            }
+        } 
+        return -1;
+    }
+    
+    public void selectMapButton(String group, String name) {
+        for(List<buttonMap> bg: mapStore) {
+            for(buttonMap bn: bg) {
+                if (bn.group.equals(group)&&bn.name.equals(name)) {bn.b.doClick(); return;}
+            }
+        }
+    } 
+    
     public void addMapButtons() {
         for(List<buttonMap> bg: mapStore) { 
             ButtonGroup bG = new ButtonGroup();
@@ -127,7 +162,7 @@ public class DetectorPane2D extends JPanel {
             for(buttonMap bn: bg) {
                 bn.b.addActionListener(new ActionListener() {
                    public void actionPerformed(ActionEvent e) {
-                       for(FCApplication lt : FCAListeners) lt.viewButtonAction(bn.group,bn.name,bn.key);                     
+                       for(FCApplication lt : FCAListeners) lt.viewButtonAction(bn.group,bn.name,bn.key);                   
                        for(FCDetector    lt : FCDListeners) lt.viewButtonAction(bn.group,bn.name,bn.key);                     
                    }
                 });               
@@ -140,6 +175,7 @@ public class DetectorPane2D extends JPanel {
         if (fps==0) getView().stop();
         if (fps>0)  getView().start(fps);
     }
+
     
     public DetectorView2D  getView(){
         return this.view2D;

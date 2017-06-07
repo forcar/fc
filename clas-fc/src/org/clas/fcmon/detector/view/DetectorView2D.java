@@ -108,9 +108,7 @@ public class DetectorView2D extends JPanel implements MouseMotionListener {
     }
     
     public void updateGUI(){
-        if (activeShape!=null){
-          for(DetectorListener lt : this.detectorListeners) lt.processShape(activeShape);
-        }
+        if (activeShape!=null) for(DetectorListener lt : this.detectorListeners) lt.processShape(activeShape);      
         this.repaint();
     }  
     
