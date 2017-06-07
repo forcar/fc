@@ -64,7 +64,7 @@ public class FCApplication implements ActionListener  {
 	public DetectorMonitor mon = null;
 	
     public TreeMap<String,JPanel>  rbPanes = new TreeMap<String,JPanel>();
-    public TreeMap<String,Integer>  bStore = new TreeMap<String,Integer>();
+    public TreeMap<String,String>  bStore = new TreeMap<String,String>();
 	
 	public int is,layer,ic;
 	public int panel,opt,io,of,lay,l1,l2,is1,is2,iis1,iis2;
@@ -214,9 +214,9 @@ public class FCApplication implements ActionListener  {
     public void mapButtonAction(String group, String name, int key) {
         this.bStore = app.getDetectorView().bStore;
         if (!bStore.containsKey(group)) {
-            bStore.put(group,key);
+            bStore.put(group,name);
         }else{
-            bStore.replace(group,key);
+            bStore.replace(group,name);
         }
         omap = key;
         if (key>10&&key<14) app.viewIndex=key-10;
@@ -231,10 +231,11 @@ public class FCApplication implements ActionListener  {
             app.currentView = name;
             if (key<3) app.viewIndex = key+1;
             name = name+Integer.toString(ilmap);
-            app.getDetectorView().getView().setLayerState(name, true);
-            if (key<4) {rbPanes.get("PMT").setVisible(true);rbPanes.get("PIX").setVisible(false);omap=bStore.get("PMT");}       
-            if (key>3) {rbPanes.get("PIX").setVisible(true);rbPanes.get("PMT").setVisible(false);omap=bStore.get("PIX");}
-//            System.out.println("viewButtonAction omap= "+omap);
+            app.getDetectorView().getView().setLayerState(name, true);    
+            if (key<3) {rbPanes.get("PMT").setVisible(true);rbPanes.get("PIX").setVisible(false); omap=app.getDetectorView().getMapKey("PMT",bStore.get("PMT"));}       
+//          if (key>2) {rbPanes.get("PIX").setVisible(true);rbPanes.get("PMT").setVisible(false); app.getDetectorView().selectMapButton("PIX",bStore.get("PIX"));}
+            if (key>2) {rbPanes.get("PIX").setVisible(true);rbPanes.get("PMT").setVisible(false); omap=app.getDetectorView().getMapKey("PIX",bStore.get("PIX"));}
+            
         }
         if(group=="DET") {
             ilmap = key;  
