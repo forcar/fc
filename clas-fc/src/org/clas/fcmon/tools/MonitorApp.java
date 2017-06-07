@@ -105,7 +105,7 @@ public class MonitorApp extends JFrame implements ActionListener {
     public boolean       isTB = false;
     public boolean      isCRT = false;
     public boolean      doEng = false;
-    public String        geom = "0.27";
+    public String        geom = "2.5";
     public String      config = "muon";
     
     public FTHashCollection rtt = null;
