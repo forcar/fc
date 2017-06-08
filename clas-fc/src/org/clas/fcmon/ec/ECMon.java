@@ -305,7 +305,7 @@ public class ECMon extends DetectorMonitor {
     public void update(DetectorShape2D shape) {
         //From DetectorView2D.DetectorViewLayer2D.drawLayer: Update color map of shape
         ecDet.update(shape); 
-//      ecCalib.updateDetectorView(shape); //For status maps
+        ecCalib.updateDetectorView(shape); //For status maps
     }	
     
     @Override

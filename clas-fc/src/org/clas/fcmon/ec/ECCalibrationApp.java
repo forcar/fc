@@ -50,11 +50,12 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
     
     JPanel                    engineView = new JPanel();
     JSplitPane                enginePane = new JSplitPane(JSplitPane.VERTICAL_SPLIT); 
+    CalibrationConstantsView      ccview = new CalibrationConstantsView("");
+    
     JButton                   tableWrite = null;
     JButton                    tableSave = null;
     JButton                    tableRead = null;
     JButton                       hvSave = null;
-    CalibrationConstantsView      ccview = new CalibrationConstantsView("");
     ConstantsManager                ccdb = new ConstantsManager();
     ArrayList<CalibrationConstants> list = new ArrayList<CalibrationConstants>();
     ECConstants                      ecc = new ECConstants();
@@ -163,7 +164,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
     public ECCalibrationEngine getSelectedEngine() {
         
         ECCalibrationEngine engine = engines[HV];
-
+        
         if (selectedDir == names[ATTEN]) {
             engine = engines[ATTEN];  
         } else if (selectedDir == names[GAIN]) {
@@ -194,9 +195,8 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
         ECCalibrationEngine engine = getSelectedEngine();
         DetectorDescriptor dd = shape.getDescriptor();
         this.getDetIndices(dd);
-        layer = lay;
         if (this.omap==3) {
-           if(engine.isGoodPaddle(is, layer-1, ic)) {
+           if(engine.isGoodPaddle(is, lay+ilmap*3, ic+1)) {
                shape.setColor(101, 200, 59);
            } else {
                shape.setColor(225, 75, 60);
@@ -323,7 +323,6 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
             initCalibPane();
             setCalibPane();
             
-            status = ccdb.getConstants(calrun, names[STATUS]);
             calib = new CalibrationConstants(3,"Gain/F:HVold/F:HVnew/F:DHV/F");
             calib.setName(names[HV]);
             calib.setPrecision(3);
@@ -586,6 +585,22 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
             makeNewTable(is1,is2);
 
         }
+               
+        public void initCalibPane() {
+            System.out.println("initCalibPane:ECAtten");
+            hPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT); 
+            JSplitPane   vPaneL = new JSplitPane(JSplitPane.VERTICAL_SPLIT); 
+            JSplitPane   vPaneR = new JSplitPane(JSplitPane.VERTICAL_SPLIT); 
+            hPane.setLeftComponent(vPaneL);
+            hPane.setRightComponent(vPaneR);
+            vPaneL.setTopComponent(fitPix);
+            vPaneL.setBottomComponent(fitADC);
+            vPaneR.setTopComponent(fitCh2);
+            vPaneR.setBottomComponent(fitCof);
+            hPane.setResizeWeight(0.5);
+            vPaneL.setResizeWeight(0.7);
+            vPaneR.setResizeWeight(0.25);
+        }
         
         @Override
         public void setCalibPane() {
@@ -593,6 +608,61 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
             enginePane.setTopComponent(hPane);                        
         }
         
+        public void getButtonGroup() {
+            JRadioButton bGv = new JRadioButton("View"); 
+            bGv.setActionCommand("View");
+            
+            JRadioButton bGs = new JRadioButton("Strip");
+            bGs.setActionCommand("Strip"); 
+            bGs.setSelected(true); 
+            
+            ButtonGroup  bG  = new ButtonGroup();
+            bG.add(bGv);
+            bG.add(bGs);
+            
+            bGv.addActionListener(this);  
+            bGs.addActionListener(this);   
+            
+            fitPix.actionPanel.add(bGv);
+            fitPix.actionPanel.add(bGs);
+        }
+        
+        public void getSliderPane() {
+           JLabel xLabel = new JLabel("X:");
+           slider = new RangeSlider();
+           slider.setMinimum((int) xSliderMin);
+           slider.setMaximum((int) xSliderMax);
+           slider.setValue((int) xSliderMin);
+           slider.setUpperValue((int) xSliderMax);            
+           currentRangeMin = slider.getValue();
+           currentRangeMax = slider.getUpperValue();
+           JLabel rangeSliderValue1 = new JLabel("" + String.format("%4.1f", currentRangeMin));
+           JLabel rangeSliderValue2 = new JLabel("" + String.format("%4.1f", currentRangeMax));
+           fitPix.actionPanel.add(xLabel);
+           fitPix.actionPanel.add(rangeSliderValue1);
+           fitPix.actionPanel.add(slider);
+           fitPix.actionPanel.add(rangeSliderValue2);           
+           slider.addChangeListener(new ChangeListener() {
+               public void stateChanged(ChangeEvent e) {
+                   RangeSlider slider = (RangeSlider) e.getSource();
+                   currentRangeMin = slider.getValue();
+                   currentRangeMax = slider.getUpperValue();
+                   rangeSliderValue1.setText(String.valueOf("" + String.format("%4.1f", currentRangeMin)));
+                   rangeSliderValue2.setText(String.valueOf("" + String.format("%4.1f", currentRangeMax)));
+                   int il =  lay; if (isPix) il=lay-10;
+                   int ip1=1,ip2=1;
+                   if (sliderMode=="Strip") {ip1=pixStrip; ip2=pixStrip+1;}
+                   if (sliderMode=="View")  {ip1=1;        ip2=ecPix[ilmap].ec_nstr[il-1];}
+                   for (int ip=ip1; ip<ip2; ip++) {
+                      calib.setDoubleValue(currentRangeMin*0.01,"FitMin",is, 3*ilmap+il, ip);
+                      calib.setDoubleValue(currentRangeMax*0.01,"FitMax",is, 3*ilmap+il, ip);
+                   }
+                   calib.fireTableDataChanged();
+                   analyze(ilmap,is,is+1,il,il+1,ip1,ip2);
+                   drawPlots(sectorSelected,layerSelected,channelSelected);
+               }
+           });   
+       }        
         public void makeNewTable(int is1, int is2) {
             
             calib = new CalibrationConstants(3,"A/F:Aerr/F:B/F:Berr/F:C/F:Cerr/F:FitMin/F:FitMax/F");
@@ -600,7 +670,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
             calib.setPrecision(3);
             
             int kk=0;
-            for (int k=0; k<3; k++) {
+            for (int k=0; k<1; k++) {
             for (int i=0; i<9; i++) {  
                 calib.addConstraint(kk+3,PARAM[k][i]-DELTA[k][i], 
                                          PARAM[k][i]+DELTA[k][i], 1, i+1);
@@ -718,78 +788,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
         public CalibrationConstants getCalibTable() {
             return calib;
         }
-        
-        public void initCalibPane() {
-            System.out.println("initCalibPane:ECAtten");
-            hPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT); 
-            JSplitPane   vPaneL = new JSplitPane(JSplitPane.VERTICAL_SPLIT); 
-            JSplitPane   vPaneR = new JSplitPane(JSplitPane.VERTICAL_SPLIT); 
-            hPane.setLeftComponent(vPaneL);
-            hPane.setRightComponent(vPaneR);
-            vPaneL.setTopComponent(fitPix);
-            vPaneL.setBottomComponent(fitADC);
-            vPaneR.setTopComponent(fitCh2);
-            vPaneR.setBottomComponent(fitCof);
-            hPane.setResizeWeight(0.5);
-            vPaneL.setResizeWeight(0.7);
-            vPaneR.setResizeWeight(0.25);
-        }
-        
-        public void getButtonGroup() {
-            JRadioButton bGv = new JRadioButton("View"); 
-            bGv.setActionCommand("View");
-            
-            JRadioButton bGs = new JRadioButton("Strip");
-            bGs.setActionCommand("Strip"); 
-            bGs.setSelected(true); 
-            
-            ButtonGroup  bG  = new ButtonGroup();
-            bG.add(bGv);
-            bG.add(bGs);
-            
-            bGv.addActionListener(this);  
-            bGs.addActionListener(this);   
-            
-            fitPix.actionPanel.add(bGv);
-            fitPix.actionPanel.add(bGs);
-        }
-        
-        public void getSliderPane() {
-           JLabel xLabel = new JLabel("X:");
-           slider = new RangeSlider();
-           slider.setMinimum((int) xSliderMin);
-           slider.setMaximum((int) xSliderMax);
-           slider.setValue((int) xSliderMin);
-           slider.setUpperValue((int) xSliderMax);            
-           currentRangeMin = slider.getValue();
-           currentRangeMax = slider.getUpperValue();
-           JLabel rangeSliderValue1 = new JLabel("" + String.format("%4.1f", currentRangeMin));
-           JLabel rangeSliderValue2 = new JLabel("" + String.format("%4.1f", currentRangeMax));
-           fitPix.actionPanel.add(xLabel);
-           fitPix.actionPanel.add(rangeSliderValue1);
-           fitPix.actionPanel.add(slider);
-           fitPix.actionPanel.add(rangeSliderValue2);           
-           slider.addChangeListener(new ChangeListener() {
-               public void stateChanged(ChangeEvent e) {
-                   RangeSlider slider = (RangeSlider) e.getSource();
-                   currentRangeMin = slider.getValue();
-                   currentRangeMax = slider.getUpperValue();
-                   rangeSliderValue1.setText(String.valueOf("" + String.format("%4.1f", currentRangeMin)));
-                   rangeSliderValue2.setText(String.valueOf("" + String.format("%4.1f", currentRangeMax)));
-                   int il =  lay; if (isPix) il=lay-10;
-                   int ip1=1,ip2=1;
-                   if (sliderMode=="Strip") {ip1=pixStrip; ip2=pixStrip+1;}
-                   if (sliderMode=="View")  {ip1=1;        ip2=ecPix[ilmap].ec_nstr[il-1];}
-                   for (int ip=ip1; ip<ip2; ip++) {
-                      calib.setDoubleValue(currentRangeMin*0.01,"FitMin",is, 3*ilmap+il, ip);
-                      calib.setDoubleValue(currentRangeMax*0.01,"FitMax",is, 3*ilmap+il, ip);
-                   }
-                   calib.fireTableDataChanged();
-                   analyze(ilmap,is,is+1,il,il+1,ip1,ip2);
-                   drawPlots(sectorSelected,layerSelected,channelSelected);
-               }
-           });   
-       }
+
         
         @Override
         public void analyze() {
@@ -872,14 +871,16 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
          } 
         
         public double getTestChannel(int sector, int layer, int paddle) {
-            return calib.getDoubleValue("B", sector, layer, paddle);
+            double A = calib.getDoubleValue("A", sector, layer, paddle);
+            double C = calib.getDoubleValue("C", sector, layer, paddle);            
+            return A+C;
         }
         
         @Override
         public boolean isGoodPaddle(int sector, int layer, int paddle) {
 
-            return (getTestChannel(sector,layer,paddle) >=PARAM[1][layer-1]-DELTA[1][layer-1]  &&
-                    getTestChannel(sector,layer,paddle) <=PARAM[1][layer-1]+DELTA[1][layer-1] );
+            return (getTestChannel(sector,layer,paddle) >=PARAM[0][layer-1]-DELTA[0][layer-1]  &&
+                    getTestChannel(sector,layer,paddle) <=PARAM[0][layer-1]+DELTA[0][layer-1] );
 
         }    
               
@@ -1069,6 +1070,9 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
     
     public class ECGainEventListener extends ECCalibrationEngine {
         
+        EmbeddedCanvasTabbed  ECGain = new EmbeddedCanvasTabbed("Gain");
+        EmbeddedCanvas               c = new EmbeddedCanvas(); 
+
         public final double[]   PARAM = {0.067,0.067,0.067,0.1,0.1,0.1,0.1,0.1,0.1};        
         IndexedTable             gain = null; 
         
@@ -1083,6 +1087,9 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
             fileNamePrefix ="EC_CALIB_GAIN";
             filePath       = app.calibPath;
             
+            initCalibPane();
+            setCalibPane();
+
             collection.clear();
             
             this.is1=is1;
@@ -1093,6 +1100,18 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
             makeNewTable(is1,is2);
             
         } 
+        
+        public void initCalibPane() {
+            System.out.println("initCalibPane:ECGain");   
+        }
+        
+        @Override
+        public void setCalibPane() {
+            System.out.println("setCalibPane:ECGain");
+            enginePane.setTopComponent(ECGain);             
+            enginePane.setDividerLocation(0.8);
+    
+        }  
         
         public void makeNewTable(int is1, int is2) {
             
@@ -1221,16 +1240,8 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
             calib.fireTableDataChanged();
         }
         
-        @Override
-        public void fit(int sector, int layer, int paddle, double minRange, double maxRange){ 
-           double mean = ftofPix[layer-1].strips.hmap2.get("H2_a_Hist").get(sector,0,0).sliceY(paddle-1).getMean();
-           calib.addEntry(sector, layer, paddle);
-           calib.setDoubleValue(mean, "mipa_left", sector, layer, paddle);
-           calib.setDoubleValue(mean, "mipa_right", sector, layer, paddle);
-        }
-        
         public double getTestChannel(int sector, int layer, int paddle) {
-            return calib.getDoubleValue("mipa_left", sector, layer, paddle);
+            return calib.getDoubleValue("gain", sector, layer, paddle);
         }
         
         @Override
@@ -1250,9 +1261,6 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
         
         EmbeddedCanvasTabbed  ECStatus = new EmbeddedCanvasTabbed("Status");
         EmbeddedCanvas               c = new EmbeddedCanvas(); 
-        
-        public final int[]   PARAM = {0,0,0,0,0,0,0,0,0};
-        public final int     DELTA = 1;
         
         H1F h1a,h1t;
         double aYL,aYS,aYR,tYL,tYS,tYR;
@@ -1287,7 +1295,9 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
         @Override
         public void setCalibPane() {
             System.out.println("setCalibPane:ECStatus");
-            enginePane.setTopComponent(ECStatus);         
+            enginePane.setTopComponent(ECStatus);             
+            enginePane.setDividerLocation(0.8);
+    
         } 
         
         public void makeNewTable(int is1, int is2) {
@@ -1295,7 +1305,13 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
             calib = new CalibrationConstants(3,"status/I");
             calib.setName(names[STATUS]);
             calib.setPrecision(3);
-                       
+            
+            for (int i=0; i<9; i++) { 
+                calib.addConstraint(3,   0,   0, 1, i+1);
+                calib.addConstraint(4, 0.0, 0.1, 1, i+1);
+                                       
+            }
+            
             for(int is=is1; is<is2; is++) {                
                 for(int idet=0; idet<ecPix.length; idet++) {
                     for (int il=1; il<4 ; il++) {
@@ -1372,9 +1388,10 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
         public void analyze(int idet, int is1, int is2, int il1, int il2, int ip1, int ip2) {
             
             DetectorCollection<H2F> dc2a = ecPix[idet].strips.hmap2.get("H2_Mode1_Hist"); 
-            DetectorCollection<H2F> dc2t = ecPix[idet].strips.hmap2.get("H2_t_Hist");  
+            DetectorCollection<H2F> dc2t = ecPix[idet].strips.hmap2.get("H2_t_Hist"); 
             
             for(int is=is1; is<is2; is++) {
+                H2_STAT.get(is, 0, idet).reset(); H2_STAT.get(is, 1, idet).reset(); 
                 for (int il=1; il<4 ; il++) {
                     int    sl = il+idet*3;  // Superlayer PCAL:1-3 ECinner: 4-6 ECouter: 7-9
                     int iptst = ecPix[idet].ec_nstr[il-1]+1;
@@ -1423,12 +1440,22 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
                 for (int idet=0; idet<3; idet++) {
                     if(is==1) H2_STAT.get(is, 1, idet).setTitle(ecPix[idet].detName);
                     H2_STAT.get(is, 1, idet).setTitleX("SECTOR "+is);
-                    c.getPad(n).getAxisZ().setRange(0.01, 0.4);                   
+                    c.getPad(n).getAxisZ().setRange(0.01,app.displayControl.pixMax);                                      
                     c.cd(n); c.draw(H2_STAT.get(is, 1, idet)); n++;
                 }
             }
             c.repaint();                        
         }
+        
+        public double getTestChannel(int sector, int layer, int paddle) {
+            return calib.getDoubleValue("status", sector, layer, paddle);
+        }
+        
+        @Override
+        public boolean isGoodPaddle(int sector, int layer, int paddle) {
+            return (getTestChannel(sector,layer,paddle) == 0);
+        }         
+        
     }
 
  
