@@ -42,6 +42,7 @@ import org.jlab.groot.data.H1F;
 import org.jlab.groot.data.H2F;
 import org.jlab.groot.graphics.EmbeddedCanvas;
 import org.jlab.groot.math.F1D;
+import org.jlab.groot.math.Axis;
 import org.jlab.groot.ui.RangeSlider;
 import org.jlab.utils.groups.IndexedTable;
 
@@ -95,7 +96,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
             ccview.addConstants(engines[i].getCalibrationConstants().get(0),this);
         }   
         enginePane.setBottomComponent(ccview);       
-        enginePane.setResizeWeight(0.9);
+        enginePane.setResizeWeight(0.95);
         engineView.add(enginePane);
         engineView.add(getButtonPane(),BorderLayout.PAGE_END);
         return engineView;       
@@ -307,6 +308,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
         public final int[]     DHV = {20,20,20,150,150,150,150,150,150};
         IndexedTable        status = null; 
         Boolean         isUseTable = false;
+        
         ECHvEventListener(){}
         
         public void init(int is1, int is2){
@@ -585,6 +587,12 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
 
         }
         
+        @Override
+        public void setCalibPane() {
+            System.out.println("setCalibPane:ECAtten");
+            enginePane.setTopComponent(hPane);                        
+        }
+        
         public void makeNewTable(int is1, int is2) {
             
             calib = new CalibrationConstants(3,"A/F:Aerr/F:B/F:Berr/F:C/F:Cerr/F:FitMin/F:FitMax/F");
@@ -782,13 +790,6 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
                }
            });   
        }
-        
-        @Override
-        public void setCalibPane() {
-            System.out.println("setCalibPane:ECAtten");
-            enginePane.setTopComponent(hPane);                        
-        }
-
         
         @Override
         public void analyze() {
@@ -1016,6 +1017,8 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
                                
                      double ymax=2.; 
                      
+                     // Start plotting results
+                     
                      c = fitPix.getCanvas("Pixel Fits"); 
                      
                      c.getPad(0).getAxisX().setRange(0.,400.);c.getPad(0).getAxisY().setRange(0.,300.); 
@@ -1237,15 +1240,24 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
         }   
         
         public void drawPlots(int is, int il, int ic) {
-            
+            EmbeddedCanvas  c = new EmbeddedCanvas(); 
+            c.repaint();                        
         }
 
     }
     
     private class ECStatusEventListener extends ECCalibrationEngine {
         
+        EmbeddedCanvasTabbed  ECStatus = new EmbeddedCanvasTabbed("Status");
+        EmbeddedCanvas               c = new EmbeddedCanvas(); 
+        
         public final int[]   PARAM = {0,0,0,0,0,0,0,0,0};
         public final int     DELTA = 1;
+        
+        H1F h1a,h1t;
+        double aYL,aYS,aYR,tYL,tYS,tYR;
+        public DetectorCollection<H2F> H2_STAT = new DetectorCollection<H2F>();
+        
         IndexedTable        status = null; 
         
         ECStatusEventListener(){};
@@ -1257,33 +1269,165 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
             fileNamePrefix = "EC_CALIB_STATUS";
             filePath       = app.calibPath;
             
+            initCalibPane();
+            setCalibPane();
+            
             collection.clear();
             
-            status = ccdb.getConstants(calrun, names[STATUS]);
+            makeNewTable(is1,is2);
+            initHistos(is1,is2);
+
+        }
+        
+        public void initCalibPane() {
+            System.out.println("initCalibPane:ECStatus");   
+            ECStatus.addCanvas("Background");
+        }
+        
+        @Override
+        public void setCalibPane() {
+            System.out.println("setCalibPane:ECStatus");
+            enginePane.setTopComponent(ECStatus);         
+        } 
+        
+        public void makeNewTable(int is1, int is2) {
+            
             calib = new CalibrationConstants(3,"status/I");
             calib.setName(names[STATUS]);
             calib.setPrecision(3);
-            
-            for (int i=0; i<9; i++) {
-                calib.addConstraint(3, PARAM[i]-DELTA, 
-                                       PARAM[i]+DELTA, 1, i+1);
-            }
- 
-/*            
+                       
             for(int is=is1; is<is2; is++) {                
-                for(int il=1; il<3; il++) {
-                    for(int ip = 1; ip < 19; ip++) {
-                        calib.addEntry(is,il,ip);
-                        calib.setIntValue(0,"status",is,il,ip);
+                for(int idet=0; idet<ecPix.length; idet++) {
+                    for (int il=1; il<4 ; il++) {
+                        int sl = il+idet*3;
+                        for(int ip = 1; ip < ecPix[idet].ec_nstr[il-1]+1; ip++) {
+                            calib.addEntry(is, sl, ip);
+                        }
                     }
                 }
             }
-            */
-            list.add(calib);
+            list.add(calib);  
+        }   
+        
+        public void initHistos(int is1, int is2) {  
+            
+            for (int idet=0; idet<3; idet++) {
+                int nb = ecPix[idet].ec_nstr[0] ; double nend = nb+1;  
+                for (int is=is1; is<is2 ; is++) {
+                    H2_STAT.add(is, 0, idet, new H2F("STATUS"+is,nb,1,nend,3,1,4));                
+                    H2_STAT.add(is, 1, idet, new H2F("BACKGR"+is,nb,1,nend,3,1,4));                
+                }
+            }
+        } 
+        
+        public double integral(H1F h, double xmin, double xmax) {
+            
+            float[] histogramData = h.getData();
+            Axis xAxis = h.getxAxis();
+            double integral = 0.0;
+            for(int i = 0; i <= xAxis.getNBins(); i++){
+                if(xAxis.getBinCenter(i)>xmin&&xAxis.getBinCenter(i)<xmax) integral += histogramData[i];
+            }
+            return integral;            
         }
         
-        public void drawPlots(int is, int il, int ic) {
+        public int getStatus() {   
+            int t = app.trigger;  //0=cluster 1=pixel
+            aYL=integral(h1a,ecc.AL[t][0],ecc.AL[t][1]);
+            aYS=integral(h1a,ecc.AS[t][0],ecc.AS[t][1]);
+            aYR=integral(h1a,ecc.AR[t][0],ecc.AR[t][1]);
+            tYL=integral(h1t,ecc.TL[t][0],ecc.TL[t][1]);
+            tYS=integral(h1t,ecc.TS[t][0],ecc.TS[t][1]);
+            tYR=integral(h1t,ecc.TR[t][0],ecc.TR[t][1]);
+            if (badA())      return 1;  
+            if (badT())      return 2;  
+            if (badAT())     return 3;
+            return 0;            
+        }
+        
+        public double getBackground() {
+            return getLL();
+        }
+          
+        public double getPlotStatus(int stat) {            
+            switch (stat) 
+            {
+            case 0: return 0.0;  
+            case 1: return 0.85;  
+            case 2: return 0.20;  
+            case 3: return 0.65; 
+            case 5: return 0.9; 
+            }
+        return 0;
             
+        }
+        
+        public Boolean goodA() {return aYS>10;}
+        public Boolean badA()  {return (aYS<10)&&(tYS>10);}
+        public Boolean badT()  {return (tYS<10)&&(aYS>10);}
+        public Boolean badAT() {return (tYS<10)&&(aYS<10);}
+        public double  getLL() {return (goodA()) ? aYL/aYS:0.0;}
+        
+        @Override
+        public void analyze(int idet, int is1, int is2, int il1, int il2, int ip1, int ip2) {
+            
+            DetectorCollection<H2F> dc2a = ecPix[idet].strips.hmap2.get("H2_Mode1_Hist"); 
+            DetectorCollection<H2F> dc2t = ecPix[idet].strips.hmap2.get("H2_t_Hist");  
+            
+            for(int is=is1; is<is2; is++) {
+                for (int il=1; il<4 ; il++) {
+                    int    sl = il+idet*3;  // Superlayer PCAL:1-3 ECinner: 4-6 ECouter: 7-9
+                    int iptst = ecPix[idet].ec_nstr[il-1]+1;
+                    int ipmax = ip2>iptst ? iptst:ip2;
+                    for(int ip = 1; ip < ipmax; ip++) {
+                        h1a=dc2a.get(is,il,0).sliceY(ip-1);
+                        h1t=dc2t.get(is,il,0).sliceY(ip-1);
+                        int status = getStatus();
+                        calib.setIntValue(status,"status", is, sl, ip);   
+                        H2_STAT.get(is, 0, idet).fill((float)ip, (float)il, getPlotStatus(status));
+                        H2_STAT.get(is, 1, idet).fill((float)ip, (float)il, getBackground());
+                    }
+                }   
+            }
+          
+            calib.fireTableDataChanged();            
+        }
+        
+        @Override
+        public void drawPlots(int is, int il, int ic) {
+            switch (ECStatus.selectedCanvas) {
+            case     "Status": drawStatus(); break;
+            case "Background": drawBackground();
+            }
+        }
+        
+        public void drawStatus() {           
+            c = ECStatus.getCanvas("Status"); 
+            c.divide(3, 6);
+            int n=0;
+            for (int is=1; is<7; is++) {
+                for (int idet=0; idet<3; idet++) {      
+                    if(is==1) H2_STAT.get(is, 0, idet).setTitle(ecPix[idet].detName);
+                    H2_STAT.get(is, 0, idet).setTitleX("SECTOR "+is);
+                    c.getPad(n).getAxisZ().setRange(0.0, 1.0); 
+                    c.cd(n); c.draw(H2_STAT.get(is, 0, idet)); n++;                   
+                }
+            }            
+        }
+        
+        public void drawBackground() {           
+            c = ECStatus.getCanvas("Background"); 
+            c.divide(3, 6);
+            int n=0;
+            for (int is=1; is<7; is++) {
+                for (int idet=0; idet<3; idet++) {
+                    if(is==1) H2_STAT.get(is, 1, idet).setTitle(ecPix[idet].detName);
+                    H2_STAT.get(is, 1, idet).setTitleX("SECTOR "+is);
+                    c.getPad(n).getAxisZ().setRange(0.01, 0.4);                   
+                    c.cd(n); c.draw(H2_STAT.get(is, 1, idet)); n++;
+                }
+            }
+            c.repaint();                        
         }
     }
 
