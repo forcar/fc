@@ -10,6 +10,7 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.ButtonGroup;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -17,6 +18,7 @@ import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.JRadioButton;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
@@ -54,6 +56,7 @@ public class ECEngineApp extends FCApplication implements ActionListener {
     JCheckBox             debugBtn = null;
     JCheckBox               engBtn = null;
     JCheckBox               crtBtn = null;
+    ButtonGroup                bG1 = null;
     
     DetectorType[] detNames = {DetectorType.PCAL, DetectorType.ECIN, DetectorType.ECOUT};
     double pcx,pcy,pcz;
@@ -102,6 +105,15 @@ public class ECEngineApp extends FCApplication implements ActionListener {
        buttonPane = new JPanel();
        buttonPane.setLayout(new FlowLayout());
        
+       buttonPane.add(new JLabel("Trigger:"));
+       
+       bG1 = new ButtonGroup();
+       JRadioButton bc = new JRadioButton("Cluster"); buttonPane.add(bc); bc.setActionCommand("0"); bc.addActionListener(this);
+       JRadioButton bp = new JRadioButton("Pixel");   buttonPane.add(bp); bp.setActionCommand("1"); bp.addActionListener(this); 
+       bG1.add(bc); bG1.add(bp); bp.setSelected(true);
+       
+       buttonPane.add(new JLabel("Config:"));
+       
        cb = new JComboBox();
        DefaultComboBoxModel model = (DefaultComboBoxModel) cb.getModel();
        model.addElement("photon");
@@ -121,8 +133,7 @@ public class ECEngineApp extends FCApplication implements ActionListener {
                mon.initEngine();
            }
        });
-       
-       buttonPane.add(new JLabel("Config:"));
+
        buttonPane.add(cb);
        
        buttonPane.add(new JLabel("SF:"));
@@ -171,8 +182,11 @@ public class ECEngineApp extends FCApplication implements ActionListener {
        return buttonPane;
        
    }
+
+   
    public void actionPerformed(ActionEvent e) {
        if(e.getActionCommand().compareTo("SF")==0) app.geom = sf.getText();
+       app.trigger = Integer.parseInt(bG1.getSelection().getActionCommand());
    }      
    
    private void createPopupMenu(){

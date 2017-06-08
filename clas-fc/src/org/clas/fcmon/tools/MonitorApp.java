@@ -107,6 +107,7 @@ public class MonitorApp extends JFrame implements ActionListener {
     public boolean      doEng = false;
     public String        geom = "2.5";
     public String      config = "muon";
+    public int        trigger = 1;        //0=cluster 1=pixel
     
     public FTHashCollection rtt = null;
     
