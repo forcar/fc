@@ -5,6 +5,7 @@ import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JPanel;
@@ -60,11 +61,14 @@ public class ECGainsApp extends FCApplication implements ActionListener {
     IndexedList<FitData>         MipFits = new IndexedList<FitData>(4);
     Boolean                isAnalyzeDone = false;
     
+    List<Float>   pmap = new ArrayList<Float>();
+    
     public ECGainsApp(String name) {
         super(name);    
      }  
     
     public void init() {
+        System.out.println("ECGainsApp:init();");
         createHistos();
         GStyle.getGraphErrorsAttributes().setMarkerStyle(1);
         GStyle.getGraphErrorsAttributes().setMarkerColor(2);
@@ -86,6 +90,7 @@ public class ECGainsApp extends FCApplication implements ActionListener {
         peaks.addCanvas("Mean/Mip");
         peaks.addCanvas("RMS/Mean");
         peaks.addCanvas("Maps");
+        summary.addCanvas("PvsE");
         return engineView;       
     }  
     
@@ -133,11 +138,15 @@ public class ECGainsApp extends FCApplication implements ActionListener {
     
     public void createHistos() {
         
-       DataGroup dg_mip = new DataGroup(1,180);
+       System.out.println("ECGainsApp:creatHistos();");
         
+       DataGroup dg_mip = new DataGroup(1,184);
+               
         H1F h1 = new H1F() ; H2F h2 = new H2F();
+        
         int n = 0;
         //17*6 = 102
+        
         for (int is=1; is<7; is++) {
             h2 = new H2F("hi_pcal_uc_"+is,"hi_pcal_uc_"+is,50, 0., 100., 68, 1., 69.);
             h2.setTitleX("Sector "+is+" PCAL (MeV)");
@@ -302,18 +311,42 @@ public class ECGainsApp extends FCApplication implements ActionListener {
         h2 = new H2F("hi_ecou_xyp_ww","hi_ecou_xyp_ww",100, -500., 500., 100, -500.,500);
         dg_mip.addDataSet(h2, n); n++;
         
+        h2 = new H2F("hi_pcal_1","hi_pcal_1",60, 0., 100., 60, 0., 3.);
+        dg_mip.addDataSet(h2, n); n++;
+        h2 = new H2F("hi_ecali_1","hi_ecali_1",60, 0., 100., 60, 0., 3.);
+        dg_mip.addDataSet(h2, n); n++;
+        h2 = new H2F("hi_ecalo_1","hi_ecalo_1",60, 0., 100., 60, 0., 3.);
+        dg_mip.addDataSet(h2, n); n++;
+        h2 = new H2F("hi_etot_1","hi_etot_1",50, 0., 5., 70, 0.05, 0.45);
+        dg_mip.addDataSet(h2, n); n++;
+        
         this.getDataGroup().add(dg_mip,4);        
-    }        
+    }   
+    
+    public void clearHistos() {
+        System.out.println("ECGainsApp:clearHistos(): (Not Implemented)");
+    }
    
     public void addEvent(DataEvent event) {
 
         Particle partRecEB = null;
         Particle recParticle = null;
-        
-        DataBank recPartEB = event.getBank("REC::Particle");
+        pmap.clear();
+        DataBank recPartEB = event.getBank("RECHB::Particle");
         DataBank recDeteEB = event.getBank("REC::Detector");
         DataBank recBankTB = event.getBank("TimeBasedTrkg::TBTracks");
-        
+
+        if (recPartEB!=null) {
+            int nrows = recPartEB.rows();
+            for(int loop = 0; loop < nrows; loop++){
+                float px = recPartEB.getFloat("px", loop);
+                float py = recPartEB.getFloat("py", loop);
+                float pz = recPartEB.getFloat("pz", loop);
+                int q    = recPartEB.getByte("charge", loop);                
+                if (q!=0) pmap.add((float) Math.sqrt(px*px+py*py+pz*pz));
+            } 
+        }
+/*            
         if(recPartEB!=null && recDeteEB!=null) {
             int nrows = recPartEB.rows();
             for(int loop = 0; loop < nrows; loop++){
@@ -321,6 +354,7 @@ public class ECGainsApp extends FCApplication implements ActionListener {
                 if(recPartEB.getByte("charge", loop)==-1) pidCode = -211;
                 if(recPartEB.getByte("charge", loop)==+1) pidCode = +211;
                 Boolean pidPion = pidCode==-211 || pidCode==+211;
+                System.out.println(pidCode);
                 if(pidPion) {
                 recParticle = new Particle(pidCode,
                   recPartEB.getFloat("px", loop),
@@ -353,7 +387,7 @@ public class ECGainsApp extends FCApplication implements ActionListener {
                 }
             }
         }
-        
+*/        
 //        event.removeBank("ECAL::clusters");
 //        engine.processDataEvent(event);
           if (app.isSingleEvent()) {
@@ -409,6 +443,7 @@ public class ECGainsApp extends FCApplication implements ActionListener {
                 
             for (int is=0; is<6; is++) {
                 int iis = is+1;
+                if (isGoodTrigger(iis)) {
 //                if(n1[is]>=1&&n1[is]<=4&&n4[is]>=1&&n4[is]<=4) { //Cut out vertical cosmic rays
                 if(n1[is]==1&n4[is]==1&&n7[is]==1) { //Cut out vertical cosmic rays
 //                    Boolean goodU = Math.abs(cU[is][1][n4[is]]-cU[is][2][n7[is]])<=1;
@@ -439,6 +474,15 @@ public class ECGainsApp extends FCApplication implements ActionListener {
                 double ectot = e4c[is][0]+e7c[is][0] ; double etot = e1c[is][0]+ectot ;
                 this.getDataGroup().getItem(4).getH2F("hi_pcal_ectot_"+iis).fill(e1c[is][0],ectot);
                 this.getDataGroup().getItem(4).getH2F("hi_pcal_ectot_max_"+iis).fill(e1c[is][0],ectot);
+                
+                if (iis==2&&!pmap.isEmpty()) {                
+                for (float p: pmap) {
+                    this.getDataGroup().getItem(4).getH2F("hi_pcal_1").fill(e1c[is][0],p);
+                    this.getDataGroup().getItem(4).getH2F("hi_ecali_1").fill(e4c[is][0],p);
+                    this.getDataGroup().getItem(4).getH2F("hi_ecalo_1").fill(e7c[is][0],p);
+                    this.getDataGroup().getItem(4).getH2F("hi_etot_1").fill(p,etot*1e-3/p);  
+                }
+                }
                 
                 this.getDataGroup().getItem(4).getH2F("hi_pcal_path1_"+iis).fill(e1c[is][0],v12mag);
                 this.getDataGroup().getItem(4).getH2F("hi_pcal_path2_"+iis).fill(e1c[is][0],v13mag);
@@ -501,6 +545,7 @@ public class ECGainsApp extends FCApplication implements ActionListener {
                 }
                 }
                 }
+            }
             }
         }
    
@@ -595,6 +640,7 @@ public class ECGainsApp extends FCApplication implements ActionListener {
         updateMIP(peaks);
         updateMIP(clusters);
         updateSummary();
+        updatePvsE();
     }
     
     private void updateMIP(EmbeddedCanvasTabbed c) {
@@ -759,6 +805,26 @@ public class ECGainsApp extends FCApplication implements ActionListener {
             c.cd(is-1+6); c.getPad(is-1+6).getAxisZ().setLog(true);       
             c.draw(h2);   
         }
+        
+        c.repaint();
+    }
+    
+    private void updatePvsE() {
+        
+        H2F h2;
+        EmbeddedCanvas c = null; 
+        c = this.summary.getCanvas("PvsE");
+        c.divide(2,2);
+        h2 = this.getDataGroup().getItem(4).getH2F("hi_pcal_1");   
+        c.cd(0); c.getPad(0).getAxisZ().setLog(true); c.draw(h2);
+        h2 = this.getDataGroup().getItem(4).getH2F("hi_ecali_1");   
+        c.cd(1); c.getPad(1).getAxisZ().setLog(true); c.draw(h2);
+        h2 = this.getDataGroup().getItem(4).getH2F("hi_ecalo_1");   
+        c.cd(2); c.getPad(2).getAxisZ().setLog(true); c.draw(h2);
+        h2 = this.getDataGroup().getItem(4).getH2F("hi_etot_1");   
+        c.cd(3); c.getPad(3).getAxisZ().setLog(true); c.draw(h2);
+        
+        c.repaint();
         
     }
     
