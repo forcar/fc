@@ -350,6 +350,7 @@ public class ECPixels {
                 H2_Peds_Hist.add(is, il, 0, new H2F("a_ped_"+id+0,  20, -10.,  10., nstr, 1., nend)); 
                 // Mode1  
                 H2_Mode1_Hist.add(is, il, 0, new H2F("a_fadc_"+id+0, 100,   1., 101.,  nstr, 1., nend));
+                H2_Mode1_Hist.add(is, il, 1, new H2F("a_fadc_"+id+1, 100,   1., 101.,  nstr, 1., nend));
                 // Single Event Strip Occupancy
                 H1_Stra_Sevd.add(is, il, 0, new H1F("a_sed_stra_"+id+0, nstr,  1., nend));
                 H1_Stra_Sevd.add(is, il, 1, new H1F("b_sed_stra_"+id+1, nstr,  1., nend));
