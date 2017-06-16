@@ -42,6 +42,9 @@ import org.jlab.service.ec.ECPart;
 import org.jlab.groot.data.H1F;
 import org.jlab.groot.data.H2F; 
 
+import org.clas.fcmon.ftof.DataProvider;
+import org.clas.fcmon.ftof.TOFPaddle;
+
 public class ECEngineApp extends FCApplication implements ActionListener {
 
     JPanel              engineView = new JPanel();
@@ -240,7 +243,20 @@ public class ECEngineApp extends FCApplication implements ActionListener {
        }
        
        fillHistos(event);
-   }   
+   }
+   
+   public Boolean isGoodTOFMIP(List<TOFPaddle> paddlelist, int sector) {
+       
+       Boolean goodMIP = false;
+       double[] thresh = {500,1000,1000};
+       
+       for (TOFPaddle paddle : paddlelist){           
+           int toflay = paddle.getDescriptor().getLayer();            
+           if (paddle.getDescriptor().getSector()==sector&&paddle.geometricMean()>thresh[toflay-1]) goodMIP = true;
+       }
+       
+       return goodMIP;
+   }
    
    public void fillHistos(DataEvent event) {
        
@@ -277,6 +293,7 @@ public class ECEngineApp extends FCApplication implements ActionListener {
             int    is = bank.getByte("sector",i);
             int    il = bank.getByte("layer",i);
             float  en = bank.getFloat("energy",i);
+            if (isGoodSector(is)) {
             ecPix[getDet(il)].strips.hmap2.get("H2_a_Hist").get(is,4,0).fill(en*1e3,getLay(il),1.);  
             
             if (app.isSingleEvent()) {  //Draw reconstructed peak lines on detector view
@@ -315,6 +332,7 @@ public class ECEngineApp extends FCApplication implements ActionListener {
 //            System.out.println("energy="+en);  
 //            System.out.println(" ");
          }
+        }
         
       } 
       
@@ -371,17 +389,20 @@ public class ECEngineApp extends FCApplication implements ActionListener {
               if(energy*1e3>10) {esum[is-1]=esum[is-1]+energy*1e3; nesum[idet][is-1]++;}
           }
       }
-          
+      
+      List<TOFPaddle> paddleList = DataProvider.getPaddleList(event);
+       
       for (int is=is1; is<is2; is++) {
           
           if (isGoodSector(is)) {
+              
           if(nesum[0][is-1]==1) { 
               ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,0).fill(esum[is-1],8,1.);                         // Total Single Cluster Energy PC=1                     
               ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,3).fill(1e-3*esum[is-1],1e-3*esum[is-1]/refE,1.); // S.F. vs. meas.photon energy  
               if(nesum[1][is-1]==1) ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,0).fill(esum[is-1],5,1.);   // Total Single Cluster Energy PC=1.EC=1 
           }
-                    
-          if (app.config=="pi0") {
+                          
+          if (app.config=="pi0"&&!isGoodTOFMIP(paddleList,is)) {
               
               double invmass = 1e3*Math.sqrt(part.getTwoPhoton(ecClusters,is));
               double     opa = Math.acos(part.cth)*180/3.14159;
@@ -424,9 +445,11 @@ public class ECEngineApp extends FCApplication implements ActionListener {
              rec[1] = bank.getFloat("recEV",i);
              rec[2] = bank.getFloat("recEW",i);
              
+             if(isGoodSector(is)) {
              for (int k=1; k<4; k++) ecPix[getDet(il)].strips.hmap2.get("H2_a_Hist").get(is,5,0).fill(raw[k-1]*1e3,k,1.);        // raw peak energies          
              for (int k=1; k<4; k++) ecPix[getDet(il)].strips.hmap2.get("H2_a_Hist").get(is,6,0).fill(rec[k-1]*1e3,k,1.);        // reconstructed peak energies          
-             for (int k=1; k<4; k++) ecPix[getDet(il)].strips.hmap2.get("H2_a_Hist").get(is,6,k).fill(1e-3*refE,rec[k-1]/refE);  // sampling fraction vs. energy          
+             for (int k=1; k<4; k++) ecPix[getDet(il)].strips.hmap2.get("H2_a_Hist").get(is,6,k).fill(1e-3*refE,rec[k-1]/refE);  // sampling fraction vs. energy  
+             }
 //             System.out.println("sector,layer ="+is+" "+il);  
 //             System.out.println("X,Y,Z,energy="+X+" "+Y+" "+Z+" "+energy);  
 //             System.out.println(" ");
