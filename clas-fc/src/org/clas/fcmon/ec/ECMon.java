@@ -203,7 +203,7 @@ public class ECMon extends DetectorMonitor {
         for (int i=0; i<ecPix.length; i++)   ecPix[i].Lmap_t.add(0,0,0, ecRecon.toTreeMap(ecPix[i].ec_cmap));
         for (int i=0; i<ecPix.length; i++)   ecPix[i].Lmap_a.add(0,0,1, ecRecon.toTreeMap(ecPix[i].ec_zmap));
         for (int i=0; i<ecPix.length; i++)   ecPix[i].getLmapMinMax(0,1,0,0); 
-
+        ecGains.clearHistos();
     }
     
     public void initEngine() {
