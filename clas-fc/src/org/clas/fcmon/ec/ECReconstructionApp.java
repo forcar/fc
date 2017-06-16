@@ -197,10 +197,13 @@ public class ECReconstructionApp extends FCApplication {
                float sadc = (float) (adc / sca);
                
                for (int ii=0 ; ii< 100 ; ii++) {
+                   double wgt1=0; double wgt2=0;
+                   if (ii==(int)(t/4)) {wgt1=sadc; wgt2=1.0;}
                    float wgt = (ii==(int)(t/4)) ? sadc:0;
-                   ecPix[idet].strips.hmap2.get("H2_Mode1_Hist").get(is,ilay,0).fill(ii,ip,wgt);
+                   ecPix[idet].strips.hmap2.get("H2_Mode1_Hist").get(is,ilay,0).fill(ii,ip,wgt1);
+                   ecPix[idet].strips.hmap2.get("H2_Mode1_Hist").get(is,ilay,1).fill(ii,ip,wgt2);
                    if (app.isSingleEvent()) {
-                       ecPix[idet].strips.hmap2.get("H2_Mode1_Sevd").get(is,ilay,0).fill(ii,ip,wgt);
+                       ecPix[idet].strips.hmap2.get("H2_Mode1_Sevd").get(is,ilay,0).fill(ii,ip,wgt1);
                    }
                }   
                
@@ -569,7 +572,7 @@ public class ECReconstructionApp extends FCApplication {
        boolean good_ut, good_vt, good_wt, good_uvwt;
        boolean good_dalitz=false, good_pixel;
        int pixel;
-
+       
        TreeMap<Integer, Object> map= (TreeMap<Integer, Object>) ecPix[idet].Lmap_a.get(0,0,1); 
        float pixelLength[] = (float[]) map.get(1);
        
