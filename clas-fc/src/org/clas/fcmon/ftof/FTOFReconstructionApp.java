@@ -124,12 +124,12 @@ public class FTOFReconstructionApp extends FCApplication {
        
        if(event.hasBank("RUN::config")){
            DataBank bank = event.getBank("RUN::config");
-           timestamp = bank.getLong("timestamp",0);
+//           timestamp = bank.getLong("timestamp",0);
            trigger   = bank.getInt("trigger",0);
            evno      = bank.getInt("event",0);         
            int phase_offset = 1;
            phase = ((timestamp%6)+phase_offset)%6;
-           bitsec = (int) (Math.log10(trigger>>24)/0.301+1);
+           app.bitsec = (int) (Math.log10(trigger>>24)/0.301+1);
        }
 
        if(event.hasBank("FTOF::tdc")){
@@ -187,7 +187,7 @@ public class FTOFReconstructionApp extends FCApplication {
        clear(0); clear(1); clear(2); tdcs.clear();
        
        app.decoder.initEvent(event);
-       bitsec = app.decoder.bitsec;
+       app.bitsec = app.decoder.bitsec;
        
        List<DetectorDataDgtz> adcDGTZ = app.decoder.getEntriesADC(DetectorType.FTOF);
        List<DetectorDataDgtz> tdcDGTZ = app.decoder.getEntriesTDC(DetectorType.FTOF);
