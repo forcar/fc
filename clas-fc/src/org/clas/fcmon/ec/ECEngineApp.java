@@ -60,6 +60,8 @@ public class ECEngineApp extends FCApplication implements ActionListener {
     JCheckBox               engBtn = null;
     JCheckBox               crtBtn = null;
     ButtonGroup                bG1 = null;
+    int[]                      mip = new int[6];
+    List<TOFPaddle>     paddleList = null;
     
     DetectorType[] detNames = {DetectorType.PCAL, DetectorType.ECIN, DetectorType.ECOUT};
     double pcx,pcy,pcz;
@@ -248,6 +250,9 @@ public class ECEngineApp extends FCApplication implements ActionListener {
    public Boolean isGoodTOFMIP(List<TOFPaddle> paddlelist, int sector) {
        
        Boolean goodMIP = false;
+       
+       if (paddlelist==null) return mip[sector-1]==1;
+       
        double[] thresh = {500,1000,1000};
        
        for (TOFPaddle paddle : paddlelist){           
@@ -390,8 +395,15 @@ public class ECEngineApp extends FCApplication implements ActionListener {
           }
       }
       
-      List<TOFPaddle> paddleList = DataProvider.getPaddleList(event);
-       
+      if(event.hasBank("MIP::event")){
+          DataBank bank = event.getBank("MIP::event");
+          for(int i=0; i < bank.rows(); i++) {          
+              mip[i]=bank.getByte("mip", i);
+          } 
+      } else {
+          paddleList = DataProvider.getPaddleList(event);          
+      }
+      
       for (int is=is1; is<is2; is++) {
           
           if (isGoodSector(is)) {

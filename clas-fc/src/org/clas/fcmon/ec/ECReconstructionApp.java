@@ -147,7 +147,7 @@ public class ECReconstructionApp extends FCApplication {
        
        if(event.hasBank("RUN::config")){
            DataBank bank = event.getBank("RUN::config");
-           timestamp = bank.getLong("timestamp",0);
+//           timestamp = bank.getLong("timestamp",0);
            trigger   = bank.getInt("trigger",0);
            evno      = bank.getInt("event",0);         
            int phase_offset = 1;
