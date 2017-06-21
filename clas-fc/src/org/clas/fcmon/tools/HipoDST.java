@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.clas.fcmon.ftof.DataProvider;
+import org.clas.fcmon.ftof.TOFPaddle;
 import org.jlab.hipo.data.HipoEvent;
 import org.jlab.hipo.data.HipoGroup;
 import org.jlab.hipo.io.HipoReader;
@@ -38,7 +40,7 @@ public class HipoDST {
         ecEngine.setClusterCuts(6,10,10);
     }
 
-    public static void writeHipo(String outputName, int compression, String keep, int debug, List<String> files){
+    public static void writeHipo(String outputName, int compression, int filter, String keep, int debug, List<String> files){
         
         HipoWriter writer = new HipoWriter();
         writer.open(outputName);
@@ -77,7 +79,7 @@ public class HipoDST {
                 byte[] array = reader.readEvent(nev);
                 DataEvent de = (DataEvent) new HipoDataEvent(array,reader.getSchemaFactory());
                 ecEngine.processDataEvent(de);     
-                if (saveEvent(de)) {
+                if (saveEvent(de,filter)) {
                     if (debug==1) de.getBank("ECAL::clusters").show();
                     writer.writeEvent(outEvent);
                 }
@@ -87,12 +89,26 @@ public class HipoDST {
         writer.close();
     }
     
-    public static Boolean saveEvent(DataEvent de) {
+    public static Boolean isGoodTOFMIP(List<TOFPaddle> paddlelist, int sector) {
+        
+        Boolean goodMIP = false;
+        double[] thresh = {500,1000,1000};
+        
+        for (TOFPaddle paddle : paddlelist){           
+            int toflay = paddle.getDescriptor().getLayer();            
+            if (paddle.getDescriptor().getSector()==sector&&paddle.geometricMean()>thresh[toflay-1]) goodMIP = true;
+        }
+        
+        return goodMIP;
+    }
+    
+    public static Boolean saveEvent(DataEvent de, int filter) {
         int[][]        clust = new int[6][3];
         Boolean[] good_clust = new Boolean[6];
         
         if (de.hasBank("ECAL::clusters")) {
             DataBank bank = de.getBank("ECAL::clusters");
+            List<TOFPaddle> paddleList = DataProvider.getPaddleList(de);
             for (int ii=0; ii<6; ii++) {
                 good_clust[ii]=false;
                 for (int jj=0; jj<3; jj++) {
@@ -106,9 +122,17 @@ public class HipoDST {
             }
             //Cluster multiplicity filter to reject cosmics
             for (int s=0; s<6; s++) { 
+                if(filter==0) { //Muons
                 good_clust[s]=clust[s][0]>0&&clust[s][0]<3&&
                               clust[s][1]>0&&clust[s][1]<3&&
-                              clust[s][2]>0&&clust[s][2]<3;
+                              clust[s][2]>0&&clust[s][2]<3;             
+                }
+                if(filter==1) { //Pizero photons
+                good_clust[s]=clust[s][0]>0&&clust[s][0]<3&&
+                              clust[s][1]>=0&&clust[s][1]<3&&
+                              clust[s][2]>=0&&clust[s][2]<3&&
+                              !isGoodTOFMIP(paddleList,s+1);                              
+                }
             }
         }
         
@@ -149,6 +173,7 @@ public class HipoDST {
        writer.defineSchema(new Schema("{20,DST::event}[1,id,BYTE][2,px,FLOAT][3,py,FLOAT][4,pz,FLOAT]"));           
        writer.setCompressionType(2);
        writer.open("/Users/colesmith/hipo_test_ntuple.hipo");
+
        int nevents = 1;
        int id = 127;
        for(int i = 0; i < nevents; i++){
@@ -172,7 +197,7 @@ public class HipoDST {
     public static void main(String[] args){   
 
         List<String> inputFileList = new ArrayList<String>();
-        String keepBanks="ECAL" ; int compression=2; int debug=0; 
+        String keepBanks="ECAL" ; int compression=2; int debug=0; int filter=0;
         String  inputFile="/Users/colesmith/kpp/decoded/clas12_000761_a00214.hipo";
         String outputFile="/Users/colesmith/kpp/test.hipo";
 
@@ -187,6 +212,7 @@ public class HipoDST {
         parser.addOption("-keep", "ALL", "Selection of banks to keep in the output");
         parser.addOption("-c", "2","Compression algorithm (0-none, 1-gzip, 2-lz4)");
         parser.addOption("-d", "0", "Display cluster banks");
+        parser.addOption("-f", "0", "Filter pion (0) or pizero (1) events");
         
         parser.parse(args);
         
@@ -195,11 +221,12 @@ public class HipoDST {
         compression   = parser.getOption("-c").intValue();
         keepBanks     = parser.getOption("-keep").stringValue();
         debug         = parser.getOption("-d").intValue();
+        filter        = parser.getOption("-f").intValue();
         
 //        inputFileList.add(0,inputFile);
         
         HipoDST.init();
-        HipoDST.writeHipo(outputFile, compression, keepBanks, debug, inputFileList);
+        HipoDST.writeHipo(outputFile, compression, filter, keepBanks, debug, inputFileList);
         
     }
     
