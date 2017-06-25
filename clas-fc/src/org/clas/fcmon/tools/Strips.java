@@ -25,6 +25,8 @@ public class Strips {
     public TreeMap<String, DetectorCollection<H1F>>   hmap1 = null; 
     public TreeMap<String, DetectorCollection<H2F>>   hmap2 = null; 
     
+    public int[] nstr = new int[3];
+    
     public Strips() {
     	this.pixNmbr   = new DetectorCollection<List<Integer>>();
     	this.pixDist   = new DetectorCollection<List<Integer>>();
@@ -90,11 +92,23 @@ public class Strips {
     } 
     
     public double[] getpixels(int layer, int strip, double[] in) {
-    	Integer[] pixe = this.getPixels(0,layer,strip); 
+        Integer[] pixe = this.getPixels(0,layer,strip); 
     	double[] out = new double[pixe.length]; 
     	for (int j=0; j<pixe.length; j++)  out[j] = in[pixe[j]-1];
     	return out;
     }
+    
+    public H2F getpixels(int layer, int strip, H2F hin) {
+        int maxpix = this.getPixels(0,layer,nstr[layer-1]).length; 
+        Integer[] pixe = this.getPixels(0,layer,strip); 
+        H2F hout = new H2F("pix",maxpix,0.,maxpix,25,0.,250.);
+        for(int x=0; x<pixe.length; x++ ){
+            for (int y=0; y<25; y++) {
+                hout.fill(x, hin.getDataX(y), hin.getData(y,pixe[x]-1));
+            }
+        }        
+        return hout;        
+    } 
     
     public boolean[] getpixels(int layer, int strip, boolean[] in) {
     	Integer[] pixe = this.getPixels(0,layer,strip); 

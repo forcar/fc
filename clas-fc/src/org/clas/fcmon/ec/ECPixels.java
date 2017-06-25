@@ -117,6 +117,7 @@ public class ECPixels {
             for (int layer=0; layer<3; layer++) {
                 ecLayer = detector.getSector(0).getSuperlayer(suplay).getLayer(layer);
                 ec_nstr[layer] = ecLayer.getAllComponents().size();
+                strips.nstr[layer] = ec_nstr[layer];
             }
         }
         for (int is=1; is<7; is++) {

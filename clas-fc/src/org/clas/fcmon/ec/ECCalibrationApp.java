@@ -890,6 +890,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
             DetectorCollection<H2F>            dc2a = ecPix[ilmap].strips.hmap2.get("H2_a_Hist");    
             EmbeddedCanvas                        c = new EmbeddedCanvas();    
             H1F                              pixADC = null;
+            H2F                              pixATT = null;
             int                                  il = 0;
             int                                nstr = ecPix[0].ec_nstr[0];
              
@@ -906,8 +907,8 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
             GStyle.getGraphErrorsAttributes().setMarkerSize(3);
             GStyle.getGraphErrorsAttributes().setLineColor(2);
             GStyle.getGraphErrorsAttributes().setLineWidth(1);
-            GStyle.getGraphErrorsAttributes().setFillStyle(1);                     
-                                                          
+            GStyle.getGraphErrorsAttributes().setFillStyle(1);  
+            
             if (isPix) {
                float meanmap[] = (float[]) ecPix[ilmap].Lmap_a.get(is, layer, 0).get(1);
                il = layer-10;
@@ -928,6 +929,10 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
                          
             if (isStr||isPix) {
                if (app.getInProcess()>0) {
+                   
+                     pixATT = ecPix[ilmap].strips.getpixels(il, pixStrip, dc2a.get(is,il,2));
+                     pixATT.setTitleX("Sector "+is+otab[ilmap][il-1]+pixStrip+" Pixel No.");
+                     pixATT.setTitleY("ADC");                            
                      nstr = ecPix[ilmap].ec_nstr[il-1];
                      if (app.getInProcess()==1&&app.getIsRunning())  {analyze(ilmap,is,is+1,il,il+1,1,69);}
                      int sl = il+ilmap*3;  // Superlayer PCAL:1-3 ECinner: 4-6 ECouter: 7-9
@@ -1030,9 +1035,10 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
                      if (isPix) c.draw(pixGraph,"same");
                      c.repaint();
 
-                     c = fitADC.getCanvas("ADC"); 
+                     c = fitADC.getCanvas("ADC");  c.divide(2,1);
                      
-                     c.cd(0); pixADC.setOptStat(Integer.parseInt("1000100")); pixADC.setTitle(""); c.draw(pixADC);                    
+                     c.cd(0); pixADC.setOptStat(Integer.parseInt("1000100")); pixADC.setTitle(""); c.draw(pixADC); 
+                     c.cd(1); c.getPad(1).getAxisZ().setLog(true); c.draw(pixATT);
                      c.repaint();
                      
                      c = fitCh2.getCanvas("Chi^2"); 
