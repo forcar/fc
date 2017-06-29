@@ -180,7 +180,7 @@ public class ECPart {
         
         n2hit++;
         if((myCalorimeterResponse(p1,DetectorType.EC, 1)!=null  &&
-            myCalorimeterResponse(p1,DetectorType.EC, 4)!=null) ||
+            myCalorimeterResponse(p1,DetectorType.EC, 4)!=null) &&
            (myCalorimeterResponse(p2,DetectorType.EC, 1)!=null && 
             myCalorimeterResponse(p2,DetectorType.EC, 4)!=null)) {                
               X = (e1c-e2c)/(e1c+e2c);

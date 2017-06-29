@@ -141,7 +141,7 @@ public class ECCluster {
         return  this.clusterPeaks.get(view).getEnergy();
     } 
     
-    public final void   intersection(){
+    public final void intersection(){
         Line3D uLine  = this.clusterPeaks.get(0).getLine();
         Line3D vLine  = this.clusterPeaks.get(1).getLine();
         Line3D wLine  = this.clusterPeaks.get(2).getLine();
