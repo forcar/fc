@@ -243,7 +243,6 @@ public class FCDetector {
         double rmaxx = avg*3;
 //        if(app.getSelectedTabName()=="TDC") {rmin=600;rmax=700;rmaxx=rmax;}
         float     z =  val[component];
-        if(app.debug) System.out.println(z+" "+rmin+" "+rmax+" "+avg);
         if (z==0) return 0;
         
         PCMon_zmax = rmax*1.2; mon.getGlob().put("PCMon_zmax", PCMon_zmax);
