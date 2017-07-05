@@ -159,7 +159,6 @@ public class ECMon extends DetectorMonitor {
         ecGains = new ECGainsApp("Gains");
         ecGains.setMonitoringClass(this);
         ecGains.setApplicationClass(app);
-        ecGains.init(); 
                 
         ecHv = new ECHvApp("HV","EC");
         ecHv.setMonitoringClass(this);
@@ -198,12 +197,13 @@ public class ECMon extends DetectorMonitor {
     public void initApps() {
         System.out.println("monitor.initApps()");
         for (int i=0; i<ecPix.length; i++)   ecPix[i].init();
+        ecRecon.init();
+        ecGains.init();
         initEngine();
         for (int i=0; i<ecPix.length; i++)   ecPix[i].Lmap_a.add(0,0,0, ecRecon.toTreeMap(ecPix[i].ec_cmap));
         for (int i=0; i<ecPix.length; i++)   ecPix[i].Lmap_t.add(0,0,0, ecRecon.toTreeMap(ecPix[i].ec_cmap));
         for (int i=0; i<ecPix.length; i++)   ecPix[i].Lmap_a.add(0,0,1, ecRecon.toTreeMap(ecPix[i].ec_zmap));
         for (int i=0; i<ecPix.length; i++)   ecPix[i].getLmapMinMax(0,1,0,0); 
-        ecGains.clearHistos();
     }
     
     public void initEngine() {
@@ -215,7 +215,6 @@ public class ECMon extends DetectorMonitor {
             writer.open("/Users/colesmith/ECMON/EVIO/test.evio");
         }
 
-        ecRecon.init(); 
         ecEngine.init();
         ecEngine.setVariation(app.variation);
        
@@ -266,6 +265,7 @@ public class ECMon extends DetectorMonitor {
     @Override
     public void reset() {
 		ecRecon.clearHistograms();
+		ecGains.clearHistograms();
     } 
 
     @Override
@@ -279,7 +279,7 @@ public class ECMon extends DetectorMonitor {
           ecEngine.isMC        = app.isMC;
           ecEngine.processDataEvent(de);     
           ecEng.addEvent(de);
-          ecGains.addEvent(de);
+          if(app.doGain) ecGains.addEvent(de);
           if(de instanceof EvioDataEvent&&saveFile) writer.writeEvent(de);
       }
     }
@@ -295,8 +295,8 @@ public class ECMon extends DetectorMonitor {
                 // Final analysis of full detector at end of run
 			    for (int idet=0; idet<ecPix.length; idet++) ecRecon.makeMaps(idet);
 		        System.out.println("End of run");
-				ecCalib.analyzeAllEngines(is1,is2,1,4);	
-				if (app.doEng) ecGains.analyze();
+				ecCalib.analyzeAllEngines(is1,is2,1,4);			
+				if (app.doEng&&app.doGain) ecGains.analyze();
 		        app.setInProcess(3); 
 		}
 	}

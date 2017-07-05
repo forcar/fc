@@ -105,6 +105,7 @@ public class MonitorApp extends JFrame implements ActionListener {
     public boolean       isTB = false;
     public boolean      isCRT = false;
     public boolean      doEng = false;
+    public boolean     doGain = false;
     public String        geom = "2.5";
     public String      config = "muon";
     public int        trigger = 1;        //0=cluster 1=pixel

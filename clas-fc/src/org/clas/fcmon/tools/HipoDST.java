@@ -38,7 +38,8 @@ public class HipoDST {
     
     String[] SchemaString = {"{20,MIP::event}[1,sector,BYTE][2,mip,BYTE]" ,
                              "{20,MIP::event}[1,sector,BYTE][2,mip,BYTE]" ,
-                             "{20,MIP::event}[1,sector,BYTE][2,mip,BYTE][3,q,INT][4,p,FLOAT]"};    
+                             "{20,MIP::event}[1,sector,BYTE][2,mip,BYTE][3,q,INT][4,p,FLOAT]" ,    
+                             "{20,MIP::event}[1,sector,BYTE][2,mip,BYTE]"};
 	
     public void init(int filter) {
         ecEngine.init();
@@ -54,7 +55,12 @@ public class HipoDST {
         case 2: ecEngine.setStripThresholds(10,9,8);
                 ecEngine.setPeakThresholds(18,20,15);
                 ecEngine.setClusterCuts(7,15,20);                       
-                writer.defineSchema(new Schema(SchemaString[filter]));        }       
+                writer.defineSchema(new Schema(SchemaString[filter])); break;              
+        case 3: ecEngine.setStripThresholds(10,9,8);
+                ecEngine.setPeakThresholds(18,20,15);
+                ecEngine.setClusterCuts(7,15,20);                       
+                writer.defineSchema(new Schema(SchemaString[filter]));                
+        }       
     }
 
     public void writeHipo(String outputName, int compression, int filter, String keep, int debug, List<String> files){
@@ -86,7 +92,7 @@ public class HipoDST {
                         }
                     }
                 }
-                if(filter==1) {                    
+                if(filter>0) {                    
                     Schema mip = new Schema(SchemaString[filter]);
                     writerFactory.addSchema(mip);
                     writerFactory.addFilter(mip.getName());
@@ -117,6 +123,7 @@ public class HipoDST {
         case 0: return savePionEvent(de);
         case 1: return savePizeroEvent(de, event);
         case 2: return saveElectronEvent(de, event);
+        case 3: return saveEtaEvent(de, event);
         }        
         return false;        
     }
@@ -145,6 +152,34 @@ public class HipoDST {
         
         return  good_clust[0]||good_clust[1]||good_clust[2]||good_clust[3]||good_clust[4]||good_clust[5];
     }
+    
+    public Boolean saveEtaEvent(DataEvent de, HipoEvent event) {
+        
+        int[][]        clust = new int[6][3];
+        Boolean[] good_clust = new Boolean[6];
+        
+        Byte[]      good_mip = new Byte[6];
+        
+        int neta = 0;
+        
+        List<TOFPaddle> paddleList = DataProvider.getPaddleList(de);
+        
+        HipoGroup group = writer.getSchemaFactory().getSchema("MIP::event").createGroup(6);
+        
+        clust = (int[][]) getClusters(de).get(1);
+        
+        for (int s=0; s<6; s++) { 
+            good_mip[s]=isGoodTOFMIP(paddleList,s+1);     // goodMIP in FTOF 1A or 1B                            
+            good_clust[s]=good_mip[s]==0&&clust[s][0]>0;  // 1+ clusters in PCAL and no FTOF MIP                            
+            group.getNode("sector").setByte(s, (byte)(s+1));
+            group.getNode("mip").setByte(s, good_mip[s]);
+            if (good_clust[s]) neta++;
+        }
+        
+        event.writeGroup(group);
+        
+        return  neta>1;
+    }   
     
     public Boolean savePionEvent(DataEvent de) {
         
@@ -353,7 +388,7 @@ public class HipoDST {
         parser.addOption("-keep", "ALL", "Selection of banks to keep in the output");
         parser.addOption("-c", "2","Compression algorithm (0-none, 1-gzip, 2-lz4)");
         parser.addOption("-d", "0", "Display cluster banks");
-        parser.addOption("-f", "0", "Filter pion (0), pizero (1) or electron (2) events");
+        parser.addOption("-f", "0", "Filter pion (0) pizero (1) electron (2) eta(3) events");
         
         parser.parse(args);
         

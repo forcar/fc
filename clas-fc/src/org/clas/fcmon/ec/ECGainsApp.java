@@ -68,7 +68,7 @@ public class ECGainsApp extends FCApplication implements ActionListener {
      }  
     
     public void init() {
-        System.out.println("ECGainsApp:init();");
+        System.out.println("ECGainsApp:init():");
         createHistos();
         GStyle.getGraphErrorsAttributes().setMarkerStyle(1);
         GStyle.getGraphErrorsAttributes().setMarkerColor(2);
@@ -138,7 +138,7 @@ public class ECGainsApp extends FCApplication implements ActionListener {
     
     public void createHistos() {
         
-       System.out.println("ECGainsApp:creatHistos();");
+       System.out.println("ECGainsApp:createHistos();");
         
        DataGroup dg_mip = new DataGroup(1,184);
                
@@ -320,31 +320,36 @@ public class ECGainsApp extends FCApplication implements ActionListener {
         h2 = new H2F("hi_etot_1","hi_etot_1",50, 0., 5., 70, 0.05, 0.45);
         dg_mip.addDataSet(h2, n); n++;
         
+        this.getDataGroup().clear();
         this.getDataGroup().add(dg_mip,4);        
     }   
     
-    public void clearHistos() {
-        System.out.println("ECGainsApp:clearHistos(): (Not Implemented)");
+    public void clearHistograms() {
+        System.out.println("ECGainsApp:clearHistograms():");
+        this.getDataGroup().clear();
+        createHistos();
     }
    
     public void addEvent(DataEvent event) {
-
-        Particle partRecEB = null;
-        Particle recParticle = null;
+        
         pmap.clear();
-        DataBank recPartEB = event.getBank("RECHB::Particle");
-        DataBank recDeteEB = event.getBank("REC::Detector");
-        DataBank recBankTB = event.getBank("TimeBasedTrkg::TBTracks");
 
-        if (recPartEB!=null) {
-            int nrows = recPartEB.rows();
-            for(int loop = 0; loop < nrows; loop++){
-                float px = recPartEB.getFloat("px", loop);
-                float py = recPartEB.getFloat("py", loop);
-                float pz = recPartEB.getFloat("pz", loop);
-                int q    = recPartEB.getByte("charge", loop);                
+        if (event.hasBank("RECHB::Particle")) {
+            DataBank bank = event.getBank("RECHB::Particle");
+            for(int loop = 0; loop < bank.rows(); loop++){
+                float px = bank.getFloat("px", loop);
+                float py = bank.getFloat("py", loop);
+                float pz = bank.getFloat("pz", loop);
+                int q    = bank.getByte("charge", loop);                
                 if (q!=0) pmap.add((float) Math.sqrt(px*px+py*py+pz*pz));
             } 
+        }
+        
+        if (event.hasBank("MIP::event")) {
+            DataBank bank = event.getBank("MIP::event");
+            for (int loop = 0; loop < bank.rows(); loop++) {                
+                if (bank.getInt("q",loop)<0) pmap.add((float)bank.getFloat("p", loop));
+            }                   
         }
 /*            
         if(recPartEB!=null && recDeteEB!=null) {

@@ -75,7 +75,6 @@ public class ECReconstructionApp extends FCApplication {
        System.out.println("ECReconstruction.init()");
        mondet =           (String) mon.getGlob().get("mondet");
        DetectorCollection<H1F> ecEngHist = (DetectorCollection<H1F>) mon.getGlob().get("ecEng");
-       System.out.println(ECConstants.IS1+" "+ECConstants.IS2);
         is1 = ECConstants.IS1;
         is2 = ECConstants.IS2;
        iis1 = ECConstants.IS1-1;
@@ -90,11 +89,14 @@ public class ECReconstructionApp extends FCApplication {
                    ecPix[idet].strips.hmap2.get("H2_a_Hist").get(is,il,0).reset();
                    ecPix[idet].strips.hmap2.get("H2_a_Hist").get(is,il,1).reset();
                    ecPix[idet].strips.hmap2.get("H2_a_Hist").get(is,il,2).reset();
+                   ecPix[idet].strips.hmap2.get("H2_a_Hist").get(is,il,3).reset();
+                   ecPix[idet].strips.hmap2.get("H2_a_Hist").get(is,il,4).reset();
                    ecPix[idet].strips.hmap2.get("H2_t_Hist").get(is,il,0).reset();
                    ecPix[idet].strips.hmap2.get("H2_t_Hist").get(is,il,1).reset();
                    ecPix[idet].strips.hmap2.get("H2_t_Hist").get(is,il,2).reset();
                    ecPix[idet].strips.hmap2.get("H2_Peds_Hist").get(is,il,0).reset();
                    ecPix[idet].strips.hmap2.get("H2_Mode1_Hist").get(is,il,0).reset();
+                   ecPix[idet].strips.hmap2.get("H2_Mode1_Hist").get(is,il,1).reset();
                }
            }       
        } 
@@ -137,17 +139,22 @@ public class ECReconstructionApp extends FCApplication {
        int       evno =  0;
        int    trigger =  0;
        double     sca =  1;
+       float      tps =  24;
        float     tdcf =  0;
+       float     tdcd =  0;
+       float   tdcmax =  0;
+       float   offset =  0;
        long     phase =  0;
        long timestamp =  0;
        
        clear(0); clear(1); clear(2); tdcs.clear();
        
-       sca = (app.isCRT==true) ? 6.6:1; // For pre-installation PCAL CRT runs
+       if (app.isMC) {tdcmax=200000; offset=600; tps=1;}
+       sca = (app.isCRT) ? 6.6:1; // For pre-installation PCAL CRT runs
        
-       if(event.hasBank("RUN::config")){
+       if(!app.isMC&&event.hasBank("RUN::config")){
            DataBank bank = event.getBank("RUN::config");
-//           timestamp = bank.getLong("timestamp",0);
+           timestamp = bank.getLong("timestamp",0);
            trigger   = bank.getInt("trigger",0);
            evno      = bank.getInt("event",0);         
            int phase_offset = 1;
@@ -161,9 +168,11 @@ public class ECReconstructionApp extends FCApplication {
            for(int i = 0; i < rows; i++){
                int  is = bank.getByte("sector",i);
                int  il = bank.getByte("layer",i);
-               int  ip = bank.getShort("component",i);
+               int  ip = bank.getShort("component",i);               
+               tdcd = bank.getInt("TDC",i)*tps/1000;
+               if(app.isMC&&tdcd<tdcmax) tdcmax=tdcd; //Find and save longest hit time for MC events            
                if(!tdcs.hasItem(is,il,ip)) tdcs.add(new ArrayList<Float>(),is,il,ip);
-               tdcs.getItem(is,il,ip).add((float) bank.getInt("TDC",i)*24/1000);              
+               tdcs.getItem(is,il,ip).add(tdcd);              
            }
        }
        
@@ -184,7 +193,7 @@ public class ECReconstructionApp extends FCApplication {
                    List<Float> list = new ArrayList<Float>();
                    list = tdcs.getItem(is,il,ip); tdcc=new Float[list.size()]; list.toArray(tdcc);
                    tdc  = new float[list.size()];
-                   for (int ii=0; ii<tdcc.length; ii++) tdc[ii] = tdcc[ii]-phase*4;  
+                   for (int ii=0; ii<tdcc.length; ii++) tdc[ii] = tdcc[ii]-tdcmax+offset-phase*4;  
                } else {
                    tdc = new float[1];
                }

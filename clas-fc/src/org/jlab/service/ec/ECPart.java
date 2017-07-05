@@ -28,16 +28,20 @@ import org.jlab.service.eb.EventBuilder;
 
 public class ECPart {
 	
-    EventBuilder eb = new EventBuilder();
+    EventBuilder                         eb = new EventBuilder();
+    
     public static double distance11,distance12,distance21,distance22;
     public static double e1,e2,e1c,e2c,cth,cth1,cth2,X,tpi2,cpi0,refE,refP,refTH;
-    static double mpi0 = 0.1349764;
+    public static double x1,y1,x2,y2;
+    public static int ip1,ip2;
+    public static double mpi0 = 0.1349764;
     public static String geom = "2.4";
     public static String config = null;
     public static double SF1 = 0.27;
     public static double SF2 = 0.27;
     public int n2hit=0;
     public int n2rec=0;
+    public int[] mip = new int[6];
     
     public static void readMC(DataEvent event) {
         int pid=0;
@@ -95,12 +99,23 @@ public class ECPart {
         return responseECAL;
     } 
     
-    public double getTwoPhoton(List<CalorimeterResponse> response, int sector){
+    public List<CalorimeterResponse> getNeutralHits(List<CalorimeterResponse> calorimeterStore) {
         
-        List<CalorimeterResponse> rPC = eb.getUnmatchedResponses(response, DetectorType.EC, 1);
-        List<CalorimeterResponse> rSectorPCAL = CalorimeterResponse.getListBySector(rPC, DetectorType.EC, sector);
-        if (rSectorPCAL.size()!=2) return -1;
-        return processNeutralTracks(doHitMatching(response,sector));
+        List<CalorimeterResponse> neutralHits = new ArrayList<CalorimeterResponse>();                
+        for(CalorimeterResponse resp : calorimeterStore){
+            if(resp.getDescriptor().getType()==DetectorType.EC &&
+               resp.getDescriptor().getLayer()==1 &&
+               mip[resp.getDescriptor().getSector()-1]!=1) neutralHits.add(resp);   
+        }        
+        return  eb.getUnmatchedResponses(neutralHits, DetectorType.EC, 1);  // PCAL neutral hits
+    }
+    
+    public double getTwoPhoton(List<CalorimeterResponse> response, int sector){
+        List<CalorimeterResponse> rSectorPCAL = CalorimeterResponse.getListBySector(response, DetectorType.EC, sector);
+        System.out.println("Sector "+sector+" No. Neutral Hits = "+response.size());
+        if (rSectorPCAL.size()==2) return processNeutralTracks(doHitMatching(response,sector));
+        if (rSectorPCAL.size()==1) return -1;
+        return -1;
     }
      
     public List<DetectorParticle> doHitMatching(List<CalorimeterResponse> response, int sector) {
@@ -113,15 +128,25 @@ public class ECPart {
         List<CalorimeterResponse>  rPCAL = CalorimeterResponse.getListBySector(rPC,  DetectorType.EC, sector);
         List<CalorimeterResponse>  rECIN = CalorimeterResponse.getListBySector(rECi, DetectorType.EC, sector);
         List<CalorimeterResponse> rECOUT = CalorimeterResponse.getListBySector(rECo, DetectorType.EC, sector);
-                
+                        
         distance11=distance12=distance21=distance22=-10;
                         
         for(int i = 0; i < rPCAL.size(); i++){
             particles.add(DetectorParticle.createNeutral(rPCAL.get(i)));
         }
+        
+    public List<DetectorParticle> doHitMatching(List<DetectorParticle>  particles) {
                         
         DetectorParticle p1 = particles.get(0);  //PCAL Photon 1
-        DetectorParticle p2 = particles.get(1);  //PCAL Photon 2
+        DetectorParticle p2 = particles.get(1);  //PCAL Photon 2       
+        
+        ip1 = p1.getCalorimeterResponse().get(0).getHitIndex();
+        ip2 = p2.getCalorimeterResponse().get(0).getHitIndex();
+
+        x1 = p1.getCalorimeterResponse().get(0).getPosition().x();
+        y1 = p1.getCalorimeterResponse().get(0).getPosition().y();
+        x2 = p2.getCalorimeterResponse().get(0).getPosition().x();
+        y2 = p2.getCalorimeterResponse().get(0).getPosition().y();
         
         int index=0;
         
@@ -197,6 +222,10 @@ public class ECPart {
         //System.out.println(particles.get(0));
         //System.out.println(particles.get(1));
         //System.out.println(gen);
+    }
+    
+    public void getDecayKinematics(Particle p1, Particle p2) {
+        
     }
     
     public CalorimeterResponse  myCalorimeterResponse(DetectorParticle p, DetectorType type, int layer){
