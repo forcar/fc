@@ -61,8 +61,15 @@ public class FCCalibrationData {
     } 
 
     private int getIndex(String name, String lab){
-    	int i1=name.indexOf(lab)+2+(lab=="_l"?ioff:0);  
-        return parseInt(name.substring(i1,i1+1));
-    }    
-
+        int i1,i2;
+        switch (lab) {
+        case "_s": i1=name.indexOf(lab)+2;
+                   i2=name.indexOf("_l");  return parseInt(name.substring(i1,i2));   
+        case "_l": i1=name.indexOf(lab)+2;  
+                   i2=name.indexOf("_c");  return parseInt(name.substring(i1,i2));   
+        case "_c": i1=name.indexOf(lab)+2; return parseInt(name.substring(i1));
+        }
+        
+        return 0;
+    }
 }
