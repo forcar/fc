@@ -150,6 +150,7 @@ public class HipoDST {
         
         event.writeGroup(group);
         
+        //Reauire 2 neutrals in one sector for any sector
         return  good_clust[0]||good_clust[1]||good_clust[2]||good_clust[3]||good_clust[4]||good_clust[5];
     }
     
@@ -173,12 +174,13 @@ public class HipoDST {
             good_clust[s]=good_mip[s]==0&&clust[s][0]>0;  // 1+ clusters in PCAL and no FTOF MIP                            
             group.getNode("sector").setByte(s, (byte)(s+1));
             group.getNode("mip").setByte(s, good_mip[s]);
-            if (good_clust[s]) neta++;
+            if (good_clust[s]) neta++; 
         }
         
         event.writeGroup(group);
         
-        return  neta>1;
+        // Require at least 2 neutrals not in the same sector
+        return  neta>1; 
     }   
     
     public Boolean savePionEvent(DataEvent de) {
