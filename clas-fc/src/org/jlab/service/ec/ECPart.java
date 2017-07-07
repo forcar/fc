@@ -24,24 +24,37 @@ import org.jlab.io.evio.EvioSource;
 import org.jlab.io.hipo.HipoDataSource;
 import org.jlab.service.eb.EBConstants;
 import org.jlab.service.eb.EventBuilder;
+import org.jlab.utils.groups.IndexedList;
 
 
 public class ECPart {
 	
-    EventBuilder                         eb = new EventBuilder();
+    EventBuilder                                  eb = new EventBuilder();
+    List<CalorimeterResponse>                    rEC = new ArrayList<CalorimeterResponse>();
+    List<CalorimeterResponse>                   rEC2 = new ArrayList<CalorimeterResponse>();
+    List<List<CalorimeterResponse>> neutralResponses = new ArrayList<List<CalorimeterResponse>>(); 
+    IndexedList<List<CalorimeterResponse>>  singleNeutrals = new IndexedList<List<CalorimeterResponse>>(1);
+    List<DetectorParticle>                 particles = new ArrayList<DetectorParticle>();    
+    CalorimeterResponse                         rPC1 = new CalorimeterResponse();
+    CalorimeterResponse                         rPC2 = new CalorimeterResponse();
+    DetectorParticle                              p1 = new DetectorParticle();
+    DetectorParticle                              p2 = new DetectorParticle();
+    Vector3                                       n1 = new Vector3();
+    Vector3                                       n2 = new Vector3();
     
     public static double distance11,distance12,distance21,distance22;
     public static double e1,e2,e1c,e2c,cth,cth1,cth2,X,tpi2,cpi0,refE,refP,refTH;
     public static double x1,y1,x2,y2;
-    public static int ip1,ip2;
+    public static int ip1,ip2,is1,is2;
     public static double mpi0 = 0.1349764;
     public static String geom = "2.4";
     public static String config = null;
     public static double SF1 = 0.27;
     public static double SF2 = 0.27;
+  
     public int n2hit=0;
     public int n2rec=0;
-    public int[] mip = new int[6];
+    public int[] mip = {0,0,0,0,0,0};
     
     public static void readMC(DataEvent event) {
         int pid=0;
@@ -91,90 +104,122 @@ public class ECPart {
     }
     
     public List<CalorimeterResponse>  readEC(DataEvent event){
-        List<CalorimeterResponse>  responseECAL = new ArrayList<CalorimeterResponse>();
+        rEC.clear();
         Boolean isEvio = event instanceof EvioDataEvent;                  
-        if (isEvio) responseECAL =                     readEvioEvent(event, "ECDetector::clusters", DetectorType.EC); 
-        if(!isEvio) responseECAL = CalorimeterResponse.readHipoEvent(event, "ECAL::clusters", DetectorType.EC);
-        eb.addCalorimeterResponses(responseECAL);
-        return responseECAL;
+        if (isEvio) rEC =                     readEvioEvent(event, "ECDetector::clusters", DetectorType.EC); 
+        if(!isEvio) rEC = CalorimeterResponse.readHipoEvent(event, "ECAL::clusters", DetectorType.EC);
+        eb.addCalorimeterResponses(rEC);
+        return rEC;
     } 
     
-    public List<CalorimeterResponse> getNeutralHits(List<CalorimeterResponse> calorimeterStore) {
-        
-        List<CalorimeterResponse> neutralHits = new ArrayList<CalorimeterResponse>();                
-        for(CalorimeterResponse resp : calorimeterStore){
-            if(resp.getDescriptor().getType()==DetectorType.EC &&
-               resp.getDescriptor().getLayer()==1 &&
-               mip[resp.getDescriptor().getSector()-1]!=1) neutralHits.add(resp);   
-        }        
-        return  eb.getUnmatchedResponses(neutralHits, DetectorType.EC, 1);  // PCAL neutral hits
+    public void getNeutralResponses(List<CalorimeterResponse> response) {        
+        neutralResponses.clear();
+        neutralResponses.add(eb.getUnmatchedResponses(response, DetectorType.EC,1));
+        neutralResponses.add(eb.getUnmatchedResponses(response, DetectorType.EC,4));
+        neutralResponses.add(eb.getUnmatchedResponses(response, DetectorType.EC,7));
+        getSingleNeutralResponses();
     }
     
-    public double getTwoPhoton(List<CalorimeterResponse> response, int sector){
-        List<CalorimeterResponse> rSectorPCAL = CalorimeterResponse.getListBySector(response, DetectorType.EC, sector);
-        System.out.println("Sector "+sector+" No. Neutral Hits = "+response.size());
-        if (rSectorPCAL.size()==2) return processNeutralTracks(doHitMatching(response,sector));
-        if (rSectorPCAL.size()==1) return -1;
-        return -1;
+    public void getSingleNeutralResponses() {
+        singleNeutrals.clear();
+        for (int is=1; is<7; is++) {
+            rEC = CalorimeterResponse.getListBySector(neutralResponses.get(0),  DetectorType.EC, is);
+            if(rEC.size()==1&&mip[is-1]!=1) singleNeutrals.add(rEC,is);
+        } 
     }
+    
+    public double getTwoPhotonInvMass(int sector){
+        is1=0;is2=-1;
+        return processTwoPhotons(doHitMatching(getNeutralParticles(sector)));
+    }   
      
-    public List<DetectorParticle> doHitMatching(List<CalorimeterResponse> response, int sector) {
+    public List<DetectorParticle> getNeutralParticles(int sector) {
         
-        List<DetectorParticle>  particles = new ArrayList<DetectorParticle>();
+        particles.clear();
         
-        List<CalorimeterResponse>    rPC = eb.getUnmatchedResponses(response, DetectorType.EC,1);
-        List<CalorimeterResponse>   rECi = eb.getUnmatchedResponses(response, DetectorType.EC,4);
-        List<CalorimeterResponse>   rECo = eb.getUnmatchedResponses(response, DetectorType.EC,7);
-        List<CalorimeterResponse>  rPCAL = CalorimeterResponse.getListBySector(rPC,  DetectorType.EC, sector);
-        List<CalorimeterResponse>  rECIN = CalorimeterResponse.getListBySector(rECi, DetectorType.EC, sector);
-        List<CalorimeterResponse> rECOUT = CalorimeterResponse.getListBySector(rECo, DetectorType.EC, sector);
-                        
-        distance11=distance12=distance21=distance22=-10;
-                        
-        for(int i = 0; i < rPCAL.size(); i++){
-            particles.add(DetectorParticle.createNeutral(rPCAL.get(i)));
+        rEC = CalorimeterResponse.getListBySector(neutralResponses.get(0), DetectorType.EC, sector);
+        
+        switch (rEC.size()) {
+        case 1: rEC2 = findSecondPhoton(sector);
+                if (rEC2.size()>0) {
+                   particles.add(DetectorParticle.createNeutral(rEC.get(0)));
+                   particles.add(DetectorParticle.createNeutral(rEC2.get(0))); return particles;
+                }
+                break;
+        case 2: particles.add(DetectorParticle.createNeutral(rEC.get(0)));                
+                particles.add(DetectorParticle.createNeutral(rEC.get(1))); return particles;
         }
-        
-    public List<DetectorParticle> doHitMatching(List<DetectorParticle>  particles) {
-                        
-        DetectorParticle p1 = particles.get(0);  //PCAL Photon 1
-        DetectorParticle p2 = particles.get(1);  //PCAL Photon 2       
-        
-        ip1 = p1.getCalorimeterResponse().get(0).getHitIndex();
-        ip2 = p2.getCalorimeterResponse().get(0).getHitIndex();
-
-        x1 = p1.getCalorimeterResponse().get(0).getPosition().x();
-        y1 = p1.getCalorimeterResponse().get(0).getPosition().y();
-        x2 = p2.getCalorimeterResponse().get(0).getPosition().x();
-        y2 = p2.getCalorimeterResponse().get(0).getPosition().y();
+       return particles;
+    }
+    
+    public List<CalorimeterResponse> findSecondPhoton(int sector) {
+        int neut=0, isave=0;
+        rEC2.clear();
+        for (int is=sector+1; is<7; is++) {
+            if(singleNeutrals.hasItem(is)) {neut++; isave=is;}
+        }
+        return (neut==1) ? singleNeutrals.getItem(isave):rEC2;
+    }
+    
+    public double doHitMatch(DetectorParticle p, String io) {
         
         int index=0;
+        double distance = -10;
         
-        index  = p1.getCalorimeterHit(rECIN,DetectorType.EC,4,EBConstants.ECIN_MATCHING);
-        if(index>=0){p1.addResponse(rECIN.get(index),true); rECIN.get(index).setAssociation(0);
-        distance11 = p1.getDistance(rECIN.get(index)).length();}
+        int is = p.getCalorimeterResponse().get(0).getDescriptor().getSector();
         
-        index  = p1.getCalorimeterHit(rECOUT,DetectorType.EC,7,EBConstants.ECOUT_MATCHING);
-        if(index>=0){p1.addResponse(rECOUT.get(index),true); rECOUT.get(index).setAssociation(0);
-        distance12 = p1.getDistance(rECOUT.get(index)).length();}
+        switch (io) {       
+        case "Inner": rEC = CalorimeterResponse.getListBySector(neutralResponses.get(1), DetectorType.EC, is);
+                      index  = p.getCalorimeterHit(rEC,DetectorType.EC,4,EBConstants.ECIN_MATCHING);
+                      if(index>=0){p.addResponse(rEC.get(index),true); rEC.get(index).setAssociation(0);
+                      distance = p.getDistance(rEC.get(index)).length();}
+        case "Outer": rEC = CalorimeterResponse.getListBySector(neutralResponses.get(2), DetectorType.EC, is); 
+                      index  = p.getCalorimeterHit(rEC,DetectorType.EC,7,EBConstants.ECOUT_MATCHING);
+                      if(index>=0){p.addResponse(rEC.get(index),true); rEC.get(index).setAssociation(0);
+                      distance = p.getDistance(rEC.get(index)).length();}
+        }
         
-        index  = p2.getCalorimeterHit(rECIN,DetectorType.EC,4,EBConstants.ECIN_MATCHING);
-        if(index>=0){p2.addResponse(rECIN.get(index),true); rECIN.get(index).setAssociation(1);
-        distance21 = p2.getDistance(rECIN.get(index)).length();}
+        return distance;        
+    }
         
-        index  = p2.getCalorimeterHit(rECOUT,DetectorType.EC,7,EBConstants.ECOUT_MATCHING);
-        if(index>=0){p2.addResponse(rECOUT.get(index),true); rECOUT.get(index).setAssociation(1);
-        distance22 = p2.getDistance(rECOUT.get(index)).length();}
+    public List<DetectorParticle> doHitMatching(List<DetectorParticle>  particles) {
+                       
+        if (particles.size()==0) return particles;
+        
+        p1 = particles.get(0);  //PCAL Photon 1
+        p2 = particles.get(1);  //PCAL Photon 2       
+        
+        rPC1 = p1.getCalorimeterResponse().get(0) ;
+        rPC2 = p2.getCalorimeterResponse().get(0) ;
+        
+        ip1 = rPC1.getHitIndex();
+        ip2 = rPC2.getHitIndex();
+        
+        is1 = rPC1.getDescriptor().getSector();
+        is2 = rPC2.getDescriptor().getSector();
+
+        x1 = rPC1.getPosition().x();
+        y1 = rPC1.getPosition().y();
+        x2 = rPC2.getPosition().x();
+        y2 = rPC2.getPosition().y();
+        
+        distance11 = doHitMatch(p1,"Inner");
+        distance12 = doHitMatch(p1,"Outer");
+        distance21 = doHitMatch(p2,"Inner");
+        distance22 = doHitMatch(p2,"Outer");
+                
         return particles;
     }
        
-    public double processNeutralTracks(List<DetectorParticle> particles) {
+    public double processTwoPhotons(List<DetectorParticle> particles) {
         
-        DetectorParticle p1 = particles.get(0);  //Photon 1
-        DetectorParticle p2 = particles.get(1);  //Photon 2
+        if (particles.size()==0) return 0.0;
         
-        Vector3 n1 = p1.vector(); n1.unit();
-        Vector3 n2 = p2.vector(); n2.unit();
+        p1 = particles.get(0);  //Photon 1
+        p2 = particles.get(1);  //Photon 2
+        
+        n1 = p1.vector(); n1.unit();
+        n2 = p2.vector(); n2.unit();
                 
         e1 = p1.getEnergy(DetectorType.EC);
         e2 = p2.getEnergy(DetectorType.EC);
@@ -223,11 +268,7 @@ public class ECPart {
         //System.out.println(particles.get(1));
         //System.out.println(gen);
     }
-    
-    public void getDecayKinematics(Particle p1, Particle p2) {
-        
-    }
-    
+
     public CalorimeterResponse  myCalorimeterResponse(DetectorParticle p, DetectorType type, int layer){
         List<CalorimeterResponse> calorimeterStore = p.getCalorimeterResponses();
         for(CalorimeterResponse res : calorimeterStore){
@@ -295,8 +336,10 @@ public class ECPart {
         while(reader.hasEvent()){
             DataEvent event = reader.getNextEvent();
             part.readMC(event);
-            engine.processDataEvent(event);      
-            double invmass = 1e3*Math.sqrt(part.getTwoPhoton(part.readEC(event),2));
+            engine.processDataEvent(event);   
+            part.getNeutralResponses(part.readEC(event));
+            double invmass = 1e3*Math.sqrt(part.getTwoPhotonInvMass(2));
+            
             h1.fill((float)invmass,1.);                            //Two-photon invariant mass
             
             if (invmass>80 && invmass<200) {
@@ -306,6 +349,7 @@ public class ECPart {
                 nimcut++;
             }
         }
+        
         System.out.println("n2hit,n2rec,nimcut="+part.n2hit+" "+part.n2rec+" "+nimcut);
         System.out.println("Eff1= "+(float)part.n2rec/(float)part.n2hit+" Eff2= "+(float)nimcut/(float)part.n2hit);
         

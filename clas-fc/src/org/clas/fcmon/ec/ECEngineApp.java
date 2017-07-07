@@ -86,6 +86,7 @@ public class ECEngineApp extends FCApplication implements ActionListener {
        mc.addCanvas("Resid");
        mc.addCanvas("SF");
        mc.addCanvas("PI0");
+       mc.addCanvas("Sectors");
        mc.addCanvas("Map1");
        mc.addCanvas("Map2");
        mc.addCanvas("Map3");
@@ -267,22 +268,6 @@ public class ECEngineApp extends FCApplication implements ActionListener {
        
    }
    
-   public Boolean isGoodTOFMIP(List<TOFPaddle> paddlelist, int sector) {
-       
-       Boolean goodMIP = false;
-       
-       if (paddlelist==null) return part.mip[sector-1]==1;
-       
-       double[] thresh = {500,1000,1000};
-       
-       for (TOFPaddle paddle : paddlelist){           
-           int toflay = paddle.getDescriptor().getLayer();            
-           if (paddle.getDescriptor().getSector()==sector&&paddle.geometricMean()>thresh[toflay-1]) goodMIP = true;
-       }
-       
-       return goodMIP;
-   }
-   
    public void fillHistos(DataEvent event) {
        
        double[] esum = {0,0,0,0,0,0};
@@ -424,15 +409,26 @@ public class ECEngineApp extends FCApplication implements ActionListener {
       
       if(event.hasBank("MIP::event")){          
           DataBank bank = event.getBank("MIP::event");
-          for(int i=0; i < bank.rows(); i++) {          
+          for(int i=0; i < bank.rows(); i++) {
               part.mip[i]=bank.getByte("mip", i);
-          } 
+          }
       } else {
           paddleList = DataProvider.getPaddleList(event);          
+          double[] thresh = {500,1000,1000}; 
+          for (int i=0; i<7; i++) {
+              part.mip[i]=0;
+          }
+          if (paddleList!=null) {
+          for (TOFPaddle paddle : paddleList){           
+              int toflay = paddle.getDescriptor().getLayer();            
+              int   isec = paddle.getDescriptor().getSector();  
+              part.mip[isec-1] = (paddle.geometricMean()>thresh[toflay-1]) ? 1:0;
+          }
+          }          
       }  
       
-      List<CalorimeterResponse>  neutralClusters = part.getNeutralHits(ecClusters);
-      
+      if (app.config=="pi0") part.getNeutralResponses(ecClusters);
+
       for (int is=is1; is<is2; is++) {
           
           if (isGoodSector(is)) {
@@ -443,10 +439,16 @@ public class ECEngineApp extends FCApplication implements ActionListener {
               if(nesum[1][is-1]==1) ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,0).fill(esum[is-1],5,1.);   // Total Single Cluster Energy PC=1.EC=1 
           }
                           
-          if (app.config=="pi0"&&!isGoodTOFMIP(paddleList,is)) {
-              double invmass = Math.sqrt(part.getTwoPhoton(ecClusters,is));
+          if (app.config=="pi0"&&part.mip[is-1]!=1) {
+              double invmass = Math.sqrt(part.getTwoPhotonInvMass(is));
+              
+              if(part.is1>0&&part.is2>0) {
+                                
+              ecPix[0].strips.hmap1.get("H1_a_Hist").get(part.is1, 11, part.is2).fill((float)invmass*1e3); // Two-photon invariant mass
+              
+              if(part.is1==part.is2) {
+                  
               double     opa = Math.acos(part.cth)*180/3.14159;
-              ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,0).fill((float)invmass*1e3,6,1.); // Two-photon invariant mass
               
               if(nesum[0][is-1]>1 && nesum[1][is-1]>0) {
                   ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,0).fill(esum[is-1],7,1.);          // Total Cluster Energy            
@@ -483,11 +485,12 @@ public class ECEngineApp extends FCApplication implements ActionListener {
               }
           }
           }
+          }
+      
+          }
       }
       
-      }
-      
-      if(event.hasBank("ECAL::calib")){
+      if(event.hasBank("ECAL::calib")) {
           double raw[] = new double[3];
           double rec[] = new double[3];
           DataBank bank = event.getBank("ECAL::calib");
@@ -511,6 +514,7 @@ public class ECEngineApp extends FCApplication implements ActionListener {
 //             System.out.println(" ");
           }
       }            
+   }
    }
    
   private class toLocal {
@@ -721,10 +725,11 @@ public class ECEngineApp extends FCApplication implements ActionListener {
       
       c.repaint();
       
+      // PI0 TAB
       ii=0;
       
       c = mc.getCanvas("PI0"); c.divide(3,2);      
-      h = ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,0).sliceY((int)5) ; h.setTitleX("Two Photon Invariant Mass (MeV)"); h.setFillColor(2); 
+      h = ecPix[0].strips.hmap1.get("H1_a_Hist").get(is,11,is) ; h.setTitleX("Two Photon Invariant Mass (MeV)"); h.setFillColor(2); 
       h.setOptStat(Integer.parseInt("11001100")); 
       c.cd(ii); c.getPad(ii).getAxisX().setRange(0.,400.); c.draw(h); ii++;
       
@@ -759,6 +764,21 @@ public class ECEngineApp extends FCApplication implements ActionListener {
       
       c.repaint();
       
+      // Sectors TAB
+     
+      c = mc.getCanvas("Sectors"); c.divide(3,5);  
+      int[] secmap = {12,13,14,15,16,23,24,25,26,34,35,36,45,46,56};
+      
+      for (int i=0; i<secmap.length; i++) {
+        int ss=secmap[i]; int ss1=ss/10; int ss2=ss-10*ss1;        
+        h = ecPix[0].strips.hmap1.get("H1_a_Hist").get(ss1,11,ss2) ; h.setTitleX("Sector "+ss+" Invariant Mass (MeV)"); h.setFillColor(2);
+        c.cd(i); c.getPad(i).getAxisX().setRange(0.,700.); c.draw(h);
+      }
+      
+      c.repaint();
+            
+      // Map1 TAB
+      
       c = mc.getCanvas("Map1"); c.divide(2, 1);
       c.getPad(0).getAxisZ().setLog(false); c.getPad(0).getAxisZ().setRange(0.7, 1.3);  
       c.getPad(1).getAxisZ().setLog(false); c.getPad(1).getAxisZ().setRange(0.7, 1.3);  
@@ -777,6 +797,8 @@ public class ECEngineApp extends FCApplication implements ActionListener {
      
       c.repaint();
       
+      // Map2 TAB
+      
       c = mc.getCanvas("Map2"); c.divide(2, 1);
       
       ha = ecPix[0].strips.hmap2.get("H2_a_Hist").get(1, 9, 5);
@@ -788,6 +810,8 @@ public class ECEngineApp extends FCApplication implements ActionListener {
       c.cd(1); c.getPad(1).getAxisZ().setLog(true); c.draw(ha);
      
       c.repaint();
+      
+      // Map3 TAB
       
       c = mc.getCanvas("Map3"); c.divide(3, 2);
       

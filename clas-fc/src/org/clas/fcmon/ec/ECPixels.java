@@ -429,7 +429,14 @@ public class ECPixels {
                 H2_a_Hist.add(is, 10, 3, new H2F("h_reco_"+id+3, 30, 50., 250., nstr, 1., nend));  //Pizero mass vs W Strips for Photon 1
                 H2_a_Hist.add(is, 10, 4, new H2F("h_reco_"+id+4, 30, 50., 250., nstr, 1., nend));  //Pizero mass vs U Strips for Photon 2  
                 H2_a_Hist.add(is, 10, 5, new H2F("h_reco_"+id+5, 30, 50., 250., nstr, 1., nend));  //Pizero mass vs V Strips for Photon 2   
-                H2_a_Hist.add(is, 10, 6, new H2F("h_reco_"+id+6, 30, 50., 250., nstr, 1., nend));  //Pizero mass vs W Strips for Photon 2   
+                H2_a_Hist.add(is, 10, 6, new H2F("h_reco_"+id+6, 30, 50., 250., nstr, 1., nend));  //Pizero mass vs W Strips for Photon 2 
+                id="s"+Integer.toString(is)+"_l"+Integer.toString(11)+"_c";
+                H1_a_Hist.add(is, 11, 1, new H1F("i_reco_"+id+1, 200, 5.,1100.));
+                H1_a_Hist.add(is, 11, 2, new H1F("i_reco_"+id+2, 200, 5.,1100.));
+                H1_a_Hist.add(is, 11, 3, new H1F("i_reco_"+id+3, 200, 5.,1100.));
+                H1_a_Hist.add(is, 11, 4, new H1F("i_reco_"+id+4, 200, 5.,1100.));
+                H1_a_Hist.add(is, 11, 5, new H1F("i_reco_"+id+5, 200, 5.,1100.));
+                H1_a_Hist.add(is, 11, 6, new H1F("i_reco_"+id+6, 200, 5.,1100.));
                 
             //Pixel based data
             for (int il=1; il<4 ; il++) { 
