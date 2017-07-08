@@ -39,6 +39,7 @@ import org.jlab.io.base.DataBank;
 import org.jlab.io.base.DataEvent;
 import org.jlab.service.eb.EventBuilder;
 import org.jlab.service.ec.ECPart;
+import org.jlab.service.ec.ECPart2;
 import org.jlab.groot.data.H1F;
 import org.jlab.groot.data.H2F; 
 
@@ -62,7 +63,7 @@ public class ECEngineApp extends FCApplication implements ActionListener {
     JCheckBox              gainBtn = null;
     ButtonGroup                bG1 = null;
     List<TOFPaddle>     paddleList = null;
-    ECPart                    part = new ECPart();      
+//    ECPart2                    part = new ECPart2();      
     
     DetectorType[] detNames = {DetectorType.PCAL, DetectorType.ECIN, DetectorType.ECOUT};
     double pcx,pcy,pcz;
@@ -351,6 +352,7 @@ public class ECEngineApp extends FCApplication implements ActionListener {
       // Monitor EC cluster data
                 
       EventBuilder               eb = new EventBuilder();
+      ECPart                    part = new ECPart();      
       List<List<CalorimeterResponse>>   res = new ArrayList<List<CalorimeterResponse>>();      
       part.setGeom(app.geom);  part.setConfig(app.config);      
       List<CalorimeterResponse>       ecClusters = part.readEC(event);  
@@ -438,9 +440,10 @@ public class ECEngineApp extends FCApplication implements ActionListener {
               ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,3).fill(1e-3*esum[is-1],1e-3*esum[is-1]/refE,1.); // S.F. vs. meas.photon energy  
               if(nesum[1][is-1]==1) ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,0).fill(esum[is-1],5,1.);   // Total Single Cluster Energy PC=1.EC=1 
           }
-                          
+
           if (app.config=="pi0"&&part.mip[is-1]!=1) {
               double invmass = Math.sqrt(part.getTwoPhotonInvMass(is));
+//              double invmass = Math.sqrt(part.getTwoPhotonInvMass(ecClusters,is));
               
               if(part.is1>0&&part.is2>0) {
                                 

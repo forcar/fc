@@ -29,18 +29,9 @@ import org.jlab.utils.groups.IndexedList;
 
 public class ECPart {
 	
-    EventBuilder                                  eb = new EventBuilder();
-    List<CalorimeterResponse>                    rEC = new ArrayList<CalorimeterResponse>();
-    List<CalorimeterResponse>                   rEC2 = new ArrayList<CalorimeterResponse>();
-    List<List<CalorimeterResponse>> neutralResponses = new ArrayList<List<CalorimeterResponse>>(); 
+    EventBuilder                                        eb = new EventBuilder();
+    List<List<CalorimeterResponse>>       neutralResponses = new ArrayList<List<CalorimeterResponse>>(); 
     IndexedList<List<CalorimeterResponse>>  singleNeutrals = new IndexedList<List<CalorimeterResponse>>(1);
-    List<DetectorParticle>                 particles = new ArrayList<DetectorParticle>();    
-    CalorimeterResponse                         rPC1 = new CalorimeterResponse();
-    CalorimeterResponse                         rPC2 = new CalorimeterResponse();
-    DetectorParticle                              p1 = new DetectorParticle();
-    DetectorParticle                              p2 = new DetectorParticle();
-    Vector3                                       n1 = new Vector3();
-    Vector3                                       n2 = new Vector3();
     
     public static double distance11,distance12,distance21,distance22;
     public static double e1,e2,e1c,e2c,cth,cth1,cth2,X,tpi2,cpi0,refE,refP,refTH;
@@ -104,11 +95,12 @@ public class ECPart {
     }
     
     public List<CalorimeterResponse>  readEC(DataEvent event){
-        rEC.clear();
+        List<CalorimeterResponse> rEC = new ArrayList<CalorimeterResponse>();
+        rEC.clear(); eb.initEvent();
         Boolean isEvio = event instanceof EvioDataEvent;                  
         if (isEvio) rEC =                     readEvioEvent(event, "ECDetector::clusters", DetectorType.EC); 
         if(!isEvio) rEC = CalorimeterResponse.readHipoEvent(event, "ECAL::clusters", DetectorType.EC);
-        eb.addCalorimeterResponses(rEC);
+        eb.addCalorimeterResponses(rEC); 
         return rEC;
     } 
     
@@ -121,6 +113,7 @@ public class ECPart {
     }
     
     public void getSingleNeutralResponses() {
+        List<CalorimeterResponse> rEC = new ArrayList<CalorimeterResponse>();
         singleNeutrals.clear();
         for (int is=1; is<7; is++) {
             rEC = CalorimeterResponse.getListBySector(neutralResponses.get(0),  DetectorType.EC, is);
@@ -134,8 +127,11 @@ public class ECPart {
     }   
      
     public List<DetectorParticle> getNeutralParticles(int sector) {
+              
+        List<DetectorParticle> particles = new ArrayList<DetectorParticle>();  
         
-        particles.clear();
+        List<CalorimeterResponse> rEC  = new ArrayList<CalorimeterResponse>();        
+        List<CalorimeterResponse> rEC2 = new ArrayList<CalorimeterResponse>();   
         
         rEC = CalorimeterResponse.getListBySector(neutralResponses.get(0), DetectorType.EC, sector);
         
@@ -154,17 +150,18 @@ public class ECPart {
     
     public List<CalorimeterResponse> findSecondPhoton(int sector) {
         int neut=0, isave=0;
-        rEC2.clear();
+        List<CalorimeterResponse> rEC = new ArrayList<CalorimeterResponse>();        
         for (int is=sector+1; is<7; is++) {
             if(singleNeutrals.hasItem(is)) {neut++; isave=is;}
         }
-        return (neut==1) ? singleNeutrals.getItem(isave):rEC2;
+        return (neut==1) ? singleNeutrals.getItem(isave):rEC;
     }
     
     public double doHitMatch(DetectorParticle p, String io) {
         
         int index=0;
         double distance = -10;
+        List<CalorimeterResponse> rEC = new ArrayList<CalorimeterResponse>();        
         
         int is = p.getCalorimeterResponse().get(0).getDescriptor().getSector();
         
@@ -182,15 +179,15 @@ public class ECPart {
         return distance;        
     }
         
-    public List<DetectorParticle> doHitMatching(List<DetectorParticle>  particles) {
+    public List<DetectorParticle> doHitMatching(List<DetectorParticle> particles) {
                        
         if (particles.size()==0) return particles;
         
-        p1 = particles.get(0);  //PCAL Photon 1
-        p2 = particles.get(1);  //PCAL Photon 2       
+        DetectorParticle p1 = particles.get(0);  //PCAL Photon 1
+        DetectorParticle p2 = particles.get(1);  //PCAL Photon 2       
         
-        rPC1 = p1.getCalorimeterResponse().get(0) ;
-        rPC2 = p2.getCalorimeterResponse().get(0) ;
+        CalorimeterResponse rPC1 = p1.getCalorimeterResponse().get(0) ;
+        CalorimeterResponse rPC2 = p2.getCalorimeterResponse().get(0) ;
         
         ip1 = rPC1.getHitIndex();
         ip2 = rPC2.getHitIndex();
@@ -215,11 +212,11 @@ public class ECPart {
         
         if (particles.size()==0) return 0.0;
         
-        p1 = particles.get(0);  //Photon 1
-        p2 = particles.get(1);  //Photon 2
+        DetectorParticle p1 = particles.get(0);  //Photon 1
+        DetectorParticle p2 = particles.get(1);  //Photon 2
         
-        n1 = p1.vector(); n1.unit();
-        n2 = p2.vector(); n2.unit();
+        Vector3 n1 = p1.vector(); n1.unit();
+        Vector3 n2 = p2.vector(); n2.unit();
                 
         e1 = p1.getEnergy(DetectorType.EC);
         e2 = p2.getEnergy(DetectorType.EC);
