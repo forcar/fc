@@ -96,7 +96,7 @@ public class ECPart {
     
     public List<CalorimeterResponse>  readEC(DataEvent event){
         List<CalorimeterResponse> rEC = new ArrayList<CalorimeterResponse>();
-        rEC.clear(); eb.initEvent();
+        eb.initEvent();
         Boolean isEvio = event instanceof EvioDataEvent;                  
         if (isEvio) rEC =                     readEvioEvent(event, "ECDetector::clusters", DetectorType.EC); 
         if(!isEvio) rEC = CalorimeterResponse.readHipoEvent(event, "ECAL::clusters", DetectorType.EC);
