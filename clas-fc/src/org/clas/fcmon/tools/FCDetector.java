@@ -17,6 +17,7 @@ import org.clas.fcmon.detector.view.DetectorPane2D;
 import org.clas.fcmon.detector.view.DetectorShape2D;
 import org.clas.fcmon.ec.ECPixels;
 import org.clas.fcmon.ftof.FTOFPixels;
+import org.clas.fcmon.ctof.CTOFPixels;
 import org.jlab.detector.base.DetectorCollection;
 import org.jlab.detector.base.DetectorDescriptor;
 import org.jlab.utils.groups.IndexedList;
@@ -36,6 +37,7 @@ public class FCDetector {
     public ECPixels[]                ecPix = null;  
     public CCPixels                  ccPix = null; 
     public FTOFPixels[]            ftofPix = null; 
+    public CTOFPixels[]            ctofPix = null; 
     public MonitorApp                  app = null;
     public DetectorMonitor             mon = null;
     public TreeMap<String,JPanel>  rbPanes = new TreeMap<String,JPanel>();
@@ -89,6 +91,12 @@ public class FCDetector {
         this.nStrips[1] = ftofPix[1].nstr;
         this.nStrips[2] = ftofPix[2].nstr;
     }
+    public FCDetector(String name, CTOFPixels[] ctofPix) {
+        this.appName = name;
+        this.ctofPix = ctofPix;   
+        this.nStrips[0] = ctofPix[0].nstr;
+//        this.nStrips[1] = ctofPix[1].nstr;
+    }  
     
     public void setApplicationClass(MonitorApp app) {
         this.app = app;
@@ -156,7 +164,7 @@ public class FCDetector {
         this.rbPanes = app.getDetectorView().rbPanes;
         if (group=="LAY") {
             app.currentView = name;
-            name = name+Integer.toString(ilmap);
+            name = name+Integer.toString(ilmap); 
             app.getDetectorView().getView().setLayerState(name, true);
             if (key<3) {rbPanes.get("PMT").setVisible(true);rbPanes.get("PIX").setVisible(false);omap=app.getDetectorView().getMapKey("PMT",bStore.get("PMT"));}       
             if (key>2) {rbPanes.get("PIX").setVisible(true);rbPanes.get("PMT").setVisible(false);omap=app.getDetectorView().getMapKey("PIX",bStore.get("PIX"));}

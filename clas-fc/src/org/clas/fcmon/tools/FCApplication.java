@@ -27,6 +27,7 @@ import org.clas.fcmon.ec.ECPixels;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import org.clas.fcmon.ftof.FTOFPixels;
+import org.clas.fcmon.ctof.CTOFPixels;
 import org.jlab.detector.base.DetectorCollection;
 import org.jlab.detector.base.DetectorDescriptor;
 import org.jlab.detector.calib.tasks.CalibrationEngine;
@@ -55,6 +56,7 @@ public class FCApplication implements ActionListener  {
     public ECPixels[]                                   ecPix = new ECPixels[2];
     public CCPixels                                     ccPix = null;
     public FTOFPixels[]                               ftofPix = null;
+    public CTOFPixels[]                               ctofPix = null;
     
 	public DetectorCollection<TreeMap<Integer,Object>> Lmap_a = new  DetectorCollection<TreeMap<Integer,Object>>();
 	public TreeMap<String, DetectorCollection<H1F>>     hmap1 = new TreeMap<String, DetectorCollection<H1F>>();
@@ -113,6 +115,12 @@ public class FCApplication implements ActionListener  {
     public FCApplication(String name, FTOFPixels[] ftofPix) {
         this.appName = name;
         this.ftofPix = ftofPix;   
+        this.addCanvas(name);
+    }
+    
+    public FCApplication(String name, CTOFPixels[] ctofPix) {
+        this.appName = name;
+        this.ctofPix = ctofPix;   
         this.addCanvas(name);
     }
     
