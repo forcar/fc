@@ -130,7 +130,8 @@ public class ECMode1App extends FCApplication  {
           
       for (int il=1; il<4 ; il++) {
 //          h2 = H2F.divide(dc2a.get(is,il,0),dc2a.get(is,il,1)); 
-          h2 = dc2a.get(is,il,1); 
+          h2 = dc2a.get(is,il,0);
+          if(app.getDataSource()=="HIPO") h2 = dc2a.get(is,il,1); 
           h2.setTitleY("Sector "+is+otab[idet][il-1]) ; h2.setTitleX("SAMPLES (4 ns/ch)");         
           canvasConfig(c,il-1,0.,100.,1.,nstr+1.,true).draw(h2);          
           if (la==il) {c.draw(f1,"same"); c.draw(f2,"same");}          
