@@ -207,10 +207,9 @@ public class ECReconstructionApp extends FCApplication {
                
                for (int ii=0 ; ii< 100 ; ii++) {
                    double wgt1=0; double wgt2=0;
-                   if (ii==(int)(t/4)) {wgt1=sadc; wgt2=1.0;}
-                   float wgt = (ii==(int)(t/4)) ? sadc:0;
-                   ecPix[idet].strips.hmap2.get("H2_Mode1_Hist").get(is,ilay,0).fill(ii,ip,wgt1);
-                   ecPix[idet].strips.hmap2.get("H2_Mode1_Hist").get(is,ilay,1).fill(ii,ip,wgt2);
+                   if (ii==(int)(t/4)) {wgt1=sadc; wgt2=1.0;}                  
+                   ecPix[idet].strips.hmap2.get("H2_Mode1_Hist").get(is,ilay,0).fill(ii,ip,wgt2);
+                   ecPix[idet].strips.hmap2.get("H2_Mode1_Hist").get(is,ilay,1).fill(ii,ip,wgt1);
                    if (app.isSingleEvent()) {
                        ecPix[idet].strips.hmap2.get("H2_Mode1_Sevd").get(is,ilay,0).fill(ii,ip,wgt1);
                    }
