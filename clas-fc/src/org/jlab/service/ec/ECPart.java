@@ -15,6 +15,7 @@ import org.jlab.clas.physics.Vector3;
 import org.jlab.detector.base.DetectorType;
 import org.jlab.geom.prim.Line3D;
 import org.jlab.groot.data.H1F;
+import org.jlab.groot.data.H2F;
 import org.jlab.groot.graphics.EmbeddedCanvas;
 import org.jlab.io.base.DataBank;
 import org.jlab.io.base.DataEvent;
@@ -30,14 +31,23 @@ import org.jlab.utils.groups.IndexedList;
 public class ECPart {
 	
     EventBuilder                                        eb = new EventBuilder();
-    List<List<CalorimeterResponse>>       neutralResponses = new ArrayList<List<CalorimeterResponse>>(); 
+    List<List<CalorimeterResponse>>       unmatchedResponses = new ArrayList<List<CalorimeterResponse>>(); 
     IndexedList<List<CalorimeterResponse>>  singleNeutrals = new IndexedList<List<CalorimeterResponse>>(1);
+    IndexedList<List<CalorimeterResponse>>      singleMIPs = new IndexedList<List<CalorimeterResponse>>(1);
     
     public static double distance11,distance12,distance21,distance22;
-    public static double e1,e2,e1c,e2c,cth,cth1,cth2,X,tpi2,cpi0,refE,refP,refTH;
+    public static double e1,e2,e1c,e2c,cth,cth1,cth2;
+    public static double X,tpi2,cpi0,refE,refP,refTH;
     public static double x1,y1,x2,y2;
-    public static int ip1,ip2,is1,is2;
+//    public static int[] ip1,ip2,is1,is2;
+    public static int[] iip = new int[2];
+    public static int[] iis = new int[2];
+    public static double[] x = new double[2];
+    public static double[] y = new double[2];
+    public static double[] distance1 = new double[2];
+    public static double[] distance2 = new double[2];
     public static double mpi0 = 0.1349764;
+    public static double melec = 0.000511;
     public static String geom = "2.4";
     public static String config = null;
     public static double SF1 = 0.27;
@@ -45,7 +55,7 @@ public class ECPart {
   
     public int n2hit=0;
     public int n2rec=0;
-    public int[] mip = {0,0,0,0,0,0};
+    public int[] mip = {0,0,0,0,1,0};
     
     public static void readMC(DataEvent event) {
         int pid=0;
@@ -66,6 +76,7 @@ public class ECPart {
             pid = bank.getInt("pid",0);                
         }
         double  rm = 0.;
+        if (pid==11)  rm=melec;
         if (pid==111) rm=mpi0;                   
         refP  = Math.sqrt(ppx*ppx+ppy*ppy+ppz*ppz);  
         refE  = Math.sqrt(refP*refP+rm*rm);            
@@ -104,39 +115,69 @@ public class ECPart {
         return rEC;
     } 
     
+    public void getUnmatchedResponses(List<CalorimeterResponse> response) {        
+        unmatchedResponses.clear();
+        unmatchedResponses.add(eb.getUnmatchedResponses(response, DetectorType.EC,1));
+        unmatchedResponses.add(eb.getUnmatchedResponses(response, DetectorType.EC,4));
+        unmatchedResponses.add(eb.getUnmatchedResponses(response, DetectorType.EC,7));
+    }    
+        
     public void getNeutralResponses(List<CalorimeterResponse> response) {        
-        neutralResponses.clear();
-        neutralResponses.add(eb.getUnmatchedResponses(response, DetectorType.EC,1));
-        neutralResponses.add(eb.getUnmatchedResponses(response, DetectorType.EC,4));
-        neutralResponses.add(eb.getUnmatchedResponses(response, DetectorType.EC,7));
-        getSingleNeutralResponses();
+        getUnmatchedResponses(response);
+    	getSingleNeutralResponses();
     }
     
+    public void getMIPResponses(List<CalorimeterResponse> response) {        
+        getUnmatchedResponses(response);
+    	getSingleMIPResponses();
+    }
+    
+    public void getSingleMIPResponses() {
+        List<CalorimeterResponse> rEC = new ArrayList<CalorimeterResponse>();
+        singleMIPs.clear();
+        for (int is=1; is<7; is++) {
+            rEC = CalorimeterResponse.getListBySector(unmatchedResponses.get(0),  DetectorType.EC, is);
+            if(rEC.size()==1&&mip[is-1]==1) singleMIPs.add(rEC,is);
+        }     	
+    }
+        
     public void getSingleNeutralResponses() {
         List<CalorimeterResponse> rEC = new ArrayList<CalorimeterResponse>();
         singleNeutrals.clear();
         for (int is=1; is<7; is++) {
-            rEC = CalorimeterResponse.getListBySector(neutralResponses.get(0),  DetectorType.EC, is);
+            rEC = CalorimeterResponse.getListBySector(unmatchedResponses.get(0),  DetectorType.EC, is);
             if(rEC.size()==1&&mip[is-1]!=1) singleNeutrals.add(rEC,is);
         } 
     }
     
     public double getTwoPhotonInvMass(int sector){
-        is1=0;is2=-1;
+        iis[0]=0;iis[1]=-1;
         return processTwoPhotons(doHitMatching(getNeutralParticles(sector)));
     }   
+    
+    public double getEcalEnergy(int sector){
+        iis[0]=0;
+        return processSingleMIP(doHitMatching(getMIParticles(sector)));
+    }   
+    
+    public List<DetectorParticle> getMIParticles(int sector) {
+    	
+        List<DetectorParticle> particles = new ArrayList<DetectorParticle>();          
+        List<CalorimeterResponse>   rEC  = new ArrayList<CalorimeterResponse>();        
+        rEC = CalorimeterResponse.getListBySector(unmatchedResponses.get(0), DetectorType.EC, sector);
+        if (rEC.size()==1) particles.add(DetectorParticle.createNeutral(rEC.get(0)));
+        return particles;
+    }
      
     public List<DetectorParticle> getNeutralParticles(int sector) {
               
-        List<DetectorParticle> particles = new ArrayList<DetectorParticle>();  
+        List<DetectorParticle> particles = new ArrayList<DetectorParticle>();          
+        List<CalorimeterResponse>   rEC  = new ArrayList<CalorimeterResponse>();        
         
-        List<CalorimeterResponse> rEC  = new ArrayList<CalorimeterResponse>();        
-        List<CalorimeterResponse> rEC2 = new ArrayList<CalorimeterResponse>();   
-        
-        rEC = CalorimeterResponse.getListBySector(neutralResponses.get(0), DetectorType.EC, sector);
+        rEC = CalorimeterResponse.getListBySector(unmatchedResponses.get(0), DetectorType.EC, sector);
         
         switch (rEC.size()) {
-        case 1: rEC2 = findSecondPhoton(sector);
+        case 1:  List<CalorimeterResponse> rEC2 = findSecondPhoton(sector);
                 if (rEC2.size()>0) {
                    particles.add(DetectorParticle.createNeutral(rEC.get(0)));
                    particles.add(DetectorParticle.createNeutral(rEC2.get(0))); return particles;
@@ -157,7 +198,7 @@ public class ECPart {
         return (neut==1) ? singleNeutrals.getItem(isave):rEC;
     }
     
-    public double doHitMatch(DetectorParticle p, String io) {
+    public double doPCECMatch(DetectorParticle p, String io) {
         
         int index=0;
         double distance = -10;
@@ -166,11 +207,11 @@ public class ECPart {
         int is = p.getCalorimeterResponse().get(0).getDescriptor().getSector();
         
         switch (io) {       
-        case "Inner": rEC = CalorimeterResponse.getListBySector(neutralResponses.get(1), DetectorType.EC, is);
+        case "Inner": rEC = CalorimeterResponse.getListBySector(unmatchedResponses.get(1), DetectorType.EC, is);
                       index  = p.getCalorimeterHit(rEC,DetectorType.EC,4,EBConstants.ECIN_MATCHING);
                       if(index>=0){p.addResponse(rEC.get(index),true); rEC.get(index).setAssociation(0);
                       distance = p.getDistance(rEC.get(index)).length();}
-        case "Outer": rEC = CalorimeterResponse.getListBySector(neutralResponses.get(2), DetectorType.EC, is); 
+        case "Outer": rEC = CalorimeterResponse.getListBySector(unmatchedResponses.get(2), DetectorType.EC, is); 
                       index  = p.getCalorimeterHit(rEC,DetectorType.EC,7,EBConstants.ECOUT_MATCHING);
                       if(index>=0){p.addResponse(rEC.get(index),true); rEC.get(index).setAssociation(0);
                       distance = p.getDistance(rEC.get(index)).length();}
@@ -178,7 +219,7 @@ public class ECPart {
         
         return distance;        
     }
-        
+/*        
     public List<DetectorParticle> doHitMatching(List<DetectorParticle> particles) {
                        
         if (particles.size()==0) return particles;
@@ -207,7 +248,25 @@ public class ECPart {
                 
         return particles;
     }
-       
+    */ 
+    
+    public List<DetectorParticle> doHitMatching(List<DetectorParticle> particles) {
+        
+        for (int ii=0; ii<particles.size(); ii++) {
+        	DetectorParticle      p = particles.get(ii);          
+            CalorimeterResponse rPC = p.getCalorimeterResponse().get(0) ;
+            iip[ii] = rPC.getHitIndex();        
+            iis[ii] = rPC.getDescriptor().getSector();
+              x[ii] = rPC.getPosition().x();
+              y[ii] = rPC.getPosition().y();
+        
+            distance1[ii] = doPCECMatch(p,"Inner");
+            distance2[ii] = doPCECMatch(p,"Outer");
+        }
+                
+        return particles;
+    }  
+    
     public double processTwoPhotons(List<DetectorParticle> particles) {
         
         if (particles.size()==0) return 0.0;
@@ -265,7 +324,12 @@ public class ECPart {
         //System.out.println(particles.get(1));
         //System.out.println(gen);
     }
-
+    
+    public double processSingleMIP(List<DetectorParticle> particles) {
+        if (particles.size()==0) return 0.0;
+    	return particles.get(0).getEnergy(DetectorType.EC);
+    }
+    
     public CalorimeterResponse  myCalorimeterResponse(DetectorParticle p, DetectorType type, int layer){
         List<CalorimeterResponse> calorimeterStore = p.getCalorimeterResponses();
         for(CalorimeterResponse res : calorimeterStore){
@@ -288,15 +352,67 @@ public class ECPart {
         case "2.5": return 0.250*(1.0286 - 0.0150/e + 0.00012/e/e);
         }
         return Double.parseDouble(geom);
-    }    
+    } 
     
-    public static void main(String[] args){
+    public void setThresholds(String part, ECEngine engine) {
+    	switch (part) {
+    	case "Electron":engine.setStripThresholds(10,10,10);
+                        engine.setPeakThresholds(30,30,30);
+                        engine.setClusterCuts(7,15,20); break;    		
+    	case   "Pizero":engine.setStripThresholds(10,9,8);
+                        engine.setPeakThresholds(18,20,15);
+                        engine.setClusterCuts(7,15,20); 
+    	}
+    }
+    
+    public static void electronDemo(String[] args) {
+    	
+        ECEngine       engine = new ECEngine();
+        HipoDataSource reader = new HipoDataSource();
+        ECPart           part = new ECPart();    	
         
+        String evioPath = "/Users/colesmith/clas12/gemc/elec/hipo/";
+        reader.open(evioPath+"fc-elec-20k-s5-r2.hipo");
+        engine.init();
+        engine.isMC = true;
+        engine.setVariation("default");
+        engine.setCalRun(2);                
+        part.setThresholds("Electron",engine);
+        part.setGeom("2.5");
+        
+        H2F h1 = new H2F("E/P vs P",50,1.0,10.0,50,0.18,0.32);      
+        h1.setTitleX("Electron True Momentum (GeV))");
+        h1.setTitleY("E/P");
+        
+        while(reader.hasEvent()){
+            DataEvent event = reader.getNextEvent();
+            part.readMC(event);
+            engine.processDataEvent(event);   
+            part.getMIPResponses(part.readEC(event));
+            double energy = part.getEcalEnergy(5);
+            h1.fill(refE,energy/refE);
+        }
+        
+        JFrame frame = new JFrame("Electron Reconstruction");
+        frame.setSize(800,800);
+        EmbeddedCanvas canvas = new EmbeddedCanvas();
+        canvas.divide(2,2);
+        canvas.cd(0); canvas.draw(h1);
+
+        frame.add(canvas);
+        frame.setLocationRelativeTo(null);
+        frame.setVisible(true);
+        
+    }
+    
+    public static void pizeroDemo(String[] args) {
+    	
         ECEngine       engine = new ECEngine();
         HipoDataSource reader = new HipoDataSource();
         ECPart           part = new ECPart();
         
         String evioPath = "/Users/colesmith/clas12/gemc/pizero/hipo/";
+        
         // GEMC file: 10k 2.0 GeV pizeros thrown at 25 deg into Sector 2 using GEMC 2.4 geometry
         // JLAB: evioPath = "/lustre/expphy/work/hallb/clas12/lcsmith/clas12/forcar/gemc/evio/";
         
@@ -312,11 +428,8 @@ public class ECPart {
         engine.isMC = true;
         engine.setVariation("clas6");
         engine.setCalRun(2);
-        engine.setStripThresholds(10,9,8);
-//        engine.setStripThresholds(5,5,5);
-        engine.setPeakThresholds(18,20,15);
-//        engine.setPeakThresholds(5,5,5);
-        engine.setClusterCuts(7,15,20);
+        
+        part.setThresholds("Pizero",engine);
         part.setGeom("2.5");
         
         H1F h1 = new H1F("Invariant Mass",50,10.,200);         
@@ -362,4 +475,11 @@ public class ECPart {
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);     
     }
+  	 
+    
+    public static void main(String[] args){
+//    	pizeroDemo(args);
+    	electronDemo(args);
+    }
+    
 }
