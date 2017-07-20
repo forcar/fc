@@ -39,7 +39,7 @@ import org.jlab.io.base.DataBank;
 import org.jlab.io.base.DataEvent;
 import org.jlab.service.eb.EventBuilder;
 import org.jlab.service.ec.ECPart;
-import org.jlab.service.ec.ECPart2;
+
 import org.jlab.groot.data.H1F;
 import org.jlab.groot.data.H2F; 
 
@@ -445,11 +445,11 @@ public class ECEngineApp extends FCApplication implements ActionListener {
               double invmass = Math.sqrt(part.getTwoPhotonInvMass(is));
 //              double invmass = Math.sqrt(part.getTwoPhotonInvMass(ecClusters,is));
               
-              if(part.is1>0&&part.is2>0) {
+              if(part.iis[0]>0&&part.iis[1]>0) {
                                 
-              ecPix[0].strips.hmap1.get("H1_a_Hist").get(part.is1, 11, part.is2).fill((float)invmass*1e3); // Two-photon invariant mass
+              ecPix[0].strips.hmap1.get("H1_a_Hist").get(part.iis[0], 11, part.iis[1]).fill((float)invmass*1e3); // Two-photon invariant mass
               
-              if(part.is1==part.is2) {
+              if(part.iis[0]==part.iis[1]) {
                   
               double     opa = Math.acos(part.cth)*180/3.14159;
               
@@ -473,15 +473,15 @@ public class ECEngineApp extends FCApplication implements ActionListener {
                   ecPix[0].strips.hmap2.get("H2_a_Hist").get(1,9,7).fill(-part.x2, part.y2,1.);
                   ecPix[0].strips.hmap2.get("H2_a_Hist").get(1,9,8).fill(-part.x2, part.y2,invmass/part.mpi0);
                   float ipU,ipV,ipW;
-                  ipU = (ecBank.getInt("coordU", part.ip1)-4)/8;
-                  ipV = (ecBank.getInt("coordV", part.ip1)-4)/8;
-                  ipW = (ecBank.getInt("coordW", part.ip1)-4)/8;
+                  ipU = (ecBank.getInt("coordU", part.iip[0])-4)/8;
+                  ipV = (ecBank.getInt("coordV", part.iip[0])-4)/8;
+                  ipW = (ecBank.getInt("coordW", part.iip[0])-4)/8;
                   ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,10,1).fill(invmass*1e3,ipU);
                   ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,10,2).fill(invmass*1e3,ipV);
                   ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,10,3).fill(invmass*1e3,ipW);
-                  ipU = (ecBank.getInt("coordU", part.ip2)-4)/8;
-                  ipV = (ecBank.getInt("coordV", part.ip2)-4)/8;
-                  ipW = (ecBank.getInt("coordW", part.ip2)-4)/8;
+                  ipU = (ecBank.getInt("coordU", part.iip[1])-4)/8;
+                  ipV = (ecBank.getInt("coordV", part.iip[1])-4)/8;
+                  ipW = (ecBank.getInt("coordW", part.iip[1])-4)/8;
                   ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,10,4).fill(invmass*1e3,ipU);
                   ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,10,5).fill(invmass*1e3,ipV);
                   ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,10,6).fill(invmass*1e3,ipW);
