@@ -4,12 +4,8 @@ import java.util.ArrayList;
 
 import javax.swing.JFrame;
 
-import org.clas.fcmon.ec.ECPixels;
 import org.clas.fcmon.tools.FCCalibrationData;
 import org.jlab.detector.base.DetectorCollection;
-import org.jlab.detector.base.DetectorType;
-import org.jlab.geom.detector.ec.ECDetector;
-import org.jlab.geom.detector.ec.ECFactory;
 import org.jlab.groot.base.GStyle;
 import org.jlab.groot.data.GraphErrors;
 import org.jlab.groot.data.H1F;
