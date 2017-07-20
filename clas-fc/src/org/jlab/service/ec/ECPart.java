@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.swing.JFrame;
 
+import org.clas.fcmon.tools.HipoFile;
 import org.jlab.clas.detector.CalorimeterResponse;
 import org.jlab.clas.detector.DetectorParticle;
 import org.jlab.clas.detector.DetectorResponse;
@@ -12,6 +13,7 @@ import org.jlab.clas.physics.GenericKinematicFitter;
 import org.jlab.clas.physics.Particle;
 import org.jlab.clas.physics.PhysicsEvent;
 import org.jlab.clas.physics.Vector3;
+import org.jlab.detector.base.DetectorCollection;
 import org.jlab.detector.base.DetectorType;
 import org.jlab.geom.prim.Line3D;
 import org.jlab.groot.data.H1F;
@@ -372,7 +374,7 @@ public class ECPart {
         ECPart           part = new ECPart();    	
         
         String evioPath = "/Users/colesmith/clas12/gemc/elec/hipo/";
-        reader.open(evioPath+"fc-elec-20k-s5-r2.hipo");
+        reader.open(evioPath+"fc-elec-40k-s5-r2.hipo");
         engine.init();
         engine.isMC = true;
         engine.setVariation("default");
@@ -380,9 +382,11 @@ public class ECPart {
         part.setThresholds("Electron",engine);
         part.setGeom("2.5");
         
-        H2F h1 = new H2F("E/P vs P",50,1.0,10.0,50,0.18,0.32);      
-        h1.setTitleX("Electron True Momentum (GeV))");
-        h1.setTitleY("E/P");
+        DetectorCollection<H2F> H2_a_Hist = new DetectorCollection<H2F>();       
+        String id="_s"+Integer.toString(5)+"_l"+Integer.toString(0)+"_c";
+        H2F h1 = new H2F("E over P"+id+0,50,0.0,2.7,50,0.18,0.32);      
+        h1.setTitleX("Measured Electron Energy (GeV))");
+        h1.setTitleY("Sampling Fraction");
         
         while(reader.hasEvent()){
             DataEvent event = reader.getNextEvent();
@@ -390,7 +394,7 @@ public class ECPart {
             engine.processDataEvent(event);   
             part.getMIPResponses(part.readEC(event));
             double energy = part.getEcalEnergy(5);
-            h1.fill(refE,energy/refE);
+            h1.fill(energy,energy/refE);
         }
         
         JFrame frame = new JFrame("Electron Reconstruction");
@@ -403,6 +407,11 @@ public class ECPart {
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
         
+        H2_a_Hist.add(5, 0, 0, h1);
+        String hipoFileName = "/Users/colesmith/test.hipo";
+        HipoFile histofile = new HipoFile(hipoFileName);
+        histofile.addToMap("H2_a_Hist", H2_a_Hist); 
+        histofile.writeHipoFile(hipoFileName);        
     }
     
     public static void pizeroDemo(String[] args) {
