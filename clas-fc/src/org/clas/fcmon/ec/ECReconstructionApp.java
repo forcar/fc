@@ -104,11 +104,11 @@ public class ECReconstructionApp extends FCApplication {
    
    public void addEvent(DataEvent event) {
        
-      if(app.getDataSource()=="ET") this.updateRawData(event);
+      if(app.getDataSource()=="ET") this.updateEvioData(event);
       
       if(app.getDataSource()=="EVIO") {
           if(app.isMC==true)  this.updateSimulatedData(event);
-          if(app.isMC==false) this.updateRawData(event); 
+          if(app.isMC==false) this.updateEvioData(event); 
       }
       
       if(app.getDataSource()=="XHIPO"||app.getDataSource()=="HIPO") this.updateHipoData(event);
@@ -149,7 +149,7 @@ public class ECReconstructionApp extends FCApplication {
        
        clear(0); clear(1); clear(2); tdcs.clear();
        
-       if (app.isMC) {tdcmax=200000; offset=600; tps=1;}
+       if (app.isMC) {tdcmax=2000000; offset=600; tps=1;}
        sca = (app.isCRT) ? 6.6:1; // For pre-installation PCAL CRT runs
        
        if(!app.isMC&&event.hasBank("RUN::config")){
@@ -170,9 +170,11 @@ public class ECReconstructionApp extends FCApplication {
                int  il = bank.getByte("layer",i);
                int  ip = bank.getShort("component",i);               
                tdcd = bank.getInt("TDC",i)*tps/1000;
-               if(app.isMC&&tdcd<tdcmax) tdcmax=tdcd; //Find and save longest hit time for MC events            
-               if(!tdcs.hasItem(is,il,ip)) tdcs.add(new ArrayList<Float>(),is,il,ip);
-               tdcs.getItem(is,il,ip).add(tdcd);              
+               if(tdcd>0) {
+                   if(app.isMC&&tdcd<tdcmax) tdcmax=tdcd; //Find and save longest hit time for MC events            
+                   if(!tdcs.hasItem(is,il,ip)) tdcs.add(new ArrayList<Float>(),is,il,ip);
+                   tdcs.getItem(is,il,ip).add(tdcd);       
+               }
            }
        }
        
@@ -244,7 +246,7 @@ public class ECReconstructionApp extends FCApplication {
        this.pedref = app.mode7Emulation.pedref;
     }
    
-   public void updateRawData(DataEvent event) {
+   public void updateEvioData(DataEvent event) {
        
        clear(0); clear(1); clear(2); tdcs.clear();
        DetectorDataDgtz ddd;
@@ -491,7 +493,7 @@ public class ECReconstructionApp extends FCApplication {
        
        }
        
-       ecPix[idet].strips.hmap2.get("H2_a_Hist").get(is,il,3).fill(adc,ip,1.);  
+       if (adc>0) ecPix[idet].strips.hmap2.get("H2_a_Hist").get(is,il,3).fill(adc,ip,1.);  
         
        if(adc>ecPix[idet].getStripThr(app.config,il)){
            ecPix[idet].uvwa[is-1]=ecPix[idet].uvwa[is-1]+ecPix[idet].uvw_dalitz(idet,il,ip); //Dalitz adc
@@ -521,6 +523,7 @@ public class ECReconstructionApp extends FCApplication {
                   ecPix[idet].strips.putpixels(il+1,ip,ad,sed7);
               }
               for (int n=0 ; n<ecPix[idet].nht[is][il] ; n++) {
+//                  System.out.println(is+" "+il+" "+n);
                   int ip=ecPix[idet].strrt[is][il][n]; float td=(float) ecPix[idet].tdcr[is][il][n];
                   double tdc = 0.25*(td-ECConstants.TOFFSET);
                   float  wgt = (float) ecPix[idet].ph[is][il][n];
