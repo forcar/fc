@@ -11,6 +11,7 @@ import org.jlab.groot.data.GraphErrors;
 import org.jlab.groot.data.H1F;
 import org.jlab.groot.data.H2F;
 import org.jlab.groot.fitter.DataFitter;
+import org.jlab.groot.fitter.ParallelSliceFitter;
 import org.jlab.groot.graphics.EmbeddedCanvas;
 import org.jlab.groot.math.Func1D;
 
@@ -49,9 +50,9 @@ public class getSF {
         return graph;
     }
     
-    static class CustomFunction extends Func1D{
+    static class SFFunction extends Func1D{
 
-        public CustomFunction(String name, double min, double max) {
+        public SFFunction(String name, double min, double max) {
             super(name, min, max);
         }
 
@@ -68,17 +69,32 @@ public class getSF {
         }
     }
     
-    public static void main(String[] args){        
-        JFrame          frame = new JFrame("getSF");
-        EmbeddedCanvas canvas = new EmbeddedCanvas();
-        CustomFunction     f1 = new CustomFunction("SF", 0.05, 2.7);        
-        getSF              sf = new getSF();
-        
-        H2F          fitHist = sf.readHipoFile().get(5, 0, 0);
-        GraphErrors fitGraph = sf.getMean(fitHist);
+    static class RESFunction extends Func1D{
+
+        public RESFunction(String name, double min, double max) {
+            super(name, min, max);
+        }
+
+        //Simple polynomial function of any order
+        @Override
+        public double evaluate(double x){
+            double sum = 0.0;
+            for(int i=0; i<this.getNPars()-1; i++){
+                sum += this.getParameter(i+1)/Math.pow(x,i);
+            }
+            sum=this.getParameter(0)*sum;
+            
+            return sum;
+        }
+    }
+    
+    public GraphErrors fitSF(H2F hfit) {
+    	
+        SFFunction     f1 = new SFFunction("SF", 0.05, 2.7);        
+        GraphErrors fitGraph = getMean(hfit);
         
         f1.addParameter("sf"); f1.setParameter(0,0.275);  f1.setParLimits(0, 0.24, 0.29);
-        f1.addParameter("a");  f1.setParameter(1,1.0134); f1.setParLimits(1, 0.9, 1.1);
+        f1.addParameter("a");  f1.setParameter(1,1.0); f1.setParLimits(1, 0.999, 1.001);
         f1.addParameter("b");  f1.setParameter(2,-0.04);
         f1.addParameter("c");  f1.setParameter(3,-0.0);
         f1.setLineWidth(2);
@@ -87,9 +103,41 @@ public class getSF {
         
         DataFitter.fit(f1, fitGraph,"V");
         
+        return fitGraph;
+    	
+    }
+    
+    public GraphErrors fitRes(H2F hfit) {
+    	    ParallelSliceFitter fitter = new ParallelSliceFitter(hfit);
+        fitter.fitSlicesX();
+        GraphErrors sigGraph = fitter.getSigmaSlices();    	
+    	    return sigGraph;
+    }
+    
+    public static void main(String[] args){        
+        JFrame          frame = new JFrame("getSF");
+        EmbeddedCanvas canvas = new EmbeddedCanvas();
+        getSF              sf = new getSF();
+        H2F           fitHist = null;
+        GraphErrors  fitGraph = null;
+        
+        fitHist  = sf.readHipoFile().get(5, 0, 0);
+        fitGraph = sf.fitSF(fitHist);
+        
+		canvas.setAxisTitleSize(18);
+		canvas.setAxisLabelSize(18);
+        canvas.divide(2, 2);
+        
+        canvas.cd(0);
         canvas.draw(fitHist);
         canvas.draw(fitGraph,"same");        
-        canvas.draw(f1,"same");
+        canvas.draw(fitGraph.getFunction(),"same");
+        
+        fitGraph = sf.fitRes(fitHist);
+        
+        canvas.cd(1);
+        canvas.draw(fitGraph);        
+//        canvas.draw(fitGraph.getFunction(),"same");
         
         frame.setSize(800,500);
         frame.add(canvas);
