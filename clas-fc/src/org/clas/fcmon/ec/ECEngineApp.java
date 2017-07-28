@@ -63,7 +63,6 @@ public class ECEngineApp extends FCApplication implements ActionListener {
     JCheckBox              gainBtn = null;
     ButtonGroup                bG1 = null;
     List<TOFPaddle>     paddleList = null;
-//    ECPart2                    part = new ECPart2();      
     
     DetectorType[] detNames = {DetectorType.PCAL, DetectorType.ECIN, DetectorType.ECOUT};
     double pcx,pcy,pcz;
@@ -353,9 +352,9 @@ public class ECEngineApp extends FCApplication implements ActionListener {
                 
       EventBuilder               eb = new EventBuilder();
       ECPart                    part = new ECPart();      
-      List<List<CalorimeterResponse>>   res = new ArrayList<List<CalorimeterResponse>>();      
+      List<List<DetectorResponse>>   res = new ArrayList<List<DetectorResponse>>();      
       part.setGeom(app.geom);  part.setConfig(app.config);      
-      List<CalorimeterResponse>       ecClusters = part.readEC(event);  
+      List<DetectorResponse>       ecClusters = part.readEC(event);  
       
       if (ecClusters.size()>0) {
           
