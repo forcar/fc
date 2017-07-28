@@ -59,9 +59,9 @@ public class CalibrationData {
         
         Boolean fitcut[] = new Boolean[dataSize];
 
-        // For raw graph cnts>5 data>20
+        // For raw graph show all pixels 
         for(int loop=0; loop < data.length; loop++) {
-            fitcut[loop] = cnts[loop]>11&&data[loop]>20&&!status[loop];
+            fitcut[loop] = cnts[loop]>11 && data[loop]>20 && !status[loop];
             if (fitcut[loop]) fitSize++;
             xpraw[loop]  = xdata[loop]; 
             xprawe[loop] = 0.;
@@ -74,7 +74,7 @@ public class CalibrationData {
         double[] xpfite = new double[fitSize];
         double[] ypfite = new double[fitSize];  
         
-        // For fit graph
+        // For fit graph fitcut: cnts>11 data>20
         int n=0;
         for(int loop = 0; loop < data.length; loop++){
             if (fitcut[loop]) {
