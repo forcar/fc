@@ -62,6 +62,7 @@ public class MonitorApp extends JFrame implements ActionListener {
     JPanel  buttonPane = null;
     JTextField   runno = new JTextField(4);
     JCheckBox    mcBtn = null;
+    JCheckBox   mcbBtn = null;
     JCheckBox    tbBtn = null;
     JCheckBox epicsBtn = null;
     
@@ -102,6 +103,7 @@ public class MonitorApp extends JFrame implements ActionListener {
     public String   runNumber = "100";
     public boolean      debug = false;
     public boolean       isMC = false;
+    public boolean      isMCB = false;
     public boolean       isTB = false;
     public boolean      isCRT = false;
     public boolean      doEng = false;
@@ -239,6 +241,19 @@ public class MonitorApp extends JFrame implements ActionListener {
         });         
         mcBtn.setSelected(false);        
         buttonPane.add(mcBtn);
+        
+        mcbBtn = new JCheckBox("MCB");
+        mcbBtn.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                if(e.getStateChange() == ItemEvent.SELECTED) {
+                    isMCB = true;
+                } else {
+                    isMCB = false;
+                };
+            }
+        });         
+        mcbBtn.setSelected(false);        
+        buttonPane.add(mcbBtn);  
         
         epicsBtn = new JCheckBox("EPICS");
         epicsBtn.addItemListener(new ItemListener() {
