@@ -16,8 +16,10 @@ import org.jlab.clas.physics.Vector3;
 import org.jlab.detector.base.DetectorCollection;
 import org.jlab.detector.base.DetectorType;
 import org.jlab.geom.prim.Line3D;
+import org.jlab.groot.data.GraphErrors;
 import org.jlab.groot.data.H1F;
 import org.jlab.groot.data.H2F;
+import org.jlab.groot.fitter.ParallelSliceFitter;
 import org.jlab.groot.graphics.EmbeddedCanvas;
 import org.jlab.io.base.DataBank;
 import org.jlab.io.base.DataEvent;
@@ -33,33 +35,33 @@ import org.jlab.utils.groups.IndexedList;
 public class ECPart {
 	
     EventBuilder                                        eb = new EventBuilder();
-    List<List<CalorimeterResponse>>       unmatchedResponses = new ArrayList<List<CalorimeterResponse>>(); 
-    IndexedList<List<CalorimeterResponse>>  singleNeutrals = new IndexedList<List<CalorimeterResponse>>(1);
-    IndexedList<List<CalorimeterResponse>>      singleMIPs = new IndexedList<List<CalorimeterResponse>>(1);
+    List<List<DetectorResponse>>     unmatchedResponses = new ArrayList<List<DetectorResponse>>(); 
+    IndexedList<List<DetectorResponse>>  singleNeutrals = new IndexedList<List<DetectorResponse>>(1);
+    IndexedList<List<DetectorResponse>>      singleMIPs = new IndexedList<List<DetectorResponse>>(1);
     
-    public static double distance11,distance12,distance21,distance22;
-    public static double e1,e2,e1c,e2c,cth,cth1,cth2;
-    public static double X,tpi2,cpi0,refE,refP,refTH;
-    public static double x1,y1,x2,y2;
+    public double distance11,distance12,distance21,distance22;
+    public double e1,e2,e1c,e2c,cth,cth1,cth2;
+    public double X,tpi2,cpi0,refE,refP,refTH;
+    public double x1,y1,x2,y2;
 //    public static int[] ip1,ip2,is1,is2;
-    public static int[] iip = new int[2];
-    public static int[] iis = new int[2];
-    public static double[] x = new double[2];
-    public static double[] y = new double[2];
-    public static double[] distance1 = new double[2];
-    public static double[] distance2 = new double[2];
-    public static double mpi0 = 0.1349764;
-    public static double melec = 0.000511;
-    public static String geom = "2.4";
-    public static String config = null;
-    public static double SF1 = 0.27;
-    public static double SF2 = 0.27;
+    public int[] iip = new int[2];
+    public int[] iis = new int[2];
+    public double[] x = new double[2];
+    public double[] y = new double[2];
+    public double[] distance1 = new double[2];
+    public double[] distance2 = new double[2];
+    public double mpi0 = 0.1349764;
+    public double melec = 0.000511;
+    public String geom = "2.4";
+    public String config = null;
+    public double SF1 = 0.27;
+    public double SF2 = 0.27;
   
     public int n2hit=0;
     public int n2rec=0;
     public int[] mip = {0,0,0,0,1,0};
     
-    public static void readMC(DataEvent event) {
+    public void readMC(DataEvent event) {
         int pid=0;
         double ppx=0,ppy=0,ppz=0;
         Boolean isEvio = event instanceof EvioDataEvent;        
@@ -85,8 +87,8 @@ public class ECPart {
         refTH = Math.acos(ppz/refP)*180/3.14159;        
     }
     
-    public static List<CalorimeterResponse> readEvioEvent(DataEvent event, String bankName, DetectorType type) {
-        List<CalorimeterResponse> responseList = new ArrayList<CalorimeterResponse>();
+    public List<DetectorResponse> readEvioEvent(DataEvent event, String bankName, DetectorType type) {
+        List<DetectorResponse> responseList = new ArrayList<DetectorResponse>();
         if(event.hasBank(bankName)==true){
             EvioDataBank bank = (EvioDataBank) event.getBank(bankName);
             int nrows = bank.rows();
@@ -107,47 +109,47 @@ public class ECPart {
         return responseList;                      
     }
     
-    public List<CalorimeterResponse>  readEC(DataEvent event){
-        List<CalorimeterResponse> rEC = new ArrayList<CalorimeterResponse>();
+    public List<DetectorResponse>  readEC(DataEvent event){
+        List<DetectorResponse> rEC = new ArrayList<DetectorResponse>();
         eb.initEvent();
         Boolean isEvio = event instanceof EvioDataEvent;                  
-        if (isEvio) rEC =                     readEvioEvent(event, "ECDetector::clusters", DetectorType.EC); 
-        if(!isEvio) rEC = CalorimeterResponse.readHipoEvent(event, "ECAL::clusters", DetectorType.EC);
-        eb.addCalorimeterResponses(rEC); 
+        if (isEvio) rEC =                  readEvioEvent(event, "ECDetector::clusters", DetectorType.EC); 
+        if(!isEvio) rEC = DetectorResponse.readHipoEvent(event, "ECAL::clusters", DetectorType.EC);
+        eb.addDetectorResponses(rEC); 
         return rEC;
     } 
     
-    public void getUnmatchedResponses(List<CalorimeterResponse> response) {        
+    public void getUnmatchedResponses(List<DetectorResponse> response) {        
         unmatchedResponses.clear();
         unmatchedResponses.add(eb.getUnmatchedResponses(response, DetectorType.EC,1));
         unmatchedResponses.add(eb.getUnmatchedResponses(response, DetectorType.EC,4));
         unmatchedResponses.add(eb.getUnmatchedResponses(response, DetectorType.EC,7));
     }    
         
-    public void getNeutralResponses(List<CalorimeterResponse> response) {        
+    public void getNeutralResponses(List<DetectorResponse> response) {        
         getUnmatchedResponses(response);
-    	getSingleNeutralResponses();
+       	getSingleNeutralResponses();
     }
     
-    public void getMIPResponses(List<CalorimeterResponse> response) {        
+    public void getMIPResponses(List<DetectorResponse> response) {        
         getUnmatchedResponses(response);
-    	getSingleMIPResponses();
+     	getSingleMIPResponses();
     }
     
     public void getSingleMIPResponses() {
-        List<CalorimeterResponse> rEC = new ArrayList<CalorimeterResponse>();
+        List<DetectorResponse> rEC = new ArrayList<DetectorResponse>();
         singleMIPs.clear();
         for (int is=1; is<7; is++) {
-            rEC = CalorimeterResponse.getListBySector(unmatchedResponses.get(0),  DetectorType.EC, is);
+            rEC = DetectorResponse.getListBySector(unmatchedResponses.get(0),  DetectorType.EC, is);
             if(rEC.size()==1&&mip[is-1]==1) singleMIPs.add(rEC,is);
         }     	
     }
         
     public void getSingleNeutralResponses() {
-        List<CalorimeterResponse> rEC = new ArrayList<CalorimeterResponse>();
+        List<DetectorResponse> rEC = new ArrayList<DetectorResponse>();
         singleNeutrals.clear();
         for (int is=1; is<7; is++) {
-            rEC = CalorimeterResponse.getListBySector(unmatchedResponses.get(0),  DetectorType.EC, is);
+            rEC = DetectorResponse.getListBySector(unmatchedResponses.get(0),  DetectorType.EC, is);
             if(rEC.size()==1&&mip[is-1]!=1) singleNeutrals.add(rEC,is);
         } 
     }
@@ -165,8 +167,8 @@ public class ECPart {
     public List<DetectorParticle> getMIParticles(int sector) {
     	
         List<DetectorParticle> particles = new ArrayList<DetectorParticle>();          
-        List<CalorimeterResponse>   rEC  = new ArrayList<CalorimeterResponse>();        
-        rEC = CalorimeterResponse.getListBySector(unmatchedResponses.get(0), DetectorType.EC, sector);
+        List<DetectorResponse>   rEC  = new ArrayList<DetectorResponse>();        
+        rEC = DetectorResponse.getListBySector(unmatchedResponses.get(0), DetectorType.EC, sector);
         if (rEC.size()==1) particles.add(DetectorParticle.createNeutral(rEC.get(0)));
         return particles;
     }
@@ -174,12 +176,12 @@ public class ECPart {
     public List<DetectorParticle> getNeutralParticles(int sector) {
               
         List<DetectorParticle> particles = new ArrayList<DetectorParticle>();          
-        List<CalorimeterResponse>   rEC  = new ArrayList<CalorimeterResponse>();        
+        List<DetectorResponse>      rEC  = new ArrayList<DetectorResponse>();        
         
-        rEC = CalorimeterResponse.getListBySector(unmatchedResponses.get(0), DetectorType.EC, sector);
+        rEC = DetectorResponse.getListBySector(unmatchedResponses.get(0), DetectorType.EC, sector);
         
         switch (rEC.size()) {
-        case 1:  List<CalorimeterResponse> rEC2 = findSecondPhoton(sector);
+        case 1:  List<DetectorResponse> rEC2 = findSecondPhoton(sector);
                 if (rEC2.size()>0) {
                    particles.add(DetectorParticle.createNeutral(rEC.get(0)));
                    particles.add(DetectorParticle.createNeutral(rEC2.get(0))); return particles;
@@ -191,9 +193,9 @@ public class ECPart {
        return particles;
     }
     
-    public List<CalorimeterResponse> findSecondPhoton(int sector) {
+    public List<DetectorResponse> findSecondPhoton(int sector) {
         int neut=0, isave=0;
-        List<CalorimeterResponse> rEC = new ArrayList<CalorimeterResponse>();        
+        List<DetectorResponse> rEC = new ArrayList<DetectorResponse>();        
         for (int is=sector+1; is<7; is++) {
             if(singleNeutrals.hasItem(is)) {neut++; isave=is;}
         }
@@ -204,17 +206,17 @@ public class ECPart {
         
         int index=0;
         double distance = -10;
-        List<CalorimeterResponse> rEC = new ArrayList<CalorimeterResponse>();        
+        List<DetectorResponse> rEC = new ArrayList<DetectorResponse>();        
         
         int is = p.getCalorimeterResponse().get(0).getDescriptor().getSector();
         
         switch (io) {       
-        case "Inner": rEC = CalorimeterResponse.getListBySector(unmatchedResponses.get(1), DetectorType.EC, is);
-                      index  = p.getCalorimeterHit(rEC,DetectorType.EC,4,EBConstants.ECIN_MATCHING);
+        case "Inner": rEC = DetectorResponse.getListBySector(unmatchedResponses.get(1), DetectorType.EC, is);
+                      index  = p.getDetectorHit(rEC,DetectorType.EC,4,EBConstants.ECIN_MATCHING);
                       if(index>=0){p.addResponse(rEC.get(index),true); rEC.get(index).setAssociation(0);
                       distance = p.getDistance(rEC.get(index)).length();}
-        case "Outer": rEC = CalorimeterResponse.getListBySector(unmatchedResponses.get(2), DetectorType.EC, is); 
-                      index  = p.getCalorimeterHit(rEC,DetectorType.EC,7,EBConstants.ECOUT_MATCHING);
+        case "Outer": rEC = DetectorResponse.getListBySector(unmatchedResponses.get(2), DetectorType.EC, is); 
+                      index  = p.getDetectorHit(rEC,DetectorType.EC,7,EBConstants.ECOUT_MATCHING);
                       if(index>=0){p.addResponse(rEC.get(index),true); rEC.get(index).setAssociation(0);
                       distance = p.getDistance(rEC.get(index)).length();}
         }
@@ -255,8 +257,11 @@ public class ECPart {
     public List<DetectorParticle> doHitMatching(List<DetectorParticle> particles) {
         
         for (int ii=0; ii<particles.size(); ii++) {
-        	DetectorParticle      p = particles.get(ii);          
-            CalorimeterResponse rPC = p.getCalorimeterResponse().get(0) ;
+          	DetectorParticle      p = particles.get(ii);          
+            DetectorResponse rPC = p.getCalorimeterResponse().get(0) ;
+//            System.out.println(Math.sqrt(rPC.getPosition().x()*rPC.getPosition().x()+
+//                                        rPC.getPosition().y()*rPC.getPosition().y()+
+//                                         rPC.getPosition().z()*rPC.getPosition().z()));
             iip[ii] = rPC.getHitIndex();        
             iis[ii] = rPC.getDescriptor().getSector();
               x[ii] = rPC.getPosition().x();
@@ -367,54 +372,90 @@ public class ECPart {
     	}
     }
     
-    public static void electronDemo(String[] args) {
+    public void electronDemo(String[] args) {
     	
         ECEngine       engine = new ECEngine();
         HipoDataSource reader = new HipoDataSource();
         ECPart           part = new ECPart();    	
+        String id ;
         
         String evioPath = "/Users/colesmith/clas12/gemc/elec/hipo/";
         reader.open(evioPath+"fc-elec-40k-s5-r2.hipo");
+//        reader.open(evioPath+"clasdispr-large.hipo");
         engine.init();
         engine.isMC = true;
         engine.setVariation("default");
-        engine.setCalRun(2);                
+        engine.setCalRun(10);                
         part.setThresholds("Electron",engine);
         part.setGeom("2.5");
         
         DetectorCollection<H2F> H2_a_Hist = new DetectorCollection<H2F>();       
-        String id="_s"+Integer.toString(5)+"_l"+Integer.toString(0)+"_c";
+        id="_s"+Integer.toString(5)+"_l"+Integer.toString(0)+"_c";
         H2F h1 = new H2F("E over P"+id+0,50,0.0,2.7,50,0.18,0.32);      
         h1.setTitleX("Measured Electron Energy (GeV))");
         h1.setTitleY("Sampling Fraction");
         
-        while(reader.hasEvent()){
+        id="_s"+Integer.toString(5)+"_l"+Integer.toString(0)+"_c";
+        H2F h2 = new H2F("E over P"+id+1,50,0.0,10.5,50,0.18,0.32);      
+        h2.setTitleX("True Electron Energy (GeV))");
+        h2.setTitleY("Sampling Fraction");
+        
+        id="_s"+Integer.toString(5)+"_l"+Integer.toString(0)+"_c";
+        H2F h3 = new H2F("E vs. P"+id+2,100,0.0,10.5,100,0.,2.7);      
+        h3.setTitleX("True Electron Energy (GeV))");
+        h3.setTitleY("Measured Electron Energy (GeV)");
+        
+        int nevent = 0;
+        
+        while(reader.hasEvent()&&nevent<40000){
+            nevent++;
             DataEvent event = reader.getNextEvent();
             part.readMC(event);
             engine.processDataEvent(event);   
             part.getMIPResponses(part.readEC(event));
             double energy = part.getEcalEnergy(5);
-            h1.fill(energy,energy/refE);
+            if (energy>0) {
+         	   h1.fill(energy,energy/refP);
+        	       h2.fill(refE,energy/refP);
+               h3.fill(refP,energy);
+            }
         }
         
         JFrame frame = new JFrame("Electron Reconstruction");
         frame.setSize(800,800);
         EmbeddedCanvas canvas = new EmbeddedCanvas();
+        
+	    ParallelSliceFitter fitter = new ParallelSliceFitter(h1);
+        fitter.fitSlicesX();
+        GraphErrors sigGraph = fitter.getSigmaSlices();    	
+//        for (int i=0; i<sigGraph.getDataSize(0); i++) {
+//        	  x[i] = 1/Math.sqrt(sigGraph.getDataX(i));
+//        }
+        sigGraph.setMarkerSize(2);
+        
         canvas.divide(2,2);
-        canvas.cd(0); canvas.draw(h1);
+		canvas.setAxisTitleSize(18);
+		canvas.setAxisLabelSize(18);
+        canvas.cd(0); canvas.draw(h1);        
+        canvas.cd(1); canvas.draw(h2);
+        canvas.cd(2); canvas.draw(h3);
+        canvas.cd(3); canvas.draw(sigGraph);
 
         frame.add(canvas);
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
-        
+        /*
         H2_a_Hist.add(5, 0, 0, h1);
+        H2_a_Hist.add(5, 0, 1, h2);
+        H2_a_Hist.add(5, 0, 2, h3);
         String hipoFileName = "/Users/colesmith/test.hipo";
         HipoFile histofile = new HipoFile(hipoFileName);
         histofile.addToMap("H2_a_Hist", H2_a_Hist); 
-        histofile.writeHipoFile(hipoFileName);        
+        histofile.writeHipoFile(hipoFileName);     
+        */   
     }
     
-    public static void pizeroDemo(String[] args) {
+    public void pizeroDemo(String[] args) {
     	
         ECEngine       engine = new ECEngine();
         HipoDataSource reader = new HipoDataSource();
@@ -442,13 +483,17 @@ public class ECPart {
         part.setGeom("2.5");
         
         H1F h1 = new H1F("Invariant Mass",50,10.,200);         
-        h1.setOptStat("11010000111"); h1.setTitleX("Pizero Invariant Mass (MeV)");
+        h1.setOptStat("11010000111"); h1.setTitleX("Two-Photon Invariant Mass (MeV)");
+        h1.setFillColor(4);
         H1F h2 = new H1F("Energy Asymmetry",50,-1.0,1.0);      
         h2.setOptStat(Integer.parseInt("1100")); h2.setTitleX("X:(E1-E2)/(E1+E2)");
+        h2.setFillColor(4);
         H1F h3 = new H1F("Pizero Energy Error",50,-500.,500.); 
         h3.setOptStat(Integer.parseInt("1100")); h3.setTitleX("Pizero Energy Error (MeV)");
+        h3.setFillColor(4);
         H1F h4 = new H1F("Pizero Theta Error",50,-1.,1.);      
         h4.setOptStat(Integer.parseInt("1100")); h4.setTitleX("Pizero Theta Error (deg)");
+        h4.setFillColor(4);
         
         int nimcut = 0;
         
@@ -459,12 +504,11 @@ public class ECPart {
             part.getNeutralResponses(part.readEC(event));
             double invmass = 1e3*Math.sqrt(part.getTwoPhotonInvMass(2));
             
-            h1.fill((float)invmass,1.);                            //Two-photon invariant mass
-            
             if (invmass>80 && invmass<200) {
-                h2.fill((float)part.X);                            //Pizero energy asymmetry
-                h3.fill((float)(1e3*(Math.sqrt(part.tpi2)-refE))); //Pizero total energy error
-                h4.fill(Math.acos(part.cpi0)*180/3.14159-refTH);   //Pizero theta angle error
+                h1.fill((float)invmass,1.);                             //Two-photon invariant mass                
+                h2.fill((float)part.X);                                 //Pizero energy asymmetry
+                h3.fill((float)(1e3*(Math.sqrt(part.tpi2)-part.refE))); //Pizero total energy error
+                h4.fill(Math.acos(part.cpi0)*180/3.14159-part.refTH);   //Pizero theta angle error
                 nimcut++;
             }
         }
@@ -476,6 +520,8 @@ public class ECPart {
         frame.setSize(800,800);
         EmbeddedCanvas canvas = new EmbeddedCanvas();
         canvas.divide(2,2);
+		canvas.setAxisTitleSize(18);
+		canvas.setAxisLabelSize(18);
         canvas.cd(0); canvas.draw(h1);
         canvas.cd(1); canvas.draw(h2);
         canvas.cd(2); canvas.draw(h3);
@@ -487,8 +533,9 @@ public class ECPart {
   	 
     
     public static void main(String[] args){
-//    	pizeroDemo(args);
-    	electronDemo(args);
+    	   ECPart part = new ECPart();
+    	   part.pizeroDemo(args);
+       // part.electronDemo(args);
     }
     
 }
