@@ -6,15 +6,13 @@ import org.clas.fcmon.tools.*;
 import org.jlab.detector.base.DetectorType;
 import org.jlab.detector.base.DetectorDescriptor;
 import org.jlab.detector.calib.utils.ConstantsManager;
-import org.jlab.detector.decode.CLASDecoder;
 import org.jlab.geom.detector.ec.ECDetector;
 import org.jlab.geom.detector.ec.ECFactory;
 import org.jlab.io.base.DataEvent;
 import org.jlab.io.evio.EvioDataEvent;
 import org.jlab.io.evio.EvioDataSync;
-import org.jlab.io.hipo.HipoDataEvent;
 import org.jlab.service.ec.*;
-import org.jlab.utils.groups.IndexedTable;
+
 
 import java.util.Arrays;
 import java.util.TreeMap;

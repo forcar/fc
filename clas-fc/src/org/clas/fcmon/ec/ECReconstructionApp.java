@@ -149,7 +149,8 @@ public class ECReconstructionApp extends FCApplication {
        
        clear(0); clear(1); clear(2); tdcs.clear();
        
-       if (app.isMC) {tdcmax=2000000; offset=600; tps=1;}
+       if (app.isMC)  {tdcmax=2000000; offset=600; tps=1;}
+       if (app.isMCB) {app.isMC=true; tdcmax=2000000; offset=600-(float)124.25; tps=1;}
        sca = (app.isCRT) ? 6.6:1; // For pre-installation PCAL CRT runs
        
        if(!app.isMC&&event.hasBank("RUN::config")){
@@ -621,7 +622,7 @@ public class ECReconstructionApp extends FCApplication {
                    
                    for (int il=1; il<4 ; il++){
                        double adcc = ecPix[idet].adcr[is][il-1][0]/pixelLength[pixel-1];
-                       if (good_pix[il-1]) {
+                       if (good_pix[il-1]&&adcc<250) {
                          ecPix[idet].pixels.hmap1.get("H1_a_Maps").get(is+1,il,4).fill(pixel,1.0); // Events per pixel
                          ecPix[idet].strips.hmap2.get("H2_a_Hist").get(is+1,il,1).fill(adcc,ecPix[idet].strra[is][il-1][0],1.0) ;
                          ecPix[idet].strips.hmap2.get("H2_a_Hist").get(is+1,il,2).fill(adcc,pixel,1.0);                        
