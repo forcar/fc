@@ -810,13 +810,15 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
             int npix = ecPix[idet].pixels.getNumPixels();
             double  meanerr[] = new double[npix];
             boolean  status[] = new boolean[npix];
-            int a = layer;        
+            int a = layer;     
+            
             for (int is=is1 ; is<is2 ; is++) {
                for (int il=il1 ; il<il2 ; il++) { //Extract pixel maps for each U,V,W layer
                   //Extract raw arrays for error bar calculation
                   float  cnts[] = ecPix[idet].pixels.hmap1.get("H1_a_Maps").get(is,il,4).getData();                
                   float   adc[] = ecPix[idet].pixels.hmap1.get("H1_a_Maps").get(is,il,1).getData();
                   float adcsq[] = ecPix[idet].pixels.hmap1.get("H1_a_Maps").get(is,il,3).getData();
+                  
                   doCalibration = false;
                       
                   for (int ipix=0 ; ipix<npix ; ipix++) {
