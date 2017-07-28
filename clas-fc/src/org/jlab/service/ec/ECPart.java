@@ -140,7 +140,7 @@ public class ECPart {
         List<DetectorResponse> rEC = new ArrayList<DetectorResponse>();
         singleMIPs.clear();
         for (int is=1; is<7; is++) {
-            rEC = DetectorResponse.getListBySector(unmatchedResponses.get(0),  DetectorType.EC, is);
+            rEC = DetectorResponse.getListBySector(unmatchedResponses.get(0),  DetectorType.EC, is);            
             if(rEC.size()==1&&mip[is-1]==1) singleMIPs.add(rEC,is);
         }     	
     }
@@ -208,8 +208,8 @@ public class ECPart {
         double distance = -10;
         List<DetectorResponse> rEC = new ArrayList<DetectorResponse>();        
         
-        int is = p.getCalorimeterResponse().get(0).getDescriptor().getSector();
-        
+        int is = p.getDetectorResponses().get(0).getDescriptor().getSector();
+      
         switch (io) {       
         case "Inner": rEC = DetectorResponse.getListBySector(unmatchedResponses.get(1), DetectorType.EC, is);
                       index  = p.getDetectorHit(rEC,DetectorType.EC,4,EBConstants.ECIN_MATCHING);
@@ -258,7 +258,7 @@ public class ECPart {
         
         for (int ii=0; ii<particles.size(); ii++) {
           	DetectorParticle      p = particles.get(ii);          
-            DetectorResponse rPC = p.getCalorimeterResponse().get(0) ;
+            DetectorResponse rPC = p.getDetectorResponses().get(0) ;
 //            System.out.println(Math.sqrt(rPC.getPosition().x()*rPC.getPosition().x()+
 //                                        rPC.getPosition().y()*rPC.getPosition().y()+
 //                                         rPC.getPosition().z()*rPC.getPosition().z()));
@@ -312,10 +312,10 @@ public class ECPart {
         // Require 2 photons in PCAL and ECinner
         
         n2hit++;
-        if((myCalorimeterResponse(p1,DetectorType.EC, 1)!=null  &&
-            myCalorimeterResponse(p1,DetectorType.EC, 4)!=null) &&
-           (myCalorimeterResponse(p2,DetectorType.EC, 1)!=null && 
-            myCalorimeterResponse(p2,DetectorType.EC, 4)!=null)) {                
+        if((DetectorResponse.getListByLayer(p1.getDetectorResponses(),DetectorType.EC, 1).size()!=0  &&
+            DetectorResponse.getListByLayer(p1.getDetectorResponses(),DetectorType.EC, 4).size()!=0) &&
+           (DetectorResponse.getListByLayer(p2.getDetectorResponses(),DetectorType.EC, 1).size()!=0  &&
+            DetectorResponse.getListByLayer(p2.getDetectorResponses(),DetectorType.EC, 4).size()!=0))  {    
               X = (e1c-e2c)/(e1c+e2c);
            tpi2 = 2*mpi0*mpi0/(1-cth)/(1-X*X);
            cpi0 = (e1c*cth1+e2c*cth2)/Math.sqrt(e1c*e1c+e2c*e2c+2*e1c*e2c*cth);
@@ -335,15 +335,7 @@ public class ECPart {
     public double processSingleMIP(List<DetectorParticle> particles) {
         if (particles.size()==0) return 0.0;
     	return particles.get(0).getEnergy(DetectorType.EC);
-    }
-    
-    public CalorimeterResponse  myCalorimeterResponse(DetectorParticle p, DetectorType type, int layer){
-        List<CalorimeterResponse> calorimeterStore = p.getCalorimeterResponses();
-        for(CalorimeterResponse res : calorimeterStore){
-            if(res.getDescriptor().getType()==type&&res.getDescriptor().getLayer()==layer) return res;    
-        }
-        return null;
-    }   
+    }  
     
     public void setGeom(String geom) {
         this.geom = geom;
@@ -415,9 +407,9 @@ public class ECPart {
             part.getMIPResponses(part.readEC(event));
             double energy = part.getEcalEnergy(5);
             if (energy>0) {
-         	   h1.fill(energy,energy/refP);
-        	       h2.fill(refE,energy/refP);
-               h3.fill(refP,energy);
+         	   h1.fill(energy,energy/part.refP);
+        	   h2.fill(part.refE,energy/part.refP);
+               h3.fill(part.refP,energy);
             }
         }
         
@@ -534,8 +526,8 @@ public class ECPart {
     
     public static void main(String[] args){
     	   ECPart part = new ECPart();
-    	   part.pizeroDemo(args);
-       // part.electronDemo(args);
+    	//   part.pizeroDemo(args);
+        part.electronDemo(args);
     }
     
 }
