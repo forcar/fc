@@ -119,19 +119,22 @@ public class CTOFReconstructionApp extends FCApplication {
        long phase = 0;
        int trigger = 0;
        long timestamp = 0;
+       float offset = 0;
        
-       clear(0); clear(1); clear(2); tdcs.clear();
+       clear(0); tdcs.clear();
        
-       if(event.hasBank("RUN::config")){
+       if(!app.isMC&&event.hasBank("RUN::config")){
            DataBank bank = event.getBank("RUN::config");
-//           timestamp = bank.getLong("timestamp",0);
+           timestamp = bank.getLong("timestamp",0);
            trigger   = bank.getInt("trigger",0);
            evno      = bank.getInt("event",0);         
            int phase_offset = 1;
            phase = ((timestamp%6)+phase_offset)%6;
            app.bitsec = (int) (Math.log10(trigger>>24)/0.301+1);
        }
-
+       
+       if (app.isMCB) offset=(float)124.25;
+       
        if(event.hasBank("CTOF::tdc")){
            DataBank  bank = event.getBank("CTOF" + "::tdc");
            int rows = bank.rows();
@@ -141,8 +144,9 @@ public class CTOFReconstructionApp extends FCApplication {
                int  il = bank.getByte("layer",i);
                int  lr = bank.getByte("order",i);                       
                int  ip = bank.getShort("component",i);
+               
                if(!tdcs.hasItem(is,il,lr-2,ip)) tdcs.add(new ArrayList<Float>(),is,il,lr-2,ip);
-                   tdcs.getItem(is,il,lr-2,ip).add((float) bank.getInt("TDC",i)*24/1000-phase*4);              
+                   tdcs.getItem(is,il,lr-2,ip).add((float) bank.getInt("TDC",i)*24/1000+offset-phase*4);              
            }
        }
               
@@ -184,7 +188,7 @@ public class CTOFReconstructionApp extends FCApplication {
    
    public void updateRawData(DataEvent event) {
        
-       clear(0); clear(1); clear(2); tdcs.clear();
+       clear(0); tdcs.clear();
        
        app.decoder.initEvent(event);
        app.bitsec = app.decoder.bitsec;
@@ -269,7 +273,7 @@ public class CTOFReconstructionApp extends FCApplication {
       
       String det[] = {"FTOF1A","FTOF1B","FTOF2B"}; // FTOF.xml banknames
       
-      clear(0); clear(1); clear(2);
+      clear(0); 
       
       for (int idet=0; idet<det.length ; idet++) {
           
@@ -339,7 +343,7 @@ public class CTOFReconstructionApp extends FCApplication {
 
        for (int ii=0; ii<tdc.length; ii++) {
            
-       if(tdc[ii]>450&&tdc[ii]<850){
+       if(tdc[ii]>0&&tdc[ii]<500){
              ctofPix[idet].nht[is-1][il-1]++; int inh = ctofPix[idet].nht[is-1][il-1];
              if (inh>nstr) inh=nstr;
              ctofPix[idet].ph[is-1][il-1][inh-1] = adph;
@@ -347,7 +351,7 @@ public class CTOFReconstructionApp extends FCApplication {
              ctofPix[idet].strrt[is-1][il-1][inh-1] = ip;
              ctofPix[idet].ph[is-1][il-1][inh-1] = adph;
              ctofPix[idet].strips.hmap2.get("H2_t_Hist").get(is,il,0).fill(tdc[ii],ip,1.0);
-             }
+       }
        
        ctofPix[idet].strips.hmap2.get("H2_a_Hist").get(is,il,1).fill(adc,tdc[ii],1.0);
           
@@ -368,7 +372,7 @@ public class CTOFReconstructionApp extends FCApplication {
        int iL,iR,ipL,ipR;
        
        for (int is=1 ; is<7 ; is++) {
-           for (int idet=0; idet<3; idet++) {
+           for (int idet=0; idet<ctofPix.length; idet++) {
                 iL = ctofPix[idet].nha[is-1][0];
                 iR = ctofPix[idet].nha[is-1][1];
                ipL = ctofPix[idet].strra[is-1][0][0];

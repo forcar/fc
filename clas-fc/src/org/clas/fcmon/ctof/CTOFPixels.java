@@ -16,7 +16,7 @@ public class CTOFPixels {
 	
     public Strips          strips = new Strips();
     DatabaseConstantProvider ccdb = new DatabaseConstantProvider(1,"default");
-    
+	CTOFConstants              cc = new CTOFConstants();
     double ctof_xpix[][][] = new double[4][124][7];
     double ctof_ypix[][][] = new double[4][124][7];
     
@@ -45,7 +45,7 @@ public class CTOFPixels {
         if (det=="CND")  id=1;
         nstr = ctof_nstr[id];
         detName = det;
-//        pixdef();
+        pixdef();
 //        pixrot();
     }
     public void getLmapMinMax(int is1, int is2, int il, int opt){
@@ -78,52 +78,20 @@ public class CTOFPixels {
     public void pixdef() {
         
         System.out.println("CTOFPixels.pixdef(): "+this.detName); 
-        IndexedTable itab = null;
-        double geom[] = new double[nstr];
-        double zoff[] = {50.,50.,420.};
         String table=null;
             
         switch (id) { 
-        case 0: table = "/geometry/ftof/panel1a"; break;
-        case 1: table = "/geometry/ftof/panel1b"; break;
-        case 2: table = "/geometry/ftof/panel2";   
+        case 0: table = "/geometry/ctof"; break; 
         }
         
-        ccdb.loadTable(table+"/paddles");        
-        for (int i=0; i<nstr; i++) {
-            geom[i] = ccdb.getDouble(table+"/paddles/Length",i);
-        }
-        
-        ccdb.loadTable(table+"/panel");
-        double y_inc = ccdb.getDouble(table+"/panel/paddlewidth",0);	
-        
-        double   k;
-        double   x_inc=0;
-		       
-        for(int i=0 ; i<nstr ; i++){
-            x_inc = 0.5*geom[i];
-            ctof_xpix[0][nstr+i][6]=-x_inc;
-            ctof_xpix[1][nstr+i][6]=0.;
-            ctof_xpix[2][nstr+i][6]=0.;
-            ctof_xpix[3][nstr+i][6]=-x_inc;
-            k = -i*y_inc-zoff[id];	    	   
-            ctof_ypix[0][nstr+i][6]=k;
-            ctof_ypix[1][nstr+i][6]=k;
-            ctof_ypix[2][nstr+i][6]=k-y_inc;
-            ctof_ypix[3][nstr+i][6]=k-y_inc;
-        }
-        for(int i=0 ; i<nstr ; i++){
-            x_inc = 0.5*geom[i];
-            ctof_xpix[0][i][6]=0.;
-            ctof_xpix[1][i][6]=x_inc;
-            ctof_xpix[2][i][6]=x_inc;
-            ctof_xpix[3][i][6]=0.;
-            k = -i*y_inc-zoff[id];	    	   
-            ctof_ypix[0][i][6]=k;
-            ctof_ypix[1][i][6]=k;
-            ctof_ypix[2][i][6]=k-y_inc;
-            ctof_ypix[3][i][6]=k-y_inc;
-        }
+        ccdb.loadTable(table+"/ctof");  
+       
+        cc.RADIUS = ccdb.getDouble(table+"/ctof/radius",0);
+        cc.LENGTH = ccdb.getDouble(table+"/ctof/length",0);
+        cc.THICK  = ccdb.getDouble(table+"/ctof/thick",0);
+        cc.WIDTH  = ccdb.getDouble(table+"/ctof/width",0);
+        cc.setGeometry();
+
 	}
 		       
     public void pixrot() {
@@ -148,7 +116,7 @@ public class CTOFPixels {
         System.out.println("CTOFPixels.initHistograms(): "+this.detName);  
         
         String iid;
-        double amax[]= {4000.,6000.,4000.,4000.};
+        double amax[]= {6000.,200.,200.,200.};
         
         DetectorCollection<H1F> H1_a_Sevd = new DetectorCollection<H1F>();
         DetectorCollection<H1F> H1_t_Sevd = new DetectorCollection<H1F>();
@@ -159,15 +127,15 @@ public class CTOFPixels {
         
         double nend = nstr+1;  
         
-        for (int is=1; is<7 ; is++) {
+        for (int is=1; is<2 ; is++) {
             int ill=0; iid="s"+Integer.toString(is)+"_l"+Integer.toString(ill)+"_c";
             H2_a_Hist.add(is, 0, 0, new H2F("a_gmean_"+iid+0, 100,   0., amax[id],nstr, 1., nend));
             H2_t_Hist.add(is, 0, 0, new H2F("a_tdif_"+iid+0,  100, -35.,      35.,nstr, 1., nend));
             for (int il=1 ; il<3 ; il++){
                 iid="s"+Integer.toString(is)+"_l"+Integer.toString(il)+"_c";
-                H2_a_Hist.add(is, il, 0, new H2F("a_raw_"+iid+0,      100,   0., 4000.,nstr, 1., nend));
-                H2_t_Hist.add(is, il, 0, new H2F("a_raw_"+iid+0,      100, 450.,  850.,nstr, 1., nend));
-                H2_a_Hist.add(is, il, 1, new H2F("a_raw_"+iid+1,      100,   0., 4000.,100, 300.,1200.));
+                H2_a_Hist.add(is, il, 0, new H2F("a_raw_"+iid+0,      100,   0., 6000.,nstr, 1., nend));
+                H2_t_Hist.add(is, il, 0, new H2F("a_raw_"+iid+0,      100,   0.,  300.,nstr, 1., nend));
+                H2_a_Hist.add(is, il, 1, new H2F("a_raw_"+iid+1,      100,   0., 6000.,100,   0., 300.));
                 H2_a_Hist.add(is, il, 3, new H2F("a_ped_"+iid+3,       40, -20.,  20., nstr, 1., nend)); 
                 H2_a_Hist.add(is, il, 5, new H2F("a_fadc_"+iid+5,     100,   0., 100., nstr, 1., nend));
                 H1_a_Sevd.add(is, il, 0, new H1F("a_sed_"+iid+0,                       nstr, 1., nend));

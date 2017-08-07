@@ -13,7 +13,7 @@ import org.jlab.utils.groups.IndexedList;
 public class CTOFCalibrationEngine extends CalibrationEngine {
    
 
-        public final static int[]       NUM_PADDLES = {23,62,5};
+        public final static int[]       NUM_PADDLES = {48};
         public final static String[]    LAYER_NAME = {"LEFT","RIGHT"};
         
         CalibrationConstants calib;

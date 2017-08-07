@@ -118,7 +118,7 @@ public class CTOFCalibrationApp extends FCApplication implements CalibrationCons
         @Override
         public void analyze() {
             for (int sector = is1; sector < is2; sector++) {
-                for (int layer = 1; layer < 4; layer++) {
+                for (int layer = 1; layer < 2; layer++) {
                     for (int paddle = 1; paddle<NUM_PADDLES[layer-1]+1; paddle++) {
                         fit(sector, layer, paddle, 0.0, 0.0);
                     }
@@ -129,7 +129,7 @@ public class CTOFCalibrationApp extends FCApplication implements CalibrationCons
         
         @Override
         public void fit(int sector, int layer, int paddle, double minRange, double maxRange){ 
-           double mean = ftofPix[layer-1].strips.hmap2.get("H2_a_Hist").get(sector,0,0).sliceY(paddle-1).getMean();
+           double mean = ctofPix[layer-1].strips.hmap2.get("H2_a_Hist").get(sector,0,0).sliceY(paddle-1).getMean();
            calib.addEntry(sector, layer, paddle);
            calib.setDoubleValue(mean, "mipa_left", sector, layer, paddle);
            calib.setDoubleValue(mean, "mipa_right", sector, layer, paddle);

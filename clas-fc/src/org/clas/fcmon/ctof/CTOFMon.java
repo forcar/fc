@@ -7,11 +7,8 @@ import org.clas.containers.FTHashCollection;
 import org.clas.fcmon.detector.view.DetectorShape2D;
 import org.clas.fcmon.tools.*;
 
-//clas12rec
 import org.jlab.detector.base.DetectorDescriptor;
 import org.jlab.detector.calib.utils.ConstantsManager;
-import org.jlab.io.evio.EvioDataEvent;
-import org.jlab.utils.groups.IndexedTable;
 import org.jlab.io.base.DataEvent;
 
 public class CTOFMon extends DetectorMonitor {
