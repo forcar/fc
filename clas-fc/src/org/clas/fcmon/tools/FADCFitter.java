@@ -17,8 +17,7 @@ public class FADCFitter {
 			if(mm>p1 && mm<=p2)  pedsum+=pulse[mm];
 			if(mm==p2)           pedsum=pedsum/(p2-p1);				
 			if(mm>p2) {
-				if (pedr==0) ped=pedsum;
-				if (pedr!=0) ped=pedr;
+				ped = (pedr==0) ? pedr:pedsum;
 				if ((summing_in_progress==0) && pulse[mm]>ped+tet) {
 				  summing_in_progress=1;
 				  t0 = mm;
