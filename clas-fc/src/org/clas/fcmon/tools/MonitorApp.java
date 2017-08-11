@@ -55,26 +55,24 @@ public class MonitorApp extends JFrame implements ActionListener {
     JSplitPane	           hSplitPane;
     JScrollPane            scrollPane;
 	
-    JPanel  detectorPane;
-    JPanel  infoPane;
-    JLabel statusLabel = null;
-    JPanel  canvasPane = null;
-    JPanel  buttonPane = null;
-    JTextField   runno = new JTextField(4);
-    JCheckBox    mcBtn = null;
-    JCheckBox   mcbBtn = null;
-    JCheckBox    tbBtn = null;
-    JCheckBox epicsBtn = null;
-    
-    JButton openBtn  = null;
-    JButton closeBtn = null;
-    
-    TreeMap<String,EmbeddedCanvas>  paneCanvas = new TreeMap<String,EmbeddedCanvas>();
-	
+    JPanel    detectorPane = null;
+    JPanel        infoPane = null;
+    JLabel     statusLabel = null;
+    JPanel      canvasPane = null;
+    JPanel      buttonPane = null;
     JPanel  controlsPanel0 = null;        
     JPanel  controlsPanel1 = null;
     JPanel  controlsPanel2 = null;
     JPanel  controlsPanel3 = null;
+    JTextField       runno = new JTextField(4);
+    JCheckBox        mcBtn = null;
+    JCheckBox       mcbBtn = null;
+    JCheckBox        tbBtn = null;
+    JCheckBox     epicsBtn = null;    
+    JButton       openBtn  = null;
+    JButton       closeBtn = null;
+    
+    TreeMap<String,EmbeddedCanvas>  paneCanvas = new TreeMap<String,EmbeddedCanvas>();
 	
     public FCCLASDecoder           decoder = new FCCLASDecoder();
     
