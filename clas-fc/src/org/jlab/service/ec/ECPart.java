@@ -5,17 +5,12 @@ import java.util.List;
 
 import javax.swing.JFrame;
 
-import org.clas.fcmon.tools.HipoFile;
 import org.jlab.clas.detector.CalorimeterResponse;
 import org.jlab.clas.detector.DetectorParticle;
 import org.jlab.clas.detector.DetectorResponse;
-import org.jlab.clas.physics.GenericKinematicFitter;
 import org.jlab.clas.physics.Particle;
-import org.jlab.clas.physics.PhysicsEvent;
 import org.jlab.clas.physics.Vector3;
-import org.jlab.detector.base.DetectorCollection;
 import org.jlab.detector.base.DetectorType;
-import org.jlab.geom.prim.Line3D;
 import org.jlab.groot.data.GraphErrors;
 import org.jlab.groot.data.H1F;
 import org.jlab.groot.data.H2F;
@@ -25,7 +20,6 @@ import org.jlab.io.base.DataBank;
 import org.jlab.io.base.DataEvent;
 import org.jlab.io.evio.EvioDataBank;
 import org.jlab.io.evio.EvioDataEvent;
-import org.jlab.io.evio.EvioSource;
 import org.jlab.io.hipo.HipoDataSource;
 import org.jlab.service.eb.EBConstants;
 import org.jlab.service.eb.EventBuilder;
@@ -371,9 +365,12 @@ public class ECPart {
         ECPart           part = new ECPart();    	
         String id ;
         
-        String evioPath = "/Users/colesmith/clas12/gemc/elec/hipo/";
-        reader.open(evioPath+"fc-elec-40k-s5-r2.hipo");
-//        reader.open(evioPath+"clasdispr-large.hipo");
+        String evioPath = "/Users/colesmith/clas12/sim/elec/hipo/";
+        String evioFile1 = "fc-elec-40k-s5-r2.hipo";
+        String evioFile2 = "clasdispr-large.hipo";
+        
+        reader.open(evioPath+evioFile1);
+        
         engine.init();
         engine.isMC = true;
         engine.setVariation("default");
@@ -381,7 +378,6 @@ public class ECPart {
         part.setThresholds("Electron",engine);
         part.setGeom("2.5");
         
-        DetectorCollection<H2F> H2_a_Hist = new DetectorCollection<H2F>();       
         id="_s"+Integer.toString(5)+"_l"+Integer.toString(0)+"_c";
         H2F h1 = new H2F("E over P"+id+0,50,0.0,2.7,50,0.18,0.32);      
         h1.setTitleX("Measured Electron Energy (GeV))");
@@ -408,7 +404,7 @@ public class ECPart {
             double energy = part.getEcalEnergy(5);
             if (energy>0) {
          	   h1.fill(energy,energy/part.refP);
-        	   h2.fill(part.refE,energy/part.refP);
+        	       h2.fill(part.refE,energy/part.refP);
                h3.fill(part.refP,energy);
             }
         }
@@ -453,14 +449,14 @@ public class ECPart {
         HipoDataSource reader = new HipoDataSource();
         ECPart           part = new ECPart();
         
-        String evioPath = "/Users/colesmith/clas12/gemc/pizero/hipo/";
+        String evioPath = "/Users/colesmith/clas12/sim/pizero/hipo/";
+        String evioFile = "fc-pizero-10k-s2-newgeom.hipo";
         
         // GEMC file: 10k 2.0 GeV pizeros thrown at 25 deg into Sector 2 using GEMC 2.4 geometry
         // JLAB: evioPath = "/lustre/expphy/work/hallb/clas12/lcsmith/clas12/forcar/gemc/evio/";
         
         if (args.length == 0) { 
-//            reader.open(evioPath+"fc-pizero-10k-s2-25deg-oldgeom.evio");
-            reader.open(evioPath+"fc-pizero-10k-s2-newgeom.hipo");
+            reader.open(evioPath+evioFile);
         } else {
             String inputFile = args[0];
             reader.open(inputFile);
