@@ -657,9 +657,11 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
                       calib.setDoubleValue(currentRangeMin*0.01,"FitMin",is, 3*ilmap+il, ip);
                       calib.setDoubleValue(currentRangeMax*0.01,"FitMax",is, 3*ilmap+il, ip);
                    }
-                   calib.fireTableDataChanged();
-                   analyze(ilmap,is,is+1,il,il+1,ip1,ip2);
+                   
+                   calib.fireTableDataChanged();                   
+                   analyze(ilmap,is,is+1,il,il+1,ip1,ip2);                  
                    drawPlots(sectorSelected,layerSelected,channelSelected);
+                   
                }
            });   
        }        
@@ -803,7 +805,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
         }
         
         @Override
-        public synchronized void analyze(int idet, int is1, int is2, int il1, int il2, int ip1, int ip2) {
+        public void analyze(int idet, int is1, int is2, int il1, int il2, int ip1, int ip2) {
             
             TreeMap<Integer, Object> map;
             boolean doCalibration=false;
@@ -887,7 +889,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
         }    
               
         @Override
-        public synchronized void drawPlots(int is, int layer, int ic) {
+        public void drawPlots(int is, int layer, int ic) {
             
             DetectorCollection<H2F>            dc2a = ecPix[ilmap].strips.hmap2.get("H2_a_Hist");    
             EmbeddedCanvas                        c = new EmbeddedCanvas();    
