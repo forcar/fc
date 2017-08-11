@@ -12,13 +12,14 @@ import org.jlab.io.hipo.HipoDataEvent;
 import org.jlab.io.hipo.HipoDataSync;
 import org.jlab.detector.decode.CLASDecoder;
 import org.jlab.detector.decode.CodaEventDecoder;
-import org.jlab.detector.decode.DetectorEventDecoder;
+//import org.jlab.detector.decode.DetectorEventDecoder;
+import org.jlab.groot.data.H1F;
 import org.jlab.detector.decode.DetectorDataDgtz;
 
 public class FCCLASDecoder {
        
     public CodaEventDecoder          codaDecoder = null; 
-    public FCDetectorEventDecoder  detectorDecoder = null;
+    public DetectorEventDecoder  detectorDecoder = null;
     public List<DetectorDataDgtz>       dataList = new ArrayList<DetectorDataDgtz>();    
     public HipoDataSync                   writer = null;
     public HipoDataEvent               hipoEvent = null;
@@ -39,13 +40,12 @@ public class FCCLASDecoder {
         System.out.println("*FCCLASDecoder*");
         System.out.println("***************");
         codaDecoder = new CodaEventDecoder();
-        detectorDecoder = new FCDetectorEventDecoder();
+        detectorDecoder = new DetectorEventDecoder();
         writer = new HipoDataSync();
         hipoEvent = (HipoDataEvent) writer.createEvent();
     }
     
-    public void openHipoFile(String path) {
-        
+    public void openHipoFile(String path) {        
         HipoFileName = path+"clas_00"+localRun+".hipo";
         System.out.println("FCCLASDecoder.openHipoFile(): Opening "+HipoFileName);
         writer.setCompressionType(2);
