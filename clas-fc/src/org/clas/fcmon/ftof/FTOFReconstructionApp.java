@@ -4,27 +4,33 @@ import static java.lang.System.out;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
+import org.clas.fcmon.tools.DetectorEventDecoder;
 import org.clas.fcmon.tools.FADCFitter;
 import org.clas.fcmon.tools.FCApplication;
 
-//groot
 import org.jlab.groot.data.H1F;
 import org.jlab.groot.data.H2F;
 
-//clas12rec
 import org.jlab.detector.base.DetectorCollection;
 import org.jlab.detector.base.DetectorType;
 import org.jlab.detector.decode.CodaEventDecoder;
 import org.jlab.detector.decode.DetectorDataDgtz;
-import org.jlab.detector.decode.DetectorEventDecoder;
-import org.jlab.io.evio.EvioDataEvent;
+//import org.jlab.detector.decode.DetectorEventDecoder;
 import org.jlab.utils.groups.IndexedList;
+import org.jlab.utils.groups.IndexedList.IndexGenerator;
 import org.jlab.io.base.DataBank;
 import org.jlab.io.base.DataEvent;
 import org.jlab.io.evio.EvioDataBank;
+import org.jlab.rec.tof.banks.BaseHit;
+import org.jlab.rec.tof.banks.BaseHitReader;
+import org.jlab.rec.tof.banks.BaseHitReader.DetectorLocation;
 
 //import org.clas.fcmon.jroot.*;
 
@@ -40,6 +46,7 @@ public class FTOFReconstructionApp extends FCApplication {
    DetectorEventDecoder   detectorDecoder = new DetectorEventDecoder();
    List<DetectorDataDgtz>        dataList = new ArrayList<DetectorDataDgtz>();
    IndexedList<List<Float>>          tdcs = new IndexedList<List<Float>>(4);
+   IndexedList<List<Float>>          adcs = new IndexedList<List<Float>>(4);
    
    FTOFConstants                   ftofcc = new FTOFConstants();  
    
@@ -113,39 +120,94 @@ public class FTOFReconstructionApp extends FCApplication {
 //       return "FTOF";
 //   }
    
+   public void getHits(DataEvent event) {
+	   
+       BaseHitReader hitReader = new BaseHitReader();
+       
+       Map<DetectorLocation, ArrayList<BaseHit>> hitMap = hitReader.get_Hits(event, "FTOF");
+       
+       System.out.println(" ");
+       System.out.println("New Event Size "+hitMap.size());
+       
+       if (hitMap != null) {
+
+           Set entrySet = hitMap.entrySet();
+           Iterator it = entrySet.iterator();
+
+           while (it.hasNext()) {
+               Map.Entry me = (Map.Entry) it.next();
+               ArrayList<BaseHit> hitList = (ArrayList<BaseHit>) me.getValue();
+               
+               List<ArrayList<BaseHit>> hitlists = new ArrayList<ArrayList<BaseHit>>();  
+               Collections.sort(hitList);
+              
+   			  for(BaseHit h : hitList)
+   				System.out.println("Sector "+h.get_Sector()+
+   						           " Layer "+h.get_Layer()+
+   						             " PMT "+h.get_Component()+
+   						            " ADC1 "+h.ADC1+
+   						            " ADC2 "+h.ADC2+
+   						            " TDC1 "+h.TDC1+
+   						            " TDC2 "+h.TDC2+
+   						           " ADCi1 "+h.ADCbankHitIdx1+
+   						           " ADCi2 "+h.ADCbankHitIdx2+
+   						           " TDCi1 "+h.TDCbankHitIdx1+
+   						           " TDCi2 "+h.TDCbankHitIdx2);
+   						           
+               for (int i = 0; i < hitList.size(); i++) {
+                   hitlists.add(new ArrayList<BaseHit>());
+               }
+
+           }
+       }	   	   
+   }
+   
    public void updateHipoData(DataEvent event) {
        
-       int evno;
-       long phase = 0;
-       int trigger = 0;
-       long timestamp = 0;
+       int       evno = 0;       
+       int    trigger = 0;
+       float      tps = 24;
+       float     tdcf = 0;
+       float     tdcd = 0;
+       float   tdcmax = 0;
+       float   offset = 0;
+       long     phase = 0;
+       long timestamp = 0;    
        
-       clear(0); clear(1); clear(2); tdcs.clear();
+       clear(0); clear(1); clear(2); tdcs.clear(); adcs.clear();
        
-       if(event.hasBank("RUN::config")){
+       if (app.isMC)  offset=600;
+       if (app.isMCB) {app.isMC=true; offset=600-(float)124.25;}
+       
+       if(!app.isMC&&event.hasBank("RUN::config")){
            DataBank bank = event.getBank("RUN::config");
-//           timestamp = bank.getLong("timestamp",0);
+           timestamp = bank.getLong("timestamp",0);
            trigger   = bank.getInt("trigger",0);
            evno      = bank.getInt("event",0);         
            int phase_offset = 1;
            phase = ((timestamp%6)+phase_offset)%6;
            app.bitsec = (int) (Math.log10(trigger>>24)/0.301+1);
        }
-
+       
+       getHits(event);
+      
        if(event.hasBank("FTOF::tdc")){
            DataBank  bank = event.getBank("FTOF::tdc");
-           int rows = bank.rows();
-           
+           int rows = bank.rows();           
            for(int i = 0; i < rows; i++){
                int  is = bank.getByte("sector",i);
                int  il = bank.getByte("layer",i);
                int  lr = bank.getByte("order",i);                       
                int  ip = bank.getShort("component",i);
+               tdcd = bank.getInt("TDC",i)*tps/1000;  
+               
+               if(tdcd>0) {
                if(!tdcs.hasItem(is,il,lr-2,ip)) tdcs.add(new ArrayList<Float>(),is,il,lr-2,ip);
-                   tdcs.getItem(is,il,lr-2,ip).add((float) bank.getInt("TDC",i)*24/1000-phase*4);              
+                   tdcs.getItem(is,il,lr-2,ip).add(tdcd); 
+               }
            }
        }
-              
+           
        if(event.hasBank("FTOF::adc")){
            DataBank  bank = event.getBank("FTOF::adc");
            int rows = bank.rows();
@@ -158,16 +220,32 @@ public class FTOFReconstructionApp extends FCApplication {
                float t = bank.getFloat("time",i);               
                int ped = bank.getShort("ped", i);
                
-               Float[] tdcc; float[] tdc;
+               if(adc>0) {
+               if(!adcs.hasItem(is,il,lr,ip)) adcs.add(new ArrayList<Float>(),is,il,lr,ip);
+                   adcs.getItem(is,il,lr,ip).add((float) adc); 
+               }
                
+               IndexGenerator ig = new IndexGenerator();
+               for (Map.Entry<Long,List<Float>>  entry : adcs.getMap().entrySet()){
+            	      long hash = entry.getKey();
+            	      int his = ig.getIndex(hash, 0);
+            	      int hil = ig.getIndex(hash, 1);
+            	      int hlr = ig.getIndex(hash, 2);
+            	      int hip = ig.getIndex(hash, 3);
+                  System.out.println("SEC "+his+" LAY "+hil+" LR "+hlr+" PMT "+hip+" ADC "+entry.getValue().get(0));
+               }              
+               
+               Float[] tdcc; float[] tdc;
+              
                if (tdcs.hasItem(is,il,lr,ip)) {
                    List<Float> list = new ArrayList<Float>();
                    list = tdcs.getItem(is,il,lr,ip); tdcc=new Float[list.size()]; list.toArray(tdcc);
-                   tdc  = new float[list.size()];
-                   for (int ii=0; ii<tdcc.length; ii++) tdc[ii] = tdcc[ii];  
+                   tdc = new float[list.size()];
+                   for (int ii=0; ii<tdcc.length; ii++) tdc[ii] = tdcc[ii]-tdcmax+offset-phase*4;  
                } else {
                    tdc = new float[1];
                }
+               
                for (int ii=0 ; ii< 100 ; ii++) {
                    float wgt = (ii==(int)(t/4)) ? adc:0;
                    ftofPix[il-1].strips.hmap2.get("H2_a_Hist").get(is,lr+1,5).fill(ii,ip,wgt);
@@ -175,6 +253,8 @@ public class FTOFReconstructionApp extends FCApplication {
                        ftofPix[il-1].strips.hmap2.get("H2_a_Sevd").get(is,lr+1,0).fill(ii,ip,wgt);
                    }
                }
+               
+               if (ped>0) ftofPix[il-1].strips.hmap2.get("H2_a_Hist").get(is,lr+1,3).fill(this.pedref-ped, ip);  
                
                if(isGoodSector(is)) fill(il-1, is, lr+1, ip, adc, tdc, t, (float) adc);    
            }
@@ -375,7 +455,7 @@ public class FTOFReconstructionApp extends FCApplication {
                ipR = ftofPix[idet].strra[is-1][1][0];
                if ((iL==1&&iR==1)&&(ipL==ipR)) {
                    float gm = (float) Math.sqrt(ftofPix[idet].adcr[is-1][0][0]*ftofPix[idet].adcr[is-1][1][0]);
-                   ftofPix[idet].strips.hmap2.get("H2_a_Hist").get(is, 0, 0).fill(gm, ipL,1.0);
+                   ftofPix[idet].strips.hmap2.get("H2_a_Hist").get(is, 0, 0).fill(gm,ipL,1.0);
                }
                iL = ftofPix[idet].nht[is-1][0];
                iR = ftofPix[idet].nht[is-1][1];
