@@ -116,7 +116,7 @@ public class CTOFPixels {
         System.out.println("CTOFPixels.initHistograms(): "+this.detName);  
         
         String iid;
-        double amax[]= {6000.,200.,200.,200.};
+        double amax[]= {20000.,200.,200.,200.};
         
         DetectorCollection<H1F> H1_a_Sevd = new DetectorCollection<H1F>();
         DetectorCollection<H1F> H1_t_Sevd = new DetectorCollection<H1F>();
@@ -133,9 +133,9 @@ public class CTOFPixels {
             H2_t_Hist.add(is, 0, 0, new H2F("a_tdif_"+iid+0,  100, -35.,      35.,nstr, 1., nend));
             for (int il=1 ; il<3 ; il++){
                 iid="s"+Integer.toString(is)+"_l"+Integer.toString(il)+"_c";
-                H2_a_Hist.add(is, il, 0, new H2F("a_raw_"+iid+0,      100,   0., 6000.,nstr, 1., nend));
-                H2_t_Hist.add(is, il, 0, new H2F("a_raw_"+iid+0,      100,   0.,  300.,nstr, 1., nend));
-                H2_a_Hist.add(is, il, 1, new H2F("a_raw_"+iid+1,      100,   0., 6000.,100,   0., 300.));
+                H2_a_Hist.add(is, il, 0, new H2F("a_raw_"+iid+0,      100,   0.,20000.,nstr, 1., nend));
+                H2_t_Hist.add(is, il, 0, new H2F("a_raw_"+iid+0,      100, 100.,  200.,nstr, 1., nend));
+                H2_a_Hist.add(is, il, 1, new H2F("a_raw_"+iid+1,      100,   0.,20000.,100, 100., 200.));
                 H2_a_Hist.add(is, il, 3, new H2F("a_ped_"+iid+3,       40, -20.,  20., nstr, 1., nend)); 
                 H2_a_Hist.add(is, il, 5, new H2F("a_fadc_"+iid+5,     100,   0., 100., nstr, 1., nend));
                 H1_a_Sevd.add(is, il, 0, new H1F("a_sed_"+iid+0,                       nstr, 1., nend));
