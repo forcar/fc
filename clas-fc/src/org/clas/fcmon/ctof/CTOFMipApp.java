@@ -39,7 +39,7 @@ public class CTOFMipApp extends FCApplication {
         
         H1F h;
         String alab;
-        String otab[]={" Left PMT "," Right PMT "};
+        String otab[]={" UP PMT "," DN PMT "};
         String lab4[]={" ADC"," TDC","GMEAN PMT "};      
 
        

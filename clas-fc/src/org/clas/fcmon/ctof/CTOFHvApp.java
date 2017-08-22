@@ -255,19 +255,19 @@ public class CTOFHvApp extends FCEpics implements ActionListener {
              
         canvas.divide(4, 1);
         
-        h = H1_HV.get(is, 1+off, 0); h.setTitleX("Sector "+is+" Left PMT"); h.setTitleY("VOLTS");
+        h = H1_HV.get(is, 1+off, 0); h.setTitleX("Sector "+is+" UP PMT"); h.setTitleY("VOLTS");
         h.setFillColor(33); canvas.cd(0); canvas.draw(h);
-        h = H1_HV.get(is, 2+off, 0); h.setTitleX("Sector "+is+" Right PMT"); h.setTitleY("VOLTS");
+        h = H1_HV.get(is, 2+off, 0); h.setTitleX("Sector "+is+" DN PMT"); h.setTitleY("VOLTS");
         h.setFillColor(33); canvas.cd(1);    canvas.draw(h);
         
-        h = H1_HV.get(is, 1+off, 1); h.setTitleX("Sector "+is+" Left PMT"); h.setTitleY("VOLTS");
+        h = H1_HV.get(is, 1+off, 1); h.setTitleX("Sector "+is+" UP PMT"); h.setTitleY("VOLTS");
         h.setFillColor(32); canvas.cd(0); canvas.draw(h,"same");
-        h = H1_HV.get(is, 2+off, 1); h.setTitleX("Sector "+is+" Right PMT"); h.setTitleY("VOLTS");
+        h = H1_HV.get(is, 2+off, 1); h.setTitleX("Sector "+is+" DN PMT"); h.setTitleY("VOLTS");
         h.setFillColor(32); canvas.cd(1);    canvas.draw(h,"same");
 
-        h = H1_HV.get(is, 1+off, 2); h.setTitleX("Sector "+is+" Left PMT"); h.setTitleY("MICROAMPS");
+        h = H1_HV.get(is, 1+off, 2); h.setTitleX("Sector "+is+" UP PMT"); h.setTitleY("MICROAMPS");
         h.setFillColor(32); canvas.cd(2); canvas.draw(h);
-        h = H1_HV.get(is, 2+off, 2); h.setTitleX("Sector "+is+" Right PMT"); h.setTitleY("MICROAMPS");
+        h = H1_HV.get(is, 2+off, 2); h.setTitleX("Sector "+is+" DN PMT"); h.setTitleY("MICROAMPS");
         h.setFillColor(32); canvas.cd(3); canvas.draw(h);
         
         c = H1_HV.get(is, lr+off, 0).histClone("Copy"); c.reset() ; 
@@ -297,14 +297,14 @@ public class CTOFHvApp extends FCEpics implements ActionListener {
         
         canvas.divide(4, 1);
         
-        h = H2_HV.get(is, 1+off, 0); h.setTitleX("Sector "+is+" Left PMT"); h.setTitleY("TIME");
+        h = H2_HV.get(is, 1+off, 0); h.setTitleX("Sector "+is+" UP PMT"); h.setTitleY("TIME");
         canvas.cd(0); canvas.draw(h);
-        h = H2_HV.get(is, 2+off, 0); h.setTitleX("Sector "+is+" Right PMT"); h.setTitleY("TIME");
+        h = H2_HV.get(is, 2+off, 0); h.setTitleX("Sector "+is+" DN PMT"); h.setTitleY("TIME");
         canvas.cd(1);    canvas.draw(h);
 
-        h = H2_HV.get(is, 1+off, 2); h.setTitleX("Sector "+is+" Left PMT"); h.setTitleY("TIME");
+        h = H2_HV.get(is, 1+off, 2); h.setTitleX("Sector "+is+" UP PMT"); h.setTitleY("TIME");
         canvas.cd(2); canvas.draw(h);
-        h = H2_HV.get(is, 2+off, 2); h.setTitleX("Sector "+is+" Right PMT"); h.setTitleY("TIME");
+        h = H2_HV.get(is, 2+off, 2); h.setTitleX("Sector "+is+" DN PMT"); h.setTitleY("TIME");
         canvas.cd(3); canvas.draw(h);
         
         canvas.repaint();

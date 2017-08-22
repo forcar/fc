@@ -32,7 +32,7 @@ public class CTOFPedestalApp extends FCApplication {
         double nstr = ctofPix[ilm].nstr;
         
         H1F h;
-        String otab[]={" Left PMT "," Right PMT "};
+        String otab[]={" UP PMT "," DN PMT "};
         
         c.divide(2,2);
         c.setAxisFontSize(14);

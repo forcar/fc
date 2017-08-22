@@ -14,7 +14,7 @@ public class CTOFCalibrationEngine extends CalibrationEngine {
    
 
         public final static int[]       NUM_PADDLES = {48};
-        public final static String[]    LAYER_NAME = {"LEFT","RIGHT"};
+        public final static String[]    LAYER_NAME = {"UP","DN"};
         
         CalibrationConstants calib;
         

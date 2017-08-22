@@ -49,9 +49,7 @@ public class CTOFDet extends FCDetector {
          }
         
         addButtons("DET","View","CTOF.0");
-        addButtons("LAY","View","UD.0.U.1.D.2");
         addButtons("PMT","Map","EVT.0.ADC.1.TDC.2.STATUS.3");
-//        addButtons("PIX","Map","EVT.0.ADC.1.TDC.2.STATUS.3");
         
         app.getDetectorView().addMapButtons();
         app.getDetectorView().addViewButtons(); 
@@ -60,7 +58,7 @@ public class CTOFDet extends FCDetector {
     
     public DetectorShape2D getPaddle(int det, int sector, int layer, int paddle) {
         
-        double rotation = Math.toRadians(paddle*(360.0/48));
+        double rotation = Math.toRadians(360.0/48*(paddle-0.5)-90);
         int il = layer-1;
         DetectorShape2D shape = new DetectorShape2D(DetectorType.CTOF,sector,layer,paddle);     
         shape.createTrapXY(ctofPix[det].cc.DX2[il], ctofPix[det].cc.DX1[il], ctofPix[det].cc.DY[il]);

@@ -45,9 +45,9 @@ public class CTOFAdcApp extends FCApplication {
         int ilm = ilmap;
         double nstr = ctofPix[ilm].nstr;
         
-        H2F h2a = ctofPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,1,0); h2a.setTitleY("Sector "+is+" Left PMT")  ; h2a.setTitleX("Left PMT ADC");
-        H2F h2b = ctofPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,2,0); h2b.setTitleY("Sector "+is+" Right PMT") ; h2b.setTitleX("Right PMT ADC");
-        H2F h2c = ctofPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,0,0); h2c.setTitleY("Sector "+is+" PADDLE")    ; h2c.setTitleX("GMEAN");
+        H2F h2a = ctofPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,1,0); h2a.setTitleY("Sector "+is+" UP PMT") ; h2a.setTitleX("UP PMT ADC");
+        H2F h2b = ctofPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,2,0); h2b.setTitleY("Sector "+is+" DN PMT") ; h2b.setTitleX("DN PMT ADC");
+        H2F h2c = ctofPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,0,0); h2c.setTitleY("Sector "+is+" PADDLE") ; h2c.setTitleX("GMEAN");
         canvasConfig(c,0,0.,   20000.,1.,nstr+1.,true).draw(h2a);
         canvasConfig(c,1,0.,   20000.,1.,nstr+1.,true).draw(h2b);
         canvasConfig(c,2,0.,amax[ilm],1.,nstr+1.,true).draw(h2c);
@@ -63,9 +63,9 @@ public class CTOFAdcApp extends FCApplication {
         f1.setLineColor(2); c.draw(f1,"same"); 
         f2.setLineColor(2); c.draw(f2,"same");
       
-        h1a = ctofPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,1,0).projectionY(); h1a.setTitleX("Sector "+is+" Left PMT");   h1a.setFillColor(col0);  
-        h1b = ctofPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,2,0).projectionY(); h1b.setTitleX("Sector "+is+" Right PMT" ); h1b.setFillColor(col0);  
-        h1c = ctofPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,0,0).projectionY(); h1c.setTitleX("Sector "+is+" PADDLE" );    h1c.setFillColor(col1);  
+        h1a = ctofPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,1,0).projectionY(); h1a.setTitleX("Sector "+is+" UP PMT");  h1a.setFillColor(col0);  
+        h1b = ctofPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,2,0).projectionY(); h1b.setTitleX("Sector "+is+" DN PMT" ); h1b.setFillColor(col0);  
+        h1c = ctofPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,0,0).projectionY(); h1c.setTitleX("Sector "+is+" PADDLE" ); h1c.setFillColor(col1);  
 
         if (lr==1) {h1a.setFillColor(col1); copy1=h1a.histClone("Copy"); copy1.reset(); copy1.setBinContent(ic, h1a.getBinContent(ic)); copy1.setFillColor(col2);}
         if (lr==2) {h1b.setFillColor(col1); copy1=h1b.histClone("Copy"); copy1.reset(); copy1.setBinContent(ic, h1b.getBinContent(ic)); copy1.setFillColor(col2);}
@@ -75,8 +75,8 @@ public class CTOFAdcApp extends FCApplication {
         c.cd(4); h1b.setOptStat(Integer.parseInt("1000000")); c.draw(h1b);  if (lr==2) c.draw(copy1,"same");
         c.cd(5); h1c.setOptStat(Integer.parseInt("1000000")); c.draw(h1c);             c.draw(copy2,"same");
         
-        h1a = ctofPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,1,0).sliceY(ics); h1a.setTitleX("Left PMT "+(ic+1)+" ADC");   h1a.setFillColor(col0);  
-        h1b = ctofPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,2,0).sliceY(ics); h1b.setTitleX("Right PMT "+(ic+1)+" ADC" ); h1b.setFillColor(col0);  
+        h1a = ctofPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,1,0).sliceY(ics); h1a.setTitleX("UP PMT "+(ic+1)+" ADC");   h1a.setFillColor(col0);  
+        h1b = ctofPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,2,0).sliceY(ics); h1b.setTitleX("DN PMT "+(ic+1)+" ADC" ); h1b.setFillColor(col0);  
         h1c = ctofPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,0,0).sliceY(ics); h1c.setTitleX("GMEAN PADDLE "+(ic+1));      h1c.setFillColor(col2);  
         
         if (lr==1) h1a.setFillColor(col2);

@@ -26,7 +26,7 @@ public class CTOFMode1App extends FCApplication {
     
     int is,lr,ic,idet,nstr;
     int ics[][] = new int[3][10];
-    String otab[]={" Left PMT "," Right PMT "};
+    String otab[]={" UP PMT "," DOWN PMT "};
     
     public CTOFMode1App(String name, CTOFPixels[] ctofPix) {
         super(name,ctofPix);    
@@ -65,9 +65,7 @@ public class CTOFMode1App extends FCApplication {
         c = mode1.getCanvas("Event");       
         
         switch (idet) {
-        case 0: c.divide(4,6); break;
-        case 1: c.divide(4,6); max=24 ; if (ic>23) {min=24; max=48;} if (ic>47) {min=48; max=nstr;} break;
-        case 2: c.divide(2,3);
+        case 0: c.divide(4,6); max=24 ; if (ic>23) {min=24; max=48;} if (ic>47) {min=48; max=nstr;} break;
         }    
 
         c.setAxisFontSize(14);

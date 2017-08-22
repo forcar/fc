@@ -61,9 +61,11 @@ public class FCEpics  {
     String   grps[] = {"HV","DISC","FADC"};
     String   ltcc[] = {"L","R"};
     String   ftof[] = {"PANEL1A_L","PANEL1A_R","PANEL1B_L","PANEL1B_R","PANEL2_L","PANEL2_R"};
+    String   ctof[] = {"UP","DN"};
     String     ec[] = {"U","V","W","UI","VI","WI","UO","VO","WO"};
     int     nltcc[] = {18,18};
     int     nftof[] = {23,23,62,62,5,5};
+    int     nctof[] = {48,48};
     int       nec[] = {68,62,62,36,36,36,36,36,36};
     
     public int is1,is2;
@@ -76,6 +78,7 @@ public class FCEpics  {
 	    this.detName = det;
         this.layMap.put("LTCC",ltcc); this.nlayMap.put("LTCC", nltcc);
         this.layMap.put("FTOF",ftof); this.nlayMap.put("FTOF", nftof);
+        this.layMap.put("CTOF",ctof); this.nlayMap.put("CTOF", nctof);
         this.layMap.put("EC",ec);     this.nlayMap.put("EC", nec);
 	}
 	
@@ -241,6 +244,7 @@ public class FCEpics  {
 	    switch (det) {
 	    case "LTCC": return det;
 	    case "FTOF": return det;
+	    case "CTOF": return det;
 	    case   "EC": return (layer<4) ? "PCAL":"ECAL";
 	    }
 	    return "";
