@@ -177,7 +177,7 @@ public class MonitorApp extends JFrame implements ActionListener {
             if(hostname.substring(0,4).equals("clon")) {
               System.out.println("monitor.getEnv(): Running on "+hostname);
               doEpics = false;
-              setIsMC(false);
+              setIsMC(true);
               rootPath = "/home/clasrun/"+appName;              
               xMsgHost = "129.57.167.227"; //clondaq4
             }
@@ -186,7 +186,7 @@ public class MonitorApp extends JFrame implements ActionListener {
         if (ostype!=null&&ostype.equals("darwin")) {
             System.out.println("monitor.getEnv(): Running on "+ostype);
             doEpics = false;
-            setIsMC(false);
+            setIsMC(true);
             rootPath  = "/Users/colesmith/"+appName;
             xMsgHost = "localhost";
         }
@@ -278,7 +278,7 @@ public class MonitorApp extends JFrame implements ActionListener {
                 };
             }
         });         
-        tbBtn.setSelected(true);        
+        tbBtn.setSelected(false);        
         buttonPane.add(tbBtn);
         
         openBtn = new JButton("Open HIPO");

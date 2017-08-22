@@ -18,7 +18,7 @@ public class CTOFMon extends DetectorMonitor {
     CTOFPixels              ctofPix[] = new CTOFPixels[1];
     ConstantsManager             ccdb = new ConstantsManager();
     FTHashCollection              rtt = null;      
-    CTOFDet              ctofDet = null;  
+    CTOFDet                   ctofDet = null;  
     
     CTOFReconstructionApp   ctofRecon = null;
     CTOFMode1App            ctofMode1 = null;
