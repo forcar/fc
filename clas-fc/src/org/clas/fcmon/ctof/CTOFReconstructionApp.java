@@ -193,8 +193,8 @@ public class CTOFReconstructionApp extends FCApplication {
        app.decoder.initEvent(event);
        app.bitsec = app.decoder.bitsec;
        
-       List<DetectorDataDgtz> adcDGTZ = app.decoder.getEntriesADC(DetectorType.FTOF);
-       List<DetectorDataDgtz> tdcDGTZ = app.decoder.getEntriesTDC(DetectorType.FTOF);
+       List<DetectorDataDgtz> adcDGTZ = app.decoder.getEntriesADC(DetectorType.CTOF);
+       List<DetectorDataDgtz> tdcDGTZ = app.decoder.getEntriesTDC(DetectorType.CTOF);
 
        for (int i=0; i < tdcDGTZ.size(); i++) {
            DetectorDataDgtz ddd=tdcDGTZ.get(i);
@@ -310,7 +310,7 @@ public class CTOFReconstructionApp extends FCApplication {
    
    public void clear(int idet) {
        
-       for (int is=0 ; is<6 ; is++) {
+       for (int is=iis1 ; is<iis2 ; is++) {
            for (int il=0 ; il<2 ; il++) {
                ctofPix[idet].nha[is][il] = 0;
                ctofPix[idet].nht[is][il] = 0;
@@ -326,7 +326,7 @@ public class CTOFReconstructionApp extends FCApplication {
        }
        
        if (app.isSingleEvent()) {
-           for (int is=0 ; is<6 ; is++) {
+           for (int is=iis1 ; is<iis2 ; is++) {
                for (int il=0 ; il<2 ; il++) {
                     ctofPix[idet].strips.hmap1.get("H1_a_Sevd").get(is+1,il+1,0).reset();
                     ctofPix[idet].strips.hmap2.get("H2_a_Sevd").get(is+1,il+1,0).reset();
@@ -371,7 +371,7 @@ public class CTOFReconstructionApp extends FCApplication {
        
        int iL,iR,ipL,ipR;
        
-       for (int is=1 ; is<7 ; is++) {
+       for (int is=is1 ; is<is2 ; is++) {
            for (int idet=0; idet<ctofPix.length; idet++) {
                 iL = ctofPix[idet].nha[is-1][0];
                 iR = ctofPix[idet].nha[is-1][1];
@@ -396,7 +396,7 @@ public class CTOFReconstructionApp extends FCApplication {
    public void processSED() {
        
        for (int idet=0; idet<ctofPix.length; idet++) {
-       for (int is=0; is<6; is++) {
+       for (int is=iis1; is<iis2; is++) {
           for (int il=0; il<2; il++ ){;
           for (int n=0 ; n<ctofPix[idet].nha[is][il] ; n++) {
               int ip=ctofPix[idet].strra[is][il][n]; int ad=ctofPix[idet].adcr[is][il][n];
