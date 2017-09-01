@@ -16,6 +16,7 @@ import javax.swing.JSplitPane;
 import javax.swing.Timer;
 
 import org.clas.fcmon.detector.view.EmbeddedCanvasTabbed;
+
 import org.epics.ca.Channel;
 import org.epics.ca.Context;
 import org.epics.ca.Listener;
@@ -70,7 +71,7 @@ public class FCEpics  {
     
     public int is1,is2;
     public int sectorSelected, layerSelected, channelSelected;
-    public Boolean online = false;
+    public Boolean online = true;
     
 	public FCEpics(String name, String det){
 	    System.out.println("Initializing detector "+det);
@@ -161,10 +162,10 @@ public class FCEpics  {
         setCaActionNames(det,grp,"vset");     
         break;
         case 1:
-        setCaActionNames(det,grp,"c4"); 
+        setCaActionNames(det,grp,"cTdc"); 
         break;  
         case 2: 
-        setCaActionNames(det,grp,"c1"); 
+        setCaActionNames(det,grp,"c"); 
         }
     }
     
@@ -178,6 +179,7 @@ public class FCEpics  {
             for (int il=1; il<layMap.get(det).length+1; il++) {
                 for (int ic=1; ic<nlayMap.get(det)[il-1]+1; ic++) {
                     String pv = getPvName(grp,action,is,il,ic);
+                    System.out.println(pv);
                     map.add(context.createChannel(pv, Double.class),grp,is,il,ic); //org.epics.ca
                 }
             }
@@ -195,9 +197,9 @@ public class FCEpics  {
             setPvActionNames(det,grp,"pwonoff"); 
             break;
             case 1:  
-            setPvActionNames(det,grp,"c4"); break;
+            setPvActionNames(det,grp,"cTdc"); break;
             case 2: 
-            setPvActionNames(det,grp,"c1"); break;
+            setPvActionNames(det,grp,"c"); break;
         }
     }
     
