@@ -53,7 +53,6 @@ public class ECScalersApp extends FCEpics {
     }
     
     public void init() {
-        this.online = true;
         this.is1=ECConstants.IS1; 
         this.is2=ECConstants.IS2; 
         setPvNames(this.detName,1);
@@ -214,8 +213,8 @@ public class ECScalersApp extends FCEpics {
                 for (int ic=1; ic<nlayMap.get(detName)[il-1]+1; ic++) {
                     app.fifo4.add(is, il, ic,new LinkedList<Double>());
                     app.fifo5.add(is, il, ic,new LinkedList<Double>());
-                    connectCa(1,"c4",is,il,ic);
-                    connectCa(2,"c1",is,il,ic);
+                    connectCa(1,"cTdc",is,il,ic);
+                    connectCa(2,"c",is,il,ic);
                 }
             }
         }
@@ -232,8 +231,8 @@ public class ECScalersApp extends FCEpics {
                         app.fifo4.get(is, il, ic).removeFirst();
                         app.fifo5.get(is, il, ic).removeFirst();
                     }
-                    app.fifo4.get(is, il, ic).add(getCaValue(1,"c4",is, il, ic));
-                    app.fifo5.get(is, il, ic).add(getCaValue(2,"c1",is, il, ic));
+                    app.fifo4.get(is, il, ic).add(getCaValue(1,"cTdc",is, il, ic));
+                    app.fifo5.get(is, il, ic).add(getCaValue(2,"c",is, il, ic));
                 }
             }
          }
