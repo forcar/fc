@@ -177,8 +177,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
         return engine;
     }
     
-    public void analyze(int idet, int is1, int is2, int il1, int il2) {    
-        
+    public void analyze(int idet, int is1, int is2, int il1, int il2) {            
         if (il1>3) return;
         ECCalibrationEngine engine = getSelectedEngine();
         engine.analyze(idet,is1,is2,il1,il2,1,69);
@@ -394,6 +393,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
                         if (gain<0.3||gain>12.0) gain=1.0;
                         double ratio=Math.pow(gain, 1./11.);
                         double hvnew = (ratio>0.5) ? hvold/ratio:hvold;
+                        if((hvnew-hvold)>100) {gain=1.0; hvnew=hvold;}
                         calib.setDoubleValue(hvnew,"HVnew", is, sl, ip);                           
                         calib.setDoubleValue(hvnew-hvold,"DHV", is, sl, ip);  
                         app.fifo6.get(is, sl, ip).add(hvnew);
