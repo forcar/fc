@@ -210,7 +210,7 @@ public class ECHvApp extends FCEpics implements ActionListener {
         for (int is=is1; is<is2 ; is++) {
             for (int il=il1; il<il2 ; il++) {
                 for (int ic=1; ic<nlayMap.get(detName)[il-1]+1; ic++) {
-                    System.out.println("is="+is+" il="+il+" ic="+ic+" HVnew="+app.fifo6.get(is, il, ic).getLast());
+                    System.out.println("Sec="+is+" Lay="+il+" PMT="+ic+" HVnew="+app.fifo6.get(is, il, ic).getLast());
                     putCaValue(0,"vset",is,il,ic,app.fifo6.get(is, il, ic).getLast());  
                 }
             }
