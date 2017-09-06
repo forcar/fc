@@ -48,6 +48,7 @@ public class ECReconstructionApp extends FCApplication {
    double pcx,pcy,pcz;
    double refE=0,refP=0,refTH=25;
    Boolean printit = false;
+   Boolean stop = true;
    
    CodaEventDecoder           codaDecoder = new CodaEventDecoder();
    DetectorEventDecoder   detectorDecoder = new DetectorEventDecoder();
@@ -80,6 +81,7 @@ public class ECReconstructionApp extends FCApplication {
        iis1 = ECConstants.IS1-1;
        iis2 = ECConstants.IS2-1;
    }
+   
    
    public void clearHistograms() {
      
@@ -139,7 +141,7 @@ public class ECReconstructionApp extends FCApplication {
        int       evno =  0;
        int    trigger =  0;
        double     sca =  1;
-       float      tps =  24;
+       float      tps =  (float) 0.02345;
        float     tdcf =  0;
        float     tdcd =  0;
        float   tdcmax =  0;
@@ -149,8 +151,9 @@ public class ECReconstructionApp extends FCApplication {
        
        clear(0); clear(1); clear(2); tdcs.clear();
        
-       if (app.isMC)  {tdcmax=2000000; offset=600; tps=1;}
-       if (app.isMCB) {app.isMC=true; tdcmax=2000000; offset=600-(float)124.25; tps=1;}
+       if (app.isMC)  {tdcmax=2000000; offset=600;}
+       if (app.isMCB) {app.isMC=true; tdcmax=2000000; offset=600-(float) 124.25;}
+       
        sca = (app.isCRT) ? 6.6:1; // For pre-installation PCAL CRT runs
        
        if(!app.isMC&&event.hasBank("RUN::config")){
@@ -170,7 +173,7 @@ public class ECReconstructionApp extends FCApplication {
                int  is = bank.getByte("sector",i);
                int  il = bank.getByte("layer",i);
                int  ip = bank.getShort("component",i);               
-               tdcd = bank.getInt("TDC",i)*tps/1000;
+               tdcd = bank.getInt("TDC",i)*tps;
                if(tdcd>0) {
                    if(app.isMC&&tdcd<tdcmax) tdcmax=tdcd; //Find and save longest hit time for MC events            
                    if(!tdcs.hasItem(is,il,ip)) tdcs.add(new ArrayList<Float>(),is,il,ip);
@@ -208,6 +211,7 @@ public class ECReconstructionApp extends FCApplication {
                if(app.isMC&&app.variation=="clas6") sca = 1;
                float sadc = (float) (adc / sca);
                
+               /*
                for (int ii=0 ; ii< 100 ; ii++) {
                    double wgt1=0; double wgt2=0;
                    if (ii==(int)(t/4)) {wgt1=sadc; wgt2=1.0;}                  
@@ -217,7 +221,7 @@ public class ECReconstructionApp extends FCApplication {
                        ecPix[idet].strips.hmap2.get("H2_Mode1_Sevd").get(is,ilay,0).fill(ii,ip,wgt1);
                    }
                }   
-               
+               */
                if(il==6&&idet==1) {
                   ecPix[idet].strips.hmap2.get("H2_t_Hist").get(is,3,3).fill((double) tdc[0]+phase*4,(double) phase);
                   ecPix[idet].strips.hmap2.get("H2_t_Hist").get(is,3,4).fill(tdc[0],phase);
@@ -255,8 +259,8 @@ public class ECReconstructionApp extends FCApplication {
        app.decoder.initEvent(event);
        app.bitsec = app.decoder.bitsec;
        
-       List<DetectorDataDgtz> adcDGTZ = app.decoder.getEntriesADC(DetectorType.EC);
-       List<DetectorDataDgtz> tdcDGTZ = app.decoder.getEntriesTDC(DetectorType.EC);
+       List<DetectorDataDgtz> adcDGTZ = app.decoder.getEntriesADC(DetectorType.ECAL);
+       List<DetectorDataDgtz> tdcDGTZ = app.decoder.getEntriesTDC(DetectorType.ECAL);
 
        for (int i=0; i < tdcDGTZ.size(); i++) {
            ddd=tdcDGTZ.get(i);

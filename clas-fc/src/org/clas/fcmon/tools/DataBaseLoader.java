@@ -71,7 +71,7 @@ public class DataBaseLoader {
             return provider;
         }
         
-        if(type==DetectorType.EC){
+        if(type==DetectorType.ECAL){
             DatabaseConstantProvider provider = new DatabaseConstantProvider(run,variation);
             provider.loadTable("/geometry/pcal/pcal");
             provider.loadTable("/geometry/pcal/Uview");
@@ -154,7 +154,7 @@ public class DataBaseLoader {
             return provider;
         }
         
-        if(type==DetectorType.EC){
+        if(type==DetectorType.ECAL){
             DatabaseConstantProvider provider = new DatabaseConstantProvider(run,variation);
             provider.loadTable("/geometry/pcal/pcal");
             provider.loadTable("/geometry/pcal/Uview");

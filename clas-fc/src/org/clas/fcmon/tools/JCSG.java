@@ -15,8 +15,8 @@ import org.jlab.geom.prim.Point3D;
 
 public class JCSG {
     
-    ConstantProvider    cp1 = GeometryFactory.getConstants(DetectorType.EC,1,"default");
-    ConstantProvider    cp2 = GeometryFactory.getConstants(DetectorType.EC,1,"default");
+    ConstantProvider    cp1 = GeometryFactory.getConstants(DetectorType.ECAL,1,"default");
+    ConstantProvider    cp2 = GeometryFactory.getConstants(DetectorType.ECAL,1,"default");
    
     ECDetector    detector = new ECFactory().createDetectorCLAS(cp2);
     String name[]={"PCAL","ECin","ECout"};

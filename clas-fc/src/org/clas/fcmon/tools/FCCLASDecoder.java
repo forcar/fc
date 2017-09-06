@@ -198,10 +198,10 @@ public class FCCLASDecoder {
         HipoDataEvent event = (HipoDataEvent) writer.createEvent();
         
         String[]        adcBankNames = new String[]{"FTOF::adc","ECAL::adc"};
-        DetectorType[]  adcBankTypes = new DetectorType[]{DetectorType.FTOF,DetectorType.EC};
+        DetectorType[]  adcBankTypes = new DetectorType[]{DetectorType.FTOF,DetectorType.ECAL};
         
         String[]        tdcBankNames = new String[]{"FTOF::tdc","ECAL::tdc"};
-        DetectorType[]  tdcBankTypes = new DetectorType[]{DetectorType.FTOF,DetectorType.EC};
+        DetectorType[]  tdcBankTypes = new DetectorType[]{DetectorType.FTOF,DetectorType.ECAL};
         
         for(int i = 0; i < adcBankTypes.length; i++){
             DataBank adcBank = getDataBankADC(adcBankNames[i],adcBankTypes[i]);

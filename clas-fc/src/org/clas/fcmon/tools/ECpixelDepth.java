@@ -7,6 +7,7 @@ import java.util.Scanner;
 
 import org.clas.fcmon.detector.view.DetectorShape2D;
 import org.jlab.detector.base.DetectorType;
+import org.jlab.detector.base.GeometryFactory;
 import org.jlab.geom.detector.ec.ECDetector;
 import org.jlab.geom.detector.ec.ECFactory;
 import org.jlab.geom.prim.Point3D;
@@ -332,7 +333,7 @@ public class ECpixelDepth {
 */
 	
 	public static void main(String[] args){ 
-        ECDetector ecdet  = new ECFactory().createDetectorTilted(DataBaseLoader.getGeometryConstants(DetectorType.EC, 10, "default"));
+        ECDetector ecdet  = new ECFactory().createDetectorTilted(GeometryFactory.getConstants(DetectorType.ECAL, 10, "default"));
 		ECpixelDepth test = new ECpixelDepth();
 		test.FindBackEC(ecdet);
 		test.FindFrontPCAL(ecdet);

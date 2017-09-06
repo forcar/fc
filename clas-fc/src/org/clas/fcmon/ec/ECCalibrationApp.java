@@ -849,7 +849,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
                      if (doCalibration) {
                          
                         CalibrationData fits = new CalibrationData(is, sl, ip);
-                        fits.getDescriptor().setType(DetectorType.EC);
+                        fits.getDescriptor().setType(DetectorType.ECAL);
                         fits.addGraph(ecPix[idet].strips.getpixels(il,ip,cnts),
                                       ecPix[idet].strips.getpixels(il,ip,distmap),
                                       ecPix[idet].strips.getpixels(il,ip,meanmap),

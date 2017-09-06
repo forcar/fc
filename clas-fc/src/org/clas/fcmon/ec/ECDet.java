@@ -7,7 +7,7 @@ import org.jlab.geom.prim.Path3D;
 
 public class ECDet extends FCDetector {
     
-    DetectorType[] detNames = {DetectorType.PCAL, DetectorType.ECIN, DetectorType.ECOUT};
+    DetectorType[] detNames = {DetectorType.ECAL, DetectorType.ECIN, DetectorType.ECOUT};
     
     public ECDet(String name , ECPixels[] ecPix) {
         super(name, ecPix);       

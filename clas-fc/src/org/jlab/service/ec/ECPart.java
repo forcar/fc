@@ -8,6 +8,8 @@ import javax.swing.JFrame;
 import org.jlab.clas.detector.CalorimeterResponse;
 import org.jlab.clas.detector.DetectorParticle;
 import org.jlab.clas.detector.DetectorResponse;
+import org.jlab.clas.physics.EventFilter;
+import org.jlab.clas.physics.GenericKinematicFitter;
 import org.jlab.clas.physics.Particle;
 import org.jlab.clas.physics.Vector3;
 import org.jlab.detector.base.DetectorType;
@@ -107,17 +109,17 @@ public class ECPart {
         List<DetectorResponse> rEC = new ArrayList<DetectorResponse>();
         eb.initEvent();
         Boolean isEvio = event instanceof EvioDataEvent;                  
-        if (isEvio) rEC =                  readEvioEvent(event, "ECDetector::clusters", DetectorType.EC); 
-        if(!isEvio) rEC = DetectorResponse.readHipoEvent(event, "ECAL::clusters", DetectorType.EC);
+        if (isEvio) rEC =                  readEvioEvent(event, "ECDetector::clusters", DetectorType.ECAL); 
+        if(!isEvio) rEC = DetectorResponse.readHipoEvent(event, "ECAL::clusters", DetectorType.ECAL);
         eb.addDetectorResponses(rEC); 
         return rEC;
     } 
     
     public void getUnmatchedResponses(List<DetectorResponse> response) {        
         unmatchedResponses.clear();
-        unmatchedResponses.add(eb.getUnmatchedResponses(response, DetectorType.EC,1));
-        unmatchedResponses.add(eb.getUnmatchedResponses(response, DetectorType.EC,4));
-        unmatchedResponses.add(eb.getUnmatchedResponses(response, DetectorType.EC,7));
+        unmatchedResponses.add(eb.getUnmatchedResponses(response, DetectorType.ECAL,1));
+        unmatchedResponses.add(eb.getUnmatchedResponses(response, DetectorType.ECAL,4));
+        unmatchedResponses.add(eb.getUnmatchedResponses(response, DetectorType.ECAL,7));
     }    
         
     public void getNeutralResponses(List<DetectorResponse> response) {        
@@ -134,7 +136,7 @@ public class ECPart {
         List<DetectorResponse> rEC = new ArrayList<DetectorResponse>();
         singleMIPs.clear();
         for (int is=1; is<7; is++) {
-            rEC = DetectorResponse.getListBySector(unmatchedResponses.get(0),  DetectorType.EC, is);            
+            rEC = DetectorResponse.getListBySector(unmatchedResponses.get(0),  DetectorType.ECAL, is);            
             if(rEC.size()==1&&mip[is-1]==1) singleMIPs.add(rEC,is);
         }     	
     }
@@ -143,7 +145,7 @@ public class ECPart {
         List<DetectorResponse> rEC = new ArrayList<DetectorResponse>();
         singleNeutrals.clear();
         for (int is=1; is<7; is++) {
-            rEC = DetectorResponse.getListBySector(unmatchedResponses.get(0),  DetectorType.EC, is);
+            rEC = DetectorResponse.getListBySector(unmatchedResponses.get(0),  DetectorType.ECAL, is);
             if(rEC.size()==1&&mip[is-1]!=1) singleNeutrals.add(rEC,is);
         } 
     }
@@ -162,7 +164,7 @@ public class ECPart {
     	
         List<DetectorParticle> particles = new ArrayList<DetectorParticle>();          
         List<DetectorResponse>   rEC  = new ArrayList<DetectorResponse>();        
-        rEC = DetectorResponse.getListBySector(unmatchedResponses.get(0), DetectorType.EC, sector);
+        rEC = DetectorResponse.getListBySector(unmatchedResponses.get(0), DetectorType.ECAL, sector);
         if (rEC.size()==1) particles.add(DetectorParticle.createNeutral(rEC.get(0)));
         return particles;
     }
@@ -172,7 +174,7 @@ public class ECPart {
         List<DetectorParticle> particles = new ArrayList<DetectorParticle>();          
         List<DetectorResponse>      rEC  = new ArrayList<DetectorResponse>();        
         
-        rEC = DetectorResponse.getListBySector(unmatchedResponses.get(0), DetectorType.EC, sector);
+        rEC = DetectorResponse.getListBySector(unmatchedResponses.get(0), DetectorType.ECAL, sector);
         
         switch (rEC.size()) {
         case 1:  List<DetectorResponse> rEC2 = findSecondPhoton(sector);
@@ -205,12 +207,12 @@ public class ECPart {
         int is = p.getDetectorResponses().get(0).getDescriptor().getSector();
       
         switch (io) {       
-        case "Inner": rEC = DetectorResponse.getListBySector(unmatchedResponses.get(1), DetectorType.EC, is);
-                      index  = p.getDetectorHit(rEC,DetectorType.EC,4,EBConstants.ECIN_MATCHING);
+        case "Inner": rEC = DetectorResponse.getListBySector(unmatchedResponses.get(1), DetectorType.ECAL, is);
+                      index  = p.getDetectorHit(rEC,DetectorType.ECAL,4,EBConstants.ECIN_MATCHING);
                       if(index>=0){p.addResponse(rEC.get(index),true); rEC.get(index).setAssociation(0);
                       distance = p.getDistance(rEC.get(index)).length();}
-        case "Outer": rEC = DetectorResponse.getListBySector(unmatchedResponses.get(2), DetectorType.EC, is); 
-                      index  = p.getDetectorHit(rEC,DetectorType.EC,7,EBConstants.ECOUT_MATCHING);
+        case "Outer": rEC = DetectorResponse.getListBySector(unmatchedResponses.get(2), DetectorType.ECAL, is); 
+                      index  = p.getDetectorHit(rEC,DetectorType.ECAL,7,EBConstants.ECOUT_MATCHING);
                       if(index>=0){p.addResponse(rEC.get(index),true); rEC.get(index).setAssociation(0);
                       distance = p.getDistance(rEC.get(index)).length();}
         }
@@ -278,8 +280,8 @@ public class ECPart {
         Vector3 n1 = p1.vector(); n1.unit();
         Vector3 n2 = p2.vector(); n2.unit();
                 
-        e1 = p1.getEnergy(DetectorType.EC);
-        e2 = p2.getEnergy(DetectorType.EC);
+        e1 = p1.getEnergy(DetectorType.ECAL);
+        e2 = p2.getEnergy(DetectorType.ECAL);
 
         SF1 = getSF(geom,e1); e1c = e1/SF1;
         Particle g1 = new Particle(22,
@@ -306,10 +308,10 @@ public class ECPart {
         // Require 2 photons in PCAL and ECinner
         
         n2hit++;
-        if((DetectorResponse.getListByLayer(p1.getDetectorResponses(),DetectorType.EC, 1).size()!=0  &&
-            DetectorResponse.getListByLayer(p1.getDetectorResponses(),DetectorType.EC, 4).size()!=0) &&
-           (DetectorResponse.getListByLayer(p2.getDetectorResponses(),DetectorType.EC, 1).size()!=0  &&
-            DetectorResponse.getListByLayer(p2.getDetectorResponses(),DetectorType.EC, 4).size()!=0))  {    
+        if((DetectorResponse.getListByLayer(p1.getDetectorResponses(),DetectorType.ECAL, 1).size()!=0  &&
+            DetectorResponse.getListByLayer(p1.getDetectorResponses(),DetectorType.ECAL, 4).size()!=0) &&
+           (DetectorResponse.getListByLayer(p2.getDetectorResponses(),DetectorType.ECAL, 1).size()!=0  &&
+            DetectorResponse.getListByLayer(p2.getDetectorResponses(),DetectorType.ECAL, 4).size()!=0))  {    
               X = (e1c-e2c)/(e1c+e2c);
            tpi2 = 2*mpi0*mpi0/(1-cth)/(1-X*X);
            cpi0 = (e1c*cth1+e2c*cth2)/Math.sqrt(e1c*e1c+e2c*e2c+2*e1c*e2c*cth);
@@ -328,7 +330,7 @@ public class ECPart {
     
     public double processSingleMIP(List<DetectorParticle> particles) {
         if (particles.size()==0) return 0.0;
-    	return particles.get(0).getEnergy(DetectorType.EC);
+    	return particles.get(0).getEnergy(DetectorType.ECAL);
     }  
     
     public void setGeom(String geom) {
@@ -360,9 +362,10 @@ public class ECPart {
     
     public void electronDemo(String[] args) {
     	
-        ECEngine       engine = new ECEngine();
         HipoDataSource reader = new HipoDataSource();
-        ECPart           part = new ECPart();    	
+        ECEngine       engine = new ECEngine();
+        ECPart           part = new ECPart();  
+        
         String id ;
         
         String evioPath = "/Users/colesmith/clas12/sim/elec/hipo/";
@@ -398,8 +401,8 @@ public class ECPart {
         while(reader.hasEvent()&&nevent<40000){
             nevent++;
             DataEvent event = reader.getNextEvent();
-            part.readMC(event);
             engine.processDataEvent(event);   
+            part.readMC(event);
             part.getMIPResponses(part.readEC(event));
             double energy = part.getEcalEnergy(5);
             if (energy>0) {
@@ -445,8 +448,8 @@ public class ECPart {
     
     public void pizeroDemo(String[] args) {
     	
-        ECEngine       engine = new ECEngine();
         HipoDataSource reader = new HipoDataSource();
+        ECEngine       engine = new ECEngine();
         ECPart           part = new ECPart();
         
         String evioPath = "/Users/colesmith/clas12/sim/pizero/hipo/";
@@ -487,8 +490,8 @@ public class ECPart {
         
         while(reader.hasEvent()){
             DataEvent event = reader.getNextEvent();
-            part.readMC(event);
             engine.processDataEvent(event);   
+            part.readMC(event);
             part.getNeutralResponses(part.readEC(event));
             double invmass = 1e3*Math.sqrt(part.getTwoPhotonInvMass(2));
             
@@ -519,11 +522,10 @@ public class ECPart {
         frame.setVisible(true);     
     }
   	 
-    
     public static void main(String[] args){
     	   ECPart part = new ECPart();
-    	//   part.pizeroDemo(args);
-        part.electronDemo(args);
+   // 	   part.pizeroDemo(args);
+       part.electronDemo(args);
     }
     
 }

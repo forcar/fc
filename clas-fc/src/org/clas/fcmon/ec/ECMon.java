@@ -4,6 +4,7 @@ import org.clas.containers.FTHashCollection;
 import org.clas.fcmon.detector.view.DetectorShape2D;
 import org.clas.fcmon.tools.*;
 import org.jlab.detector.base.DetectorType;
+import org.jlab.detector.base.GeometryFactory;
 import org.jlab.detector.base.DetectorDescriptor;
 import org.jlab.detector.calib.utils.ConstantsManager;
 import org.jlab.geom.detector.ec.ECDetector;
@@ -60,7 +61,7 @@ public class ECMon extends DetectorMonitor {
     public ECMon(String det) {
         super(appname,"1.0","lcsmith");
         mondet = det;
-        ECDetector ecdet  = new ECFactory().createDetectorTilted(DataBaseLoader.getGeometryConstants(DetectorType.EC, 10, "default"));
+        ECDetector ecdet  = new ECFactory().createDetectorTilted(GeometryFactory.getConstants(DetectorType.ECAL, 10, "default"));
         ecPix[0] = new ECPixels("PCAL",ecdet);
         ecPix[1] = new ECPixels("ECin",ecdet);
         ecPix[2] = new ECPixels("ECout",ecdet);
@@ -268,7 +269,7 @@ public class ECMon extends DetectorMonitor {
 
     @Override
     public void dataEventAction(DataEvent de) { 
-
+      
       ecRecon.addEvent(de);
       
       if(app.doEng) {

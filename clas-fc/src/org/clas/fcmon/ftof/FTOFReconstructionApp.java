@@ -42,6 +42,8 @@ public class FTOFReconstructionApp extends FCApplication {
    String        BankType = null;
    int              detID = 0;
    
+   Boolean stop = true;
+   
    CodaEventDecoder           codaDecoder = new CodaEventDecoder();
    DetectorEventDecoder   detectorDecoder = new DetectorEventDecoder();
    List<DetectorDataDgtz>        dataList = new ArrayList<DetectorDataDgtz>();
@@ -189,7 +191,7 @@ public class FTOFReconstructionApp extends FCApplication {
            app.bitsec = (int) (Math.log10(trigger>>24)/0.301+1);
        }
        
-       getHits(event);
+//       getHits(event);
       
        if(event.hasBank("FTOF::tdc")){
            DataBank  bank = event.getBank("FTOF::tdc");
@@ -232,7 +234,7 @@ public class FTOFReconstructionApp extends FCApplication {
             	      int hil = ig.getIndex(hash, 1);
             	      int hlr = ig.getIndex(hash, 2);
             	      int hip = ig.getIndex(hash, 3);
-                  System.out.println("SEC "+his+" LAY "+hil+" LR "+hlr+" PMT "+hip+" ADC "+entry.getValue().get(0));
+//                  System.out.println("SEC "+his+" LAY "+hil+" LR "+hlr+" PMT "+hip+" ADC "+entry.getValue().get(0));
                }              
                
                Float[] tdcc; float[] tdc;
@@ -253,7 +255,7 @@ public class FTOFReconstructionApp extends FCApplication {
                        ftofPix[il-1].strips.hmap2.get("H2_a_Sevd").get(is,lr+1,0).fill(ii,ip,wgt);
                    }
                }
-               
+                              
                if (ped>0) ftofPix[il-1].strips.hmap2.get("H2_a_Hist").get(is,lr+1,3).fill(this.pedref-ped, ip);  
                
                if(isGoodSector(is)) fill(il-1, is, lr+1, ip, adc, tdc, t, (float) adc);    

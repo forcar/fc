@@ -64,7 +64,7 @@ public class ECEngineApp extends FCApplication implements ActionListener {
     ButtonGroup                bG1 = null;
     List<TOFPaddle>     paddleList = null;
     
-    DetectorType[] detNames = {DetectorType.PCAL, DetectorType.ECIN, DetectorType.ECOUT};
+    DetectorType[] detNames = {DetectorType.ECAL, DetectorType.ECIN, DetectorType.ECOUT};
     double pcx,pcy,pcz;
     double refE=0,refP=0,refTH=25;
 
@@ -363,7 +363,7 @@ public class ECEngineApp extends FCApplication implements ActionListener {
       ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,9,0).fill(refTH-mcThet,1.);  //refTH-mcThet
           
       for (int idet=0; idet<3; idet++) {
-          res.add(eb.getUnmatchedResponses(ecClusters, DetectorType.EC,iidet[idet]));
+          res.add(eb.getUnmatchedResponses(ecClusters, DetectorType.ECAL,iidet[idet]));
           for(int i = 0; i < res.get(idet).size(); i++){
               int        is = res.get(idet).get(i).getDescriptor().getSector();
               double energy = res.get(idet).get(i).getEnergy();

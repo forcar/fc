@@ -172,7 +172,7 @@ public class CalDrawDB{
 		System.arraycopy( (double[])obj[1], 0, x, 0, numpoints);
 		System.arraycopy( (double[])obj[2], 0, y, 0, numpoints);
 	    
-        DetectorShape2D  pixel = new DetectorShape2D(DetectorType.PCAL,sector,2,uPaddle * 10000 + vPaddle * 100 + wPaddle);
+        DetectorShape2D  pixel = new DetectorShape2D(DetectorType.ECAL,sector,2,uPaddle * 10000 + vPaddle * 100 + wPaddle);
     	pixel.getShapePath().clear(); 
 
         for(int i = 0; i < numpoints; ++i) pixel.getShapePath().addPoint(x[i],  y[i],  0.0); 
@@ -239,15 +239,15 @@ public class CalDrawDB{
 			System.arraycopy( (double[])obj[2], 0, y, 0, numpoints);
 				
 		    if(uPaddle == paddle1 && wPaddle == paddle2)
-		    	overlapShape = new DetectorShape2D(DetectorType.PCAL,sector,3,uPaddle * 100 + wPaddle);
+		    	overlapShape = new DetectorShape2D(DetectorType.ECAL,sector,3,uPaddle * 100 + wPaddle);
 		    else if(uPaddle == paddle1 && vPaddle == paddle2)
-	    		overlapShape = new DetectorShape2D(DetectorType.PCAL,sector,4,uPaddle * 100 + vPaddle);
+	    		overlapShape = new DetectorShape2D(DetectorType.ECAL,sector,4,uPaddle * 100 + vPaddle);
 		    else if(vPaddle == paddle1 && uPaddle == paddle2)
-	    		overlapShape = new DetectorShape2D(DetectorType.PCAL,sector,4,uPaddle * 100 + vPaddle);
+	    		overlapShape = new DetectorShape2D(DetectorType.ECAL,sector,4,uPaddle * 100 + vPaddle);
 		    else if(wPaddle == paddle1 && uPaddle == paddle2)
-		    	overlapShape = new DetectorShape2D(DetectorType.PCAL,sector,5,uPaddle * 100 + wPaddle);
+		    	overlapShape = new DetectorShape2D(DetectorType.ECAL,sector,5,uPaddle * 100 + wPaddle);
 		    else
-		    	overlapShape = new DetectorShape2D(DetectorType.PCAL,sector,6,vPaddle * 100 + wPaddle);
+		    	overlapShape = new DetectorShape2D(DetectorType.ECAL,sector,6,vPaddle * 100 + wPaddle);
 
 	    
 		    overlapShape.getShapePath().clear(); 
@@ -320,11 +320,11 @@ public class CalDrawDB{
 	        	
 		DetectorShape2D  stripShape;
 	    if(uPaddle == paddle1)
-	    	stripShape = new DetectorShape2D(DetectorType.PCAL,sector,7,uPaddle);
+	    	stripShape = new DetectorShape2D(DetectorType.ECAL,sector,7,uPaddle);
 	    else if(vPaddle == paddle1)
-	    	stripShape = new DetectorShape2D(DetectorType.PCAL,sector,8,vPaddle);
+	    	stripShape = new DetectorShape2D(DetectorType.ECAL,sector,8,vPaddle);
 	    else if(wPaddle == paddle1)
-	    	stripShape = new DetectorShape2D(DetectorType.PCAL,sector,9,wPaddle);
+	    	stripShape = new DetectorShape2D(DetectorType.ECAL,sector,9,wPaddle);
 	    else
 	    {
 	    	stripShape = new DetectorShape2D();
