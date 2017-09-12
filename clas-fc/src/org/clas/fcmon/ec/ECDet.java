@@ -37,7 +37,7 @@ public class ECDet extends FCDetector {
             for(int ip=0; ip<ecPix[id].ec_nstr[0] ; ip++)             app.getDetectorView().getView().addShape("U"+id,getStrip(id,is,1,ip));
             for(int ip=0; ip<ecPix[id].ec_nstr[1] ; ip++)             app.getDetectorView().getView().addShape("V"+id,getStrip(id,is,2,ip));
             for(int ip=0; ip<ecPix[id].ec_nstr[2] ; ip++)             app.getDetectorView().getView().addShape("W"+id,getStrip(id,is,3,ip));           
-            for(int ip=0; ip<ecPix[id].pixels.getNumPixels() ; ip++)  app.getDetectorView().getView().addShape("PIX"+id,getPixel(id,is,4,ip));
+            for(int ip=0; ip<ecPix[id].pixels.getNumPixels() ; ip++)  app.getDetectorView().getView().addShape("PIX"+id,getPixel(id,is,14,ip));
         }
         }
         
