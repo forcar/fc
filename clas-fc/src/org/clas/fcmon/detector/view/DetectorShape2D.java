@@ -105,6 +105,20 @@ public class DetectorShape2D {
         this.shapePath.addPoint(-dx2/2.0, -dy/2.0,  0.0);
     }
     
+    public void createSplitTrapXY(int split, double dx1, double dx2, double dy){
+        this.shapePath.clear();
+        switch (split) {
+        case 0: this.shapePath.addPoint(-dx1/2.0,  dy/2.0,  0.0);
+                this.shapePath.addPoint(      0.,  dy/2.0,  0.0);
+                this.shapePath.addPoint(      0., -dy/2.0,  0.0);
+                this.shapePath.addPoint(-dx2/2.0, -dy/2.0,  0.0); break;
+        case 1: this.shapePath.addPoint(      0.,  dy/2.0,  0.0);
+                this.shapePath.addPoint( dx1/2.0,  dy/2.0,  0.0);
+                this.shapePath.addPoint( dx2/2.0, -dy/2.0,  0.0);
+                this.shapePath.addPoint(      0., -dy/2.0,  0.0);
+        }
+    } 
+    
     public void createArc(double radiusInner, double radiusOutter,
             double angleStart, double angleEnd){
         
