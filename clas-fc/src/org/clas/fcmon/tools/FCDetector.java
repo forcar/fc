@@ -13,6 +13,7 @@ import java.util.TreeMap;
 import javax.swing.JPanel;
 
 import org.clas.fcmon.cc.CCPixels;
+import org.clas.fcmon.cnd.CNDPixels;
 import org.clas.fcmon.detector.view.DetectorPane2D;
 import org.clas.fcmon.detector.view.DetectorShape2D;
 import org.clas.fcmon.ec.ECPixels;
@@ -38,6 +39,7 @@ public class FCDetector {
     public CCPixels                  ccPix = null; 
     public FTOFPixels[]            ftofPix = null; 
     public CTOFPixels[]            ctofPix = null; 
+    public CNDPixels[]              cndPix = null; 
     public MonitorApp                  app = null;
     public DetectorMonitor             mon = null;
     public TreeMap<String,JPanel>  rbPanes = new TreeMap<String,JPanel>();
@@ -91,12 +93,20 @@ public class FCDetector {
         this.nStrips[1] = ftofPix[1].nstr;
         this.nStrips[2] = ftofPix[2].nstr;
     }
+    
     public FCDetector(String name, CTOFPixels[] ctofPix) {
         this.appName = name;
         this.ctofPix = ctofPix;   
         this.nStrips[0] = ctofPix[0].nstr;
 //        this.nStrips[1] = ctofPix[1].nstr;
     }  
+    
+    public FCDetector(String name, CNDPixels[] cndPix) {
+        this.appName = name;
+        this.cndPix = cndPix;   
+        this.nStrips[0] = cndPix[0].nstr;
+//        this.nStrips[1] = ctofPix[1].nstr;
+    }      
     
     public void setApplicationClass(MonitorApp app) {
         this.app = app;
@@ -118,8 +128,8 @@ public class FCDetector {
         
 //        System.out.println("is,layer,comp,ilmap,omap= "+is+" "+layer+" "+ic+" "+ilmap+" "+omap);
         if (panel==1) opt = 1;
-        if (layer<4)  lay = layer;
-        if (layer==4) lay = 7;
+        if (layer<7)  lay = layer;
+        if (layer==14) lay = 7;
         if (panel==9) lay = panel;
         if (panel>10) lay = panel; 
     } 
@@ -192,7 +202,7 @@ public class FCDetector {
         useTDC = (app.getSelectedTabName()=="TDC");
        
         Boolean peakShapes = (opt==0&&layer==0);
-        
+       
         switch (appName) {
         case   "ECDet": if(!useTDC) {dc = ecPix[ilmap].Lmap_a; mapz=ecPix[ilmap].Lmap_a_z ;}
                         if( useTDC) {dc = ecPix[ilmap].Lmap_t; mapz=ecPix[ilmap].Lmap_t_z ;} 
@@ -200,8 +210,8 @@ public class FCDetector {
         case "FTOFDet": if(!useTDC) {dc = ftofPix[ilmap].Lmap_a; mapz=ftofPix[ilmap].Lmap_a_z;}
                         if( useTDC) {dc = ftofPix[ilmap].Lmap_t; mapz=ftofPix[ilmap].Lmap_t_z;}  
                         break;     
-        case "CTOFDet": if(!useTDC) {dc = ctofPix[ilmap].Lmap_a; mapz=ctofPix[ilmap].Lmap_a_z;}
-                        if( useTDC) {dc = ctofPix[ilmap].Lmap_t; mapz=ctofPix[ilmap].Lmap_t_z;}  
+        case "CNDDet":  if(!useTDC) {dc = cndPix[ilmap].Lmap_a; mapz=cndPix[ilmap].Lmap_a_z;}
+                        if( useTDC) {dc = cndPix[ilmap].Lmap_t; mapz=cndPix[ilmap].Lmap_t_z;}  
                         break;     
         case   "CCDet": if(!useTDC) dc = ccPix.Lmap_a; 
                         if( useTDC) dc = ccPix.Lmap_t;

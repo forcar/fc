@@ -22,6 +22,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import org.clas.fcmon.cc.CCPixels;
+import org.clas.fcmon.cnd.CNDPixels;
 import org.clas.fcmon.detector.view.DetectorShape2D;
 import org.clas.fcmon.ec.ECPixels;
 import java.awt.event.MouseListener;
@@ -57,6 +58,7 @@ public class FCApplication implements ActionListener  {
     public CCPixels                                     ccPix = null;
     public FTOFPixels[]                               ftofPix = null;
     public CTOFPixels[]                               ctofPix = null;
+    public CNDPixels[]                                 cndPix = null;
     
 	public DetectorCollection<TreeMap<Integer,Object>> Lmap_a = new  DetectorCollection<TreeMap<Integer,Object>>();
 	public TreeMap<String, DetectorCollection<H1F>>     hmap1 = new TreeMap<String, DetectorCollection<H1F>>();
@@ -123,7 +125,11 @@ public class FCApplication implements ActionListener  {
         this.ctofPix = ctofPix;   
         this.addCanvas(name);
     }
-    
+    public FCApplication(String name, CNDPixels[] cndPix) {
+        this.appName = name;
+        this.cndPix = cndPix;   
+        this.addCanvas(name);
+    }    
     public void setApplicationClass(MonitorApp app) {
         this.app = app;
         app.getDetectorView().addFCApplicationListeners(this);
@@ -155,8 +161,8 @@ public class FCApplication implements ActionListener  {
         opt   = 0;
         
         if (panel==1) opt = 1;
-        if (layer<4)  lay = layer;
-        if (layer==4) lay = 7;
+        if (layer<7)  lay = layer;
+        if (layer==14) lay = 7;
         if (panel==9) lay = panel;
         if (panel>10) lay = panel;
 	}
