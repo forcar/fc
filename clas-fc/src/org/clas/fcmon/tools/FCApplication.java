@@ -125,11 +125,13 @@ public class FCApplication implements ActionListener  {
         this.ctofPix = ctofPix;   
         this.addCanvas(name);
     }
+    
     public FCApplication(String name, CNDPixels[] cndPix) {
         this.appName = name;
         this.cndPix = cndPix;   
         this.addCanvas(name);
-    }    
+    } 
+    
     public void setApplicationClass(MonitorApp app) {
         this.app = app;
         app.getDetectorView().addFCApplicationListeners(this);
@@ -154,7 +156,8 @@ public class FCApplication implements ActionListener  {
 	public void getDetIndices(DetectorDescriptor dd) {
         is    = dd.getSector();
         layer = dd.getLayer();
-        ic    = dd.getComponent(); 	 
+        ic    = dd.getComponent(); 
+        io    = dd.getOrder();
         
         panel = omap;
         lay   = 0;

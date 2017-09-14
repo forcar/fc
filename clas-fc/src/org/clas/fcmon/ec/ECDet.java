@@ -59,7 +59,7 @@ public class ECDet extends FCDetector {
     
     public DetectorShape2D getPixel(int det, int sector, int layer, int pixel){
 
-        DetectorShape2D shape = new DetectorShape2D(detNames[det],sector,layer,pixel);               
+        DetectorShape2D shape = new DetectorShape2D(detNames[det],sector,layer,pixel,0);               
         Path3D      shapePath = shape.getShapePath();
         
         for(int j = 0; j < ecPix[det].ec_nvrt[pixel]; j++){
@@ -72,7 +72,7 @@ public class ECDet extends FCDetector {
     
     public DetectorShape2D getStrip(int det, int sector, int layer, int str) {
 
-        DetectorShape2D shape = new DetectorShape2D(detNames[det],sector,layer,str);               
+        DetectorShape2D shape = new DetectorShape2D(detNames[det],sector,layer,str,0);               
         Path3D      shapePath = shape.getShapePath();
         
         for(int j = 0; j <4; j++){

@@ -25,7 +25,7 @@ public class FTOFPedestalApp extends FCApplication {
     public void updateCanvas(DetectorDescriptor dd) {
         
         this.getDetIndices(dd);   
-        int  lr = layer;
+        int  lr = dd.getOrder()+1;
         int ilm = ilmap;
         
         int col2=2,col4=4,col0=0;

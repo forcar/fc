@@ -253,7 +253,7 @@ public class DetectorView2D extends JPanel implements MouseMotionListener {
                     this.viewLayers.get(layer).resetSelection();
                     selection = this.viewLayers.get(layer).getShapeByXY(x,y);
                     if(selection!=null) {
-                        index = selection.hashCode();
+                        index = selection.hashCode(); 
                         this.viewLayers.get(layer).setSelected(selection);
                         break;
                     }
@@ -306,6 +306,7 @@ public class DetectorView2D extends JPanel implements MouseMotionListener {
             int  sector     = shape.getDescriptor().getSector();
             int  layer      = shape.getDescriptor().getLayer();
             int  component  = shape.getDescriptor().getComponent();
+            int  order      = shape.getDescriptor().getOrder();
             
             if(shapes.getMap().isEmpty()){
                 boundaries.set(
@@ -326,7 +327,7 @@ public class DetectorView2D extends JPanel implements MouseMotionListener {
             //boundaries.getDimension(0).addPadding(0.1);
             //boundaries.getDimension(1).addPadding(0.1);
             
-            this.shapes.add(shape, type,sector,layer,component);
+            this.shapes.add(shape,sector,layer,component,order);
             return this;
         }
            
@@ -349,6 +350,7 @@ public class DetectorView2D extends JPanel implements MouseMotionListener {
         public void resetSelection(){
             this.selectedDescriptor.setCrateSlotChannel(0, 0, 0);
             this.selectedDescriptor.setSectorLayerComponent(0, 0, 0);
+            this.selectedDescriptor.setOrder(0);
             this.selectedDescriptor.setType(DetectorType.UNDEFINED);
         }
         
@@ -381,8 +383,10 @@ public class DetectorView2D extends JPanel implements MouseMotionListener {
                 
                 for(int d = 0 ; d < detectorData.size(); d++){                     
                     DetectorDescriptor dd = detectorData.get(d).getDescriptor();
-                    if(dd.getType()==dm.getType()&dd.getSector()==dm.getSector()&
-                            dd.getLayer()==dm.getLayer()&dd.getComponent()==dm.getComponent()
+                    if(dd.getType()==dm.getType() &
+                       dd.getSector()==dm.getSector() &
+                       dd.getLayer()==dm.getLayer() &
+                       dd.getComponent()==dm.getComponent()               
                             ){                            
                         //System.out.println("COLORING COMPONENT " + shape.getValue().getDescriptor());
                         int cv = shape.getValue().getCounter();
@@ -420,8 +424,11 @@ public class DetectorView2D extends JPanel implements MouseMotionListener {
                 Color shapeColor = shape.getSwingColorWithAlpha(this.opacity);
                 
                 if (shape.getCounter()>0) hits.add(shape);
+                
+               // System.out.println(this.selectedDescriptor.getOrder()+" "+shape.getDescriptor().getOrder());
+                Boolean matchOrder = this.selectedDescriptor.getOrder()==shape.getDescriptor().getOrder(); //new
 
-                if(this.selectedDescriptor.compare(shape.getDescriptor())==true){
+                if(matchOrder&&this.selectedDescriptor.compare(shape.getDescriptor())==true){
                     shape.drawShape(g2d, world, Color.red, Color.black);
                 } else {                 
                     shape.drawShape(g2d, world, shapeColor, Color.black);                        

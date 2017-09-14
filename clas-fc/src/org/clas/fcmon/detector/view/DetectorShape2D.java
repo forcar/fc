@@ -53,11 +53,12 @@ public class DetectorShape2D {
     public DetectorShape2D(){     
     }
     
-    public DetectorShape2D(DetectorType type, int sector, int layer, int component){
+    public DetectorShape2D(DetectorType type, int sector, int layer, int component, int order){
         this.desc.setType(type);
         this.desc.setSectorLayerComponent(sector, layer, component);
-        this.shapeTitle = String.format("DETECTOR %s SECTOR %4d LAYER %4d  UNIT %4d",
-                type.getName(),sector,layer,component);
+        this.desc.setOrder(order);
+        this.shapeTitle = String.format("DETECTOR %s SECTOR %4d LAYER %4d  PMT %4d  ORDER %4d",
+                type.getName(),sector,layer,component,order);
     }
     
     public void addDetectorListener(DetectorListener lt){

@@ -278,7 +278,7 @@ public class FTOFScalersApp extends FCEpics {
         public void updateCanvas(DetectorDescriptor dd) {
             
             sectorSelected  = dd.getSector();  
-            layerSelected   = dd.getLayer();
+            layerSelected   = dd.getOrder()+1;
             channelSelected = dd.getComponent(); 
             
             updateScalers(0);

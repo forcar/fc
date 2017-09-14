@@ -38,7 +38,7 @@ public class FTOFMode1App extends FCApplication {
     public void updateCanvas(DetectorDescriptor dd) {
         
         this.is = dd.getSector();
-        this.lr = dd.getLayer();
+        this.lr = dd.getOrder()+1;
         this.ic = dd.getComponent();   
         this.idet = ilmap;      
         

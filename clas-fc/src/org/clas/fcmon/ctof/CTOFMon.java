@@ -47,7 +47,6 @@ public class CTOFMon extends DetectorMonitor {
         super(appname, "1.0", "lcsmith");
         mondet = det;
         ctofPix[0] = new CTOFPixels("CTOF");
-//        ctofPix[1] = new CTOFPixels("CND");
     }
 
     public static void main(String[] args){		

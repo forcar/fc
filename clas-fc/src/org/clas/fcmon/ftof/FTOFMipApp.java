@@ -20,7 +20,7 @@ public class FTOFMipApp extends FCApplication {
     public void updateCanvas(DetectorDescriptor dd) {
         
         this.getDetIndices(dd);   
-        int  lr = layer;
+        int  lr = dd.getOrder()+1;
         int ilm = ilmap;
         
         int nstr = ftofPix[ilm].nstr;

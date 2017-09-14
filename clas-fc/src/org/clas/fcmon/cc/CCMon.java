@@ -341,5 +341,11 @@ public class CCMon extends DetectorMonitor {
         // TODO Auto-generated method stub
         
     }
+
+	@Override
+	public void initEpics(Boolean isEpics) {
+		// TODO Auto-generated method stub
+		
+	}
     
 }

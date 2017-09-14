@@ -25,7 +25,7 @@ public class FTOFTdcApp extends FCApplication {
     public void updateCanvas(DetectorDescriptor dd) {
         
         this.getDetIndices(dd); 
-        int lr = layer;
+        int lr = dd.getOrder()+1;
     
         int col0=0,col1=4,col2=2;
         

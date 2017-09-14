@@ -152,7 +152,7 @@ public class MonitorApp extends JFrame implements ActionListener {
         System.out.println("monitor.getReverseTT()"); 
         IndexedTable tt = ccdb.getConstants(10, table);
         rtt = new FTHashCollection<int[]>(4);
-        for(int ic=1; ic<35; ic++) {
+        for(int ic=1; ic<61; ic++) {
             for (int sl=3; sl<19; sl++) {
                 int chmax=16;
                 if (sl==6||sl==16) chmax=128;
@@ -482,10 +482,12 @@ public class MonitorApp extends JFrame implements ActionListener {
         }
     }
     
-    public int getsp() {
+    public int getsp(DetectorDescriptor dd) {
         switch (appName) {
         case "ECMON":   return viewIndex+3*detectorIndex; 
-        case "FTOFMON": return viewIndex+2*detectorIndex;
+        case "FTOFMON": return dd.getLayer();
+        case "CTOFMON": return viewIndex+2*detectorIndex;
+        case "CNDMON":  return viewIndex+2*detectorIndex;
         }
         return 0;
     }
@@ -495,20 +497,21 @@ public class MonitorApp extends JFrame implements ActionListener {
         String comp=(dd.getLayer()==4) ? "  Pixel:":"  PMT:";  
       
         int is = dd.getSector();
-        int sp = getsp();
+        int sp = getsp(dd);        
         int ic = dd.getComponent()+1;
-        int or = 0;
+        int or = dd.getOrder();
         int cr = 0;
         int sl = 0;
         int ch = 0;
-        if (getSelectedTabName()=="TDC") or=2;
+        if (getSelectedTabName()=="TDC") or=or+2;
+        
         if (rtt.hasItem(is,sp,ic,or)) {
             int[] dum = (int[]) rtt.getItem(is,sp,ic,or);
             currentCrate = cr = dum[0];  
             currentSlot  = sl = dum[1];  
             currentChan  = ch = dum[2]; 
         }   
-        return " Sector:"+is+"  Layer:"+sp+comp+ic+" "+" Crate:"+cr+" Slot:"+sl+" Chan:"+ch;
+        return " Sector:"+is+"  Layer:"+sp+comp+ic+" Order: "+or+"    Crate:"+cr+" Slot:"+sl+" Chan:"+ch;
     }
     
     public void updateStatusString(DetectorDescriptor dd)  {

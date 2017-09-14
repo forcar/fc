@@ -29,8 +29,8 @@ public class CTOFAdcApp extends FCApplication {
         double amax[]= {20000.,20000.,20000.};
   
         this.getDetIndices(dd); 
-        int lr = layer;
-    
+        int lr = dd.getOrder()+1;
+            
         int col0=0,col1=4,col2=2;
         
         H1F h1a,h1b,h1c,copy1=null, copy2=null;

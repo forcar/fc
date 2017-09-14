@@ -109,7 +109,7 @@ public class TOFPaddle {
                     desc.getSector(), desc.getLayer(), desc.getComponent());
             //System.out.println("veff "+desc.getSector()+desc.getLayer()+desc.getComponent()+" "+veff);
         } else {
-//          veff = CTOFCalibrationEngine.veffValues.getItem(desc.getSector(),
+//          veff = CNDCalibrationEngine.veffValues.getItem(desc.getSector(),
 //                  desc.getLayer(), desc.getComponent());
         }
 
@@ -125,7 +125,7 @@ public class TOFPaddle {
 //          //System.out.println("p2p "+desc.getSector()+desc.getLayer()+desc.getComponent()+" "+p2p);
 //      } else {
 //          p2p = 0.0;
-//          //p2p = CTOFCalibrationEngine.p2pValues.getItem(desc.getSector(), desc.getLayer(), desc.getComponent());
+//          //p2p = CNDCalibrationEngine.p2pValues.getItem(desc.getSector(), desc.getLayer(), desc.getComponent());
 //      }
 //
 //      return p2p;
@@ -349,7 +349,7 @@ public class TOFPaddle {
             //System.out.println("lr "+desc.getSector()+desc.getLayer()+desc.getComponent()+" "+lr);
 
         } else {
-            //lr = CTOFCalibrationEngine.leftRightValues.getItem(sector, layer,
+            //lr = CNDCalibrationEngine.leftRightValues.getItem(sector, layer,
             //      paddle);
             lr = -25.0;
         }

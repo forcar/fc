@@ -35,10 +35,10 @@ public class CTOFDet extends FCDetector {
         for(int id=0; id<ctofPix.length; id++){
         System.out.println("CTOFDetector.initDetector() is1="+is1+" is2="+is2+" NSTRIPS="+ctofPix[id].nstr);
         for(int is=is1; is<is2; is++) {
-            for(int ip=0; ip<ctofPix[id].nstr ; ip++) app.getDetectorView().getView().addShape("UD"+id,getPaddle(id,is,1,ip));
-            for(int ip=0; ip<ctofPix[id].nstr ; ip++) app.getDetectorView().getView().addShape("UD"+id,getPaddle(id,is,2,ip));
-            for(int ip=0; ip<ctofPix[id].nstr ; ip++) app.getDetectorView().getView().addShape("U"+id,getPaddle(id,is,1,ip));
-            for(int ip=0; ip<ctofPix[id].nstr ; ip++) app.getDetectorView().getView().addShape("D"+id,getPaddle(id,is,2,ip));
+            for(int ip=0; ip<ctofPix[id].nstr ; ip++) app.getDetectorView().getView().addShape("UD"+id,getPaddle(id,is,id+1,ip,0));
+            for(int ip=0; ip<ctofPix[id].nstr ; ip++) app.getDetectorView().getView().addShape("UD"+id,getPaddle(id,is,id+1,ip,1));
+            for(int ip=0; ip<ctofPix[id].nstr ; ip++) app.getDetectorView().getView().addShape("U"+id,getPaddle(id,is,id+1,ip,0));
+            for(int ip=0; ip<ctofPix[id].nstr ; ip++) app.getDetectorView().getView().addShape("D"+id,getPaddle(id,is,id+1,ip,1));
         }   
         }
         
@@ -56,14 +56,13 @@ public class CTOFDet extends FCDetector {
         
     }    
     
-    public DetectorShape2D getPaddle(int det, int sector, int layer, int paddle) {
+    public DetectorShape2D getPaddle(int det, int sector, int layer, int paddle, int or) {
         
         double rotation = Math.toRadians(360.0/48*(paddle-0.5)-90);
-        int il = layer-1;
-        DetectorShape2D shape = new DetectorShape2D(DetectorType.CTOF,sector,layer,paddle);     
-        shape.createTrapXY(ctofPix[det].cc.DX2[il], ctofPix[det].cc.DX1[il], ctofPix[det].cc.DY[il]);
+        DetectorShape2D shape = new DetectorShape2D(DetectorType.CTOF,sector,layer,paddle,or);     
+        shape.createTrapXY(ctofPix[det].cc.DX2[or], ctofPix[det].cc.DX1[or], ctofPix[det].cc.DY[or]);
         shape.getShapePath().rotateZ(3.14159/2.);
-        shape.getShapePath().translateXYZ(-ctofPix[det].cc.R[il], 0.0, 0.0);
+        shape.getShapePath().translateXYZ(-ctofPix[det].cc.R[or], 0.0, 0.0);
         shape.getShapePath().rotateZ(rotation);
 
         return shape;       

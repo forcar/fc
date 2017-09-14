@@ -323,7 +323,7 @@ public class ECEngineApp extends FCApplication implements ActionListener {
                 Point3D orig = xyz.origin();
                 Point3D  end = xyz.end();
                 orig.setY(-orig.y()); end.setY(-end.y());                        
-                DetectorShape2D shape = new DetectorShape2D(detNames[getDet(il)],is,ipp++,0); 
+                DetectorShape2D shape = new DetectorShape2D(detNames[getDet(il)],is,ipp++,0,0); 
                 shape.getShapePath().addPoint(orig.x(),orig.y(),0.);
                 shape.getShapePath().addPoint(end.x(),end.y(),0.);
                 app.getDetectorView().getView().addShape("L"+getDet(il), shape);
