@@ -35,8 +35,8 @@ public class CNDDet extends FCDetector {
         for(int id=0; id<cndPix.length; id++){
         System.out.println("CNDDetector.initDetector() is1="+is1+" is2="+is2+" NSTRIPS="+cndPix[id].nstr);
         for(int is=is1; is<is2; is++) {
-            for(int ip=0; ip<cndPix[id].nstr ; ip++) app.getDetectorView().getView().addShape("LR"+id,getPaddle(id,is,1,ip));
-            for(int ip=0; ip<cndPix[id].nstr ; ip++) app.getDetectorView().getView().addShape("LR"+id,getPaddle(id,is,2,ip));
+            for(int ip=0; ip<cndPix[id].nstr ; ip++) app.getDetectorView().getView().addShape("LR"+id,getPaddle(id,is,id+1,ip,0));
+            for(int ip=0; ip<cndPix[id].nstr ; ip++) app.getDetectorView().getView().addShape("LR"+id,getPaddle(id,is,id+1,ip,1));
         }   
         }
         
@@ -54,14 +54,12 @@ public class CNDDet extends FCDetector {
         
     }    
     
-    public DetectorShape2D getPaddle(int det, int sector, int lr, int pmt) {
+    public DetectorShape2D getPaddle(int det, int sector, int layer, int pmt, int order) {
         
         double rotation = Math.toRadians(360.0/cndPix[det].cnd_nsec[0]*(sector-1));
         
-        DetectorShape2D shape = new DetectorShape2D(DetectorType.CND,sector,lr,pmt); 
-//        int ip = paddle+1;
-//        int il = 1-ip%2; int ik = (ip-(il+1))/2; System.out.println("paddle, il, ik = "+layer+" "+il+" "+ik);
-        shape.createSplitTrapXY(lr-1,cndPix[det].cc.UB[pmt], cndPix[det].cc.LB[pmt], cndPix[det].cc.THICK);
+        DetectorShape2D shape = new DetectorShape2D(DetectorType.CND,sector,layer,pmt,order); 
+        shape.createSplitTrapXY(order,cndPix[det].cc.UB[pmt], cndPix[det].cc.LB[pmt], cndPix[det].cc.THICK);
         shape.getShapePath().rotateZ(3.14159/2.);
         shape.getShapePath().translateXYZ(-cndPix[det].cc.R[pmt], 0.0, 0.0);       
         shape.getShapePath().rotateZ(rotation);

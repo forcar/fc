@@ -152,8 +152,8 @@ public class DetectorView2D extends JPanel implements MouseMotionListener {
         int n = 0; //lcs: set dimension for first view only
 
         for(Map.Entry<String,DetectorViewLayer2D> entry : this.viewLayers.entrySet()){
-           // System.out.println("[Drawing] ---> layer : " + entry.getKey() + " " + 
-           //                                                entry.getValue().getBounds());
+            //System.out.println("[Drawing] ---> layer : " + entry.getKey() + " " + 
+            //                                               entry.getValue().getBounds());
             if (n==0) {
                 commonDimension.copy(entry.getValue().getBounds());
                 commonDimension.getDimension(0).addPadding(0.1);
@@ -248,12 +248,12 @@ public class DetectorView2D extends JPanel implements MouseMotionListener {
             double x = world.getViewX(e.getX());
             double y = world.getViewY(e.getY());
             DetectorShape2D selection = null;
-            for(String layer : this.viewLayerNames){
+            for(String layer : this.viewLayerNames){            
                 if(viewLayers.get(layer).isActive()==true){
                     this.viewLayers.get(layer).resetSelection();
                     selection = this.viewLayers.get(layer).getShapeByXY(x,y);
                     if(selection!=null) {
-                        index = selection.hashCode(); 
+                        index = selection.hashCode();
                         this.viewLayers.get(layer).setSelected(selection);
                         break;
                     }
@@ -262,8 +262,8 @@ public class DetectorView2D extends JPanel implements MouseMotionListener {
 
             if(selection!=null&&index!=this.selectedShapeSave){
                 if(activeShape!=null){
-                    //System.out.println(" compare = " + activeShape.getDescriptor().compare(selection.getDescriptor()));
-                    //System.out.println(" active shape = " + selection.getDescriptor());
+                   // System.out.println(" compare = " + activeShape.getDescriptor().compare(selection.getDescriptor()));
+                   // System.out.println(" active shape = " + selection.getDescriptor());
                 }
                // System.out.println(" SELECTION = " + selection.getDescriptor());
                 this.selectedShape = index;
@@ -345,6 +345,7 @@ public class DetectorView2D extends JPanel implements MouseMotionListener {
         
         public void setSelected(DetectorShape2D shape){
             this.selectedDescriptor.copy(shape.getDescriptor());
+            this.selectedDescriptor.setOrder(shape.getDescriptor().getOrder());
         }
         
         public void resetSelection(){
@@ -425,7 +426,6 @@ public class DetectorView2D extends JPanel implements MouseMotionListener {
                 
                 if (shape.getCounter()>0) hits.add(shape);
                 
-               // System.out.println(this.selectedDescriptor.getOrder()+" "+shape.getDescriptor().getOrder());
                 Boolean matchOrder = this.selectedDescriptor.getOrder()==shape.getDescriptor().getOrder(); //new
 
                 if(matchOrder&&this.selectedDescriptor.compare(shape.getDescriptor())==true){
