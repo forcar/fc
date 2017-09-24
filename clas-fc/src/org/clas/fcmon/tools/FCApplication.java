@@ -348,8 +348,10 @@ public class FCApplication implements ActionListener  {
         if (xmin!=xmax) canvas.getPad(num).getAxisX().setRange(xmin,xmax);
         if (ymin!=ymax) canvas.getPad(num).getAxisY().setRange(ymin,ymax);
         if (ymin==ymax) canvas.getPad(num).getAxisY().setAutoScale(true);
-        canvas.getPad(num).getAxisZ().setAutoScale(true);
         canvas.getPad(num).getAxisFrame().getAxisZ().setLog(linlog);
+        double zmax = 4000*app.displayControl.pixMax;      
+        if (zmax<4000) canvas.getPad(num).getAxisZ().setRange(0.1,zmax);
+        if (zmax==4000) canvas.getPad(num).getAxisZ().setAutoScale(true);            
         return canvas;
     } 
     
