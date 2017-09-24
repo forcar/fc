@@ -100,11 +100,11 @@ public class FTOFReconstructionApp extends FCApplication {
    
    public void addEvent(DataEvent event) {
        
-       if(app.getDataSource()=="ET") this.updateRawData(event);
+       if(app.getDataSource()=="ET") this.updateEvioData(event);
        
        if(app.getDataSource()=="EVIO") {
            if(app.isMC==true)  this.updateSimulatedData(event);
-           if(app.isMC==false) this.updateRawData(event); 
+           if(app.isMC==false) this.updateEvioData(event); 
        }
        
        if(app.getDataSource()=="XHIPO"||app.getDataSource()=="HIPO") this.updateHipoData(event);;
@@ -264,7 +264,7 @@ public class FTOFReconstructionApp extends FCApplication {
        
    }  
    
-   public void updateRawData(DataEvent event) {
+   public void updateEvioData(DataEvent event) {
        
        clear(0); clear(1); clear(2); tdcs.clear();
        

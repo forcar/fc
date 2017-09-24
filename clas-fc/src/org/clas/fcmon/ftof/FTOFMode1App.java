@@ -112,7 +112,7 @@ public class FTOFMode1App extends FCApplication {
         f2.setParameter(0,ic+2); f2.setLineWidth(1); f2.setLineColor(0);
                
         c = mode1.getCanvas("Sum");  c.clear(); c.divide(2,2);       
-            
+        
         for (int il=1; il<3 ; il++) {
             h2 = dc2a.get(is,il,5); h2.setTitleY("Sector "+is+otab[il-1]) ; h2.setTitleX("SAMPLES (4 ns/ch)");
             canvasConfig(c,il-1,0.,100.,1.,nstr+1.,true).draw(h2);
