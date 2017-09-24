@@ -524,7 +524,7 @@ public class ECPart {
   	 
     public static void main(String[] args){
     	   ECPart part = new ECPart();
-   // 	   part.pizeroDemo(args);
+  //  	   part.pizeroDemo(args);
        part.electronDemo(args);
     }
     
