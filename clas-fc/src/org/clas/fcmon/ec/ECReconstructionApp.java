@@ -268,7 +268,7 @@ public class ECReconstructionApp extends FCApplication {
            int il = ddd.getDescriptor().getLayer();
            int ip = ddd.getDescriptor().getComponent();
            if(!tdcs.hasItem(is,il,ip)) tdcs.add(new ArrayList<Float>(),is,il,ip);
-           tdcs.getItem(is,il,ip).add((float) ddd.getTDCData(0).getTime()*24/1000);              
+               tdcs.getItem(is,il,ip).add((float) ddd.getTDCData(0).getTime()*24/1000);              
        }
        
        for (int i=0; i < adcDGTZ.size(); i++) {
@@ -475,7 +475,7 @@ public class ECReconstructionApp extends FCApplication {
    public void fillSED(int idet, int is, int il, int ip, int adc, float[] tdc) {
        double sca = 10; int idil=idet*3+il;
        if(!app.isMC||(app.isMC&&app.variation=="default")) sca  = (is==5)?ecc.AtoE5[idil-1]:ecc.AtoE[idil-1];
-       ecPix[idet].strips.hmap1.get("H1_Stra_Sevd").get(is,il,1).fill(ip,adc/sca);       
+       ecPix[idet].strips.hmap1.get("H1_Stra_Sevd").get(is,il,1).fill(ip,adc/sca);  //fill all hits with energy (MeV)    
    }
         
    public void fill(int idet, int is, int il, int ip, float adc, float[] tdc, float tdcf, float adph) {
@@ -499,12 +499,13 @@ public class ECReconstructionApp extends FCApplication {
        }
        
        if (adc>0) ecPix[idet].strips.hmap2.get("H2_a_Hist").get(is,il,3).fill(adc,ip,1.);  
-        
+              
        if(adc>ecPix[idet].getStripThr(app.config,il)){
            ecPix[idet].uvwa[is-1]=ecPix[idet].uvwa[is-1]+ecPix[idet].uvw_dalitz(idet,il,ip); //Dalitz adc
            ecPix[idet].nha[is-1][il-1]++; int inh = ecPix[idet].nha[is-1][il-1];
            if (inh>nstr) inh=nstr;
            ecPix[idet].adcr[is-1][il-1][inh-1]  = adc;
+           System.out.println(is+" "+il+" "+ip+" "+adc+" "+ecPix[idet].getStripThr(app.config,il));
            ecPix[idet].tf[is-1][il-1][inh-1]    = tdcf;
            ecPix[idet].strra[is-1][il-1][inh-1] = ip;
            ecPix[idet].strips.hmap2.get("H2_a_Hist").get(is,il,0).fill(adc,ip,1.);  
@@ -515,6 +516,7 @@ public class ECReconstructionApp extends FCApplication {
    
   public void processSED() {
       
+	  System.out.println(" ");
       for (int idet=0; idet<ecPix.length; idet++) {
       for (int is=iis1; is<iis2; is++) {
           float[] sed7 = ecPix[idet].strips.hmap1.get("H1_Pixa_Sevd").get(is+1,1,0).getData();
@@ -522,8 +524,9 @@ public class ECReconstructionApp extends FCApplication {
               for (int n=1 ; n<ecPix[idet].nha[is][il]+1 ; n++) {
                     double sca = 10; int idil=idet*3+il;
                     if(!app.isMC||(app.isMC&&app.variation=="default")) sca  = (is==4)?ecc.AtoE5[idil]:ecc.AtoE[idil];
-                    int ip =         ecPix[idet].strra[is][il][n-1]; 
+                    int ip =          ecPix[idet].strra[is][il][n-1]; 
                   float ad = (float) (ecPix[idet].adcr[is][il][n-1]/sca);
+                  System.out.println((is+1)+" "+(il+1)+" "+ip+" "+ad+" "+ecPix[idet].getStripThr(app.config,il+1));
                   ecPix[idet].strips.hmap1.get("H1_Stra_Sevd").get(is+1,il+1,0).fill(ip,ad);
                   ecPix[idet].strips.putpixels(il+1,ip,ad,sed7);
               }

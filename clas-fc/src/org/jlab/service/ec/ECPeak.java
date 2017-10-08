@@ -50,7 +50,7 @@ public class ECPeak {
     }
     
     public double getTime(){
-        if(this.indexMaxStrip>0&&this.indexMaxStrip<this.peakStrips.size()-1){
+        if(this.indexMaxStrip>= 0 && this.indexMaxStrip < this.peakStrips.size()){
             return this.peakStrips.get(indexMaxStrip).getTime();
         }
             return 0.0;
@@ -72,7 +72,13 @@ public class ECPeak {
         return energy;
     }
     
-    
+	public double getTime(Point3D point) {
+		if (this.indexMaxStrip >= 0 && this.indexMaxStrip < this.peakStrips.size()) {
+			return this.peakStrips.get(indexMaxStrip).getTime(point);
+		}
+		return 0.0;
+	}
+	
     public DetectorDescriptor getDescriptor(){
         return this.desc;
     }
@@ -177,9 +183,13 @@ public class ECPeak {
         
         List<ECPeak>  twoPeaks = new ArrayList<ECPeak>();
         ECPeak  leftPeak = new ECPeak(this.peakStrips.get(0));
-        for(int i = 1; i < strip; i++) { leftPeak.addStrip(this.peakStrips.get(i));}
+        for(int i = 1; i < strip; i++) { 
+        	   leftPeak.addStrip(this.peakStrips.get(i));
+        	}
         ECPeak  rightPeak = new ECPeak(this.peakStrips.get(strip));
-        for(int i = strip+1; i < peakStrips.size(); i++) { rightPeak.addStrip(this.peakStrips.get(i));}
+        for(int i = strip+1; i < peakStrips.size(); i++) { 
+        	    rightPeak.addStrip(this.peakStrips.get(i));
+        	}
         twoPeaks.add(leftPeak);
         twoPeaks.add(rightPeak);
         return twoPeaks;
@@ -213,6 +223,8 @@ public class ECPeak {
         StringBuilder str = new StringBuilder();
         str.append(String.format("----> peak  ( %3d %3d )  ENERGY = %12.5f\n", 
                 this.desc.getSector(),this.desc.getLayer(), this.getEnergy()));
+        str.append(String.format("----> peak  ( %3d %3d )   TIME = %12.5f\n", 
+                this.desc.getSector(),this.desc.getLayer(), this.getTime()));
         str.append(this.peakLine.toString());
         str.append("\n");
         for(ECStrip strip : this.peakStrips){

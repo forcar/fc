@@ -5,7 +5,7 @@ import java.util.List;
 import org.jlab.io.evio.EvioDataBank;
 import org.jlab.io.evio.EvioDataEvent;
 import org.jlab.io.evio.EvioSource;
-import org.jlab.io.hipo.EvioHipoEvent;
+import org.jlab.clas.reco.io.EvioHipoEvent;
 import org.jlab.io.hipo.HipoDataBank;
 import org.jlab.io.hipo.HipoDataEvent;
 import org.jlab.io.hipo.HipoDataSync;

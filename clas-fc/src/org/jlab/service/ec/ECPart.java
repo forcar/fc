@@ -352,11 +352,11 @@ public class ECPart {
     public void setThresholds(String part, ECEngine engine) {
     	switch (part) {
     	case "Electron":engine.setStripThresholds(10,10,10);
-                        engine.setPeakThresholds(30,30,30);
-                        engine.setClusterCuts(7,15,20); break;    		
+                    engine.setPeakThresholds(30,30,30);
+                    engine.setClusterCuts(7,15,20); break;    		
     	case   "Pizero":engine.setStripThresholds(10,9,8);
-                        engine.setPeakThresholds(18,20,15);
-                        engine.setClusterCuts(7,15,20); 
+                    engine.setPeakThresholds(18,20,15);
+                    engine.setClusterCuts(7,15,20); 
     	}
     }
     
@@ -401,6 +401,7 @@ public class ECPart {
         while(reader.hasEvent()&&nevent<40000){
             nevent++;
             DataEvent event = reader.getNextEvent();
+            System.out.println("Event "+(nevent-1));
             engine.processDataEvent(event);   
             part.readMC(event);
             part.getMIPResponses(part.readEC(event));

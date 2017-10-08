@@ -302,6 +302,7 @@ public class ECEngine extends ReconstructionEngine {
         String[]  ecTables = new String[]{
             "/calibration/ec/attenuation", 
             "/calibration/ec/gain", 
+            "/calibration/ec/timing" 
         };
                
         requireConstants(Arrays.asList(ecTables));

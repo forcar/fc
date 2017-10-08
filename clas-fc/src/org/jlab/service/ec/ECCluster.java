@@ -129,8 +129,17 @@ public class ECCluster {
         return this.clusterPeaks.get(view).getEnergy(clusterHitPosition);
     }  
     
-    public double getTime(){
-        return this.clusterPeaks.get(0).getTime();
+	public double getTime() {
+		// For cluster time use timing from U,V,W peak with largest energy		
+		if ((this.getEnergy(0) > this.getEnergy(1)) && 
+			(this.getEnergy(0) > this.getEnergy(2))) return this.clusterPeaks.get(0).getTime(clusterHitPosition);
+		else if ((this.getEnergy(1) > this.getEnergy(0)) && 
+				 (this.getEnergy(1) > this.getEnergy(2))) return this.clusterPeaks.get(1).getTime(clusterHitPosition);
+		else return this.clusterPeaks.get(2).getTime(clusterHitPosition);
+	} 
+	
+    public double getTime(int view){
+        return this.clusterPeaks.get(view).getTime(clusterHitPosition);
     }
     
     public double getRawEnergy(){
