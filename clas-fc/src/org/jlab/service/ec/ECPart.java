@@ -505,10 +505,10 @@ public class ECPart {
         h2d = new H2F("Pizero Theta Error",50,0.,10.5,50,-1.,1.);      
         h2d.setTitleX("Pizero Energy (MeV)") ; h2d.setTitleY("Pizero Theta Error (deg)");
         
-        part.h5 = new H1F("Thrown",50,0.,10.5);
-        part.h6 = new H1F("2Gamma",50,0.,10.5);
-        part.h7 = new H1F("PC/EC",50,0.,10.5);
-        part.h8 = new H1F("Mcut",50,0.,10.5);    
+        part.h5 = new H1F("Thrown",50,0.,10.5); part.h5.setTitleX("MC Pizero E (MeV)");
+        part.h6 = new H1F("2Gamma",50,0.,10.5); part.h5.setTitleY("PCAL 2 Photon Eff");
+        part.h7 = new H1F("PC/EC",50,0.,10.5);  part.h6.setTitleY("ECIN 2 Photon Eff");
+        part.h8 = new H1F("Mcut",50,0.,10.5);   part.h7.setTitleY("ECIN 2 Photon Eff"); part.h6.setTitle("80<InvMass<200");
         
         int nimcut = 0;
         
