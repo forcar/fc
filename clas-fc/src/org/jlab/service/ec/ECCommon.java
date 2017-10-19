@@ -272,6 +272,8 @@ public class ECCommon {
             
             if(pU.size()>0&&pV.size()>0&&pW.size()>0){
                 
+            	    //System.out.println("Layer "+startLayer);
+            	    
                 for(int bU = 0; bU < pU.size();bU++){
                     for(int bV = 0; bV < pV.size();bV++){
                         for(int bW = 0; bW < pW.size();bW++){
@@ -288,12 +290,12 @@ public class ECCommon {
 								double eU = cluster.getEnergy(0)*1e3;
 								double eV = cluster.getEnergy(1)*1e3;
 								double eW = cluster.getEnergy(2)*1e3;
-								System.out.printf("U %4.1f V %4.1f W %4.1f%n",tU,tV,tW);
-								System.out.printf("U %4.1f V %4.1f W %4.1f%n%n",eU,eV,eW);
-								
-								if ((Math.abs(tU - tV) < ECCommon.clusterDeltaT[ind[startLayer - 1]]) &&
-								    (Math.abs(tU - tW) < ECCommon.clusterDeltaT[ind[startLayer - 1]]) &&
-								    (Math.abs(tV - tW) < ECCommon.clusterDeltaT[ind[startLayer - 1]])) clusters.add(cluster);								
+								//System.out.printf("U %4.1f V %4.1f W %4.1f%n",tU,tV,tW);
+								//System.out.printf("U %4.1f V %4.1f W %4.1f%n%n",eU,eV,eW);
+								clusters.add(cluster);
+								//if ((Math.abs(tU - tV) < ECCommon.clusterDeltaT[ind[startLayer - 1]]) &&
+								 //   (Math.abs(tU - tW) < ECCommon.clusterDeltaT[ind[startLayer - 1]]) &&
+								 //   (Math.abs(tV - tW) < ECCommon.clusterDeltaT[ind[startLayer - 1]])) clusters.add(cluster);								
                             }
                         }
                     }

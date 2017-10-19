@@ -35,9 +35,9 @@ public class ECEngine extends ReconstructionEngine {
     EvioHipoEvent convertor = new EvioHipoEvent();            
     HipoDataSync     writer = new HipoDataSync();
     CLASDecoder     decoder = new CLASDecoder();
-    List<ECStrip>  ecStrips = null;
+    List<ECStrip>  ecStrips = null;    
+    Detector     ecDetector = null;
     
-    Detector        ecDetector = null;
     public Boolean       debug = false;
     public Boolean singleEvent = false;
     public Boolean        isMC = false;
