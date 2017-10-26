@@ -34,6 +34,8 @@ import javax.swing.event.ChangeListener;
 
 import org.clas.containers.FTHashCollection;
 import org.clas.fcmon.detector.view.DetectorPane2D;
+import org.jlab.clas.mq.IpcReceiver;
+import org.jlab.clas.mq.IpcServer;
 import org.jlab.detector.base.DetectorCollection;
 import org.jlab.detector.base.DetectorDescriptor;
 import org.jlab.detector.calib.utils.ConstantsManager;
@@ -49,7 +51,9 @@ import org.jlab.utils.groups.IndexedTable;
 @SuppressWarnings("serial")
 public class MonitorApp extends JFrame implements ActionListener {
     
-    DetectorPane2D       detectorView;  	
+	public IpcServer          ipc = null;
+	
+	DetectorPane2D       detectorView;  	
     JTabbedPane      canvasTabbedPane;
     JSplitPane             vSplitPane; 
     JSplitPane	           hSplitPane;
@@ -68,7 +72,8 @@ public class MonitorApp extends JFrame implements ActionListener {
     JCheckBox        mcBtn = null;
     JCheckBox       mcbBtn = null;
     JCheckBox        tbBtn = null;
-    JCheckBox     epicsBtn = null;    
+    JCheckBox       ipcBtn = null;
+   JCheckBox     epicsBtn = null;    
     JButton       openBtn  = null;
     JButton       closeBtn = null;
     
@@ -103,6 +108,7 @@ public class MonitorApp extends JFrame implements ActionListener {
     public boolean       isMC = false;
     public boolean      isMCB = false;
     public boolean       isTB = false;
+    public boolean      isIPC = false;
     public boolean      isCRT = false;
     public boolean      doEng = false;
     public boolean     doGain = false;
@@ -277,9 +283,24 @@ public class MonitorApp extends JFrame implements ActionListener {
                     isTB = false;
                 };
             }
-        });         
-        tbBtn.setSelected(false);        
+        });  
+        
+        tbBtn.setSelected(false);              
         buttonPane.add(tbBtn);
+        
+        ipcBtn = new JCheckBox("IPC");
+        ipcBtn.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                if(e.getStateChange() == ItemEvent.SELECTED) {
+                    isIPC = true;
+                    ipc = new IpcServer("tcp://clondb3.jlab.org:61616","clasrun.*.*.*");
+                } else {
+                    isIPC = false;
+                };
+            }
+        });         
+        ipcBtn.setSelected(false);        
+        buttonPane.add(ipcBtn);  
         
         openBtn = new JButton("Open HIPO");
         openBtn.addActionListener(this);

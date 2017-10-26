@@ -59,8 +59,9 @@ public class ECAdcApp extends FCApplication {
             h1 = dc2a.get(is,il,0).projectionY(); h1.setTitleX("Sector "+is+otab[ilm][il-1]); h1.setFillColor(0); 
             if (la==il) {h1.setFillColor(4); copy1=h1.histClone("Copy"); copy1.reset(); copy1.setBinContent(ic, h1.getBinContent(ic)); copy1.setFillColor(2);}
             c.cd(il+5); h1.setOptStat(Integer.parseInt("1000000")); c.draw(h1);  if (il==la) c.draw(copy1,"same");            
+//            if(app.isIPC) {h1.setUniqueID(160000+is*1000+ilm*100+il*10+5); app.ipc.sendData(h1);}
             h1 = dc2a.get(is,il,0).sliceY(ics[ilm][il-1]); h1.setTitleX("Sector "+is+otab[ilm][il-1]+(ics[ilm][il-1]+1)+" ADC"); h1.setFillColor(0);  
-            c.cd(il+8); h1.setOptStat(Integer.parseInt("1000100")); h1.setTitle(""); c.draw(h1); 
+            c.cd(il+8); h1.setOptStat(Integer.parseInt("1000100")); h1.setTitle(""); c.draw(h1);
             if (la==il) {h1=dc2a.get(is,il,0).sliceY(ic) ; h1.setOptStat(Integer.parseInt("1000100")); h1.setFillColor(2); 
             h1.setTitleX("Sector "+is+otab[ilm][il-1]+(ic+1)+" ADC"); c.draw(h1);}
         }           
