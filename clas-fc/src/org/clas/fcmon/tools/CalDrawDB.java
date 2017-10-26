@@ -1380,10 +1380,8 @@ public class CalDrawDB{
 		double xshift = 0.0, yshift = 0.0;
 		double A = 0.0, B = 0.0, C = 0.0;
 		double a = 0.0, b = 0.0, c = 0.0;
-		double xtemp, ytemp;
 		Point3D point1 = new Point3D();
 		Polygon2D poly1 = new SimplePolygon2D();
-		Polygon2D outer = new SimplePolygon2D();
 		Point2D minxpoint = new Point2D(999.0,999.0);
 		Point2D minypoint = new Point2D(999.0,999.0);
 		Point2D maxypoint = new Point2D(999.0,-999.0);

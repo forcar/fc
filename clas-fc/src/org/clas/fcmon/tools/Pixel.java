@@ -21,8 +21,8 @@ public class Pixel {
     public double udist;
     public double vdist;
     public double wdist;
-    public TreeMap<String, H1F>   h1d = null; 
-    public TreeMap<String, H2F>   h2d = null; 
+    public TreeMap<String, H1F>   h1d; 
+    public TreeMap<String, H2F>   h2d; 
     public boolean status;
     
     double[] theta={0.0,60.0,120.0,180.0,240.0,300.0};
@@ -76,7 +76,7 @@ public class Pixel {
     
     public DetectorShape2D rotatePixel(int sector, int pixel) {
         DetectorShape2D rotshape = this.shape;
-        double thet=theta[sector]*3.14159/180.;
+        double thet=theta[sector]*Math.PI/180.;
         double ct=Math.cos(thet) ; double st=Math.sin(thet);
         for(int i = 0; i < this.shape.getShapePath().size(); ++i) {
             double x = this.shape.getShapePath().point(i).x();

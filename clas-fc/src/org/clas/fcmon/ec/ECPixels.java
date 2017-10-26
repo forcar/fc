@@ -46,7 +46,6 @@ public class ECPixels {
     ECLayer          ecLayer = null;
     ECDetector      detector = null;
     PrintWriter       writer = null;
-    DetectorShape2D    shape = new DetectorShape2D();
     
     public TreeMap<Integer,List<double[]>>          clusterXY = new TreeMap<Integer, List<double[]>>();
     public TreeMap<Integer,List<double[]>>             peakXY = new TreeMap<Integer, List<double[]>>();
@@ -110,9 +109,9 @@ public class ECPixels {
         System.out.println(" "); System.out.println("ECPixels("+det+")");
         this.detName  = det;
         this.detector = ecdet;
-        if (det=="PCAL")   idet=0;
-        if (det=="ECin")   idet=1;
-        if (det=="ECout")  idet=2;
+        if (det.equals("PCAL"))   idet=0;
+        if (det.equals("ECin"))   idet=1;
+        if (det.equals("ECout"))  idet=2;
         for (int suplay=idet ; suplay<idet+1; suplay++) {
             for (int layer=0; layer<3; layer++) {
                 ecLayer = detector.getSector(0).getSuperlayer(suplay).getLayer(layer);
@@ -124,7 +123,7 @@ public class ECPixels {
             clusterXY.put(is, new ArrayList<double[]>());
                peakXY.put(is, new ArrayList<double[]>());
         }
-        if (det!="PCAL") getECPixelDepth(ecdet);
+        if (!det.equals("PCAL")) getECPixelDepth(ecdet);
         pixdef();
         pixrot();
         System.out.println("ECPixels("+det+") is done");
@@ -135,7 +134,16 @@ public class ECPixels {
         
     }
     
+    /**
+     * For all displayed sectors find absolute min,max and average of adc,tdc
+     * @param is1 minimum sector 
+     * @param is2 maximum sector
+     * @param il  detector layer
+     * @param opt
+     */
+    
     public void getLmapMinMax(int is1, int is2, int il, int opt){
+   
         TreeMap<Integer,Object> map = null;
         double min,max,avg,aavg=0,tavg=0;
         double[] a = {1000,0,0};
@@ -207,6 +215,7 @@ public class ECPixels {
     public void GetStripsDB() {
         
         System.out.println("ECPixels:GetStripsDB()");	
+        DetectorShape2D shape = new DetectorShape2D();
 		
         for(int sector = 0; sector < 1; sector++) {
             System.out.println("pcGetStripsDB: Processing Sector "+sector);
@@ -224,12 +233,11 @@ public class ECPixels {
 	
     public void GetPixelsDB() {
 		
-        System.out.println("ECPixels:GetPixelsDB()");
-		
+        System.out.println("ECPixels:GetPixelsDB()");		
         DetectorShape2D shape = new DetectorShape2D();
 
         for(int sector=0; sector<1 ; sector++) {
-            int pix = 0; double maxPixArea=0;
+            int pix = 0; 
             for(int uStrip = 0; uStrip < ec_nstr[0]; uStrip++) {	 
                 for(int vStrip = 0; vStrip < ec_nstr[1]; vStrip++) {
                     for(int wStrip = 0; wStrip < ec_nstr[2]; wStrip++) {
@@ -292,7 +300,6 @@ public class ECPixels {
         canvas.divide(2, 2);
         
         H1F h[] = new H1F[4];
-        PaveText label[] = new PaveText[4];
         
         for (int i=0; i<4 ; i++) h[i] = new H1F("Pix Area Zone "+i, 50,0.,1.1);
 	    
@@ -306,7 +313,6 @@ public class ECPixels {
             System.out.println(" ");
         }
         for (int ic=0; ic<4; ic++) {h[ic].setOptStat(Integer.parseInt("1"));
-            String val=String.format("Max Area: %1$.3f",pixels.maxZonePixelArea[ic]);
             h[ic].setName(String.format("Max Area: %1$.1f cm^2",pixels.maxZonePixelArea[ic]));
             canvas.cd(ic); canvas.draw(h[ic]);
         }
@@ -488,7 +494,7 @@ public class ECPixels {
                 H2_PC_Stat.add(is, 0, 4, new H2F("b_pix_"+id+4,   50, 0.,  1.1,  4, 0., 4.));                       
         }
         
-        if(hipoFile!=" "){
+        if(!hipoFile.equals(" ")){
             FCCalibrationData calib = new FCCalibrationData();
             calib.getFile(hipoFile);
             H2_a_Hist     = calib.getCollection("H2_a_Hist");
@@ -527,7 +533,7 @@ public class ECPixels {
         System.out.println("ECPixels.pixrot()");
     	double[] theta={0.0,60.0,120.0,180.0,240.0,300.0};
 	    	for(int is=0; is<6; is++) {
-	    	    double thet=theta[is]*3.14159/180.;
+	    	    double thet=theta[is]*Math.PI/180.;
 	    	    double ct=Math.cos(thet) ; double st=Math.sin(thet);
 	    	    // Rotate strips
 	    	    for (int lay=0; lay<3 ; lay++) {
@@ -648,8 +654,7 @@ public class ECPixels {
         double del;
         double deltazin  = 1.238 * 15.0;
         double deltaztot = 1.238 * 39.0;
-        int num1, num2, num3;
-        
+         
         //get list of centers for EC inner
         CalDrawDB pcaltestdist1 = new CalDrawDB("ECin",ecdet);
         DetectorShape2D shape1 = new DetectorShape2D();

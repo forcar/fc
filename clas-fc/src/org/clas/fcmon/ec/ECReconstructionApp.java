@@ -366,7 +366,7 @@ public class ECReconstructionApp extends FCApplication {
               if (pid==111) rm=0.1349764; // pizero mass               
               refP  = Math.sqrt(ppx*ppx+ppy*ppy+ppz*ppz);  
               refE  = Math.sqrt(refP*refP+rm*rm);            
-              refTH = Math.acos(ppz/refP)*180/3.14159;
+              refTH = Math.acos(ppz/refP)*180/Math.PI;
           }
           
           if(event.hasBank(det[idet]+"::true")==true) {
@@ -474,12 +474,14 @@ public class ECReconstructionApp extends FCApplication {
    
    public void fillSED(int idet, int is, int il, int ip, int adc, float[] tdc) {
        double sca = 10; int idil=idet*3+il;
-       if(!app.isMC||(app.isMC&&app.variation=="default")) sca  = (is==5)?ecc.AtoE5[idil-1]:ecc.AtoE[idil-1];
+       if(!app.isMC||(app.isMC&&app.variation=="default")) sca  = ecc.AtoE[idil-1];
        ecPix[idet].strips.hmap1.get("H1_Stra_Sevd").get(is,il,1).fill(ip,adc/sca);  //fill all hits with energy (MeV)    
    }
         
    public void fill(int idet, int is, int il, int ip, float adc, float[] tdc, float tdcf, float adph) {
 
+	   double thr = ecPix[idet].getStripThr(app.config,il)*ecc.AtoE[idet*3+il-1]/10;
+	   
        for (int ii=0; ii<tdc.length; ii++) {
            
        if(tdc[ii]>450&&tdc[ii]<850){
@@ -499,13 +501,12 @@ public class ECReconstructionApp extends FCApplication {
        }
        
        if (adc>0) ecPix[idet].strips.hmap2.get("H2_a_Hist").get(is,il,3).fill(adc,ip,1.);  
-              
-       if(adc>ecPix[idet].getStripThr(app.config,il)){
+       
+       if(adc>thr) {
            ecPix[idet].uvwa[is-1]=ecPix[idet].uvwa[is-1]+ecPix[idet].uvw_dalitz(idet,il,ip); //Dalitz adc
            ecPix[idet].nha[is-1][il-1]++; int inh = ecPix[idet].nha[is-1][il-1];
            if (inh>nstr) inh=nstr;
            ecPix[idet].adcr[is-1][il-1][inh-1]  = adc;
-           System.out.println(is+" "+il+" "+ip+" "+adc+" "+ecPix[idet].getStripThr(app.config,il));
            ecPix[idet].tf[is-1][il-1][inh-1]    = tdcf;
            ecPix[idet].strra[is-1][il-1][inh-1] = ip;
            ecPix[idet].strips.hmap2.get("H2_a_Hist").get(is,il,0).fill(adc,ip,1.);  
@@ -516,23 +517,21 @@ public class ECReconstructionApp extends FCApplication {
    
   public void processSED() {
       
-	  System.out.println(" ");
       for (int idet=0; idet<ecPix.length; idet++) {
       for (int is=iis1; is<iis2; is++) {
           float[] sed7 = ecPix[idet].strips.hmap1.get("H1_Pixa_Sevd").get(is+1,1,0).getData();
           for (int il=0; il<3; il++ ){               
-              for (int n=1 ; n<ecPix[idet].nha[is][il]+1 ; n++) {
+              for (int n=0 ; n<ecPix[idet].nha[is][il] ; n++) {
                     double sca = 10; int idil=idet*3+il;
-                    if(!app.isMC||(app.isMC&&app.variation=="default")) sca  = (is==4)?ecc.AtoE5[idil]:ecc.AtoE[idil];
-                    int ip =          ecPix[idet].strra[is][il][n-1]; 
-                  float ad = (float) (ecPix[idet].adcr[is][il][n-1]/sca);
-                  System.out.println((is+1)+" "+(il+1)+" "+ip+" "+ad+" "+ecPix[idet].getStripThr(app.config,il+1));
+                    if(!app.isMC||(app.isMC&&app.variation=="default")) sca  = ecc.AtoE[idil];
+                    int ip =          ecPix[idet].strra[is][il][n]; 
+                  float ad = (float) (ecPix[idet].adcr[is][il][n]/sca);
                   ecPix[idet].strips.hmap1.get("H1_Stra_Sevd").get(is+1,il+1,0).fill(ip,ad);
                   ecPix[idet].strips.putpixels(il+1,ip,ad,sed7);
               }
               for (int n=0 ; n<ecPix[idet].nht[is][il] ; n++) {
-//                  System.out.println(is+" "+il+" "+n);
-                  int ip=ecPix[idet].strrt[is][il][n]; float td=(float) ecPix[idet].tdcr[is][il][n];
+                    int ip =         ecPix[idet].strrt[is][il][n]; 
+                  float td = (float) ecPix[idet].tdcr[is][il][n];
                   double tdc = 0.25*(td-ECConstants.TOFFSET);
                   float  wgt = (float) ecPix[idet].ph[is][il][n];
                   wgt = (wgt > 0) ? wgt:1000;
@@ -745,19 +744,19 @@ public class ECReconstructionApp extends FCApplication {
    
    public TreeMap<Integer, Object> toTreeMap(float dat[]) {
        TreeMap<Integer, Object> hcontainer = new TreeMap<Integer, Object>();
-       hcontainer.put(1, dat);
        float[] b = Arrays.copyOf(dat, dat.length);
        double min=100000,max=0,bsum=0,ratio=0;
        int nbsum=0;
        for (int i =0 ; i < b.length; i++){
            if (b[i] !=0 && b[i] < min) min=b[i];
            if (b[i] !=0 && b[i] > max) max=b[i];
-           if (b[i]>0) {bsum=bsum+b[i]; nbsum++;}
+           if (b[i]>0) {bsum+=b[i]; nbsum++;}
        }
        if (nbsum>0) ratio=bsum/nbsum;
        // Arrays.sort(b);
        // double min = b[0]; double max=b[b.length-1];
        if (min<=0) min=0.01;
+       hcontainer.put(1, dat);
        hcontainer.put(2, min);
        hcontainer.put(3, max);
        hcontainer.put(4,ratio);

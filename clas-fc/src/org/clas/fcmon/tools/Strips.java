@@ -125,7 +125,6 @@ public class Strips {
     public void getSortedPixels(int sector, int layer, int component) {
     	List<Integer> pix1 = new ArrayList<Integer>(pixNmbr.get(sector,layer,component).size());
     	List<Integer> pix2 = new ArrayList<Integer>(pixDist.get(sector,layer,component).size());
-    	Integer     list[] = new Integer[pixNmbr.get(sector,layer,component).size()];
     	pix1 = pixNmbr.get(sector,layer,component);
     	pix2 = pixDist.get(sector,layer,component);
     	concurrentSort(pix2,pix1);

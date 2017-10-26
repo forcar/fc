@@ -1007,7 +1007,6 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
                      GraphErrors ccdbAGraph = new GraphErrors("dbA",xp,ccdbA,xpe,ccdbAe); 
                      GraphErrors ccdbBGraph = new GraphErrors("dbB",xp,ccdbB,xpe,ccdbBe); 
                      GraphErrors ccdbCGraph = new GraphErrors("dbC",xp,ccdbC,xpe,ccdbCe); 
-                     GraphErrors ccdbACGraph = new GraphErrors("dbAC",xp,ccdbAC,xpe,ccdbACe); 
                      GStyle.getGraphErrorsAttributes().setLineColor(1);
                      GraphErrors ccdbGAINGraph = new GraphErrors("dbGAIN",xp,ccdbGAIN,xpe,ccdbGAINe);
                      GStyle.getGraphErrorsAttributes().setLineColor(2);
@@ -1025,8 +1024,6 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
                       
                      F1D f1 = new F1D("p0","[a]",0,nstr+1); f1.setParameter(0,scale); f1.setLineWidth(1);
                                
-                     double ymax=2.; 
-                     
                      // Start plotting results
                      
                      c = fitPix.getCanvas("Pixel Fits"); 

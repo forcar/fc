@@ -254,7 +254,7 @@ public class ECEngineApp extends FCApplication implements ActionListener {
            if (pid==111) rm=0.1349764; // pizero mass               
            refP  = Math.sqrt(ppx*ppx+ppy*ppy+ppz*ppz);  
            refE  = Math.sqrt(refP*refP+rm*rm);    
-           refTH = Math.acos(ppz/refP)*180/3.14159;
+           refTH = Math.acos(ppz/refP)*180/Math.PI;
        }
            
        if(event.hasBank("ECAL::true")==true) {
@@ -364,7 +364,7 @@ public class ECEngineApp extends FCApplication implements ActionListener {
     	  double pcalE[] = new double[6];
     	  
       double    mcR = Math.sqrt(pcx*pcx+pcy*pcy+pcz*pcz);
-      double mcThet = Math.asin(Math.sqrt(pcx*pcx+pcy*pcy)/mcR)*180/3.14159;
+      double mcThet = Math.asin(Math.sqrt(pcx*pcx+pcy*pcy)/mcR)*180/Math.PI;
       ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,9,0).fill(refTH-mcThet,1.);  //refTH-mcThet
           
       for (int idet=0; idet<3; idet++) {
@@ -376,7 +376,7 @@ public class ECEngineApp extends FCApplication implements ActionListener {
               double      Y = res.get(idet).get(i).getPosition().y();
               double      Z = res.get(idet).get(i).getPosition().z();
               double    pcR = Math.sqrt(X*X+Y*Y+Z*Z);
-              double pcThet = Math.asin(Math.sqrt(X*X+Y*Y)/pcR)*180/3.14159;
+              double pcThet = Math.asin(Math.sqrt(X*X+Y*Y)/pcR)*180/Math.PI;
               if (app.debug) {
                  System.out.println("Cluster: "+X+" "+Y+" "+Z);
                  System.out.println("Cluster-target:"+pcR);

@@ -211,7 +211,7 @@ public class FCApplication implements ActionListener  {
     public EmbeddedCanvas getCanvas(String name) {
         int index=0;
         for(int i=0; i<this.canvases.size(); i++) {
-            if(this.canvases.get(i).getName() == name) {
+            if(this.canvases.get(i).getName().equals(name)) {
                 index=i;
                 break;
             }
@@ -244,7 +244,7 @@ public class FCApplication implements ActionListener  {
     public void viewButtonAction(String group, String name, int key) {
         this.bStore = app.getDetectorView().bStore;
         this.rbPanes = app.getDetectorView().rbPanes;
-        if(group=="LAY") {
+        if(group.equals("LAY")) {
             app.currentView = name;
             if (key<3) app.viewIndex = key+1;
             name = name+Integer.toString(ilmap);
@@ -254,7 +254,7 @@ public class FCApplication implements ActionListener  {
             if (key>2) {rbPanes.get("PIX").setVisible(true);rbPanes.get("PMT").setVisible(false); omap=app.getDetectorView().getMapKey("PIX",bStore.get("PIX"));}
             
         }
-        if(group=="DET") {
+        if(group.equals("DET")) {
             ilmap = key;  
             app.detectorIndex = key;
             name = app.currentView+Integer.toString(ilmap);  
@@ -279,7 +279,7 @@ public class FCApplication implements ActionListener  {
     public void actionPerformed(ActionEvent e) {
       buttonSelect=e.getActionCommand();
       for(int i=0; i<this.fields.size(); i++) {
-          if(buttonSelect == this.fields.get(i)) {
+          if(buttonSelect.equals(this.fields.get(i))) {
               buttonIndex=i;
               break;
           }
@@ -324,7 +324,7 @@ public class FCApplication implements ActionListener  {
         canvasIndex  = 0;
         canvasSelect = this.canvases.get(0).getName();
         for(int i=0; i<canvases.size(); i++) {
-            if(canvases.get(i).getName() == name) {
+            if(canvases.get(i).getName().equals(name)) {
                 canvasIndex = i;
                 canvasSelect = name;
                 break;

@@ -46,7 +46,7 @@ public class CalibrationConstantsView extends JPanel implements ActionListener {
         this.add(tabbedPane,BorderLayout.CENTER);
         buttonsPanel = new JPanel();
         this.add(buttonsPanel,BorderLayout.PAGE_END);
-        if (buttonsOption=="DrawDifference") getDrawDifference();
+        if (buttonsOption.equals("DrawDifference")) getDrawDifference();
     }
     
     public void getDrawDifference() {

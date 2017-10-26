@@ -2,6 +2,7 @@
 package org.clas.fcmon.ec;
  
 import org.clas.fcmon.tools.FCApplication;
+import org.jlab.detector.base.DetectorCollection;
 import org.jlab.detector.base.DetectorDescriptor;
 
 //import org.root.basic.EmbeddedCanvas;
@@ -17,52 +18,84 @@ import org.jlab.groot.data.H2F;
 
 public class ECPedestalApp extends FCApplication {
     
+    DetectorCollection<H2F> dc2a = null;
     EmbeddedCanvas c = this.getCanvas(this.getName()); 
-    int ics[] = {1,1,1};
+    
+    String otab[][]={{" U PMT "," V PMT "," W PMT "},
+            {" U Inner PMT "," V Inner PMT "," W Inner PMT "},
+            {" U Outer PMT "," V Outer PMT "," W Outer PMT "}};    
+    
+   int ics[] = {1,1,1};
+   int la,ilm ;
 	
    public ECPedestalApp(String name, ECPixels[] ecPix) {
       super(name, ecPix);		
    }
-
+   
    public void updateCanvas(DetectorDescriptor dd) {
+	   
+       this.ilm = ilmap;
+       this.getDetIndices(dd);
+       this.la = lay;
 
-      int  is = dd.getSector();
-      int  la = dd.getLayer();
-      int  ic = dd.getComponent();   
-      int ilm = ilmap;
-      
-      if (la>3) return;
-		
-      if (app.isMC) return;
-		
-      H1F h;      
-      String otab[][]={{" U PMT "," V PMT "," W PMT "},
-                       {" U Inner PMT "," V Inner PMT "," W Inner PMT "},
-                       {" U Outer PMT "," V Outer PMT "," W Outer PMT "}};
+       this.dc2a = ecPix[ilm].strips.hmap2.get("H2_Peds_Hist");        
+
+       if (app.isMC) return;
+       
+       if(la<4) stripCanvas();
+       if(la>3) pixCanvas();
+   }
+   
+   public void stripCanvas() {
+
+       F1D f1 = new F1D("p0","[a]",-10.,10.); 
+       F1D f2 = new F1D("p0","[a]",-10.,10.); 
+       f1.setParameter(0,ic+1); f1.setLineWidth(1); f1.setLineColor(2);
+       f2.setParameter(0,ic+2); f2.setLineWidth(1); f2.setLineColor(2);       
+       
+       H1F h1;  H2F h2;    
 		      
-      c.divide(3,2);
-      c.setAxisFontSize(14);
+       c.divide(3,2);
+       c.setAxisFontSize(14);
      
-      for(int il=0;il<3;il++){
-         H2F hpix = ecPix[ilm].strips.hmap2.get("H2_Peds_Hist").get(is,il+1,0);
-         hpix.setTitleX("PED (Ref-Measured)") ; hpix.setTitleY(otab[ilm][il]);        
-         c.cd(il); c.getPad(il).getAxisZ().setLog(true); c.draw(hpix);   		
-         if(la==il+1) {
-            F1D f1 = new F1D("p0","[a]",-10.,10.); f1.setParameter(0,ic+1);
-            F1D f2 = new F1D("p0","[a]",-10.,10.); f2.setParameter(0,ic+2);
-            f1.setLineColor(2); c.draw(f1,"same"); 
-            f2.setLineColor(2); c.draw(f2,"same");
-         }
-         
-         c.cd(il+3); 
-         h=hpix.sliceY(ics[il]); h.setOptStat(Integer.parseInt("1001100")); h.setFillColor(4); h.setTitle("") ;
-         h.setTitleX("Sector "+is+otab[ilm][il]+(ics[il]+1)); c.draw(h);
-         if(la==il+1) {h=hpix.sliceY(ic); h.setOptStat(Integer.parseInt("1001100")); h.setFillColor(2); h.setTitle("") ;
-         h.setTitleX("Sector "+is+otab[ilm][il]+(ic+1)) ; c.draw(h);}
+      for(int il=1;il<4;il++){
+         h2 = dc2a.get(is,il,0); h2.setTitleY("Sector "+is+otab[ilm][il-1]); h2.setTitleX("PED (Ref-Measured)") ;       
+         canvasConfig(c,il-1,-10.,10.,1.,ecPix[ilm].ec_nstr[il-1]+1.,true).draw(h2); 		
+         if(la==il) {c.draw(f1,"same"); c.draw(f2,"same");}         
+         c.cd(il+2); 
+         h1=h2.sliceY(ics[il-1]); h1.setOptStat(Integer.parseInt("1001100")); h1.setFillColor(4); h1.setTitle("") ;
+         h1.setTitleX("Sector "+is+otab[ilm][il-1]+(ics[il-1]+1)); c.draw(h1);
+         if(la==il) {h1=h2.sliceY(ic); h1.setOptStat(Integer.parseInt("1001100")); h1.setFillColor(2); h1.setTitle("") ;
+         h1.setTitleX("Sector "+is+otab[ilm][il-1]+(ic+1)) ; c.draw(h1);}
       }
       
       c.repaint();
       ics[la-1] = ic;
       
    }	
+   
+   public void pixCanvas() {
+
+       H1F h1 = new H1F(); h1.setFillColor(0);  
+       H2F h2 = new H2F();
+
+       c.divide(3,2);
+       c.setAxisFontSize(14);
+       c.setStatBoxFontSize(12);
+                         
+       for (int il=1; il<4; il++) {
+           h2 = dc2a.get(is,il,0); h2.setTitleY("Sector "+is+otab[ilm][il-1]) ; h2.setTitleX("PED (Ref-Measured)");
+           canvasConfig(c,il-1,-10.,10.,1.,ecPix[ilm].ec_nstr[il-1]+1.,true).draw(h2);
+           int strip = ecPix[ilm].pixels.getStrip(il,ic+1);
+           F1D f1 = new F1D("p0","[a]",-10.,10.); f1.setLineColor(2); f1.setLineWidth(1); f1.setParameter(0,strip);
+           F1D f2 = new F1D("p0","[a]",-10.,10.); f2.setLineColor(2); f2.setLineWidth(1); f2.setParameter(0,strip+1);
+           c.draw(f1,"same");
+           c.draw(f2,"same");  
+           
+           c.cd(il+2); 
+           h1=h2.sliceY(strip-1); h1.setOptStat(Integer.parseInt("1001100")); h1.setFillColor(2); h1.setTitle("") ;
+           h1.setTitleX("Sector "+is+otab[ilm][il-1]+strip); c.draw(h1);         
+       }       
+       c.repaint();        
+   }
 }

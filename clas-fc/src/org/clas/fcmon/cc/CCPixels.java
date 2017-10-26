@@ -93,7 +93,7 @@ public class CCPixels {
         int nstr = cc_nstr[0];
 	               
         for(int is=0; is<6; is++) {
-            double thet=theta[is]*3.14159/180.;
+            double thet=theta[is]*Math.PI/180.;
             for (int ipix=0; ipix<2*nstr; ipix++) {
                 for (int k=0;k<4;k++){
                     cc_xpix[k][ipix][is]= -(cc_xpix[k][ipix][6]*Math.cos(thet)+cc_ypix[k][ipix][6]*Math.sin(thet));
@@ -127,7 +127,7 @@ public class CCPixels {
             }
         }       
 
-        if(hipoFile!=" "){
+        if(!hipoFile.equals(" ")){
             FCCalibrationData calib = new FCCalibrationData();
             calib.getFile(hipoFile);
             H2_CCa_Hist = calib.getCollection("H2_CCa_Hist");

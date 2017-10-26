@@ -93,7 +93,7 @@ public class ECPart {
         double ppx=ppx1+ppx2; double ppy=ppy1+ppy2; double ppz=ppz1+ppz2;
         refP  = Math.sqrt(ppx*ppx+ppy*ppy+ppz*ppz);  
         refE  = Math.sqrt(refP*refP+rm*rm);            
-        refTH = Math.acos(ppz/refP)*180/3.14159; 
+        refTH = Math.acos(ppz/refP)*180/Math.PI; 
         h5.fill(refE);
     }
     
@@ -506,9 +506,9 @@ public class ECPart {
         h2d.setTitleX("Pizero Energy (MeV)") ; h2d.setTitleY("Pizero Theta Error (deg)");
         
         part.h5 = new H1F("Thrown",50,0.,10.5); part.h5.setTitleX("MC Pizero E (MeV)");
-        part.h6 = new H1F("2Gamma",50,0.,10.5); part.h5.setTitleY("PCAL 2 Photon Eff");
-        part.h7 = new H1F("PC/EC",50,0.,10.5);  part.h6.setTitleY("ECIN 2 Photon Eff");
-        part.h8 = new H1F("Mcut",50,0.,10.5);   part.h7.setTitleY("ECIN 2 Photon Eff"); part.h6.setTitle("80<InvMass<200");
+        part.h6 = new H1F("2Gamma",50,0.,10.5); part.h6.setTitleY("PCAL 2 Photon Eff"); 
+        part.h7 = new H1F("PC/EC",50,0.,10.5);  part.h7.setTitleY("ECIN 2 Photon Eff");
+        part.h8 = new H1F("Mcut",50,0.,10.5);   part.h8.setTitleY("ECIN 2 Photon Eff"); part.h8.setTitle("80<InvMass<200");
         
         int nimcut = 0;
         
@@ -523,7 +523,7 @@ public class ECPart {
                 h2a.fill(part.refE, invmass);                             //Two-photon invariant mass                
                 h2b.fill(part.refE, part.X);                                 //Pizero energy asymmetry
                 h2c.fill(part.refE,(1e3*(Math.sqrt(part.tpi2)-part.refE))); //Pizero total energy error
-                h2d.fill(part.refE,Math.acos(part.cpi0)*180/3.14159-part.refTH);   //Pizero theta angle error
+                h2d.fill(part.refE,Math.acos(part.cpi0)*180/Math.PI-part.refTH);   //Pizero theta angle error
                 nimcut++; part.h8.fill(part.refE);
             }
         }

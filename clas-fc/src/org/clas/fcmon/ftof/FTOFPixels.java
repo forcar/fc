@@ -41,9 +41,9 @@ public class FTOFPixels {
 	public String detName = null;
 	
     public FTOFPixels(String det) {
-        if (det=="PANEL1A") id=0;
-        if (det=="PANEL1B") id=1;
-        if (det=="PANEL2")  id=2;
+        if (det.equals("PANEL1A")) id=0;
+        if (det.equals("PANEL1B")) id=1;
+        if (det.equals("PANEL2"))  id=2;
         nstr = ftof_nstr[id];
         detName = det;
         pixdef();
@@ -134,7 +134,7 @@ public class FTOFPixels {
         double[] theta={270.0,330.0,30.0,90.0,150.0,210.0};
 
         for(int is=0; is<6; is++) {
-            double thet=theta[is]*3.14159/180.;
+            double thet=theta[is]*Math.PI/180.;
             for (int ipix=0; ipix<2*nstr; ipix++) {
                 for (int k=0;k<4;k++){
                     ftof_xpix[k][ipix][is]= -(ftof_xpix[k][ipix][6]*Math.cos(thet)+ftof_ypix[k][ipix][6]*Math.sin(thet));
@@ -178,7 +178,7 @@ public class FTOFPixels {
             }
         }       
 
-        if(hipoFile!=" "){
+        if(!hipoFile.equals(" ")){
             FCCalibrationData calib = new FCCalibrationData();
             calib.getFile(hipoFile);
             H2_a_Hist = calib.getCollection("H2_a_Hist");

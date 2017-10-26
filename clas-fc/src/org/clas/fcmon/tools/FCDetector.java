@@ -143,8 +143,8 @@ public class FCDetector {
             name.add(items[i]);
              key.add(Integer.parseInt(items[i+1]));
         }   
-        if (store=="View") app.getDetectorView().addViewStore(group, name, key);
-        if (store=="Map")  app.getDetectorView().addMapStore(group, name, key);
+        if (store.equals("View")) app.getDetectorView().addViewStore(group, name, key);
+        if (store.equals("Map"))  app.getDetectorView().addMapStore(group, name, key);
     }
     
     public void initMapButtons(int groupIndex, int nameIndex) {
@@ -173,14 +173,14 @@ public class FCDetector {
     public void viewButtonAction(String group, String name, int key) {
         this.bStore  = app.getDetectorView().bStore;
         this.rbPanes = app.getDetectorView().rbPanes;
-        if (group=="LAY") {
+        if (group.equals("LAY")) {
             app.currentView = name;
             name = name+Integer.toString(ilmap); 
             app.getDetectorView().getView().setLayerState(name, true);
             if (key<3) {rbPanes.get("PMT").setVisible(true);rbPanes.get("PIX").setVisible(false);omap=app.getDetectorView().getMapKey("PMT",bStore.get("PMT"));}       
             if (key>2) {rbPanes.get("PIX").setVisible(true);rbPanes.get("PMT").setVisible(false);omap=app.getDetectorView().getMapKey("PIX",bStore.get("PIX"));}
         }
-        if (group=="DET") {
+        if (group.equals("DET")) {
             ilmap = key;            
             name = app.currentView+Integer.toString(ilmap);  
             app.getDetectorView().getView().setLayerState(name, true);
@@ -192,7 +192,7 @@ public class FCDetector {
         
         DetectorCollection<TreeMap<Integer,Object>> dc = null;
         IndexedList<double[]>  mapz = null;
-        Boolean useTDC;
+        
         ColorPalette pal = null;
         DetectorDescriptor dd = shape.getDescriptor();
         this.getDetIndices(dd);
@@ -200,7 +200,7 @@ public class FCDetector {
         
         double colorfraction=1;
         
-        useTDC = (app.getSelectedTabName()=="TDC");
+        Boolean useTDC = (app.getSelectedTabName()=="TDC");
        
         Boolean peakShapes = (opt==0&&layer==0);
        
@@ -280,6 +280,7 @@ public class FCDetector {
         
         double    rmn = (rmaxx-rmin)*pixMin+rmin-(rmaxx-rmin)*0.1;
         double    rmx = (rmaxx-rmin)*pixMax+rmin;
+        
         if (app.getInProcess()!=0) {
 //          if (!app.isSingleEvent()) color=(double)(Math.log10(z)-Math.log10(pixMin))/(Math.log10(pixMax)-Math.log10(pixMin));
 //          if ( app.isSingleEvent()) color=(double)(z-pixMin*rmin)/(smax*pixMax-rmin*pixMin);

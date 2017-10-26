@@ -142,7 +142,7 @@ public class ECGainsApp extends FCApplication implements ActionListener {
         
        DataGroup dg_mip = new DataGroup(1,184);
                
-        H1F h1 = new H1F() ; H2F h2 = new H2F();
+        H2F h2 = new H2F();
         
         int n = 0;
         //17*6 = 102
@@ -413,9 +413,6 @@ public class ECGainsApp extends FCApplication implements ActionListener {
             float[][]  e1c = new float[6][20]; float[][][]   e1p = new float[6][3][20]; 
             float[][]  e4c = new float[6][20]; float[][][]   e4p = new float[6][3][20]; 
             float[][]  e7c = new float[6][20]; float[][][]   e7p = new float[6][3][20]; 
-            float[][]   r1 = new float[6][20]; 
-            float[][]   r4 = new float[6][20]; 
-            float[][]   r7 = new float[6][20];
             float[][][] cU = new float[6][3][20];
             float[][][] cV = new float[6][3][20];
             float[][][] cW = new float[6][3][20];

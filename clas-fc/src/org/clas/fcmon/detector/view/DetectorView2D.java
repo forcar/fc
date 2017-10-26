@@ -384,9 +384,9 @@ public class DetectorView2D extends JPanel implements MouseMotionListener {
                 
                 for(int d = 0 ; d < detectorData.size(); d++){                     
                     DetectorDescriptor dd = detectorData.get(d).getDescriptor();
-                    if(dd.getType()==dm.getType() &
-                       dd.getSector()==dm.getSector() &
-                       dd.getLayer()==dm.getLayer() &
+                    if(dd.getType()==dm.getType()&&
+                       dd.getSector()==dm.getSector()&&
+                       dd.getLayer()==dm.getLayer()&&
                        dd.getComponent()==dm.getComponent()               
                             ){                            
                         //System.out.println("COLORING COMPONENT " + shape.getValue().getDescriptor());

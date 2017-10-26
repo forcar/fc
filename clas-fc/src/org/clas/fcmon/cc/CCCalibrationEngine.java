@@ -36,7 +36,6 @@ public class CCCalibrationEngine extends CalibrationEngine {
         }
         
         public void setCalibPane() {
-            JSplitPane    hPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT); 
         }
         
         @Override

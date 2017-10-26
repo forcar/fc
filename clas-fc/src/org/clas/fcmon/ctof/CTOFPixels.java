@@ -41,8 +41,8 @@ public class CTOFPixels {
 	public String detName = null;
 	
     public CTOFPixels(String det) {
-        if (det=="CTOF") id=0;
-        if (det=="CND")  id=1;
+        if (det.equals("CTOF")) id=0;
+        if (det.equals("CND"))  id=1;
         nstr = ctof_nstr[id];
         detName = det;
         pixdef();
@@ -101,7 +101,7 @@ public class CTOFPixels {
         double[] theta={270.0,330.0,30.0,90.0,150.0,210.0};
 
         for(int is=0; is<6; is++) {
-            double thet=theta[is]*3.14159/180.;
+            double thet=theta[is]*Math.PI/180.;
             for (int ipix=0; ipix<2*nstr; ipix++) {
                 for (int k=0;k<4;k++){
                     ctof_xpix[k][ipix][is]= -(ctof_xpix[k][ipix][6]*Math.cos(thet)+ctof_ypix[k][ipix][6]*Math.sin(thet));
@@ -145,7 +145,7 @@ public class CTOFPixels {
             }
         }       
 
-        if(hipoFile!=" "){
+        if(!hipoFile.equals(" ")){
             FCCalibrationData calib = new FCCalibrationData();
             calib.getFile(hipoFile);
             H2_a_Hist = calib.getCollection("H2_a_Hist");
