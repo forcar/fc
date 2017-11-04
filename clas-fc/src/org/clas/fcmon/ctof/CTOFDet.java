@@ -58,7 +58,7 @@ public class CTOFDet extends FCDetector {
     
     public DetectorShape2D getPaddle(int det, int sector, int layer, int paddle, int or) {
         
-        double rotation = Math.toRadians(360.0/48*(paddle-0.5)-90);
+        double rotation = Math.toRadians(360.0/48*(paddle+0.5));
         DetectorShape2D shape = new DetectorShape2D(DetectorType.CTOF,sector,layer,paddle,or);     
         shape.createTrapXY(ctofPix[det].cc.DX2[or], ctofPix[det].cc.DX1[or], ctofPix[det].cc.DY[or]);
         shape.getShapePath().rotateZ(Math.PI/2.);

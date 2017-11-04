@@ -125,7 +125,7 @@ public class CTOFHvApp extends FCEpics implements ActionListener {
     } 
     
     public void initHistos() {       
-        System.out.println("FTOFHvApp.initHistos():");
+        System.out.println("CTOFHvApp.initHistos():");
         for (int is=is1; is<is2 ; is++) {
             for (int il=1 ; il<layMap.get(detName).length+1 ; il++){
                 int nb=nlayMap.get(detName)[il-1]; int mx=nb+1;
@@ -140,7 +140,7 @@ public class CTOFHvApp extends FCEpics implements ActionListener {
     }
         
     public void initFifos() {
-        System.out.println("FTOFHvApp.initFifos():");
+        System.out.println("CTOFHvApp.initFifos():");
         app.fifo1.clear(); app.fifo2.clear(); app.fifo3.clear(); app.fifo6.clear();
         for (int is=is1; is<is2 ; is++) {
             for (int il=1; il<layMap.get(detName).length+1 ; il++) {
