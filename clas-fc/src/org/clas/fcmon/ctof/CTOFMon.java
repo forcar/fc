@@ -50,7 +50,7 @@ public class CTOFMon extends DetectorMonitor {
     }
 
     public static void main(String[] args){		
-        String det = "FTOF";
+        String det = "CTOF";
         CTOFMon monitor = new CTOFMon(det);	
         if (args.length != 0) {
             monitor.is1=Integer.parseInt(args[0]); 
@@ -128,12 +128,12 @@ public class CTOFMon extends DetectorMonitor {
         ctofCalib.setApplicationClass(app);  
         ctofCalib.init(is1,is2);
         
-        ctofHv = new CTOFHvApp("HV","FTOF");
+        ctofHv = new CTOFHvApp("HV",mondet);
         ctofHv.setMonitoringClass(this);
         ctofHv.setApplicationClass(app);  
         ctofHv.init();
         
-        ctofScalers = new CTOFScalersApp("Scalers","FTOF");
+        ctofScalers = new CTOFScalersApp("Scalers",mondet);
         ctofScalers.setMonitoringClass(this);
         ctofScalers.setApplicationClass(app); 
         ctofScalers.init();
@@ -254,7 +254,7 @@ public class CTOFMon extends DetectorMonitor {
     @Override
     public void readHipoFile() {        
         System.out.println("monitor.readHipoFile()");
-        for (int idet=0; idet<3; idet++) {
+        for (int idet=0; idet<ctofPix.length; idet++) {
           String hipoFileName = app.hipoPath+mondet+idet+"_"+app.runNumber+".hipo";
           System.out.println("Reading Histograms from "+hipoFileName);
           ctofPix[idet].initHistograms(hipoFileName);
@@ -265,7 +265,7 @@ public class CTOFMon extends DetectorMonitor {
     @Override
     public void writeHipoFile() {
         System.out.println("monitor.writeHipoFile()");
-        for (int idet=0; idet<3; idet++) {
+        for (int idet=0; idet<ctofPix.length; idet++) {
           String hipoFileName = app.hipoPath+mondet+idet+"_"+app.runNumber+".hipo";
           System.out.println("Writing Histograms to "+hipoFileName);
           HipoFile histofile = new HipoFile(hipoFileName);

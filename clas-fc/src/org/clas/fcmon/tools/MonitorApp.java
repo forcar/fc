@@ -183,7 +183,7 @@ public class MonitorApp extends JFrame implements ActionListener {
             if(hostname.substring(0,4).equals("clon")) {
               System.out.println("monitor.getEnv(): Running on "+hostname);
               doEpics = false;
-              setIsMC(true);
+              setIsMC(false);
               rootPath = "/home/clasrun/"+appName;              
               xMsgHost = "129.57.167.227"; //clondaq4
             }

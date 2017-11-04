@@ -54,6 +54,8 @@ public class CTOFHvApp extends FCEpics implements ActionListener {
     }
     
     public void startEPICS() {
+    	System.out.println("CTOFHvApp: Connect to EPICS Channel Access");
+    	clearMaps();
         createContext();
         setCaNames(this.detName,0);
         initFifos();
@@ -63,6 +65,7 @@ public class CTOFHvApp extends FCEpics implements ActionListener {
     }
     
     public void stopEPICS() {
+    	System.out.println("CTOFHvApp: Disconnect from EPICS Channel Access");
         if(this.timer.isRunning()) this.timer.stop();
         destroyContext();
     }   
@@ -138,6 +141,7 @@ public class CTOFHvApp extends FCEpics implements ActionListener {
         
     public void initFifos() {
         System.out.println("FTOFHvApp.initFifos():");
+        app.fifo1.clear(); app.fifo2.clear(); app.fifo3.clear(); app.fifo6.clear();
         for (int is=is1; is<is2 ; is++) {
             for (int il=1; il<layMap.get(detName).length+1 ; il++) {
                 for (int ic=1; ic<nlayMap.get(detName)[il-1]+1; ic++) {
@@ -229,7 +233,7 @@ public class CTOFHvApp extends FCEpics implements ActionListener {
     public void updateCanvas(DetectorDescriptor dd) {
         
         sectorSelected  = dd.getSector();
-        layerSelected   = dd.getLayer();
+        layerSelected   = dd.getOrder()+1;
         channelSelected = dd.getComponent(); 
         
         update1DScalers(engine1DCanvas.getCanvas("HV"),0);   
