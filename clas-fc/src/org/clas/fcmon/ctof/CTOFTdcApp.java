@@ -44,12 +44,12 @@ public class CTOFTdcApp extends FCApplication {
         H2F h2a = ctofPix[ilm].strips.hmap2.get("H2_t_Hist").get(is,1,0); h2a.setTitleY("Sector "+is+" UP PMT") ; h2a.setTitleX("UP PMT TDC");
         H2F h2b = ctofPix[ilm].strips.hmap2.get("H2_t_Hist").get(is,2,0); h2b.setTitleY("Sector "+is+" DN PMT") ; h2b.setTitleX("DN PMT TDC");
         H2F h2c = ctofPix[ilm].strips.hmap2.get("H2_t_Hist").get(is,0,0); h2c.setTitleY("Sector "+is+" PADDLE") ; h2c.setTitleX("TDIF");
-        canvasConfig(c,0,100.,200.,1.,nstr+1.,true).draw(h2a);
-        canvasConfig(c,1,100.,200.,1.,nstr+1.,true).draw(h2b);
+        canvasConfig(c,0,450.,850.,1.,nstr+1.,true).draw(h2a);
+        canvasConfig(c,1,450.,850.,1.,nstr+1.,true).draw(h2b);
         canvasConfig(c,2, -35.,  35.,1.,nstr+1.,true).draw(h2c);
         
-        F1D f1 = new F1D("p0","[a]",100.,200.); f1.setParameter(0,ic+1);
-        F1D f2 = new F1D("p0","[a]",100.,200.); f2.setParameter(0,ic+2);
+        F1D f1 = new F1D("p0","[a]",450.,850.); f1.setParameter(0,ic+1);
+        F1D f2 = new F1D("p0","[a]",450.,850.); f2.setParameter(0,ic+2);
         c.cd(lr-1);        
         f1.setLineColor(2); c.draw(f1,"same"); 
         f2.setLineColor(2); c.draw(f2,"same");
