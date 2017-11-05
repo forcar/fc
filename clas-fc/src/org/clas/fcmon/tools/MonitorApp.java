@@ -120,6 +120,7 @@ public class MonitorApp extends JFrame implements ActionListener {
     public String            geom = "2.5";
     public String          config = "muon";
     public int            trigger = 1;        //0=cluster 1=pixel
+    public int               omap = 0;
     
     public int tet,nsa,nsb,pedref;
     
@@ -190,7 +191,7 @@ public class MonitorApp extends JFrame implements ActionListener {
             if(hostname.substring(0,4).equals("clon")) {
               System.out.println("monitor.getEnv(): Running on "+hostname);
               doEpics = false;
-              setIsMC(true);
+              setIsMC(false);
               rootPath = "/home/clasrun/"+appName;              
               xMsgHost = "129.57.167.227"; //clondaq4
             }
@@ -530,7 +531,7 @@ public class MonitorApp extends JFrame implements ActionListener {
     
     public void openHipoFile(String path) {        
        	writer = new HipoDataSync();
-    	    HipoFileName = path+"clas_00"+localRun+".hipo";
+//    	    HipoFileName = path+"clas_00"+localRun+".hipo";
         System.out.println("FCCLASDecoder.openHipoFile(): Opening "+HipoFileName);
         writer.setCompressionType(2);
         writer.open(HipoFileName);
@@ -548,12 +549,12 @@ public class MonitorApp extends JFrame implements ActionListener {
         
         HipoDataBank bank = (HipoDataBank) event.createBank("RUN::config", 1);
         
-        bank.setInt("run",        0, localRun);
-        bank.setInt("event",      0, localEvent);
-        bank.setInt("trigger",    0, triggerBits);        
+//        bank.setInt("run",        0, localRun);
+//        bank.setInt("event",      0, localEvent);
+//        bank.setInt("trigger",    0, triggerBits);        
         bank.setFloat("torus",    0, 0);
         bank.setFloat("solenoid", 0, 0);        
-        bank.setLong("timestamp", 0, timeStamp);        
+//        bank.setLong("timestamp", 0, timeStamp);        
                 
         return bank;
     }    

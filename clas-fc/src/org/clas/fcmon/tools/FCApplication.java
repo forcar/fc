@@ -7,6 +7,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -83,8 +84,7 @@ public class FCApplication implements ActionListener  {
     private int                canvasIndex;
     
     double    PCMon_zmin = 0;
-    double    PCMon_zmax = 0;    
-    public int      omap = 0;
+    double    PCMon_zmax = 0;        
     public int     ilmap = 0;
     
     public int sectorSelected, layerSelected, channelSelected;
@@ -163,7 +163,7 @@ public class FCApplication implements ActionListener  {
         ic    = dd.getComponent(); 
         io    = dd.getOrder();
         
-        panel = omap;
+        panel = app.omap;
         lay   = 0;
         opt   = 0;
         
@@ -239,7 +239,7 @@ public class FCApplication implements ActionListener  {
         }else{
             bStore.replace(group,name);
         }
-        omap = key;
+        app.omap = key;
         if (key>10&&key<14) app.viewIndex=key-10;
 //        System.out.println("mapButtonAction omap= "+omap);
         app.getDetectorView().getView().updateGUI();     
@@ -253,9 +253,9 @@ public class FCApplication implements ActionListener  {
             if (key<3) app.viewIndex = key+1;
             name = name+Integer.toString(ilmap);
             app.getDetectorView().getView().setLayerState(name, true);    
-            if (key<3) {rbPanes.get("PMT").setVisible(true);rbPanes.get("PIX").setVisible(false); omap=app.getDetectorView().getMapKey("PMT",bStore.get("PMT"));}       
+            if (key<3) {rbPanes.get("PMT").setVisible(true);rbPanes.get("PIX").setVisible(false); app.omap=app.getDetectorView().getMapKey("PMT",bStore.get("PMT"));}       
 //          if (key>2) {rbPanes.get("PIX").setVisible(true);rbPanes.get("PMT").setVisible(false); app.getDetectorView().selectMapButton("PIX",bStore.get("PIX"));}
-            if (key>2) {rbPanes.get("PIX").setVisible(true);rbPanes.get("PMT").setVisible(false); omap=app.getDetectorView().getMapKey("PIX",bStore.get("PIX"));}
+            if (key>2) {rbPanes.get("PIX").setVisible(true);rbPanes.get("PMT").setVisible(false); app.omap=app.getDetectorView().getMapKey("PIX",bStore.get("PIX"));}
             
         }
         if(group.equals("DET")) {
@@ -346,6 +346,27 @@ public class FCApplication implements ActionListener  {
             canvasSelect = this.canvases.get(0).getName();
         }
     }
+    
+    public static TreeMap<Integer, Object> toTreeMap(float dat[]) {
+        TreeMap<Integer, Object> hcontainer = new TreeMap<Integer, Object>();
+        float[] b = Arrays.copyOf(dat, dat.length);
+        double min=100000,max=0,bsum=0,ratio=0;
+        int nbsum=0;
+        for (int i =0 ; i < b.length; i++){
+            if (b[i] !=0 && b[i] < min) min=b[i];
+            if (b[i] !=0 && b[i] > max) max=b[i];
+            if (b[i]>0) {bsum+=b[i]; nbsum++;}
+        }
+        if (nbsum>0) ratio=bsum/nbsum;
+        // Arrays.sort(b);
+        // double min = b[0]; double max=b[b.length-1];
+        if (min<=0) min=0.01;
+        hcontainer.put(1, dat);
+        hcontainer.put(2, min);
+        hcontainer.put(3, max);
+        hcontainer.put(4,ratio);
+        return hcontainer;        
+    }  
     
     public EmbeddedCanvas canvasConfig(EmbeddedCanvas canvas, int num, double xmin, double xmax, double ymin, double ymax, boolean linlog) {
         canvas.cd(num);        

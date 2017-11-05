@@ -62,7 +62,7 @@ public class FCEpics  {
     String   grps[] = {"HV","DISC","FADC"};
     String   ltcc[] = {"L","R"};
     String   ftof[] = {"PANEL1A_L","PANEL1A_R","PANEL1B_L","PANEL1B_R","PANEL2_L","PANEL2_R"};
-    String   ctof[] = {"UP","DN"};
+    String   ctof[] = {"U","D"};
     String     ec[] = {"U","V","W","UI","VI","WI","UO","VO","WO"};
     int     nltcc[] = {18,18};
     int     nftof[] = {23,23,62,62,5,5};
@@ -74,13 +74,19 @@ public class FCEpics  {
     public Boolean online = true;
     
 	public FCEpics(String name, String det){
-	    System.out.println("Initializing detector "+det);
+	    System.out.println("FCEpics: Initializing detector "+det);
 	    this.appName = name;
 	    this.detName = det;
         this.layMap.put("LTCC",ltcc); this.nlayMap.put("LTCC", nltcc);
         this.layMap.put("FTOF",ftof); this.nlayMap.put("FTOF", nftof);
         this.layMap.put("CTOF",ctof); this.nlayMap.put("CTOF", nctof);
         this.layMap.put("EC",ec);     this.nlayMap.put("EC", nec);
+	}
+	
+	public void clearMaps() {
+		System.out.println("FCEpics: Clearing Maps");
+	    this.map.clear();
+	    this.caMap.clear();		
 	}
 	
 	public int createContext() {
@@ -179,7 +185,7 @@ public class FCEpics  {
             for (int il=1; il<layMap.get(det).length+1; il++) {
                 for (int ic=1; ic<nlayMap.get(det)[il-1]+1; ic++) {
                     String pv = getPvName(grp,action,is,il,ic);
-                    System.out.println(pv);
+                    //System.out.println(pv);
                     map.add(context.createChannel(pv, Double.class),grp,is,il,ic); //org.epics.ca
                 }
             }
@@ -253,7 +259,11 @@ public class FCEpics  {
 	}
 	
 	public String getPvString(String det, int grp, int sector, int layer, int channel, String action) {
+		
 	    String pv = "B_DET_"+detAlias(det,layer)+"_"+grps[grp]+"_SEC"+sector+"_"+layToStr(det,layer)+"_E"+chanToStr(channel);
+	    switch (det) {
+	    case "CTOF": pv = "B_DET_"+detAlias(det,layer)+"_"+grps[grp]+"_"+layToStr(det,layer)+chanToStr(channel);
+	    }
 	    return pv+":"+action;
 	} 
     

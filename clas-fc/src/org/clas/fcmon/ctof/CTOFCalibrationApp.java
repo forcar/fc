@@ -32,7 +32,7 @@ public class CTOFCalibrationApp extends FCApplication implements CalibrationCons
     public final int     HV  = 0;
     public final int STATUS  = 1;
     
-    String[] names = {"/calibration/ftof/gain_balance,/calibration/ftof/status"};
+    String[] names = {"/calibration/ftof/gain_balance","/calibration/ftof/status"};
     
     String selectedDir = names[HV];
        
@@ -184,7 +184,7 @@ public class CTOFCalibrationApp extends FCApplication implements CalibrationCons
         DetectorDescriptor dd = shape.getDescriptor();
         this.getDetIndices(dd);
         layer = lay;
-        if (this.omap==3) {
+        if (app.omap==3) {
            if(engine.isGoodPaddle(is, layer-1, ic)) {
                shape.setColor(101, 200, 59);
            } else {
