@@ -184,7 +184,7 @@ public class CNDCalibrationApp extends FCApplication implements CalibrationConst
         DetectorDescriptor dd = shape.getDescriptor();
         this.getDetIndices(dd);
         layer = lay;
-        if (this.omap==3) {
+        if (app.omap==3) {
            if(engine.isGoodPaddle(is, layer-1, ic)) {
                shape.setColor(101, 200, 59);
            } else {

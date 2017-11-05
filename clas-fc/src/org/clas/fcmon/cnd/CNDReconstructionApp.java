@@ -420,27 +420,6 @@ public class CNDReconstructionApp extends FCApplication {
    public void processPixels() {       
    }
 
-   public TreeMap<Integer, Object> toTreeMap(float dat[]) {
-       TreeMap<Integer, Object> hcontainer = new TreeMap<Integer, Object>();
-       hcontainer.put(1, dat);
-       float[] b = Arrays.copyOf(dat, dat.length);
-       double min=100000,max=0,bsum=0,ratio=0;
-       int nbsum=0;
-       for (int i =0 ; i < b.length; i++){
-           if (b[i] !=0 && b[i] < min) min=b[i];
-           if (b[i] !=0 && b[i] > max) max=b[i];
-           if (b[i]>0) {bsum=bsum+b[i]; nbsum++;}    
-       }
-       if (nbsum>0) ratio=bsum/nbsum;
-      // Arrays.sort(b);
-       // double min = b[0]; double max=b[b.length-1];
-       if (min<=0) min=0.01;
-       hcontainer.put(2, min);
-       hcontainer.put(3, max);
-       hcontainer.put(4,ratio);
-       return hcontainer;        
-   }
-
    public void makeMaps(int idet) {
        DetectorCollection<H2F> H2_a_Hist = new DetectorCollection<H2F>();
        DetectorCollection<H2F> H2_t_Hist = new DetectorCollection<H2F>();
