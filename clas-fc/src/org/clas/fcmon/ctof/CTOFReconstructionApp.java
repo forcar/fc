@@ -193,8 +193,10 @@ public class CTOFReconstructionApp extends FCApplication {
        clear(0); tdcs.clear(); adcs.clear(); lpmt.clear();
        
        app.decoder.initEvent(event);
-       app.bitsec = app.decoder.bitsec;
-       
+      
+       long phase = app.decoder.getPhase();
+       app.localRun = app.decoder.getRun();
+              
        List<DetectorDataDgtz> adcDGTZ = app.decoder.getEntriesADC(DetectorType.CTOF);
        List<DetectorDataDgtz> tdcDGTZ = app.decoder.getEntriesTDC(DetectorType.CTOF);
 
@@ -240,7 +242,7 @@ public class CTOFReconstructionApp extends FCApplication {
                List<Float> list = new ArrayList<Float>();
                list = tdcs.getItem(is,il,lr,ip); tdcc=new Float[list.size()]; list.toArray(tdcc);
                tdc  = new float[list.size()];
-               for (int ii=0; ii<tdcc.length; ii++) tdc[ii] = tdcc[ii]-app.decoder.phase*4;  
+               for (int ii=0; ii<tdcc.length; ii++) tdc[ii] = tdcc[ii]-phase*4;  
            } else {
                tdc = new float[1];
            }
@@ -269,7 +271,7 @@ public class CTOFReconstructionApp extends FCApplication {
    public void writeHipoOutput() {
        
        DataEvent  decodedEvent = app.decoder.getDataEvent();
-       DataBank   header = app.createHeaderBank(decodedEvent);
+       DataBank   header = app.decoder.createHeaderBank(decodedEvent,0,0,0,0);
        decodedEvent.appendBanks(header);
        app.decoder.writer.writeEvent(decodedEvent);
               
