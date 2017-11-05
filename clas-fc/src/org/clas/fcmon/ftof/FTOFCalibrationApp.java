@@ -184,15 +184,15 @@ public class FTOFCalibrationApp extends FCApplication implements CalibrationCons
         DetectorDescriptor dd = shape.getDescriptor();
         this.getDetIndices(dd);
         layer = lay;
-        if (this.omap==3) {
+        if (app.omap==3) {
            if(engine.isGoodPaddle(is, layer-1, ic)) {
                shape.setColor(101, 200, 59);
            } else {
                shape.setColor(225, 75, 60);
            }
         }
-    }
-        
+    }     
+    
     public void constantsEvent(CalibrationConstants cc, int col, int row) {
 
         String str_sector    = (String) cc.getValueAt(row, 0);
