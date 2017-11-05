@@ -194,7 +194,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
         ECCalibrationEngine engine = getSelectedEngine();
         DetectorDescriptor dd = shape.getDescriptor();
         this.getDetIndices(dd);
-        if (this.omap==3) {
+        if (app.omap==3) {
            if(engine.isGoodPaddle(is, lay+ilmap*3, ic+1)) {
                shape.setColor(101, 200, 59);
            } else {
