@@ -65,7 +65,6 @@ public class ECReconstructionApp extends FCApplication {
    int nstr = ecPix[0].ec_nstr[0];
    int npix = ecPix[0].pixels.getNumPixels();  
    
-   int nsa,nsb,tet,pedref;     
    short[] pulse = new short[100]; 
    
    public ECReconstructionApp(String name, ECPixels[] ecPix) {
@@ -81,8 +80,7 @@ public class ECReconstructionApp extends FCApplication {
        iis1 = ECConstants.IS1-1;
        iis2 = ECConstants.IS2-1;
    }
-   
-   
+      
    public void clearHistograms() {
      
        for (int idet=0; idet<ecPix.length; idet++) {
@@ -229,7 +227,7 @@ public class ECReconstructionApp extends FCApplication {
                
                if (app.rtt.hasItem(is,il,ip,0)) {
                    int[] dum = (int[]) app.rtt.getItem(is,il,ip,0);
-                   getMode7(dum[0],dum[1],dum[2]);
+                   app.getMode7(dum[0],dum[1],dum[2]);
                }
                
                if (ped>0) ecPix[idet].strips.hmap2.get("H2_Peds_Hist").get(is,ilay,0).fill(this.pedref-ped, ip);
@@ -242,14 +240,6 @@ public class ECReconstructionApp extends FCApplication {
            }
        }
    }
-   
-   public void getMode7(int cr, int sl, int ch) {    
-       app.mode7Emulation.configMode7(cr,sl,ch);
-       this.nsa    = app.mode7Emulation.nsa;
-       this.nsb    = app.mode7Emulation.nsb;
-       this.tet    = app.mode7Emulation.tet;
-       this.pedref = app.mode7Emulation.pedref;
-    }
    
    public void updateEvioData(DataEvent event) {
        
@@ -309,7 +299,7 @@ public class ECReconstructionApp extends FCApplication {
                ecPix[idet].strips.hmap2.get("H2_t_Hist").get(is,3,4).fill(tdc[0],phase);
             }
            
-           getMode7(cr,sl,ch); 
+           app.getMode7(cr,sl,ch); 
            
            for (int ii=0 ; ii< pulse.length ; ii++) {
                ecPix[idet].strips.hmap2.get("H2_Mode1_Hist").get(is,ilay,0).fill(ii,ip,pulse[ii]-pd);
@@ -330,7 +320,7 @@ public class ECReconstructionApp extends FCApplication {
            }    // Good sector        
        }
        
-       if (app.decoder.isHipoFileOpen) writeHipoOutput();
+       if (app.isHipoFileOpen) writeHipoOutput();
        
    }
    
@@ -415,9 +405,9 @@ public class ECReconstructionApp extends FCApplication {
    public void writeHipoOutput() {
        
        DataEvent  decodedEvent = app.decoder.getDataEvent();
-       DataBank   header = app.decoder.createHeaderBank(decodedEvent);
+       DataBank   header = app.createHeaderBank(decodedEvent);
        decodedEvent.appendBanks(header);
-       app.decoder.writer.writeEvent(decodedEvent);
+       app.writer.writeEvent(decodedEvent);
               
    }
    
