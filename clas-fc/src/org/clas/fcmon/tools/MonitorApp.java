@@ -40,6 +40,8 @@ import org.jlab.detector.base.DetectorCollection;
 import org.jlab.detector.base.DetectorDescriptor;
 import org.jlab.detector.calib.utils.ConstantsManager;
 import org.jlab.groot.graphics.EmbeddedCanvas;
+import org.jlab.io.base.DataEvent;
+import org.jlab.io.hipo.HipoDataBank;
 import org.jlab.io.hipo.HipoDataSync;
 import org.jlab.utils.groups.IndexedTable;
 
@@ -73,7 +75,7 @@ public class MonitorApp extends JFrame implements ActionListener {
     JCheckBox       mcbBtn = null;
     JCheckBox        tbBtn = null;
     JCheckBox       ipcBtn = null;
-   JCheckBox     epicsBtn = null;    
+    JCheckBox     epicsBtn = null;    
     JButton       openBtn  = null;
     JButton       closeBtn = null;
     
@@ -81,10 +83,10 @@ public class MonitorApp extends JFrame implements ActionListener {
 	
     public FCCLASDecoder           decoder = new FCCLASDecoder();
     
-    String                    HipoFileName = "TEST.HIPO";
     EventControl              eventControl = null;    
     public DisplayControl   displayControl = null;	
     public Mode7Emulation   mode7Emulation = null;
+    public HipoDataSync             writer = null;
     
     int      selectedTabIndex = 0;  
     String   selectedTabName  = " ";  
@@ -112,9 +114,14 @@ public class MonitorApp extends JFrame implements ActionListener {
     public boolean      isCRT = false;
     public boolean      doEng = false;
     public boolean     doGain = false;
-    public String        geom = "2.5";
-    public String      config = "muon";
-    public int        trigger = 1;        //0=cluster 1=pixel
+    
+    public String    HipoFileName = null;
+    public Boolean isHipoFileOpen = false;   
+    public String            geom = "2.5";
+    public String          config = "muon";
+    public int            trigger = 1;        //0=cluster 1=pixel
+    
+    public int tet,nsa,nsb,pedref;
     
     public FTHashCollection rtt = null;
     
@@ -513,6 +520,44 @@ public class MonitorApp extends JFrame implements ActionListener {
         return 0;
     }
     
+    public void getMode7(int cr, int sl, int ch) {    
+        mode7Emulation.configMode7(cr,sl,ch);
+        this.nsa    = mode7Emulation.nsa;
+        this.nsb    = mode7Emulation.nsb;
+        this.tet    = mode7Emulation.tet;
+        this.pedref = mode7Emulation.pedref;
+     }
+    
+    public void openHipoFile(String path) {        
+       	writer = new HipoDataSync();
+    	    HipoFileName = path+"clas_00"+localRun+".hipo";
+        System.out.println("FCCLASDecoder.openHipoFile(): Opening "+HipoFileName);
+        writer.setCompressionType(2);
+        writer.open(HipoFileName);
+        isHipoFileOpen = true;
+    }
+    
+    public void closeHipoFile() {
+
+        System.out.println("FCCLASDecoder.closeHipoFile(): Closing "+HipoFileName);
+        writer.close();
+        isHipoFileOpen = false;
+    }
+    
+    public HipoDataBank createHeaderBank(DataEvent event){
+        
+        HipoDataBank bank = (HipoDataBank) event.createBank("RUN::config", 1);
+        
+        bank.setInt("run",        0, localRun);
+        bank.setInt("event",      0, localEvent);
+        bank.setInt("trigger",    0, triggerBits);        
+        bank.setFloat("torus",    0, 0);
+        bank.setFloat("solenoid", 0, 0);        
+        bank.setLong("timestamp", 0, timeStamp);        
+                
+        return bank;
+    }    
+    
     public String getStatusString(DetectorDescriptor dd) {
         
         String comp=(dd.getLayer()==4) ? "  Pixel:":"  PMT:";  
@@ -542,7 +587,7 @@ public class MonitorApp extends JFrame implements ActionListener {
     public void openHIPOAction() {
         openBtn.setOpaque(true);
         openBtn.setBackground(Color.GREEN);
-        decoder.openHipoFile(hipoPath);        
+        openHipoFile(hipoPath);        
     }
     public void closeHIPOAction() {
         openBtn.setBackground(Color.RED);
@@ -550,7 +595,7 @@ public class MonitorApp extends JFrame implements ActionListener {
         pause(2000);
         openBtn.setOpaque(false);
         openBtn.setBackground(Color.WHITE);
-        decoder.closeHipoFile();  
+       closeHipoFile();  
     }
     
     public void pause(int msec) {

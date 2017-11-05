@@ -35,6 +35,8 @@ import org.jlab.detector.calib.tasks.CalibrationEngine;
 import org.jlab.detector.calib.tasks.CalibrationEngineView;
 
 import org.jlab.groot.group.DataGroup;
+import org.jlab.io.base.DataEvent;
+import org.jlab.io.hipo.HipoDataBank;
 import org.jlab.service.ec.ECEngine;
 import org.jlab.utils.groups.IndexedList;
 import org.jlab.groot.graphics.EmbeddedCanvas;
@@ -72,6 +74,8 @@ public class FCApplication implements ActionListener  {
 	
 	public int is,layer,ic;
 	public int panel,opt,io,of,lay,l1,l2,is1,is2,iis1,iis2;
+	
+	public int nsa,nsb,tet,pedref;
 
     private String             buttonSelect;
     private int                buttonIndex;

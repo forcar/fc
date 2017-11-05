@@ -262,14 +262,14 @@ public class CTOFReconstructionApp extends FCApplication {
            }           
        }
        
-       if (app.decoder.isHipoFileOpen) writeHipoOutput();
+       if (app.isHipoFileOpen) writeHipoOutput();
        
    }
    
    public void writeHipoOutput() {
        
        DataEvent  decodedEvent = app.decoder.getDataEvent();
-       DataBank   header = app.decoder.createHeaderBank(decodedEvent);
+       DataBank   header = app.createHeaderBank(decodedEvent);
        decodedEvent.appendBanks(header);
        app.decoder.writer.writeEvent(decodedEvent);
               
