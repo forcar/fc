@@ -1,11 +1,13 @@
 package org.clas.fcmon.ctof;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.LinkedList;
+import java.util.TreeMap;
 
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
@@ -15,7 +17,10 @@ import javax.swing.Timer;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ChangeEvent;
 
+import org.clas.fcmon.detector.view.DetectorShape2D;
 import org.clas.fcmon.detector.view.EmbeddedCanvasTabbed;
+import org.clas.fcmon.tools.ColorPalette;
+import org.clas.fcmon.tools.FCApplication;
 import org.clas.fcmon.tools.FCEpics;
 import org.jlab.detector.base.DetectorCollection;
 import org.jlab.detector.base.DetectorDescriptor;
@@ -29,6 +34,7 @@ public class CTOFScalersApp extends FCEpics {
 
         DetectorCollection<H1F> H1_SCA = new DetectorCollection<H1F>();
         DetectorCollection<H2F> H2_SCA = new DetectorCollection<H2F>();
+        DetectorCollection<TreeMap<Integer,Object>> Lmap = new DetectorCollection<TreeMap<Integer,Object>>();
         
         float norm1[] = null;
         float norm2[] = null;
@@ -64,7 +70,7 @@ public class CTOFScalersApp extends FCEpics {
         
         public void startEPICS() {
         	System.out.println("CTOFScalersApp: Connect to EPICS Channel Access");
-        	clearMaps();
+        	clearMaps(); nfifo=0;
             createContext();
             setCaNames(this.detName,2);
             initFifos();
@@ -160,7 +166,7 @@ public class CTOFScalersApp extends FCEpics {
             slider.setMinimum((int) 0.);
             slider.setMaximum((int) 70.);
             slider.setValue((int) 0.);
-            slider.setUpperValue((int) 20.);            
+            slider.setUpperValue((int) 16.);            
             zMin = slider.getValue();
             zMax = slider.getUpperValue();
             zMinLab = Math.pow(10, zMin/10); zMaxLab = Math.pow(10, zMax/10);
@@ -186,7 +192,8 @@ public class CTOFScalersApp extends FCEpics {
         private class updateGUIAction implements ActionListener {
             public void actionPerformed(ActionEvent evt) {
                 fillFifos();
-                fillHistos();           
+                fillHistos();   
+                makeMaps();
                 nTimer++;
                 updateScalers(1);
             }
@@ -245,9 +252,6 @@ public class CTOFScalersApp extends FCEpics {
                         Double ts2[] = new Double[app.fifo5.get(is, il, ic).size()];                        
                         app.fifo5.get(is, il, ic).toArray(ts2);
                         for (int it=0; it<ts2.length; it++) {
-                            if(isNorm) {
-                                ts2[it]=(ts2[it]-norm4[il-1][ic-1])/Math.sqrt(ts2[it]);
-                            }                
                             H2_SCA.get(is, il, 1).fill(ic,it,ts2[it]);
                         }
                     }
@@ -259,6 +263,16 @@ public class CTOFScalersApp extends FCEpics {
                 }
             }
             
+        }
+        
+        public void makeMaps() {
+        	
+            for (int is=is1; is<is2 ; is++) {
+                for (int il=1; il<layMap.get(detName).length+1 ; il++) {
+                   Lmap.add(is, il,1,FCApplication.toTreeMap((float[]) H1_SCA.get(is, il, 1).getData())) ;
+                }
+            }
+       	
         }
         
         public synchronized void updateScalers(int flag) {
@@ -350,5 +364,28 @@ public class CTOFScalersApp extends FCEpics {
             canvas.repaint();
             
         }
-
+        
+        public void updateDetectorView(DetectorShape2D shape) {
+        	
+            ColorPalette palette3 = new ColorPalette(3);
+            ColorPalette palette4 = new ColorPalette(4);
+                       
+            ColorPalette pal = palette4;
+            
+            DetectorDescriptor dd = shape.getDescriptor(); 
+            
+            int is = dd.getSector();  
+            int il = dd.getOrder()+1;
+            int ip = dd.getComponent(); 
+                        
+            float z = (float) H1_SCA.get(is, il, 1).getBinContent(ip) ;
+            
+            if (app.omap==3) {
+            	double colorfraction=(z-zMinLab)/(zMaxLab-zMinLab);
+                app.getDetectorView().getView().zmax = zMaxLab;
+                app.getDetectorView().getView().zmin = zMinLab;
+                Color col = pal.getRange(colorfraction);
+                shape.setColor(col.getRed(),col.getGreen(),col.getBlue());              
+            }
+        }
 }

@@ -49,7 +49,7 @@ public class CTOFDet extends FCDetector {
          }
         
         addButtons("DET","View","CTOF.0");
-        addButtons("PMT","Map","EVT.0.ADC.1.TDC.2.STATUS.3");
+        addButtons("PMT","Map","EVT.0.ADC.1.TDC.2.EPICS.3");
         
         app.getDetectorView().addMapButtons();
         app.getDetectorView().addViewButtons(); 

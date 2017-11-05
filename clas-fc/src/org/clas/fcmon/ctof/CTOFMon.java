@@ -219,7 +219,8 @@ public class CTOFMon extends DetectorMonitor {
     public void update(DetectorShape2D shape) {
         //From DetectorView2D.DetectorViewLayer2D.drawLayer: Update color map of shape
         ctofDet.update(shape);
-//        ftofCalib.updateDetectorView(shape);
+        if (app.getSelectedTabName().equals("Scalers")) ctofScalers.updateDetectorView(shape);
+        if (app.getSelectedTabName().equals("HV"))           ctofHv.updateDetectorView(shape);
     }
         
     @Override
