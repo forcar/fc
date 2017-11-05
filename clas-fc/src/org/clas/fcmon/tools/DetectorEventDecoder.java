@@ -57,16 +57,22 @@ public class DetectorEventDecoder {
     
     //lcs
     public void setTET(int tet) {
-    	  this.tet = (tet==0) ? 0:tet;
+    	  this.tet = tet;
     }
       
     public void setNSA(int nsa) {
-    	  this.nsa = (nsa==0) ? 0:nsa;
+    	  this.nsa = nsa;
     }
       
     public void setNSB(int nsb) {
-    	  this.nsb = (nsb==0) ? 0:nsb;
-    }  
+    	  this.nsb = nsb;
+    }
+    
+    public void setFitterParms(int tet, int nsa, int nsb) {
+    	    this.tet = tet;
+    	    this.nsa = nsa;
+    	    this.nsb = nsb;
+    }
       
     public DetectorEventDecoder(){
         this.initDecoder();

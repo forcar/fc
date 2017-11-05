@@ -23,16 +23,13 @@ public class FCCLASDecoder {
     public List<DetectorDataDgtz>       dataList = new ArrayList<DetectorDataDgtz>();    
     public HipoDataSync                   writer = null;
     public HipoDataEvent               hipoEvent = null;
-    public String                   HipoFileName = null;
-    public Boolean                isHipoFileOpen = false;
     private int                 decoderDebugMode = 0;
-    public int localRun;
-    public int localEvent;
+    
+    public int runno;
+    public int evtno;
     public long timeStamp;
     public int triggerBits;
-    public long phase;
-    public int bitsec;
-    
+   
     public int phase_offset = 1;
     
     public FCCLASDecoder(){    
@@ -44,33 +41,16 @@ public class FCCLASDecoder {
         writer = new HipoDataSync();
         hipoEvent = (HipoDataEvent) writer.createEvent();
     }
-    
-    public void openHipoFile(String path) {        
-        HipoFileName = path+"clas_00"+localRun+".hipo";
-        System.out.println("FCCLASDecoder.openHipoFile(): Opening "+HipoFileName);
-        writer.setCompressionType(2);
-        writer.open(HipoFileName);
-        isHipoFileOpen = true;
-    }
-    
-    public void closeHipoFile() {
-
-        System.out.println("FCCLASDecoder.closeHipoFile(): Closing "+HipoFileName);
-        writer.close();
-        isHipoFileOpen = false;
-    }
-    
+   
     public void initEvent(DataEvent event){
         
         if(event instanceof EvioDataEvent){
             try {
                 dataList    = codaDecoder.getDataEntries( (EvioDataEvent) event);
-                localRun    = codaDecoder.getRunNumber();
-                localEvent  = codaDecoder.getEventNumber();
+                runno       = codaDecoder.getRunNumber();
+                evtno       = codaDecoder.getEventNumber();
                 timeStamp   = codaDecoder.getTimeStamp();
                 triggerBits = codaDecoder.getTriggerBits();
-                phase  = ((timeStamp%6)+phase_offset)%6;
-                bitsec = (int) (Math.log10(triggerBits>>24)/0.301+1);
                 if(this.decoderDebugMode>0){
                     System.out.println("\n>>>>>>>>> RAW decoded data");
                     for(DetectorDataDgtz data : dataList){
@@ -90,6 +70,30 @@ public class FCCLASDecoder {
             }
         }
     } 
+    
+    public int getRun() {
+        return this.runno;    	
+    }
+    
+    public int getEvent() {
+        return this.evtno;    	
+    }
+    
+    public long getTimestamp() {
+    	    return this.timeStamp;
+    }
+    
+    public int getTriggerbits() {
+    	    return this.triggerBits;    	
+    }
+    
+    public long getPhase() {
+    	    return ((this.timeStamp%6)+this.phase_offset)%6;
+    }
+    
+    public int getBitsec() {
+        return	(int) (Math.log10(this.triggerBits>>24)/0.301+1);
+    }
     
     public List<DetectorDataDgtz>  getEntriesADC(DetectorType type){
         return this.getEntriesADC(type, dataList);        
@@ -124,7 +128,6 @@ public class FCCLASDecoder {
         }
         return tdc;
     }    
-    
     public DataBank getDataBankADC(String name, DetectorType type){
         
         List<DetectorDataDgtz> adcDGTZ = this.getEntriesADC(type);
@@ -139,11 +142,15 @@ public class FCCLASDecoder {
             adcBANK.setInt("ADC", i, adcDGTZ.get(i).getADCData(0).getADC());
             adcBANK.setFloat("time", i, (float) adcDGTZ.get(i).getADCData(0).getTime());
             adcBANK.setShort("ped", i, (short) adcDGTZ.get(i).getADCData(0).getPedestal());            
-            if(name.equals("SVT::adc")) adcBANK.setLong("timestamp", i, adcDGTZ.get(i).getADCData(0).getTimeStamp()); // 1234 = dummy placeholder value
+            if(name == "BST::adc") adcBANK.setLong("timestamp", i, adcDGTZ.get(i).getADCData(0).getTimeStamp()); // 1234 = dummy placeholder value
+            if(name.equals("BMT::adc")||name.equals("FMT::adc")){
+            	adcBANK.setInt("ADC", i, adcDGTZ.get(i).getADCData(0).getHeight());
+            	adcBANK.setInt("integral", i, adcDGTZ.get(i).getADCData(0).getIntegral());
+            	adcBANK.setLong("timestamp", i, adcDGTZ.get(i).getADCData(0).getTimeStamp());
+            }	
          }
         return adcBANK;
-    }
-    
+    }    
     
     public DataBank getDataBankTDC(String name, DetectorType type){
         
@@ -249,18 +256,26 @@ public class FCCLASDecoder {
 */        
         return event;
     }
-
-    public HipoDataBank createHeaderBank(DataEvent event){
-        
+    public HipoDataBank createHeaderBank(DataEvent event, int nrun, int nevent, float torus, float solenoid){
         HipoDataBank bank = (HipoDataBank) event.createBank("RUN::config", 1);
         
+        int    localRun = this.codaDecoder.getRunNumber();
+        int  localEvent = this.codaDecoder.getEventNumber();
+        long  timeStamp = this.codaDecoder.getTimeStamp();
+        int triggerBits = this.codaDecoder.getTriggerBits();
+        
+        if(nrun>0){
+            localRun = nrun;
+            localEvent = nevent;
+        }
         bank.setInt("run",        0, localRun);
         bank.setInt("event",      0, localEvent);
         bank.setInt("trigger",    0, triggerBits);        
-        bank.setFloat("torus",    0, 0);
-        bank.setFloat("solenoid", 0, 0);        
+        bank.setFloat("torus",    0, torus);
+        bank.setFloat("solenoid", 0, solenoid);        
         bank.setLong("timestamp", 0, timeStamp);        
-                
+        
+        
         return bank;
     }
 }

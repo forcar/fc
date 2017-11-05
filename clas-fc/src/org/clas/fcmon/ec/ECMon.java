@@ -46,8 +46,8 @@ public class ECMon extends DetectorMonitor {
     public static int        calRun = 760;
     public static String  variation = "default";
     int                       detID = 0;
-    int                         is1 = 3;
-    int                         is2 = 4;  
+    int                         is1 = 1;
+    int                         is2 = 7;  
     int    nsa,nsb,tet,p1,p2,pedref = 0;
     double               PCMon_zmin = 0;
     double               PCMon_zmax = 0;

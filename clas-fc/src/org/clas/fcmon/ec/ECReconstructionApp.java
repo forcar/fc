@@ -28,6 +28,8 @@ import org.jlab.detector.base.DetectorType;
 import org.jlab.geom.prim.Line3D;
 import org.jlab.geom.prim.Point3D;
 import org.jlab.io.evio.EvioDataEvent;
+import org.jlab.io.hipo.HipoDataEvent;
+import org.jlab.io.hipo.HipoDataSync;
 import org.jlab.service.eb.EventBuilder;
 import org.jlab.service.ec.ECPart;
 import org.jlab.utils.groups.IndexedList;
@@ -245,9 +247,12 @@ public class ECReconstructionApp extends FCApplication {
        
        clear(0); clear(1); clear(2); tdcs.clear();
        DetectorDataDgtz ddd;
-       
+              
        app.decoder.initEvent(event);
-       app.bitsec = app.decoder.bitsec;
+       
+       app.bitsec = app.decoder.getBitsec();
+       long phase = app.decoder.getPhase();
+       app.localRun = app.decoder.getRun();
        
        List<DetectorDataDgtz> adcDGTZ = app.decoder.getEntriesADC(DetectorType.ECAL);
        List<DetectorDataDgtz> tdcDGTZ = app.decoder.getEntriesTDC(DetectorType.ECAL);
@@ -276,9 +281,7 @@ public class ECReconstructionApp extends FCApplication {
            float tf = (float) ddd.getADCData(0).getTime();
            float ph = (float) ddd.getADCData(0).getHeight()-pd;
            short[] pulse = adcDGTZ.get(i).getADCData(0).getPulseArray();
-           
-           float phase = app.decoder.phase;
-           
+                      
            Float[] tdcc; float[] tdc;
            
            if (tdcs.hasItem(is,il,ip)) {
@@ -405,7 +408,7 @@ public class ECReconstructionApp extends FCApplication {
    public void writeHipoOutput() {
        
        DataEvent  decodedEvent = app.decoder.getDataEvent();
-       DataBank   header = app.createHeaderBank(decodedEvent);
+       DataBank   header = app.decoder.createHeaderBank(decodedEvent,0,0,0,0);
        decodedEvent.appendBanks(header);
        app.writer.writeEvent(decodedEvent);
               

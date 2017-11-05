@@ -121,6 +121,7 @@ public class MonitorApp extends JFrame implements ActionListener {
     public String          config = "muon";
     public int            trigger = 1;        //0=cluster 1=pixel
     public int               omap = 0;
+    public int           localRun = 0;
     
     public int tet,nsa,nsb,pedref;
     
@@ -531,8 +532,8 @@ public class MonitorApp extends JFrame implements ActionListener {
     
     public void openHipoFile(String path) {        
        	writer = new HipoDataSync();
-//    	    HipoFileName = path+"clas_00"+localRun+".hipo";
-        System.out.println("FCCLASDecoder.openHipoFile(): Opening "+HipoFileName);
+    	    HipoFileName = path+"clas_00"+localRun+".hipo";
+        System.out.println("app.openHipoFile(): Opening "+HipoFileName);
         writer.setCompressionType(2);
         writer.open(HipoFileName);
         isHipoFileOpen = true;
@@ -540,24 +541,10 @@ public class MonitorApp extends JFrame implements ActionListener {
     
     public void closeHipoFile() {
 
-        System.out.println("FCCLASDecoder.closeHipoFile(): Closing "+HipoFileName);
+        System.out.println("app.closeHipoFile(): Closing "+HipoFileName);
         writer.close();
         isHipoFileOpen = false;
-    }
-    
-    public HipoDataBank createHeaderBank(DataEvent event){
-        
-        HipoDataBank bank = (HipoDataBank) event.createBank("RUN::config", 1);
-        
-//        bank.setInt("run",        0, localRun);
-//        bank.setInt("event",      0, localEvent);
-//        bank.setInt("trigger",    0, triggerBits);        
-        bank.setFloat("torus",    0, 0);
-        bank.setFloat("solenoid", 0, 0);        
-//        bank.setLong("timestamp", 0, timeStamp);        
-                
-        return bank;
-    }    
+    }  
     
     public String getStatusString(DetectorDescriptor dd) {
         
@@ -596,7 +583,7 @@ public class MonitorApp extends JFrame implements ActionListener {
         pause(2000);
         openBtn.setOpaque(false);
         openBtn.setBackground(Color.WHITE);
-       closeHipoFile();  
+        closeHipoFile();  
     }
     
     public void pause(int msec) {
