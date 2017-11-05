@@ -692,8 +692,8 @@ public class ECReconstructionApp extends FCApplication {
        H1_t_Maps    = ecPix[idet].pixels.hmap1.get("H1_t_Maps");
 
        // Layer assignments:
-       // il=1-3 (U,V,W strips) il=7 (Inner Pixels) il=8 (Outer Pixels)
-         
+       // il=1-3 (U,V,W strips) il=7 (Inner Pixels) il=8 (Outer Pixels)         
+        
         for (int is=is1;is<is2;is++) {
            for (int il=1 ; il<4 ; il++) {
                divide(H1_a_Maps.get(is,il,0),H1_a_Maps.get(is,il,4),H1_a_Maps.get(is,il,1)); //Normalize Raw View ADC   to Events
@@ -730,27 +730,6 @@ public class ECReconstructionApp extends FCApplication {
        ecPix[idet].getLmapMinMax(is1,is2,7,1); 
        ecPix[idet].getLmapMinMax(is1,is2,9,0); 
        
-   }
-   
-   public TreeMap<Integer, Object> toTreeMap(float dat[]) {
-       TreeMap<Integer, Object> hcontainer = new TreeMap<Integer, Object>();
-       float[] b = Arrays.copyOf(dat, dat.length);
-       double min=100000,max=0,bsum=0,ratio=0;
-       int nbsum=0;
-       for (int i =0 ; i < b.length; i++){
-           if (b[i] !=0 && b[i] < min) min=b[i];
-           if (b[i] !=0 && b[i] > max) max=b[i];
-           if (b[i]>0) {bsum+=b[i]; nbsum++;}
-       }
-       if (nbsum>0) ratio=bsum/nbsum;
-       // Arrays.sort(b);
-       // double min = b[0]; double max=b[b.length-1];
-       if (min<=0) min=0.01;
-       hcontainer.put(1, dat);
-       hcontainer.put(2, min);
-       hcontainer.put(3, max);
-       hcontainer.put(4,ratio);
-       return hcontainer;        
    }
 
    public void divide(H1F h1, H1F h2, H1F h3){      
