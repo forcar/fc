@@ -28,6 +28,7 @@ import org.clas.fcmon.detector.view.EmbeddedCanvasTabbed;
 import org.clas.fcmon.tools.CalibrationConstantsView;
 import org.clas.fcmon.tools.DisplayControl;
 import org.clas.fcmon.tools.FCApplication;
+import org.jlab.clas.detector.DetectorEvent;
 import org.jlab.detector.base.DetectorCollection;
 import org.jlab.detector.base.DetectorType;
 //import org.jlab.clasrec.utils.DatabaseConstantProvider;
@@ -44,6 +45,8 @@ import org.jlab.groot.graphics.EmbeddedCanvas;
 import org.jlab.groot.math.F1D;
 import org.jlab.groot.math.Axis;
 import org.jlab.groot.ui.RangeSlider;
+import org.jlab.io.base.DataEvent;
+import org.jlab.io.hipo.HipoDataBank;
 import org.jlab.utils.groups.IndexedTable;
 
 public class ECCalibrationApp extends FCApplication implements CalibrationConstantsListener,ChangeListener {
@@ -187,6 +190,12 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
         for (int i=0; i<engines.length; i++) {
             for (int idet=0; idet<ecPix.length; idet++) engines[i].analyze(idet,is1,is2,il1,il2,1,69); 
         }
+    }
+    
+    public void processAllEngines(DataEvent event) {
+        for (int i=0; i<engines.length; i++) {
+            for (int idet=0; idet<ecPix.length; idet++) engines[i].processEvent(event); 
+        }    	
     }
    
     public void updateDetectorView(DetectorShape2D shape) {
@@ -1464,6 +1473,195 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
         }         
         
     }
-
- 
+/*
+    private class ECTimingEventListener extends ECCalibrationEngine {
+    	
+    	    short setdetsector = 2;
+    	    byte detECallayer=1;
+    	    
+    	    public void processEvent(DataEvent event) {
+    	    	
+		    if(event.hasBank("REC::Particle")     && 
+               event.hasBank("REC::Calorimeter")  &&
+               event.hasBank("REC::Scintillator") && 
+               event.hasBank("REC::Event")        && 
+               event.hasBank("ECAL::clusters")    && 
+               event.hasBank("ECAL::adc")         && 
+               event.hasBank("ECAL::tdc")         && 
+               event.hasBank("RUN::rf")) {
+		    	
+			    HipoDataBank part = (HipoDataBank) event.getBank("REC::Particle");
+				
+				float p = 0;
+				int partcount = 0;
+				int eleccount = 0;
+				
+				for(int parti = 0; parti < part.rows(); parti++) {
+					if(part.getInt("pid", parti)  == 11) {
+						eleccount++;
+						HipoDataBank detcount = (HipoDataBank) event.getBank("REC::Calorimeter");
+						for(int detcounti = 0; detcounti < detcount.rows(); detcounti++)
+						{
+							short pindexcount = detcount.getShort("pindex", detcounti);
+							byte detectorcount = detcount.getByte("detector", detcounti);
+							byte sectorcount = detcount.getByte("sector", detcounti);
+							if(pindexcount != parti && sectorcount == setdetsector && detectorcount == 7) partcount++;
+						}
+					}
+				}
+				
+				HipoDataBank recev = (HipoDataBank) event.getBank("REC::Event");
+				
+				float vtime = -100;
+				
+				for(int t = 0; t < recev.rows(); t++)
+				{
+					float sttime = recev.getFloat("STTime", t);
+					if(sttime > -100) vtime = sttime;
+				}
+				
+				if(vtime > -100 && partcount == 0 && eleccount > 0)				
+				{
+					if(partcount > 1) System.out.println("partcount: " + partcount);
+					for(int i = 0; i < part.rows(); i++)
+					{
+						int pid = part.getInt("pid", i);
+						float px = part.getFloat("px", i);
+						float py = part.getFloat("py", i);
+						float pz = part.getFloat("pz", i);
+						p = (float) Math.sqrt(px*px+py*py+pz*pz);
+						if(pid == 11)
+						{
+							HipoDataBank det = (HipoDataBank) event.getBank("REC::Calorimeter");
+							HipoDataBank detf = (HipoDataBank) event.getBank("REC::Scintillator");
+							float totEdep = 0;
+							float EdepECalcluster = 0;
+							float Tvertex = vtime;
+							float hitx = 0;
+							float hity = 0;
+							float hitz = 0;
+							float hitpath = 0;
+							float hittime = 0;
+							for(int j = 0; j < det.rows(); j++)
+							{
+								short pindex = det.getShort("pindex", j);
+								byte detector = det.getByte("detector", j);
+								byte sector = det.getByte("sector", j);
+								byte layer = det.getByte("layer", j);
+								float x = det.getFloat("x", j);
+								float y = det.getFloat("y", j);
+								float z = det.getFloat("z", j);
+								float path = det.getFloat("path", j);
+								float time = det.getFloat("time", j);
+								float energy = det.getFloat("energy", j);
+								if(pindex == i && detector == 7 && sector == setdetsector) totEdep = totEdep + energy;
+								if(pindex == i && detector == 7 && sector == setdetsector && layer == detECallayer)
+								{
+									EdepECalcluster = energy;
+									hitx = x;
+									hity = y;
+									hitz = z;
+									hitpath = path;
+								}
+							}
+							
+							HipoDataBank peak = (HipoDataBank) event.getBank("ECAL::peaks");
+			                float xo = peak.getFloat("xo",i);
+			                float yo = peak.getFloat("yo",i);
+			                float zo = peak.getFloat("zo",i);
+			                float xe = peak.getFloat("xe",i);
+			                float ye = peak.getFloat("ye",i);
+			                float ze = peak.getFloat("ze",i);
+			                
+//							float leff = (float) Math.sqrt(((xeff-PMTx)*(xeff-PMTx))+((yeff-PMTy)*(yeff-PMTy)));
+							
+//							float xeff = (hitx+(slope*hity)-(slope*intercept))/(1+(slope*slope));
+//							float yeff = (slope*xeff)+intercept;
+//							float leff = (float) Math.sqrt(((xeff-PMTx)*(xeff-PMTx))+((yeff-PMTy)*(yeff-PMTy)));
+								
+							byte id = -1;
+							HipoDataBank clust = (HipoDataBank) event.getBank("ECAL::clusters");
+							for(int k = 0; k < clust.rows(); k++)
+							{
+								byte sector = clust.getByte("sector", k);
+								byte layer = clust.getByte("layer", k);
+								float energy = clust.getFloat("energy", k);
+								if(view == U) id = clust.getByte("idU", k);
+								if(view == V) id = clust.getByte("idV", k);
+								if(view == W) id = clust.getByte("idW", k);
+								HipoDataBank hit = (HipoDataBank) event.getBank("ECAL::hits");
+								byte ECalstrip = 0;
+								if(sector == setdetsector && layer == detECallayer && energy == EdepECalcluster)
+								{
+									for(int l = 0; l < hit.rows(); l++)
+									{
+										byte strip = hit.getByte("strip", l);
+										byte peakid = hit.getByte("peakid", l);
+										byte EChitlayer = hit.getByte("layer", l);
+										if(peakid == id && EChitlayer == ECallayer && strip == stripID) ECalstrip = strip;
+									}
+								}
+								HipoDataBank adc = (HipoDataBank) event.getBank("ECAL::adc");
+								int ECalstripADC = 0;
+								int ECalstripref1ADC = 0;
+								int ECalstripref2ADC = 0;
+								if(ECalstrip == stripID)
+								{
+									for(int m = 0; m < adc.rows(); m++)
+									{
+										byte adcsector = adc.getByte("sector", m);
+										byte adclayer = adc.getByte("layer", m);
+										short adcstrip = adc.getShort("component", m);
+										int ADC = adc.getInt("ADC", m);
+										if(adcsector == setdetsector && adclayer == ECallayer && adcstrip == stripID) ECalstripADC = ADC;
+										if(adcsector == setdetsector && adclayer == ECallayer && adcstrip == stripID-1) ECalstripref1ADC = ADC;
+										if(adcsector == setdetsector && adclayer == ECallayer && adcstrip == stripID+1) ECalstripref2ADC = ADC;
+									}
+									if(ECalstripADC > ECalstripref1ADC && ECalstripADC > ECalstripref2ADC)
+									{
+										HipoDataBank tdc = (HipoDataBank) event.getBank("ECAL::tdc");
+										int TDCcounter = 0;
+										int TDCvalue = 0;
+										for(int n = 0; n < tdc.rows(); n++)
+										{
+											byte tdcsector = tdc.getByte("sector", n);
+											byte tdclayer = tdc.getByte("layer", n);
+											short tdcstrip = tdc.getShort("component", n);	
+											int TDC = tdc.getInt("TDC", n);
+											if(tdcsector == setdetsector && tdclayer == ECallayer && tdcstrip == stripID && TDC > 0)
+											{
+												TDCcounter++;
+												TDCvalue = TDC;
+											}
+										}
+										if(TDCcounter == 1 && (hitpath/30)+(leff/18.1)+Tvertex > 500)
+										{
+											TDCi.add((float) TDCvalue);
+											ADCi.add((float) ECalstripADC);
+											l2i.add(leff*leff);
+											l3i.add(leff*leff*leff);
+											Ti.add((float) ((hitpath/30)+(leff/18.1)+Tvertex));
+											Texpectedi.add((float) ((hitpath/30)+(leff/18.1)));
+											HipoDataBank runrf = (HipoDataBank) event.getBank("RUN::rf");
+											for(int o = 0; o < runrf.rows(); o++)
+											{
+												short rfid = runrf.getShort("id", o);
+												float rftime = runrf.getFloat("time", o);
+												if(rfid == 1) RFTi.add(rftime);		
+											}
+											hstrip.fill(stripID);
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		    	
+		    }   	
+        }
+    	    
+    }
+ */   
 }
