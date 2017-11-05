@@ -137,7 +137,7 @@ public class DetectorEventDecoder {
      * @param detectorData 
      */
     
-    /*
+    
     public void translate(List<DetectorDataDgtz>  detectorData){
         
         for(DetectorDataDgtz data : detectorData){
@@ -171,8 +171,8 @@ public class DetectorEventDecoder {
             }
         }
     }
-    */
     
+/*    
     public void translate(List<DetectorDataDgtz>  detectorData){
         
         for(DetectorDataDgtz data : detectorData){
@@ -201,7 +201,8 @@ public class DetectorEventDecoder {
             }            
         }
 
-    }    
+    } 
+    */   
         public void fitPulses(List<DetectorDataDgtz>  detectorData){
         for(DetectorDataDgtz data : detectorData){            
             int crate    = data.getDescriptor().getCrate();
