@@ -26,7 +26,7 @@ public class CNDAdcApp extends FCApplication {
     
     public void updateCanvas(DetectorDescriptor dd) {
         
-        double amax[]= {20000.,20000.,20000.};
+        double amax=  cndPix[0].amax[0];
   
         this.getDetIndices(dd); 
         int lr = layer;
@@ -48,17 +48,17 @@ public class CNDAdcApp extends FCApplication {
         H2F h2a = cndPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,1,0); h2a.setTitleY("Sector "+is+" L PMT") ; h2a.setTitleX("L PMT ADC");
         H2F h2b = cndPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,2,0); h2b.setTitleY("Sector "+is+" R PMT") ; h2b.setTitleX("R PMT ADC");
         H2F h2c = cndPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,0,0); h2c.setTitleY("Sector "+is+" PADDLE") ; h2c.setTitleX("GMEAN");
-        canvasConfig(c,0,0.,   20000.,1.,nstr+1.,true).draw(h2a);
-        canvasConfig(c,1,0.,   20000.,1.,nstr+1.,true).draw(h2b);
-        canvasConfig(c,2,0.,amax[ilm],1.,nstr+1.,true).draw(h2c);
+        canvasConfig(c,0,0., amax,1.,nstr+1.,true).draw(h2a);
+        canvasConfig(c,1,0., amax,1.,nstr+1.,true).draw(h2b);
+        canvasConfig(c,2,0., amax,1.,nstr+1.,true).draw(h2c);
        
-        F1D f1 = new F1D("p0","[a]",0.,20000.); f1.setParameter(0,ic+1);
-        F1D f2 = new F1D("p0","[a]",0.,20000.); f2.setParameter(0,ic+2);
+        F1D f1 = new F1D("p0","[a]",0.,amax); f1.setParameter(0,ic+1);
+        F1D f2 = new F1D("p0","[a]",0.,amax); f2.setParameter(0,ic+2);
         c.cd(lr-1);        
         f1.setLineColor(2); c.draw(f1,"same"); 
         f2.setLineColor(2); c.draw(f2,"same");
-        f1 = new F1D("p0","[a]",0.,amax[ilm]); f1.setParameter(0,ic+1);
-        f2 = new F1D("p0","[a]",0.,amax[ilm]); f2.setParameter(0,ic+2);
+        f1 = new F1D("p0","[a]",0.,amax); f1.setParameter(0,ic+1);
+        f2 = new F1D("p0","[a]",0.,amax); f2.setParameter(0,ic+2);
         c.cd(2);        
         f1.setLineColor(2); c.draw(f1,"same"); 
         f2.setLineColor(2); c.draw(f2,"same");

@@ -23,7 +23,8 @@ public class CNDPixels {
     public    int     cnd_nsec[] = {24};
     public    int     cnd_nstr[] = {3};
     public    int     cnd_nlay[] = {1};
-      
+    public double         amax[] = {8000.};
+    
     int        nha[][] = new    int[24][2];
     int        nht[][] = new    int[24][2];
     int    strra[][][] = new    int[24][2][3]; 

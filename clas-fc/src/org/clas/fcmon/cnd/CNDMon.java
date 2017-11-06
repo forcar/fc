@@ -32,7 +32,7 @@ public class CNDMon extends DetectorMonitor {
        
     public int                 calRun = 12;
     int                         detID = 0;
-    int                           is1 = 1;    //All sectors: is1=1 is2=7  Single sector: is1=s is2=s+1
+    int                           is1 = 1;    
     int                           is2 = 25; 
     int      nsa,nsb,tet,p1,p2,pedref = 0;
     double                 PCMon_zmin = 0;

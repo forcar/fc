@@ -43,7 +43,8 @@ public class CTOFReconstructionApp extends FCApplication {
    List<DetectorDataDgtz>        dataList = new ArrayList<DetectorDataDgtz>();
    IndexedList<List<Float>>          tdcs = new IndexedList<List<Float>>(2);
    IndexedList<List<Float>>          adcs = new IndexedList<List<Float>>(2);
-   IndexedList<List<Integer>>        lpmt = new IndexedList<List<Integer>>(1);
+   IndexedList<List<Integer>>       lapmt = new IndexedList<List<Integer>>(1);
+   IndexedList<List<Integer>>       ltpmt = new IndexedList<List<Integer>>(1);
    CTOFConstants                   ftofcc = new CTOFConstants();  
    
    double[]                sed7=null,sed8=null;
@@ -124,7 +125,7 @@ public class CTOFReconstructionApp extends FCApplication {
        long timestamp = 0;
        float offset = 0;
        
-       clear(0); tdcs.clear();
+       clear(0); tdcs.clear(); adcs.clear(); lapmt.clear(); ltpmt.clear();
        
        if(!app.isMC&&event.hasBank("RUN::config")){
            DataBank bank = event.getBank("RUN::config");
@@ -147,14 +148,20 @@ public class CTOFReconstructionApp extends FCApplication {
                int  il = bank.getByte("layer",i);
                int  lr = bank.getByte("order",i);                       
                int  ip = bank.getShort("component",i);
-               if(!tdcs.hasItem(is,il,lr-2,ip)) tdcs.add(new ArrayList<Float>(),is,il,lr-2,ip);
-                   tdcs.getItem(is,il,lr-2,ip).add((float) bank.getInt("TDC",i)*24/1000+offset-phase*4);              
+               
+               if (!tdcs.hasItem(lr-2,ip)) tdcs.add(new ArrayList<Float>(),lr-2,ip);
+                    tdcs.getItem(lr-2,ip).add((float) bank.getInt("TDC",i)*24/1000+offset-phase*4);              
+               if (!ltpmt.hasItem(ip)) {
+                    ltpmt.add(new ArrayList<Integer>(),ip);
+                    ltpmt.getItem(ip).add(ip);
+               }
            }
        }
               
        if(event.hasBank("CTOF::adc")){
            DataBank  bank = event.getBank("CTOF::adc");
            int rows = bank.rows();
+           
            for(int i = 0; i < rows; i++){
                int  is = bank.getByte("sector",i);
                int  il = bank.getByte("layer",i);
@@ -162,7 +169,14 @@ public class CTOFReconstructionApp extends FCApplication {
                int  ip = bank.getShort("component",i);
                int adc = bank.getInt("ADC",i);
                float t = bank.getFloat("time",i);               
-               int ped = bank.getShort("ped", i);
+               int ped = bank.getShort("ped", i);     
+               
+               if (!adcs.hasItem(lr,ip)) adcs.add(new ArrayList<Float>(),lr,ip);
+                    adcs.getItem(lr,ip).add((float)adc);            
+               if (!lapmt.hasItem(ip)) {
+                    lapmt.add(new ArrayList<Integer>(),ip);
+                    lapmt.getItem(ip).add(ip);
+               }
                
                Float[] tdcc; float[] tdc;
                
@@ -190,7 +204,7 @@ public class CTOFReconstructionApp extends FCApplication {
    
    public void updateRawData(DataEvent event) {
        
-       clear(0); tdcs.clear(); adcs.clear(); lpmt.clear();
+       clear(0); tdcs.clear(); adcs.clear(); lapmt.clear(); ltpmt.clear();
        
        app.decoder.initEvent(event);
       
@@ -206,9 +220,13 @@ public class CTOFReconstructionApp extends FCApplication {
            int il = ddd.getDescriptor().getLayer();
            int lr = ddd.getDescriptor().getOrder();
            int ip = ddd.getDescriptor().getComponent();
-           System.out.println(is+" "+il+" "+lr+" "+ip+" "+ddd.getTDCData(0).getTime()*24/1000);
-           if(!tdcs.hasItem(lr-2,ip)) tdcs.add(new ArrayList<Float>(),lr-2,ip);
-               tdcs.getItem(lr-2,ip).add((float) ddd.getTDCData(0).getTime()*24/1000);              
+           
+           if (!tdcs.hasItem(lr-2,ip)) tdcs.add(new ArrayList<Float>(),lr-2,ip);
+                tdcs.getItem(lr-2,ip).add((float) ddd.getTDCData(0).getTime()*24/1000);              
+           if (!ltpmt.hasItem(ip)) {
+        	        ltpmt.add(new ArrayList<Integer>(),ip);
+                ltpmt.getItem(ip).add(ip);
+           }
        }
       
        for (int i=0; i < adcDGTZ.size(); i++) {
@@ -228,12 +246,11 @@ public class CTOFReconstructionApp extends FCApplication {
            float ph = (float) ddd.getADCData(0).getHeight()-pd;
            short[]    pulse = ddd.getADCData(0).getPulseArray();
            
-           if (!adcs.hasItem(lr,ip))adcs.add(new ArrayList<Float>(),lr,ip);
-                adcs.getItem(lr,ip).add((float)ad);           
-                
-           if (!lpmt.hasItem(ip)) {
-        	   lpmt.add(new ArrayList<Integer>(),ip);
-               lpmt.getItem(ip).add(ip);
+           if (!adcs.hasItem(lr,ip)) adcs.add(new ArrayList<Float>(),lr,ip);
+                adcs.getItem(lr,ip).add((float)ad);            
+           if (!lapmt.hasItem(ip)) {
+                lapmt.add(new ArrayList<Integer>(),ip);
+                lapmt.getItem(ip).add(ip);
            }
                 
            Float[] tdcc; float[] tdc;
@@ -382,29 +399,26 @@ public class CTOFReconstructionApp extends FCApplication {
    
    public void processCalib() {
        
-       int iL,iR,ipL,ipR;
+       IndexGenerator ig = new IndexGenerator();
        
-       for (int is=is1 ; is<is2 ; is++) {
-           for (int idet=0; idet<ctofPix.length; idet++) {
-               IndexGenerator ig = new IndexGenerator();
-               for (Map.Entry<Long,List<Integer>>  entry : lpmt.getMap().entrySet()){
-                   long hash = entry.getKey();
-            	   int ip = ig.getIndex(hash, 0);
-        	       if(adcs.hasItem(0,ip)&&adcs.hasItem(1,ip)) {
-                      float gm = (float) Math.sqrt(adcs.getItem(0,ip).get(0)*(float)adcs.getItem(1,ip).get(0));
-        	          ctofPix[idet].strips.hmap2.get("H2_a_Hist").get(is, 0, 0).fill(gm,ip,1.0);  
-        	       }
-               }
-               iL = ctofPix[idet].nht[is-1][0];
-               iR = ctofPix[idet].nht[is-1][1];
-              ipL = ctofPix[idet].strrt[is-1][0][0];
-              ipR = ctofPix[idet].strrt[is-1][1][0];
-              if ((iL==1&&iR==1)&&(ipL==ipR)) {
-                  float td = ctofPix[idet].tdcr[is-1][0][0]-ctofPix[idet].tdcr[is-1][1][0];
-                  ctofPix[idet].strips.hmap2.get("H2_t_Hist").get(is, 0, 0).fill(td, ipL,1.0);
-              }
-           }
-       }       
+       for (Map.Entry<Long,List<Integer>>  entry : lapmt.getMap().entrySet()){
+           long hash = entry.getKey();
+           int ip = ig.getIndex(hash, 0);
+        	   if(adcs.hasItem(0,ip)&&adcs.hasItem(1,ip)) {
+               float gm = (float) Math.sqrt(adcs.getItem(0,ip).get(0)*
+                                            adcs.getItem(1,ip).get(0));
+        	       ctofPix[0].strips.hmap2.get("H2_a_Hist").get(is, 0, 0).fill(gm,ip,1.0);  
+        	   }
+       }
+       
+       for (Map.Entry<Long,List<Integer>>  entry : ltpmt.getMap().entrySet()){
+           long hash = entry.getKey();
+           int ip = ig.getIndex(hash, 0);
+        	   if(tdcs.hasItem(0,ip)&&tdcs.hasItem(1,ip)) {
+               float td = tdcs.getItem(0,ip).get(0) - tdcs.getItem(1,ip).get(0);
+        	       ctofPix[0].strips.hmap2.get("H2_t_Hist").get(is, 0, 0).fill(td,ip,1.0);  
+        	   }
+       }      
    }
    
    public void processSED() {
