@@ -23,6 +23,7 @@ import org.jlab.detector.decode.DetectorDataDgtz;
 import org.jlab.detector.decode.DetectorEventDecoder;
 import org.jlab.io.evio.EvioDataEvent;
 import org.jlab.utils.groups.IndexedList;
+import org.jlab.utils.groups.IndexedList.IndexGenerator;
 import org.jlab.io.base.DataBank;
 import org.jlab.io.base.DataEvent;
 import org.jlab.io.evio.EvioDataBank;
@@ -396,28 +397,28 @@ public class CNDReconstructionApp extends FCApplication {
    
    public void processCalib() {
        
-       int iL,iR,ipL,ipR;
+       IndexGenerator ig = new IndexGenerator();
        
-       for (int is=is1 ; is<is2 ; is++) {
-           for (int idet=0; idet<cndPix.length; idet++) {
-                iL = cndPix[idet].nha[is-1][0];
-                iR = cndPix[idet].nha[is-1][1];
-               ipL = cndPix[idet].strra[is-1][0][0];
-               ipR = cndPix[idet].strra[is-1][1][0];
-               if ((iL==1&&iR==1)&&(ipL==ipR)) {
-                   float gm = (float) Math.sqrt(cndPix[idet].adcr[is-1][0][0]*cndPix[idet].adcr[is-1][1][0]);
-                   cndPix[idet].strips.hmap2.get("H2_a_Hist").get(is, 0, 0).fill(gm, ipL,1.0);
-               }
-               iL = cndPix[idet].nht[is-1][0];
-               iR = cndPix[idet].nht[is-1][1];
-              ipL = cndPix[idet].strrt[is-1][0][0];
-              ipR = cndPix[idet].strrt[is-1][1][0];
-              if ((iL==1&&iR==1)&&(ipL==ipR)) {
-                  float td = cndPix[idet].tdcr[is-1][0][0]-cndPix[idet].tdcr[is-1][1][0];
-                  cndPix[idet].strips.hmap2.get("H2_t_Hist").get(is, 0, 0).fill(td, ipL,1.0);
-              }
-           }
-       }       
+       for (Map.Entry<Long,List<Integer>>  entry : lapmt.getMap().entrySet()){
+           long hash = entry.getKey();
+           int is = ig.getIndex(hash, 0);
+           int ip = ig.getIndex(hash, 1);
+        	   if(adcs.hasItem(is,0,ip)&&adcs.hasItem(is,1,ip)) {
+               float gm = (float) Math.sqrt(adcs.getItem(is,0,ip).get(0)*
+                                            adcs.getItem(is,1,ip).get(0));
+        	       cndPix[0].strips.hmap2.get("H2_a_Hist").get(is, 0, 0).fill(gm,ip,1.0);  
+        	   }
+       }
+       
+       for (Map.Entry<Long,List<Integer>>  entry : ltpmt.getMap().entrySet()){
+           long hash = entry.getKey();
+           int is = ig.getIndex(hash, 0);
+           int ip = ig.getIndex(hash, 1);
+        	   if(tdcs.hasItem(is,0,ip)&&tdcs.hasItem(is,1,ip)) {
+               float td = tdcs.getItem(is,0,ip).get(0) - tdcs.getItem(is,1,ip).get(0);
+        	       cndPix[0].strips.hmap2.get("H2_t_Hist").get(is, 0, 0).fill(td,ip,1.0);  
+        	   }
+       }      
    }
    
    public void processSED() {
