@@ -49,6 +49,8 @@ public class FTOFReconstructionApp extends FCApplication {
    List<DetectorDataDgtz>        dataList = new ArrayList<DetectorDataDgtz>();
    IndexedList<List<Float>>          tdcs = new IndexedList<List<Float>>(4);
    IndexedList<List<Float>>          adcs = new IndexedList<List<Float>>(4);
+   IndexedList<List<Integer>>       lapmt = new IndexedList<List<Integer>>(3); 
+   IndexedList<List<Integer>>       ltpmt = new IndexedList<List<Integer>>(3); 
    
    FTOFConstants                   ftofcc = new FTOFConstants();  
    
@@ -176,7 +178,7 @@ public class FTOFReconstructionApp extends FCApplication {
        long     phase = 0;
        long timestamp = 0;    
        
-       clear(0); clear(1); clear(2); tdcs.clear(); adcs.clear();
+       clear(0); clear(1); clear(2); adcs.clear(); tdcs.clear(); ltpmt.clear() ; lapmt.clear();
        
        if (app.isMC)  offset=600;
        if (app.isMCB) {app.isMC=true; offset=600-(float)124.25;}
@@ -206,6 +208,10 @@ public class FTOFReconstructionApp extends FCApplication {
                if(tdcd>0) {
                if(!tdcs.hasItem(is,il,lr-2,ip)) tdcs.add(new ArrayList<Float>(),is,il,lr-2,ip);
                    tdcs.getItem(is,il,lr-2,ip).add(tdcd); 
+                   if (!ltpmt.hasItem(is,il,ip)) {
+                	        ltpmt.add(new ArrayList<Integer>(),is,il,ip);
+                	        ltpmt.getItem(is,il,ip).add(ip);
+                   } 
                }
            }
        }
@@ -225,18 +231,12 @@ public class FTOFReconstructionApp extends FCApplication {
                if(adc>0) {
                if(!adcs.hasItem(is,il,lr,ip)) adcs.add(new ArrayList<Float>(),is,il,lr,ip);
                    adcs.getItem(is,il,lr,ip).add((float) adc); 
+                   if (!lapmt.hasItem(is,il,ip)) {
+          	            lapmt.add(new ArrayList<Integer>(),is,il,ip);
+                        lapmt.getItem(is,il,ip).add(ip);              
+                   }
                }
-               
-               IndexGenerator ig = new IndexGenerator();
-               for (Map.Entry<Long,List<Float>>  entry : adcs.getMap().entrySet()){
-            	      long hash = entry.getKey();
-            	      int his = ig.getIndex(hash, 0);
-            	      int hil = ig.getIndex(hash, 1);
-            	      int hlr = ig.getIndex(hash, 2);
-            	      int hip = ig.getIndex(hash, 3);
-//                  System.out.println("SEC "+his+" LAY "+hil+" LR "+hlr+" PMT "+hip+" ADC "+entry.getValue().get(0));
-               }              
-               
+                          
                Float[] tdcc; float[] tdc;
               
                if (tdcs.hasItem(is,il,lr,ip)) {
@@ -266,12 +266,12 @@ public class FTOFReconstructionApp extends FCApplication {
    
    public void updateEvioData(DataEvent event) {
        
-       clear(0); clear(1); clear(2); tdcs.clear();
+       clear(0); clear(1); clear(2); adcs.clear(); tdcs.clear(); ltpmt.clear() ; lapmt.clear();
        
        app.decoder.initEvent(event);
       
-       app.bitsec = app.decoder.getBitsec();
-       long phase = app.decoder.getPhase();
+       app.bitsec   = app.decoder.getBitsec();
+       long   phase = app.decoder.getPhase();
        app.localRun = app.decoder.getRun();
        
        List<DetectorDataDgtz> adcDGTZ = app.decoder.getEntriesADC(DetectorType.FTOF);
@@ -285,6 +285,10 @@ public class FTOFReconstructionApp extends FCApplication {
            int ip = ddd.getDescriptor().getComponent();
            if(!tdcs.hasItem(is,il,lr-2,ip)) tdcs.add(new ArrayList<Float>(),is,il,lr-2,ip);
                tdcs.getItem(is,il,lr-2,ip).add((float) ddd.getTDCData(0).getTime()*24/1000);              
+           if (!ltpmt.hasItem(is,il,ip)) {
+      	        ltpmt.add(new ArrayList<Integer>(),is,il,ip);
+                ltpmt.getItem(is,il,ip).add(ip);
+           }
        }
        
        for (int i=0; i < adcDGTZ.size(); i++) {
@@ -303,6 +307,13 @@ public class FTOFReconstructionApp extends FCApplication {
            float tf = (float) ddd.getADCData(0).getTime();
            float ph = (float) ddd.getADCData(0).getHeight()-pd;
            short[]    pulse = ddd.getADCData(0).getPulseArray();
+           
+           if (!adcs.hasItem(is,il,lr,ip))adcs.add(new ArrayList<Float>(),is,il,lr,ip);
+                adcs.getItem(is,il,lr,ip).add((float)ad);                      
+           if (!lapmt.hasItem(is,il,ip)) {
+   	            lapmt.add(new ArrayList<Integer>(),is,il,ip);
+                lapmt.getItem(is,il,ip).add(ip);
+           }
            
            Float[] tdcc; float[] tdc;
            
@@ -447,33 +458,37 @@ public class FTOFReconstructionApp extends FCApplication {
              ftofPix[idet].strips.hmap2.get("H2_a_Hist").get(is,il,0).fill(adc,ip,1.0);
              } 
    }
-   
+
    public void processCalib() {
        
-       int iL,iR,ipL,ipR;
+       IndexGenerator ig = new IndexGenerator();
        
-       for (int is=1 ; is<7 ; is++) {
-           for (int idet=0; idet<3; idet++) {
-                iL = ftofPix[idet].nha[is-1][0];
-                iR = ftofPix[idet].nha[is-1][1];
-               ipL = ftofPix[idet].strra[is-1][0][0];
-               ipR = ftofPix[idet].strra[is-1][1][0];
-               if ((iL==1&&iR==1)&&(ipL==ipR)) {
-                   float gm = (float) Math.sqrt(ftofPix[idet].adcr[is-1][0][0]*ftofPix[idet].adcr[is-1][1][0]);
-                   ftofPix[idet].strips.hmap2.get("H2_a_Hist").get(is, 0, 0).fill(gm,ipL,1.0);
-               }
-               iL = ftofPix[idet].nht[is-1][0];
-               iR = ftofPix[idet].nht[is-1][1];
-              ipL = ftofPix[idet].strrt[is-1][0][0];
-              ipR = ftofPix[idet].strrt[is-1][1][0];
-              if ((iL==1&&iR==1)&&(ipL==ipR)) {
-                  float td = ftofPix[idet].tdcr[is-1][0][0]-ftofPix[idet].tdcr[is-1][1][0];
-                  ftofPix[idet].strips.hmap2.get("H2_t_Hist").get(is, 0, 0).fill(td, ipL,1.0);
-              }
-           }
-       }       
-   }
-   
+       for (Map.Entry<Long,List<Integer>>  entry : lapmt.getMap().entrySet()){
+           long hash = entry.getKey();
+           int is = ig.getIndex(hash, 0);
+           int il = ig.getIndex(hash, 1);
+           int ip = ig.getIndex(hash, 2);
+            	   
+        	   if(adcs.hasItem(is,il,0,ip)&&adcs.hasItem(is,il,1,ip)) {
+               float gm = (float) Math.sqrt(adcs.getItem(is,il,0,ip).get(0)*
+                                            adcs.getItem(is,il,1,ip).get(0));
+        	       ftofPix[il-1].strips.hmap2.get("H2_a_Hist").get(is, 0, 0).fill(gm,ip,1.0);  
+        	   }
+       }
+       for (Map.Entry<Long,List<Integer>>  entry : ltpmt.getMap().entrySet()){
+           long hash = entry.getKey();
+           int is = ig.getIndex(hash, 0);
+           int il = ig.getIndex(hash, 1);
+           int ip = ig.getIndex(hash, 2);
+            	   
+        	   if(tdcs.hasItem(is,il,0,ip)&&tdcs.hasItem(is,il,1,ip)) {
+               float td = tdcs.getItem(is,il,0,ip).get(0)-tdcs.getItem(is,il,1,ip).get(0);
+        	       ftofPix[il-1].strips.hmap2.get("H2_t_Hist").get(is, 0, 0).fill(td,ip,1.0);  
+        	   }
+       }
+      
+   } 
+              
    public void processSED() {
        
        for (int idet=0; idet<ftofPix.length; idet++) {

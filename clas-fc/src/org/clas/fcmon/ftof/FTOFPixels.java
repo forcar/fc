@@ -20,7 +20,8 @@ public class FTOFPixels {
     double ftof_xpix[][][] = new double[4][124][7];
     double ftof_ypix[][][] = new double[4][124][7];
     
-    public    int     ftof_nstr[] = {23,62,5};
+    public int     ftof_nstr[] = {23,62,5};
+    public double        amax[]= {4000.,6000.,4000.};
     
     int        nha[][] = new    int[6][2];
     int        nht[][] = new    int[6][2];
@@ -149,7 +150,6 @@ public class FTOFPixels {
         System.out.println("FTOFPixels.initHistograms(): "+this.detName);  
         
         String iid;
-        double amax[]= {4000.,6000.,4000.};
         
         DetectorCollection<H1F> H1_a_Sevd = new DetectorCollection<H1F>();
         DetectorCollection<H1F> H1_t_Sevd = new DetectorCollection<H1F>();
@@ -166,9 +166,9 @@ public class FTOFPixels {
             H2_t_Hist.add(is, 0, 0, new H2F("a_tdif_"+iid+0,  100, -35.,      35.,nstr, 1., nend));
             for (int il=1 ; il<3 ; il++){
                 iid="s"+Integer.toString(is)+"_l"+Integer.toString(il)+"_c";
-                H2_a_Hist.add(is, il, 0, new H2F("a_raw_"+iid+0,      100,   0., 4000.,nstr, 1., nend));
+                H2_a_Hist.add(is, il, 0, new H2F("a_raw_"+iid+0,      100,   0., amax[id],nstr, 1., nend));
                 H2_t_Hist.add(is, il, 0, new H2F("a_raw_"+iid+0,      100, 450.,  850.,nstr, 1., nend));
-                H2_a_Hist.add(is, il, 1, new H2F("a_raw_"+iid+1,      100,   0., 4000.,100, 300.,1200.));
+                H2_a_Hist.add(is, il, 1, new H2F("a_raw_"+iid+1,      100,   0., amax[id],100, 300.,1200.));
                 H2_a_Hist.add(is, il, 3, new H2F("a_ped_"+iid+3,       40, -20.,  20., nstr, 1., nend)); 
                 H2_a_Hist.add(is, il, 5, new H2F("a_fadc_"+iid+5,     100,   0., 100., nstr, 1., nend));
                 H1_a_Sevd.add(is, il, 0, new H1F("a_sed_"+iid+0,                       nstr, 1., nend));
