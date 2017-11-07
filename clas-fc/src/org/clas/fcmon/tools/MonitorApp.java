@@ -529,22 +529,7 @@ public class MonitorApp extends JFrame implements ActionListener {
         this.tet    = mode7Emulation.tet;
         this.pedref = mode7Emulation.pedref;
      }
-    
-    public void openHipoFile(String path) {        
-       	writer = new HipoDataSync();
-    	    HipoFileName = path+"clas_00"+localRun+".hipo";
-        System.out.println("app.openHipoFile(): Opening "+HipoFileName);
-        writer.setCompressionType(2);
-        writer.open(HipoFileName);
-        isHipoFileOpen = true;
-    }
-    
-    public void closeHipoFile() {
-
-        System.out.println("app.closeHipoFile(): Closing "+HipoFileName);
-        writer.close();
-        isHipoFileOpen = false;
-    }  
+ 
     
     public String getStatusString(DetectorDescriptor dd) {
         
@@ -575,7 +560,7 @@ public class MonitorApp extends JFrame implements ActionListener {
     public void openHIPOAction() {
         openBtn.setOpaque(true);
         openBtn.setBackground(Color.GREEN);
-        openHipoFile(hipoPath);        
+        decoder.openHipoFile(hipoPath);        
     }
     public void closeHIPOAction() {
         openBtn.setBackground(Color.RED);
@@ -583,7 +568,7 @@ public class MonitorApp extends JFrame implements ActionListener {
         pause(2000);
         openBtn.setOpaque(false);
         openBtn.setBackground(Color.WHITE);
-        closeHipoFile();  
+        decoder.closeHipoFile();  
     }
     
     public void pause(int msec) {

@@ -209,7 +209,6 @@ public class CTOFReconstructionApp extends FCApplication {
        app.decoder.initEvent(event);
       
        long phase = app.decoder.getPhase();
-       app.localRun = app.decoder.getRun();
               
        List<DetectorDataDgtz> adcDGTZ = app.decoder.getEntriesADC(DetectorType.CTOF);
        List<DetectorDataDgtz> tdcDGTZ = app.decoder.getEntriesTDC(DetectorType.CTOF);
@@ -284,17 +283,15 @@ public class CTOFReconstructionApp extends FCApplication {
            }           
        }
        
-       if (app.isHipoFileOpen) writeHipoOutput();
+       if (app.decoder.isHipoFileOpen&&isGoodMIP()) writeHipoOutput();
        
    }
    
-   public void writeHipoOutput() {
-       
+   public void writeHipoOutput() {       
        DataEvent  decodedEvent = app.decoder.getDataEvent();
        DataBank   header = app.decoder.createHeaderBank(decodedEvent,0,0,0,0);
        decodedEvent.appendBanks(header);
-       app.decoder.writer.writeEvent(decodedEvent);
-              
+       app.decoder.writer.writeEvent(decodedEvent);                    
    } 
    
    public void updateSimulatedData(DataEvent event) {
@@ -400,8 +397,26 @@ public class CTOFReconstructionApp extends FCApplication {
              } 
    }
    
+   public boolean isGoodMIP() {
+	   
+	   int[] ip = new int[2];
+	   
+       if(lapmt.getMap().size()==2) {
+           int n = 0;
+           IndexGenerator ig = new IndexGenerator();
+           for (Map.Entry<Long,List<Integer>>  entry : lapmt.getMap().entrySet()){              
+               ip[n] = ig.getIndex(entry.getKey(), 0);n++;
+           }
+       }
+       int pdif  = Math.abs(ip[0]-ip[1]);      
+       return ip[0]>0&&ip[1]>0&&pdif>21&&pdif<25;
+	 
+   }
+   
    public void processCalib() {
        
+	   if (!isGoodMIP()) return;
+	   
        IndexGenerator ig = new IndexGenerator();
        
        for (Map.Entry<Long,List<Integer>>  entry : lapmt.getMap().entrySet()){

@@ -23,6 +23,8 @@ public class FCCLASDecoder {
     public List<DetectorDataDgtz>       dataList = new ArrayList<DetectorDataDgtz>();    
     public HipoDataSync                   writer = null;
     public HipoDataEvent               hipoEvent = null;
+    public String                   HipoFileName = null;
+    public Boolean                isHipoFileOpen = false;  
     private int                 decoderDebugMode = 0;
     
     public int runno;
@@ -41,7 +43,22 @@ public class FCCLASDecoder {
         writer = new HipoDataSync();
         hipoEvent = (HipoDataEvent) writer.createEvent();
     }
-   
+    
+    public void openHipoFile(String path) {               
+    	HipoFileName = path+"clas_00"+runno+".hipo";
+        System.out.println("FCCLASDecoder.openHipoFile(): Opening "+HipoFileName);
+        writer.setCompressionType(2);
+        writer.open(HipoFileName);
+        isHipoFileOpen = true;
+    }
+    
+    public void closeHipoFile() {
+
+        System.out.println("FCCLASDecoder.closeHipoFile(): Closing "+HipoFileName);
+        writer.close();
+        isHipoFileOpen = false;
+    } 
+    
     public void initEvent(DataEvent event){
         
         if(event instanceof EvioDataEvent){
@@ -208,11 +225,11 @@ public class FCCLASDecoder {
         
         HipoDataEvent event = (HipoDataEvent) writer.createEvent();
         
-        String[]        adcBankNames = new String[]{"FTOF::adc","ECAL::adc"};
-        DetectorType[]  adcBankTypes = new DetectorType[]{DetectorType.FTOF,DetectorType.ECAL};
+        String[]        adcBankNames = new String[]{"FTOF::adc","ECAL::adc","CTOF::adc"};
+        DetectorType[]  adcBankTypes = new DetectorType[]{DetectorType.FTOF,DetectorType.ECAL,DetectorType.CTOF};
         
-        String[]        tdcBankNames = new String[]{"FTOF::tdc","ECAL::tdc"};
-        DetectorType[]  tdcBankTypes = new DetectorType[]{DetectorType.FTOF,DetectorType.ECAL};
+        String[]        tdcBankNames = new String[]{"FTOF::tdc","ECAL::tdc","CTOF::tdc"};
+        DetectorType[]  tdcBankTypes = new DetectorType[]{DetectorType.FTOF,DetectorType.ECAL,DetectorType.CTOF};
         
         for(int i = 0; i < adcBankTypes.length; i++){
             DataBank adcBank = getDataBankADC(adcBankNames[i],adcBankTypes[i]);
