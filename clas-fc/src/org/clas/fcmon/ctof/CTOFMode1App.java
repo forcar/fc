@@ -36,6 +36,7 @@ public class CTOFMode1App extends FCApplication {
         engineView.setLayout(new BorderLayout());
         mode1.addCanvas("Sum");
         mode1.addCanvas("AvsT");
+        mode1.addCanvas("SYNC");  
         engineView.add(mode1);
         return engineView;
     }    
@@ -54,7 +55,8 @@ public class CTOFMode1App extends FCApplication {
         switch (mode1.selectedCanvas) {
         case "Event": updateEvent(); break;
         case   "Sum": updateSum();   break;
-        case  "AvsT": updateAvsT();
+        case  "AvsT": updateAvsT();  break;
+        case  "SYNC": updateSync();
         }
         
      } 
@@ -152,5 +154,21 @@ public class CTOFMode1App extends FCApplication {
         c.repaint();
         
     }
-    
+    public void updateSync() {
+        
+        DetectorCollection<H2F> dc2a = ctofPix[idet].strips.hmap2.get("H2_t_Hist"); 
+        
+        H2F h2;
+        
+        c = mode1.getCanvas("SYNC");  c.clear(); c.divide(1,2); 
+        
+ 
+        h2 = dc2a.get(is,3,3) ;  h2.setTitleY("PHASE") ; h2.setTitleX("Sector "+is+" CTOF Raw TDC (ns)");   
+        canvasConfig(c,is-1,0.,200.,0.,6.,true).draw(h2);
+              
+        h2 = dc2a.get(is,3,4) ;  h2.setTitleY("PHASE") ; h2.setTitleX("Sector "+is+" CTOF Corrected TDC (ns)");   
+        canvasConfig(c,is,0.,200.,0.,6.,true).draw(h2);
+               
+        c.repaint();   
+    }    
 }

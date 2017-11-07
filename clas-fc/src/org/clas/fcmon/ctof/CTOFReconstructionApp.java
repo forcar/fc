@@ -264,6 +264,9 @@ public class CTOFReconstructionApp extends FCApplication {
                tdc = new float[1];
            }
            
+           ctofPix[il-1].strips.hmap2.get("H2_t_Hist").get(is,3,3).fill((double) tdc[0]+phase*4,(double) phase);
+           ctofPix[il-1].strips.hmap2.get("H2_t_Hist").get(is,3,4).fill(tdc[0],phase);
+           
            getMode7(cr,sl,ch); 
            
            for (int ii=0 ; ii< pulse.length ; ii++) {

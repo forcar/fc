@@ -71,6 +71,10 @@ public class FCCLASDecoder {
         }
     } 
     
+    public void setPhaseOffset(int offset) {
+    	this.phase_offset = offset;
+    }
+    
     public int getRun() {
         return this.runno;    	
     }

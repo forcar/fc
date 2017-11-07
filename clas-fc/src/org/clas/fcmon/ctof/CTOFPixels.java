@@ -143,6 +143,9 @@ public class CTOFPixels {
                 H2_a_Sevd.add(is, il, 1, new H2F("a_sed_fadc_"+iid+1, 100,   0., 100., nstr, 1., nend));
                 H2_t_Sevd.add(is, il, 0, new H2F("a_sed_fadc_"+iid+0, 200,   0., 100., nstr, 1., nend));
             }
+            iid="s"+Integer.toString(is)+"_l"+Integer.toString(3)+"_c";
+            H2_t_Hist.add(is, 3, 3, new H2F("a_raw_"+iid+3, 100, 0., 200., 6, 0., 6.)); // No phase correction
+            H2_t_Hist.add(is, 3, 4, new H2F("a_raw_"+iid+4, 100, 0., 200., 6, 0., 6.)); // With phase correction
         }       
 
         if(!hipoFile.equals(" ")){
