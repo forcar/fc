@@ -180,9 +180,9 @@ public class CTOFReconstructionApp extends FCApplication {
                
                Float[] tdcc; float[] tdc;
                
-               if (tdcs.hasItem(is,il,lr,ip)) {
+               if (tdcs.hasItem(lr,ip)) {
                    List<Float> list = new ArrayList<Float>();
-                   list = tdcs.getItem(is,il,lr,ip); tdcc=new Float[list.size()]; list.toArray(tdcc);
+                   list = tdcs.getItem(lr,ip); tdcc=new Float[list.size()]; list.toArray(tdcc);
                    tdc  = new float[list.size()];
                    for (int ii=0; ii<tdcc.length; ii++) tdc[ii] = tdcc[ii];  
                } else {
@@ -224,7 +224,7 @@ public class CTOFReconstructionApp extends FCApplication {
            if (!tdcs.hasItem(lr-2,ip)) tdcs.add(new ArrayList<Float>(),lr-2,ip);
                 tdcs.getItem(lr-2,ip).add((float) ddd.getTDCData(0).getTime()*24/1000);              
            if (!ltpmt.hasItem(ip)) {
-        	        ltpmt.add(new ArrayList<Integer>(),ip);
+        	    ltpmt.add(new ArrayList<Integer>(),ip);
                 ltpmt.getItem(ip).add(ip);
            }
        }
@@ -255,9 +255,9 @@ public class CTOFReconstructionApp extends FCApplication {
                 
            Float[] tdcc; float[] tdc;
            
-           if (tdcs.hasItem(is,il,lr,ip)) {
+           if (tdcs.hasItem(lr,ip)) {
                List<Float> list = new ArrayList<Float>();
-               list = tdcs.getItem(is,il,lr,ip); tdcc=new Float[list.size()]; list.toArray(tdcc);
+               list = tdcs.getItem(lr,ip); tdcc=new Float[list.size()]; list.toArray(tdcc);
                tdc  = new float[list.size()];
                for (int ii=0; ii<tdcc.length; ii++) tdc[ii] = tdcc[ii]-phase*4;  
            } else {
@@ -405,9 +405,9 @@ public class CTOFReconstructionApp extends FCApplication {
            long hash = entry.getKey();
            int ip = ig.getIndex(hash, 0);
         	   if(adcs.hasItem(0,ip)&&adcs.hasItem(1,ip)) {
-               float gm = (float) Math.sqrt(adcs.getItem(0,ip).get(0)*
-                                            adcs.getItem(1,ip).get(0));
-        	       ctofPix[0].strips.hmap2.get("H2_a_Hist").get(is, 0, 0).fill(gm,ip,1.0);  
+                   float gm = (float) Math.sqrt(adcs.getItem(0,ip).get(0)*
+                                                adcs.getItem(1,ip).get(0));
+        	       ctofPix[0].strips.hmap2.get("H2_a_Hist").get(1, 0, 0).fill(gm,ip,1.0);  
         	   }
        }
        
@@ -415,8 +415,9 @@ public class CTOFReconstructionApp extends FCApplication {
            long hash = entry.getKey();
            int ip = ig.getIndex(hash, 0);
         	   if(tdcs.hasItem(0,ip)&&tdcs.hasItem(1,ip)) {
-               float td = tdcs.getItem(0,ip).get(0) - tdcs.getItem(1,ip).get(0);
-        	       ctofPix[0].strips.hmap2.get("H2_t_Hist").get(is, 0, 0).fill(td,ip,1.0);  
+                   float td = tdcs.getItem(0,ip).get(0) -
+            		          tdcs.getItem(1,ip).get(0);               
+        	       ctofPix[0].strips.hmap2.get("H2_t_Hist").get(1, 0, 0).fill(td,ip,1.0);  
         	   }
        }      
    }

@@ -20,16 +20,14 @@ public class CTOFMipApp extends FCApplication {
     public void updateCanvas(DetectorDescriptor dd) {
         
         this.getDetIndices(dd);   
-        int  lr = layer;
+        int  lr = dd.getOrder()+1;
         int ilm = ilmap;
         
         int nstr = ctofPix[ilm].nstr;
         int min=0, max=nstr;
         
         switch (ilmap) {
-        case 0: c.divide(4,6); break;
-        case 1: c.divide(3,7); max=21 ; if (ic>20) {min=21; max=42;} if (ic>41) {min=42; max=nstr;} break;
-        case 2: c.divide(2,3);
+        case 0: c.divide(4,6); max=24 ; if (ic>23) {min=24; max=48;} if (ic>47) {min=48; max=nstr;} break;
         }     
         
         c.setAxisFontSize(12);

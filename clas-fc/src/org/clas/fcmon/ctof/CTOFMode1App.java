@@ -25,7 +25,7 @@ public class CTOFMode1App extends FCApplication {
     EmbeddedCanvas               c = this.getCanvas(this.getName()); 
     
     int is,lr,ic,idet,nstr;
-    int ics[][] = new int[3][10];
+    int ics[][] = new int[3][2];
     String otab[]={" UP PMT "," DOWN PMT "};
     
     public CTOFMode1App(String name, CTOFPixels[] ctofPix) {
@@ -42,8 +42,8 @@ public class CTOFMode1App extends FCApplication {
     
     public void updateCanvas(DetectorDescriptor dd) {
         
-        this.is = dd.getSector();
-        this.lr = dd.getLayer();
+        this.is = dd.getSector();        
+        this.lr = dd.getOrder()+1;
         this.ic = dd.getComponent();   
         this.idet = ilmap;      
         
@@ -53,7 +53,7 @@ public class CTOFMode1App extends FCApplication {
         
         switch (mode1.selectedCanvas) {
         case "Event": updateEvent(); break;
-        case   "Sum": updateSum(); break;
+        case   "Sum": updateSum();   break;
         case  "AvsT": updateAvsT();
         }
         
@@ -90,9 +90,9 @@ public class CTOFMode1App extends FCApplication {
             c.cd(ip-min); 
             c.getPad(ip-min).setOptStat(Integer.parseInt("0"));
             c.getPad(ip-min).getAxisX().setRange(0.,100.);
-            c.getPad(ip-min).getAxisY().setRange(-100.,4000*app.displayControl.pixMax);
+            c.getPad(ip-min).getAxisY().setRange(-20.,2000*app.displayControl.pixMax);
             h = ctofPix[idet].strips.hmap2.get("H2_a_Sevd").get(is,lr,0).sliceY(ip);            
-            h.setTitleX("Sector "+is+otab[lr-1]+(ip+1)+" (4 ns/ch)"); h.setTitleY("Counts");
+            h.setTitleX("Sector "+is+otab[lr-1]+(ip+1)+" (4 ns/ch)"); h.setTitleY("Counts"); h.setTitle(" ");
             h.setFillColor(4); c.draw(h);
             h = ctofPix[idet].strips.hmap2.get("H2_a_Sevd").get(is,lr,1).sliceY(ip); 
             h.setFillColor(2); c.draw(h,"same");
@@ -131,6 +131,7 @@ public class CTOFMode1App extends FCApplication {
         }
         
         c.repaint();
+        
         ics[idet][lr-1]=ic;
         
      } 
@@ -145,7 +146,7 @@ public class CTOFMode1App extends FCApplication {
        
         for (int il=1; il<3; il++) {
             h2=dc2a.get(is,il,1); h2.setTitleY("Sector "+is+otab[il-1]+" TDC") ; h2.setTitleX("Sector "+is+otab[il-1]+" FADC");
-            canvasConfig(c,il-1,0.,ctofPix[0].amax[0],100.,200.,true).draw(h2);            
+            canvasConfig(c,il-1,0.,ctofPix[0].amax[0],0.,200.,true).draw(h2);            
         }
         
         c.repaint();
