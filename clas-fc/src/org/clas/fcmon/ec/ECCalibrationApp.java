@@ -1166,7 +1166,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
             updateTable(app.calibPath+"EC_CALIB_GAIN_s1_r"+runno);   
             updateTable(app.calibPath+"EC_CALIB_GAIN_s2_r"+runno);   
             updateTable(app.calibPath+"EC_CALIB_GAIN_s3_r"+runno);   
-//          updateTable(app.calibPath+"EC_CALIB_GAIN_s4_r"+runno);   
+            updateTable(app.calibPath+"EC_CALIB_GAIN_s4_r"+runno);   
             updateTable(app.calibPath+"EC_CALIB_GAIN_s5_r"+runno);   
             updateTable(app.calibPath+"EC_CALIB_GAIN_s6_r"+runno);   
             calib.save(app.calibPath+"EC_CALIB_GAIN_r"+runno);   

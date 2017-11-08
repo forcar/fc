@@ -10,31 +10,32 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import org.clas.fcmon.detector.view.DetectorShape2D;
+import org.clas.fcmon.tools.CalibrationConstantsView;
 import org.clas.fcmon.tools.FCApplication;
 import org.jlab.detector.base.DetectorDescriptor;
 import org.jlab.detector.calib.utils.CalibrationConstants;
 import org.jlab.detector.calib.utils.CalibrationConstantsListener;
-import org.jlab.detector.calib.utils.CalibrationConstantsView;
+//import org.jlab.detector.calib.utils.CalibrationConstantsView;
 import org.jlab.groot.graphics.EmbeddedCanvas;
 
 public class CTOFCalibrationApp extends FCApplication implements CalibrationConstantsListener,ChangeListener {
     
     JPanel                    engineView = new JPanel();
     EmbeddedCanvas                canvas = new EmbeddedCanvas();
-    CalibrationConstantsView      ccview = new CalibrationConstantsView();
+    CalibrationConstantsView      ccview = new CalibrationConstantsView("");
     ArrayList<CalibrationConstants> list = new ArrayList<CalibrationConstants>();
 
     public CTOFCalibrationEngine[] engines = {
-            new FTOFHVEventListener(),
-            new FTOFStatusEventListener()
+            new CTOFGainEventListener(),
+            new CTOFStatusEventListener()
     };
 
-    public final int     HV  = 0;
+    public final int   GAIN  = 0;
     public final int STATUS  = 1;
     
-    String[] names = {"/calibration/ftof/gain_balance","/calibration/ftof/status"};
+    String[] names = {"/calibration/ctof/gains","/calibration/ctof/status"};
     
-    String selectedDir = names[HV];
+    String selectedDir = names[GAIN];
        
     int selectedSector = 1;
     int selectedLayer = 1;
@@ -66,10 +67,10 @@ public class CTOFCalibrationApp extends FCApplication implements CalibrationCons
     
     public CTOFCalibrationEngine getSelectedEngine() {
         
-        CTOFCalibrationEngine engine = engines[HV];
+        CTOFCalibrationEngine engine = engines[GAIN];
 
-        if (selectedDir == names[HV]) {
-            engine = engines[HV];
+        if (selectedDir == names[GAIN]) {
+            engine = engines[GAIN];
         } else if (selectedDir == names[STATUS]) {
             engine = engines[STATUS];
         } 
@@ -77,36 +78,20 @@ public class CTOFCalibrationApp extends FCApplication implements CalibrationCons
     }
 
     
-    public class FTOFHVEventListener extends CTOFCalibrationEngine {
-        
-        public final int[]      EXPECTED_MIP_CHANNEL = {800, 2000, 800};
-        public final int        ALLOWED_MIP_DIFF = 50;        
+    public class CTOFGainEventListener extends CTOFCalibrationEngine {
         
         int is1,is2;
         
-        FTOFHVEventListener(){};
+        CTOFGainEventListener(){};
         
         public void init(int is1, int is2) {
             
             this.is1=is1;
             this.is2=is2;
             
-            calib = new CalibrationConstants(3,
-                    "mipa_left/F:mipa_right/F:mipa_left_err/F:mipa_right_err/F:logratio/F:logratio_err/F");
-            calib.setName("/calibration/ftof/gain_balance");
+            calib = new CalibrationConstants(3,"gmean/F:logratio/F");
+            calib.setName("/calibration/ctof/gains");
             calib.setPrecision(3);
-
-            for (int i=0; i<3; i++) {
-                
-                int layer = i+1;
-                calib.addConstraint(3, EXPECTED_MIP_CHANNEL[i]-ALLOWED_MIP_DIFF, 
-                                       EXPECTED_MIP_CHANNEL[i]+ALLOWED_MIP_DIFF, 1, layer);
-                // calib.addConstraint(calibration column, min value, max value,
-                // col to check if constraint should apply, value of col if constraint should be applied);
-                // (omit last two if applying to all rows)
-                calib.addConstraint(4, EXPECTED_MIP_CHANNEL[i]-ALLOWED_MIP_DIFF, 
-                                       EXPECTED_MIP_CHANNEL[i]+ALLOWED_MIP_DIFF, 1, layer);
-            }
             
             list.add(calib);         
         }
@@ -131,34 +116,34 @@ public class CTOFCalibrationApp extends FCApplication implements CalibrationCons
         public void fit(int sector, int layer, int paddle, double minRange, double maxRange){ 
            double mean = ctofPix[layer-1].strips.hmap2.get("H2_a_Hist").get(sector,0,0).sliceY(paddle-1).getMean();
            calib.addEntry(sector, layer, paddle);
-           calib.setDoubleValue(mean, "mipa_left", sector, layer, paddle);
-           calib.setDoubleValue(mean, "mipa_right", sector, layer, paddle);
+           calib.setDoubleValue(mean, "gmean", sector, layer, paddle);
+           calib.setDoubleValue(mean, "logratio", sector, layer, paddle);
         }
         
         public double getMipChannel(int sector, int layer, int paddle) {
-            return calib.getDoubleValue("mipa_left", sector, layer, paddle);
+            return calib.getDoubleValue("gmean", sector, layer, paddle);
         }
         
         @Override
         public boolean isGoodPaddle(int sector, int layer, int paddle) {
 
-            return (getMipChannel(sector,layer,paddle) >= EXPECTED_MIP_CHANNEL[layer-1]-ALLOWED_MIP_DIFF  &&
-                    getMipChannel(sector,layer,paddle) <= EXPECTED_MIP_CHANNEL[layer-1]+ALLOWED_MIP_DIFF);
+            return (getMipChannel(sector,layer,paddle) > (2000+200)  &&
+                    getMipChannel(sector,layer,paddle) < (2000-200)) ;
 
         }        
 
     }
     
-    private class FTOFStatusEventListener extends CTOFCalibrationEngine {
+    private class CTOFStatusEventListener extends CTOFCalibrationEngine {
         
         public final int[]    EXPECTED_STATUS = {0,0,0};
         public final int  ALLOWED_STATUS_DIFF = 1;
         
-        FTOFStatusEventListener(){};
+        CTOFStatusEventListener(){};
         
         public void init(int is1, int is2){
-            calib = new CalibrationConstants(3,"stat_left/I:stat_right/I");
-            calib.setName("/calibration/ftof/status");
+            calib = new CalibrationConstants(3,"stat_up/I:stat_down/I");
+            calib.setName("/calibration/ctof/status");
             calib.setPrecision(3);
             
             for (int i=0 ; i<3; i++) {

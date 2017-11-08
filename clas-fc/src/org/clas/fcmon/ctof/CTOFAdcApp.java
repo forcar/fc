@@ -27,7 +27,8 @@ public class CTOFAdcApp extends FCApplication {
     public void updateCanvas(DetectorDescriptor dd) {
         
         double amax = ctofPix[0].amax[0];
-  
+        int[] ics = {10,10};
+        
         this.getDetIndices(dd); 
         int lr = dd.getOrder()+1;
             
@@ -75,9 +76,9 @@ public class CTOFAdcApp extends FCApplication {
         c.cd(4); h1b.setOptStat(Integer.parseInt("1000000")); c.draw(h1b);  if (lr==2) c.draw(copy1,"same");
         c.cd(5); h1c.setOptStat(Integer.parseInt("1000000")); c.draw(h1c);             c.draw(copy2,"same");
         
-        h1a = ctofPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,1,0).sliceY(ics); h1a.setTitleX("UP PMT "+(ic+1)+" ADC");   h1a.setFillColor(col0);  
-        h1b = ctofPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,2,0).sliceY(ics); h1b.setTitleX("DN PMT "+(ic+1)+" ADC" ); h1b.setFillColor(col0);  
-        h1c = ctofPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,0,0).sliceY(ics); h1c.setTitleX("GMEAN PADDLE "+(ic+1));      h1c.setFillColor(col2);  
+        h1a = ctofPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,1,0).sliceY(ic); h1a.setTitleX("UP PMT "+(ic+1)+" ADC");  h1a.setFillColor(col0);  
+        h1b = ctofPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,2,0).sliceY(ic); h1b.setTitleX("DN PMT "+(ic+1)+" ADC" ); h1b.setFillColor(col0);  
+        h1c = ctofPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,0,0).sliceY(ic); h1c.setTitleX("GMEAN PADDLE "+(ic+1));   h1c.setFillColor(col2);  
         
         if (lr==1) h1a.setFillColor(col2);
         if (lr==2) h1b.setFillColor(col2);
@@ -87,7 +88,7 @@ public class CTOFAdcApp extends FCApplication {
        
         c.repaint();
         
-        ics=ic;
+        ics[lr-1]=ic;
         
     }
 

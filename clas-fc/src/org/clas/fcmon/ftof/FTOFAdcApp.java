@@ -74,9 +74,9 @@ public class FTOFAdcApp extends FCApplication {
         c.cd(4); h1b.setOptStat(Integer.parseInt("1000000")); c.draw(h1b);  if (lr==2) c.draw(copy1,"same");
         c.cd(5); h1c.setOptStat(Integer.parseInt("1000000")); c.draw(h1c);             c.draw(copy2,"same");
         
-        h1a = ftofPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,1,0).sliceY(ics); h1a.setTitleX("Left PMT "+(ic+1)+" ADC");   h1a.setFillColor(col0);  
-        h1b = ftofPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,2,0).sliceY(ics); h1b.setTitleX("Right PMT "+(ic+1)+" ADC" ); h1b.setFillColor(col0);  
-        h1c = ftofPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,0,0).sliceY(ics); h1c.setTitleX("GMEAN PADDLE "+(ic+1));      h1c.setFillColor(col2);  
+        h1a = ftofPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,1,0).sliceY(ic); h1a.setTitleX("Left PMT "+(ic+1)+" ADC");   h1a.setFillColor(col0);  
+        h1b = ftofPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,2,0).sliceY(ic); h1b.setTitleX("Right PMT "+(ic+1)+" ADC" ); h1b.setFillColor(col0);  
+        h1c = ftofPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,0,0).sliceY(ic); h1c.setTitleX("GMEAN PADDLE "+(ic+1));      h1c.setFillColor(col2);  
         
         if (lr==1) h1a.setFillColor(col2);
         if (lr==2) h1b.setFillColor(col2);
