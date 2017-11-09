@@ -222,9 +222,9 @@ public class CNDReconstructionApp extends FCApplication {
            int ip = ddd.getDescriptor().getComponent();
 //           System.out.println(is+" "+il+" "+lr+" "+ip);
            if (!tdcs.hasItem(is,lr-2,il)) tdcs.add(new ArrayList<Float>(),is,lr-2,il);
-                tdcs.getItem(is,lr-2,il).add((float) ddd.getTDCData(0).getTime()*24/1000);              
+                tdcs.getItem(is,lr-2,il).add((float) ddd.getTDCData(0).getTime()*24/1000);  
            if (!ltpmt.hasItem(is,il)) {
-        	    ltpmt.add(new ArrayList<Integer>(),is,il);
+        	        ltpmt.add(new ArrayList<Integer>(),is,il);
                 ltpmt.getItem(is,il).add(il);
            }
        }
@@ -250,7 +250,7 @@ public class CNDReconstructionApp extends FCApplication {
           if (!adcs.hasItem(is,lr,il)) adcs.add(new ArrayList<Float>(),is,lr,il);
                adcs.getItem(is,lr,il).add((float)ad);                
           if (!lapmt.hasItem(is,il)) {
-        	   lapmt.add(new ArrayList<Integer>(),is,il);
+        	       lapmt.add(new ArrayList<Integer>(),is,il);
                lapmt.getItem(is,il).add(il);
           }           
            
@@ -380,7 +380,7 @@ public class CNDReconstructionApp extends FCApplication {
              cndPix[idet].ph[is-1][il-1][inh-1] = adph;
              cndPix[idet].tdcr[is-1][il-1][inh-1] = (float) tdc[ii];
              cndPix[idet].strrt[is-1][il-1][inh-1] = ip;
-             cndPix[idet].ph[is-1][il-1][inh-1] = adph;
+             cndPix[idet].ph[is-1][il-1][inh-1] = adph;            
              cndPix[idet].strips.hmap2.get("H2_t_Hist").get(is,il,0).fill(tdc[ii],ip,1.0);
        }
        

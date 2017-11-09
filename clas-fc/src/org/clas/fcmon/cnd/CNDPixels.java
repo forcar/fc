@@ -142,12 +142,12 @@ public class CNDPixels {
         for (int is=1; is<25 ; is++) {
             int ill=0; iid="s"+Integer.toString(is)+"_l"+Integer.toString(ill)+"_c";
             H2_a_Hist.add(is, 0, 0, new H2F("a_gmean_"+iid+0, 100,   0., amax[id],nstr, 1., nend));
-            H2_t_Hist.add(is, 0, 0, new H2F("a_tdif_"+iid+0,  100, -35.,      35.,nstr, 1., nend));
+            H2_t_Hist.add(is, 0, 0, new H2F("a_tdif_"+iid+0,  100, -15.,      15.,nstr, 1., nend));
             for (int lr=1 ; lr<3 ; lr++){
                 iid="s"+Integer.toString(is)+"_l"+Integer.toString(lr)+"_c";
-                H2_a_Hist.add(is, lr, 0, new H2F("a_raw_"+iid+1,      100,   0.,amax[id],nstr, 1., nend));
-                H2_t_Hist.add(is, lr, 0, new H2F("a_raw_"+iid+1,      100, 450.,  850.,  nstr, 1., nend));
-                H2_a_Hist.add(is, lr, 1, new H2F("a_raw_"+iid+1,      100,   0.,amax[id],100, 450.,850.));
+                H2_a_Hist.add(is, lr, 0, new H2F("a_raw_"+iid+1,      100,   0.,amax[id], nstr, 1., nend));
+                H2_t_Hist.add(is, lr, 0, new H2F("a_raw_"+iid+1,      100,  50., 150.,    nstr, 1., nend));
+                H2_a_Hist.add(is, lr, 1, new H2F("a_raw_"+iid+1,      100,   0.,amax[id],100,  50., 150.));
                 H2_a_Hist.add(is, lr, 3, new H2F("a_ped_"+iid+3,       40, -20.,  20., nstr, 1., nend)); 
                 H2_a_Hist.add(is, lr, 5, new H2F("a_fadc_"+iid+5,     100,   0., 100., nstr, 1., nend));
                 H1_a_Sevd.add(is, lr, 0, new H1F("a_sed_"+iid+0,                       nstr, 1., nend));

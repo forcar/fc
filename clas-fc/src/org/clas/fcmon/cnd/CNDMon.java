@@ -193,8 +193,7 @@ public class CNDMon extends DetectorMonitor {
     }
 	
     @Override
-    public void dataEventAction(DataEvent de) {
-    	  
+    public void dataEventAction(DataEvent de) {    	  
     	  cndRecon.addEvent(de);	
     }
 
@@ -217,14 +216,15 @@ public class CNDMon extends DetectorMonitor {
     public void update(DetectorShape2D shape) {
         //From DetectorView2D.DetectorViewLayer2D.drawLayer: Update color map of shape
         cndDet.update(shape);
-//        ftofCalib.updateDetectorView(shape);
+//        if (app.getSelectedTabName().equals("Scalers")) cndScalers.updateDetectorView(shape);
+//        if (app.getSelectedTabName().equals("HV"))           cndHv.updateDetectorView(shape);
     }
         
     @Override
     public void processShape(DetectorShape2D shape) { 
         // From updateGUI timer or mouseover : process entering a new detector shape and repaint
         DetectorDescriptor dd = shape.getDescriptor();
-//        app.updateStatusString(dd); // For strip/pixel ID and reverse translation table
+        app.updateStatusString(dd); // For strip/pixel ID and reverse translation table
         this.analyze();  // Refresh color maps      
         switch (app.getSelectedTabName()) {
         case "Mode1":                        cndMode1.updateCanvas(dd); break;
@@ -252,7 +252,7 @@ public class CNDMon extends DetectorMonitor {
     @Override
     public void readHipoFile() {        
         System.out.println("monitor.readHipoFile()");
-        for (int idet=0; idet<3; idet++) {
+        for (int idet=0; idet<cndPix.length; idet++) {
           String hipoFileName = app.hipoPath+mondet+idet+"_"+app.runNumber+".hipo";
           System.out.println("Reading Histograms from "+hipoFileName);
           cndPix[idet].initHistograms(hipoFileName);
@@ -263,7 +263,7 @@ public class CNDMon extends DetectorMonitor {
     @Override
     public void writeHipoFile() {
         System.out.println("monitor.writeHipoFile()");
-        for (int idet=0; idet<3; idet++) {
+        for (int idet=0; idet<cndPix.length; idet++) {
           String hipoFileName = app.hipoPath+mondet+idet+"_"+app.runNumber+".hipo";
           System.out.println("Writing Histograms to "+hipoFileName);
           HipoFile histofile = new HipoFile(hipoFileName);

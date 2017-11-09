@@ -46,9 +46,9 @@ public class CNDAdcApp extends FCApplication {
         int ilm = ilmap;
         double nstr = cndPix[ilm].nstr;
         
-        H2F h2a = cndPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,1,0); h2a.setTitleY("Sector "+is+" LAYER") ; h2a.setTitleX("L PMT ADC");
-        H2F h2b = cndPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,2,0); h2b.setTitleY("Sector "+is+" LAYER") ; h2b.setTitleX("R PMT ADC");
-        H2F h2c = cndPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,0,0); h2c.setTitleY("Sector "+is+" LAYER") ; h2c.setTitleX("GMEAN");
+        H2F h2a = cndPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,1,0); h2a.setTitleY("SECTOR "+is+" LAYER") ; h2a.setTitleX("L PMT ADC");
+        H2F h2b = cndPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,2,0); h2b.setTitleY("SECTOR "+is+" LAYER") ; h2b.setTitleX("R PMT ADC");
+        H2F h2c = cndPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,0,0); h2c.setTitleY("SECTOR "+is+" LAYER") ; h2c.setTitleX("GMEAN");
         canvasConfig(c,0,0., amax,1.,nstr+1.,true).draw(h2a);
         canvasConfig(c,1,0., amax,1.,nstr+1.,true).draw(h2b);
         canvasConfig(c,2,0., amax,1.,nstr+1.,true).draw(h2c);
@@ -64,9 +64,9 @@ public class CNDAdcApp extends FCApplication {
         f1.setLineColor(2); c.draw(f1,"same"); 
         f2.setLineColor(2); c.draw(f2,"same");
       
-        h1a = cndPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,1,0).projectionY(); h1a.setTitleX("Sector "+is+" L PMT LAYER");  h1a.setFillColor(col0);  
-        h1b = cndPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,2,0).projectionY(); h1b.setTitleX("Sector "+is+" R PMT LAYER" ); h1b.setFillColor(col0);  
-        h1c = cndPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,0,0).projectionY(); h1c.setTitleX("Sector "+is+" GMEAN LAYER" ); h1c.setFillColor(col1);  
+        h1a = cndPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,1,0).projectionY(); h1a.setTitleX("SECTOR "+is+" L PMT LAYER");  h1a.setFillColor(col0);  
+        h1b = cndPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,2,0).projectionY(); h1b.setTitleX("SECTOR "+is+" R PMT LAYER" ); h1b.setFillColor(col0);  
+        h1c = cndPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,0,0).projectionY(); h1c.setTitleX("SECTOR "+is+" GMEAN LAYER" ); h1c.setFillColor(col1);  
 
         if (lr==1) {h1a.setFillColor(col1); copy1=h1a.histClone("Copy"); copy1.reset(); copy1.setBinContent(ic, h1a.getBinContent(ic)); copy1.setFillColor(col2);}
         if (lr==2) {h1b.setFillColor(col1); copy1=h1b.histClone("Copy"); copy1.reset(); copy1.setBinContent(ic, h1b.getBinContent(ic)); copy1.setFillColor(col2);}
@@ -76,9 +76,9 @@ public class CNDAdcApp extends FCApplication {
         c.cd(4); h1b.setOptStat(Integer.parseInt("1000000")); c.draw(h1b);  if (lr==2) c.draw(copy1,"same");
         c.cd(5); h1c.setOptStat(Integer.parseInt("1000000")); c.draw(h1c);             c.draw(copy2,"same");
         
-        h1a = cndPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,1,0).sliceY(ic); h1a.setTitleX("L PMT LAYER "+(ic+1)+" ADC");  h1a.setFillColor(col0);  
-        h1b = cndPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,2,0).sliceY(ic); h1b.setTitleX("R PMT LAYER "+(ic+1)+" ADC" ); h1b.setFillColor(col0);  
-        h1c = cndPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,0,0).sliceY(ic); h1c.setTitleX("GMEAN LAYER "+(ic+1));  h1c.setFillColor(col2);  
+        h1a = cndPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,1,0).sliceY(ic); h1a.setTitleX("SECTOR "+is+" LAYER "+(ic+1)+" L PMT ADC");  h1a.setFillColor(col0);  
+        h1b = cndPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,2,0).sliceY(ic); h1b.setTitleX("SECTOR "+is+" LAYER "+(ic+1)+" R PMT ADC" ); h1b.setFillColor(col0);  
+        h1c = cndPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,0,0).sliceY(ic); h1c.setTitleX("SECTOR "+is+" LAYER "+(ic+1)+" GMEAN");      h1c.setFillColor(col2);  
         
         if (lr==1) h1a.setFillColor(col2);
         if (lr==2) h1b.setFillColor(col2);

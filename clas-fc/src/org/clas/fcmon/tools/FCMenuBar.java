@@ -26,6 +26,7 @@ public class FCMenuBar extends JMenuBar implements ActionListener {
     JMenuItem           s5 = new JMenuItem("Sector 5");
     JMenuItem           s6 = new JMenuItem("Sector 6");
     JMenuItem         ctof = new JMenuItem("CTOF");
+    JMenuItem          cnd = new JMenuItem("CND");
     JMenuItem          sd5 = new JMenuItem("clondaq5");
     JMenuItem          sd6 = new JMenuItem("clondaq6");
     JMenuItem           x0 = new JMenuItem("EVIO");
@@ -64,6 +65,7 @@ public class FCMenuBar extends JMenuBar implements ActionListener {
      ET_open.add(s5);
      ET_open.add(s6);
      ET_open.add(ctof);
+     ET_open.add(cnd);
      ET_open.add(sd5);
      ET_open.add(sd6);
      
@@ -78,6 +80,7 @@ public class FCMenuBar extends JMenuBar implements ActionListener {
            s5.addActionListener(this);
            s6.addActionListener(this);   
          ctof.addActionListener(this);
+          cnd.addActionListener(this);
           sd5.addActionListener(this);     
           sd6.addActionListener(this);     
            x0.addActionListener(this);      
@@ -92,14 +95,15 @@ public class FCMenuBar extends JMenuBar implements ActionListener {
     	if(e.getActionCommand().compareTo("Sector 3")==0) {ethost="adcecal3";etfile="/tmp/et_sys_clasprod";}
     	if(e.getActionCommand().compareTo("Sector 4")==0) {ethost="adcecal4";etfile="/tmp/et_sys_clasprod";}
     	if(e.getActionCommand().compareTo("Sector 5")==0) {ethost="adcecal5";etfile="/tmp/et_sys_clasprod";}
-        if(e.getActionCommand().compareTo("Sector 6")==0) {ethost="adcecal6";etfile="/tmp/et_sys_clasprod";}      
-        if(e.getActionCommand().compareTo("CTOF")==0)     {ethost="adcctof1";etfile="/tmp/et_sys_clasprod";}      
-        if(e.getActionCommand().compareTo("clondaq5")==0) {ethost="clondaq5";etfile="/tmp/et_sys_clasprod";}       
-        if(e.getActionCommand().compareTo("clondaq6")==0) {ethost="clondaq6";etfile="/tmp/et_sys_clasprod";}       
+    if(e.getActionCommand().compareTo("Sector 6")==0) {ethost="adcecal6";etfile="/tmp/et_sys_clasprod";}      
+    if(e.getActionCommand().compareTo("CTOF")==0)     {ethost="adcctof1";etfile="/tmp/et_sys_clasprod";}      
+    if(e.getActionCommand().compareTo("CND")==0)      {ethost="adccnd1" ;etfile="/tmp/et_sys_clasprod";}      
+    if(e.getActionCommand().compareTo("clondaq5")==0) {ethost="clondaq5";etfile="/tmp/et_sys_clasprod";}       
+    if(e.getActionCommand().compareTo("clondaq6")==0) {ethost="clondaq6";etfile="/tmp/et_sys_clasprod";}       
     	if(ethost!=null) this.eventControl.openEtFile(ethost,etfile);    	
-        if(e.getActionCommand().compareTo("Load EVIO or HIPO File")==0) this.chooseEvioFile();
-        if(e.getActionCommand().compareTo("EVIO")==0) this.eventControl.openXEvioRing();
-        if(e.getActionCommand().compareTo("HIPO")==0) this.eventControl.openXHipoRing();
+    if(e.getActionCommand().compareTo("Load EVIO or HIPO File")==0) this.chooseEvioFile();
+    if(e.getActionCommand().compareTo("EVIO")==0) this.eventControl.openXEvioRing();
+    if(e.getActionCommand().compareTo("HIPO")==0) this.eventControl.openXHipoRing();
 	}
 	
     public void chooseEvioFile() {
