@@ -25,7 +25,7 @@ public class CNDTdcApp extends FCApplication {
     public void updateCanvas(DetectorDescriptor dd) {
         
         this.getDetIndices(dd); 
-        int lr = layer;
+        int lr = dd.getOrder()+1;
     
         int col0=0,col1=4,col2=2;
         
@@ -41,15 +41,15 @@ public class CNDTdcApp extends FCApplication {
         int ilm = ilmap;
         double nstr = cndPix[ilm].nstr;
         
-        H2F h2a = cndPix[ilm].strips.hmap2.get("H2_t_Hist").get(is,1,0); h2a.setTitleY("Sector "+is+" L PMT") ; h2a.setTitleX("L PMT TDC");
-        H2F h2b = cndPix[ilm].strips.hmap2.get("H2_t_Hist").get(is,2,0); h2b.setTitleY("Sector "+is+" R PMT") ; h2b.setTitleX("R PMT TDC");
-        H2F h2c = cndPix[ilm].strips.hmap2.get("H2_t_Hist").get(is,0,0); h2c.setTitleY("Sector "+is+" PADDLE") ; h2c.setTitleX("TDIF");
-        canvasConfig(c,0,100.,200.,1.,nstr+1.,true).draw(h2a);
-        canvasConfig(c,1,100.,200.,1.,nstr+1.,true).draw(h2b);
+        H2F h2a = cndPix[ilm].strips.hmap2.get("H2_t_Hist").get(is,1,0); h2a.setTitleY("SECTOR "+is+" LAYER") ; h2a.setTitleX("L PMT TDC");
+        H2F h2b = cndPix[ilm].strips.hmap2.get("H2_t_Hist").get(is,2,0); h2b.setTitleY("SECTOR "+is+" LAYER") ; h2b.setTitleX("R PMT TDC");
+        H2F h2c = cndPix[ilm].strips.hmap2.get("H2_t_Hist").get(is,0,0); h2c.setTitleY("SECTOR "+is+" LAYER") ; h2c.setTitleX("TDIF");
+        canvasConfig(c,0,50.,150.,1.,nstr+1.,true).draw(h2a);
+        canvasConfig(c,1,50.,150.,1.,nstr+1.,true).draw(h2b);
         canvasConfig(c,2, -35.,  35.,1.,nstr+1.,true).draw(h2c);
         
-        F1D f1 = new F1D("p0","[a]",100.,200.); f1.setParameter(0,ic+1);
-        F1D f2 = new F1D("p0","[a]",100.,200.); f2.setParameter(0,ic+2);
+        F1D f1 = new F1D("p0","[a]",50.,150.); f1.setParameter(0,ic+1);
+        F1D f2 = new F1D("p0","[a]",50.,150.); f2.setParameter(0,ic+2);
         c.cd(lr-1);        
         f1.setLineColor(2); c.draw(f1,"same"); 
         f2.setLineColor(2); c.draw(f2,"same");
@@ -59,9 +59,9 @@ public class CNDTdcApp extends FCApplication {
         f1.setLineColor(2); c.draw(f1,"same"); 
         f2.setLineColor(2); c.draw(f2,"same");
         
-        h1a = cndPix[ilm].strips.hmap2.get("H2_t_Hist").get(is,1,0).projectionY(); h1a.setTitleX("Sector "+is+" L PMT");   h1a.setFillColor(col0);  
-        h1b = cndPix[ilm].strips.hmap2.get("H2_t_Hist").get(is,2,0).projectionY(); h1b.setTitleX("Sector "+is+" R PMT" ); h1b.setFillColor(col0);  
-        h1c = cndPix[ilm].strips.hmap2.get("H2_t_Hist").get(is,0,0).projectionY(); h1c.setTitleX("Sector "+is+" PADDLE" );    h1c.setFillColor(col1);  
+        h1a = cndPix[ilm].strips.hmap2.get("H2_t_Hist").get(is,1,0).projectionY(); h1a.setTitleX("SECTOR "+is+" L PMT LAYER");  h1a.setFillColor(col0);  
+        h1b = cndPix[ilm].strips.hmap2.get("H2_t_Hist").get(is,2,0).projectionY(); h1b.setTitleX("SECTOR "+is+" R PMT LAYER" ); h1b.setFillColor(col0);  
+        h1c = cndPix[ilm].strips.hmap2.get("H2_t_Hist").get(is,0,0).projectionY(); h1c.setTitleX("SECTOR "+is+"  TDIF LAYER" ); h1c.setFillColor(col1);  
 
         if (lr==1) {h1a.setFillColor(col1); copy1=h1a.histClone("Copy"); copy1.reset(); copy1.setBinContent(ic, h1a.getBinContent(ic)); copy1.setFillColor(col2);}
         if (lr==2) {h1b.setFillColor(col1); copy1=h1b.histClone("Copy"); copy1.reset(); copy1.setBinContent(ic, h1b.getBinContent(ic)); copy1.setFillColor(col2);}
@@ -71,9 +71,9 @@ public class CNDTdcApp extends FCApplication {
         c.cd(4); h1b.setOptStat(Integer.parseInt("1000000")); c.draw(h1b); if (lr==2) c.draw(copy1,"same");
         c.cd(5); h1c.setOptStat(Integer.parseInt("1000000")); c.draw(h1c);            c.draw(copy2,"same");
         
-        h1a = cndPix[ilm].strips.hmap2.get("H2_t_Hist").get(is,1,0).sliceY(ics); h1a.setTitleX("L PMT "+(ic+1)+" TDC");   h1a.setFillColor(col0);  
-        h1b = cndPix[ilm].strips.hmap2.get("H2_t_Hist").get(is,2,0).sliceY(ics); h1b.setTitleX("R PMT "+(ic+1)+" TDC" ); h1b.setFillColor(col0);  
-        h1c = cndPix[ilm].strips.hmap2.get("H2_t_Hist").get(is,0,0).sliceY(ics); h1c.setTitleX("TDIF PADDLE "+(ic+1));       h1c.setFillColor(col2);  
+        h1a = cndPix[ilm].strips.hmap2.get("H2_t_Hist").get(is,1,0).sliceY(ic); h1a.setTitleX("SECTOR "+is+" LAYER "+(ic+1)+" L PMT TDC");  h1a.setFillColor(col0);  
+        h1b = cndPix[ilm].strips.hmap2.get("H2_t_Hist").get(is,2,0).sliceY(ic); h1b.setTitleX("SECTOR "+is+" LAYER "+(ic+1)+" R PMT TDC");  h1b.setFillColor(col0);  
+        h1c = cndPix[ilm].strips.hmap2.get("H2_t_Hist").get(is,0,0).sliceY(ic); h1c.setTitleX("SECTOR "+is+" LAYER "+(ic+1)+" TDIF");       h1c.setFillColor(col2);  
         
         if (lr==1) h1a.setFillColor(col2);
         if (lr==2) h1b.setFillColor(col2);
