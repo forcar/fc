@@ -61,7 +61,7 @@ public class CNDMon extends DetectorMonitor {
         app.makeGUI();
         app.getEnv();
         monitor.initConstants();
-//        monitor.initCCDB();
+        monitor.initCCDB();
         monitor.initGlob();
         monitor.makeApps();
         monitor.addCanvas();
@@ -80,11 +80,8 @@ public class CNDMon extends DetectorMonitor {
     public void initCCDB() {
         System.out.println("monitor.initCCDB()"); 
         ccdb.init(Arrays.asList(new String[]{
-                "/daq/fadc/ctof",
-                "/daq/tt/ctof",
-                "/calibration/ctof/attenuation",
-                "/calibration/ctof/gain_balance",
-                "/calibration/ctof/status"}));
+                "/daq/fadc/cnd",
+                "/daq/tt/cnd"}));
         app.getReverseTT(ccdb,"/daq/tt/cnd"); 
         app.mode7Emulation.init(ccdb,calRun,"/daq/fadc/cnd", 3,3,1);        
     } 
@@ -128,15 +125,15 @@ public class CNDMon extends DetectorMonitor {
         cndCalib.setApplicationClass(app);  
         cndCalib.init(is1,is2);
         
-        cndHv = new CNDHvApp("HV","FTOF");
+        cndHv = new CNDHvApp("HV","CND");
         cndHv.setMonitoringClass(this);
         cndHv.setApplicationClass(app);  
-        cndHv.init();
+//        cndHv.init();
         
-        cndScalers = new CNDScalersApp("Scalers","FTOF");
+        cndScalers = new CNDScalersApp("Scalers","CND");
         cndScalers.setMonitoringClass(this);
         cndScalers.setApplicationClass(app); 
-        cndScalers.init();
+//        cndScalers.init();
         
         if(app.xMsgHost=="localhost") app.startEpics();
     }
@@ -197,7 +194,8 @@ public class CNDMon extends DetectorMonitor {
 	
     @Override
     public void dataEventAction(DataEvent de) {
-        cndRecon.addEvent(de);	
+    	  
+    	  cndRecon.addEvent(de);	
     }
 
     @Override
@@ -210,7 +208,7 @@ public class CNDMon extends DetectorMonitor {
         case 2:
             for (int idet=0; idet<cndPix.length; idet++) cndRecon.makeMaps(idet); 
             System.out.println("End of run");                 
-            cndCalib.engines[0].analyze();
+//            cndCalib.engines[0].analyze();
             app.setInProcess(3);
         }
     }

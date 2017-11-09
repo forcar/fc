@@ -196,6 +196,14 @@ public class CTOFReconstructionApp extends FCApplication {
                    }
                }
                
+//               if (app.rtt.hasItem(is,il,ip,lr)) {
+//                   int[] dum = (int[]) app.rtt.getItem(is,il,ip,0);
+//                   System.out.println(dum[0]+" "+dum[1]+" "+dum[2]);
+//                   app.getMode7(dum[0],dum[1],dum[2]);
+//                   System.out.println(this.pedref);
+//               }               
+//               if (ped>0) ctofPix[il-1].strips.hmap2.get("H2_a_Hist").get(is,lr+1,3).fill(this.pedref-ped, ip);
+
                if(isGoodSector(is)) fill(il-1, is, lr+1, ip, adc, tdc, t, (float) adc);    
            }
        }
@@ -278,6 +286,7 @@ public class CTOFReconstructionApp extends FCApplication {
             }
            
            if (pd>0) ctofPix[il-1].strips.hmap2.get("H2_a_Hist").get(is,lr+1,3).fill(this.pedref-pd, ip);
+           
            fill(il-1, is, lr+1, ip, ad, tdc, tf, ph);   
            
            }           

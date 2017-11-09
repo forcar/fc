@@ -95,11 +95,11 @@ public class CNDReconstructionApp extends FCApplication {
    }
    
    public void addEvent(DataEvent event) {
-       
+      
        if(app.getDataSource()=="ET") this.updateRawData(event);
        
-       if(app.getDataSource()=="EVIO") {
-           if(app.isMC==true)  this.updateSimulatedData(event);
+       if(app.getDataSource()=="EVIO") {    	   
+    	   if(app.isMC==true)  this.updateSimulatedData(event);
            if(app.isMC==false) this.updateRawData(event); 
        }
        
@@ -150,11 +150,11 @@ public class CNDReconstructionApp extends FCApplication {
                int  lr = bank.getByte("order",i);                       
                int  ip = bank.getShort("component",i);
                
-               if (!tdcs.hasItem(is,lr-2,ip)) tdcs.add(new ArrayList<Float>(),is,lr-2,ip);
-                    tdcs.getItem(is,lr-2,ip).add((float) bank.getInt("TDC",i)*24/1000+offset-phase*4  );              
-               if (!ltpmt.hasItem(is,ip)) {
-       	            ltpmt.add(new ArrayList<Integer>(),is,ip);
-                    ltpmt.getItem(is,ip).add(ip);
+               if (!tdcs.hasItem(is,lr-2,il)) tdcs.add(new ArrayList<Float>(),is,lr-2,il);
+                    tdcs.getItem(is,lr-2,il).add((float) bank.getInt("TDC",i)*24/1000+offset-phase*4  );              
+               if (!ltpmt.hasItem(is,il)) {
+       	            ltpmt.add(new ArrayList<Integer>(),is,il);
+                    ltpmt.getItem(is,il).add(il);
                }   
            }
        }
@@ -171,18 +171,18 @@ public class CNDReconstructionApp extends FCApplication {
                float t = bank.getFloat("time",i);               
                int ped = bank.getShort("ped", i);
                
-               if (!adcs.hasItem(is,lr,ip)) adcs.add(new ArrayList<Float>(),is,lr,ip);
-                    adcs.getItem(is,lr,ip).add((float)adc);            
-               if (!lapmt.hasItem(is,ip)) {
-                    lapmt.add(new ArrayList<Integer>(),is,ip);
-                    lapmt.getItem(is,ip).add(ip);
+               if (!adcs.hasItem(is,lr,il)) adcs.add(new ArrayList<Float>(),is,lr,il);
+                    adcs.getItem(is,lr,il).add((float)adc);            
+               if (!lapmt.hasItem(is,il)) {
+                    lapmt.add(new ArrayList<Integer>(),is,il);
+                    lapmt.getItem(is,il).add(il);
                }
           
                Float[] tdcc; float[] tdc;
                
-               if (tdcs.hasItem(is,il,lr,ip)) {
+               if (tdcs.hasItem(is,lr,il)) {
                    List<Float> list = new ArrayList<Float>();
-                   list = tdcs.getItem(is,il,lr,ip); tdcc=new Float[list.size()]; list.toArray(tdcc);
+                   list = tdcs.getItem(is,lr,il); tdcc=new Float[list.size()]; list.toArray(tdcc);
                    tdc  = new float[list.size()];
                    for (int ii=0; ii<tdcc.length; ii++) tdc[ii] = tdcc[ii];  
                } else {
@@ -190,13 +190,13 @@ public class CNDReconstructionApp extends FCApplication {
                }
                for (int ii=0 ; ii< 100 ; ii++) {
                    float wgt = (ii==(int)(t/4)) ? adc:0;
-                   cndPix[il-1].strips.hmap2.get("H2_a_Hist").get(is,lr+1,5).fill(ii,ip,wgt);
+                   cndPix[0].strips.hmap2.get("H2_a_Hist").get(is,lr+1,5).fill(ii,il,wgt);
                    if (app.isSingleEvent()) {
-                       cndPix[il-1].strips.hmap2.get("H2_a_Sevd").get(is,lr+1,0).fill(ii,ip,wgt);
+                       cndPix[0].strips.hmap2.get("H2_a_Sevd").get(is,lr+1,0).fill(ii,il,wgt);
                    }
                }
                
-               if(isGoodSector(is)) fill(il-1, is, lr+1, ip, adc, tdc, t, (float) adc);    
+               if(isGoodSector(is)) fill(0, is, lr+1, il, adc, tdc, t, (float) adc);    
            }
        }
        
@@ -213,28 +213,31 @@ public class CNDReconstructionApp extends FCApplication {
        
        List<DetectorDataDgtz> adcDGTZ = app.decoder.getEntriesADC(DetectorType.CND);
        List<DetectorDataDgtz> tdcDGTZ = app.decoder.getEntriesTDC(DetectorType.CND);
-
+     
        for (int i=0; i < tdcDGTZ.size(); i++) {
            DetectorDataDgtz ddd=tdcDGTZ.get(i);
            int is = ddd.getDescriptor().getSector();
+           int il = ddd.getDescriptor().getLayer();
            int lr = ddd.getDescriptor().getOrder();
            int ip = ddd.getDescriptor().getComponent();
-           
-           if (!tdcs.hasItem(is,lr-2,ip)) tdcs.add(new ArrayList<Float>(),is,lr-2,ip);
-                tdcs.getItem(is,lr-2,ip).add((float) ddd.getTDCData(0).getTime()*24/1000);              
-           if (!ltpmt.hasItem(is,ip)) {
-        	        ltpmt.add(new ArrayList<Integer>(),is,ip);
-                ltpmt.getItem(is,ip).add(ip);
+//           System.out.println(is+" "+il+" "+lr+" "+ip);
+           if (!tdcs.hasItem(is,lr-2,il)) tdcs.add(new ArrayList<Float>(),is,lr-2,il);
+                tdcs.getItem(is,lr-2,il).add((float) ddd.getTDCData(0).getTime()*24/1000);              
+           if (!ltpmt.hasItem(is,il)) {
+        	    ltpmt.add(new ArrayList<Integer>(),is,il);
+                ltpmt.getItem(is,il).add(il);
            }
        }
        
        for (int i=0; i < adcDGTZ.size(); i++) {
+    	   
            DetectorDataDgtz ddd=adcDGTZ.get(i);
            int is = ddd.getDescriptor().getSector();
            if (isGoodSector(is)) {
            int cr = ddd.getDescriptor().getCrate();
            int sl = ddd.getDescriptor().getSlot();
-           int ch = ddd.getDescriptor().getChannel();          
+           int ch = ddd.getDescriptor().getChannel();  
+           int il = ddd.getDescriptor().getLayer();
            int lr = ddd.getDescriptor().getOrder();
            int ip = ddd.getDescriptor().getComponent();
            int ad = ddd.getADCData(0).getADC();
@@ -242,20 +245,20 @@ public class CNDReconstructionApp extends FCApplication {
            int t0 = ddd.getADCData(0).getTimeCourse();  
            float tf = (float) ddd.getADCData(0).getTime();
            float ph = (float) ddd.getADCData(0).getHeight()-pd;
-           short[]    pulse = ddd.getADCData(0).getPulseArray();
+           short[]    pulse = ddd.getADCData(0).getPulseArray();          
            
-          if (!adcs.hasItem(is,lr,ip)) adcs.add(new ArrayList<Float>(),is,lr,ip);
-               adcs.getItem(is,lr,ip).add((float)ad);                
-          if (!lapmt.hasItem(is,ip)) {
-        	       lapmt.add(new ArrayList<Integer>(),is,ip);
-               lapmt.getItem(is,ip).add(ip);
+          if (!adcs.hasItem(is,lr,il)) adcs.add(new ArrayList<Float>(),is,lr,il);
+               adcs.getItem(is,lr,il).add((float)ad);                
+          if (!lapmt.hasItem(is,il)) {
+        	   lapmt.add(new ArrayList<Integer>(),is,il);
+               lapmt.getItem(is,il).add(il);
           }           
            
            Float[] tdcc; float[] tdc;
            
-           if (tdcs.hasItem(is,lr,ip)) {
+           if (tdcs.hasItem(is,lr,il)) {
                List<Float> list = new ArrayList<Float>();
-               list = tdcs.getItem(is,lr,ip); tdcc=new Float[list.size()]; list.toArray(tdcc);
+               list = tdcs.getItem(is,lr,il); tdcc=new Float[list.size()]; list.toArray(tdcc);
                tdc  = new float[list.size()];
                for (int ii=0; ii<tdcc.length; ii++) tdc[ii] = tdcc[ii]-phase*4;  
            } else {
@@ -265,16 +268,16 @@ public class CNDReconstructionApp extends FCApplication {
            getMode7(cr,sl,ch); 
            
            for (int ii=0 ; ii< pulse.length ; ii++) {
-               cndPix[0].strips.hmap2.get("H2_a_Hist").get(is,lr+1,5).fill(ii,ip,pulse[ii]-pd);
+               cndPix[0].strips.hmap2.get("H2_a_Hist").get(is,lr+1,5).fill(ii,il,pulse[ii]-pd);
                if (app.isSingleEvent()) {
-                  cndPix[0].strips.hmap2.get("H2_a_Sevd").get(is,lr+1,0).fill(ii,ip,pulse[ii]-pd);
+                  cndPix[0].strips.hmap2.get("H2_a_Sevd").get(is,lr+1,0).fill(ii,il,pulse[ii]-pd);
                   int w1 = t0-this.nsb ; int w2 = t0+this.nsa;
-                  if (ad>0&&ii>=w1&&ii<=w2) cndPix[0].strips.hmap2.get("H2_a_Sevd").get(is,lr+1,1).fill(ii,ip,pulse[ii]-pd);                     
+                  if (ad>0&&ii>=w1&&ii<=w2) cndPix[0].strips.hmap2.get("H2_a_Sevd").get(is,lr+1,1).fill(ii,il,pulse[ii]-pd);                     
                }
             }
            
-           if (pd>0) cndPix[0].strips.hmap2.get("H2_a_Hist").get(is,lr+1,3).fill(this.pedref-pd, ip);
-           fill(0, is, lr+1, ip, ad, tdc, tf, ph);   
+           if (pd>0) cndPix[0].strips.hmap2.get("H2_a_Hist").get(is,lr+1,3).fill(this.pedref-pd, il);
+           fill(0, is, lr+1, il, ad, tdc, tf, ph);   
            
            }           
        }

@@ -23,7 +23,7 @@ public class CNDPixels {
     public    int     cnd_nsec[] = {24};
     public    int     cnd_nstr[] = {3};
     public    int     cnd_nlay[] = {1};
-    public double         amax[] = {8000.};
+    public double         amax[] = {5000.};
     
     int        nha[][] = new    int[24][2];
     int        nht[][] = new    int[24][2];
@@ -129,7 +129,6 @@ public class CNDPixels {
         System.out.println("CNDPixels.initHistograms(): "+this.detName);  
         
         String iid;
-        double amax[]= {20000.,200.,200.,200.};
         
         DetectorCollection<H1F> H1_a_Sevd = new DetectorCollection<H1F>();
         DetectorCollection<H1F> H1_t_Sevd = new DetectorCollection<H1F>();
@@ -147,7 +146,7 @@ public class CNDPixels {
             for (int lr=1 ; lr<3 ; lr++){
                 iid="s"+Integer.toString(is)+"_l"+Integer.toString(lr)+"_c";
                 H2_a_Hist.add(is, lr, 0, new H2F("a_raw_"+iid+1,      100,   0.,amax[id],nstr, 1., nend));
-                H2_t_Hist.add(is, lr, 0, new H2F("a_raw_"+iid+1,      100, 450.,  850.,nstr, 1., nend));
+                H2_t_Hist.add(is, lr, 0, new H2F("a_raw_"+iid+1,      100, 450.,  850.,  nstr, 1., nend));
                 H2_a_Hist.add(is, lr, 1, new H2F("a_raw_"+iid+1,      100,   0.,amax[id],100, 450.,850.));
                 H2_a_Hist.add(is, lr, 3, new H2F("a_ped_"+iid+3,       40, -20.,  20., nstr, 1., nend)); 
                 H2_a_Hist.add(is, lr, 5, new H2F("a_fadc_"+iid+5,     100,   0., 100., nstr, 1., nend));

@@ -24,8 +24,7 @@ public class CNDMode1App extends FCApplication {
     EmbeddedCanvasTabbed    mode1  = new EmbeddedCanvasTabbed("Event");
     EmbeddedCanvas               c = this.getCanvas(this.getName()); 
     
-    int is,lr,ic,idet,nstr;
-    int ics[][] = new int[3][10];
+    int is,il,lr,ic,idet,nstr;
     String otab[]={" L PMT "," R PMT "};
     
     public CNDMode1App(String name, CNDPixels[] cndPix) {
@@ -43,8 +42,10 @@ public class CNDMode1App extends FCApplication {
     public void updateCanvas(DetectorDescriptor dd) {
         
         this.is = dd.getSector();
-        this.lr = dd.getLayer();
+        this.il = dd.getLayer();
+        this.lr = dd.getOrder()+1;
         this.ic = dd.getComponent();   
+        
         this.idet = ilmap;      
         
         if (lr>3) return;
@@ -63,11 +64,8 @@ public class CNDMode1App extends FCApplication {
 
         int min=0, max=nstr;
         c = mode1.getCanvas("Event");       
-        
-        switch (idet) {
-        case 0: c.divide(4,6); max=24 ; if (ic>23) {min=24; max=48;} if (ic>47) {min=48; max=nstr;} break;
-        }    
-
+          
+        c.divide(2,3);
         c.setAxisFontSize(14);
         
 //        app.mode7Emulation.init("/daq/fadc/ftof",app.currentCrate, app.currentSlot, app.currentChan);
@@ -86,18 +84,24 @@ public class CNDMode1App extends FCApplication {
        
         c.clear();
         
-        for(int ip=min;ip<max;ip++){
-            c.cd(ip-min); 
-            c.getPad(ip-min).setOptStat(Integer.parseInt("0"));
-            c.getPad(ip-min).getAxisX().setRange(0.,100.);
-            c.getPad(ip-min).getAxisY().setRange(-100.,4000*app.displayControl.pixMax);
-            h = cndPix[idet].strips.hmap2.get("H2_a_Sevd").get(is,lr,0).sliceY(ip);            
-            h.setTitleX("Sector "+is+otab[lr-1]+(ip+1)+" (4 ns/ch)"); h.setTitleY("Counts");
+        int n = 0;
+        
+        for (int il=1; il<4; il++) {
+        for (int lr=1; lr<3; lr++) {
+            c.cd(n); 
+            c.getPad(n).setOptStat(Integer.parseInt("0"));
+            c.getPad(n).getAxisX().setRange(0.,100.);
+            c.getPad(n).getAxisY().setRange(-100.,2000*app.displayControl.pixMax);
+            h = cndPix[idet].strips.hmap2.get("H2_a_Sevd").get(is,lr,0).sliceY(il-1);    
+            h.setTitle(" ");
+            h.setTitleX("Sector "+is+" Layer "+il+otab[lr-1]+" (4 ns/ch)"); h.setTitleY("Counts");
             h.setFillColor(4); c.draw(h);
-            h = cndPix[idet].strips.hmap2.get("H2_a_Sevd").get(is,lr,1).sliceY(ip); 
+            h = cndPix[idet].strips.hmap2.get("H2_a_Sevd").get(is,lr,1).sliceY(il-1); 
             h.setFillColor(2); c.draw(h,"same");
             c.draw(f1,"same"); c.draw(f2,"same");
-            }  
+            n++;
+        }
+        }
             
         c.repaint();
     }   
@@ -116,22 +120,22 @@ public class CNDMode1App extends FCApplication {
                
         c = mode1.getCanvas("Sum");  c.clear(); c.divide(2,2);       
             
-        for (int il=1; il<3 ; il++) {
-            h2 = dc2a.get(is,il,5); h2.setTitleY("Sector "+is+otab[il-1]) ; h2.setTitleX("SAMPLES (4 ns/ch)");
-            canvasConfig(c,il-1,0.,100.,1.,nstr+1.,true).draw(h2);
-            if (lr==il) {c.draw(f1,"same"); c.draw(f2,"same");}
-            h1 = dc2a.get(is,il,5).sliceY(ic); h1.setOptStat(Integer.parseInt("10"));
-            h1.setTitleX("Sector "+is+otab[il-1]+(ic+1)+" (4 ns/ch)"); h1.setFillColor(0);
-            c.cd(il+1); h1.setTitle(" "); c.draw(h1);
-            if (lr==il) {
-                h1=dc2a.get(is,il,5).sliceY(ic) ; h1.setFillColor(2);
-                h1.setTitleX("Sector "+is+otab[il-1]+(ic+1)+" (4 ns/ch)"); c.draw(h1);
+        for (int ilr=1; ilr<3 ; ilr++) {
+            h2 = dc2a.get(is,ilr,5); h2.setTitleY("Sector "+is+otab[ilr-1]) ; h2.setTitleX("SAMPLES (4 ns/ch)");
+            canvasConfig(c,ilr-1,0.,100.,1.,nstr+1.,true).draw(h2);
+            if (lr==ilr) {c.draw(f1,"same"); c.draw(f2,"same");}
+            h1 = dc2a.get(is,ilr,5).sliceY(ic); h1.setOptStat(Integer.parseInt("10"));
+            h1.setTitle(" ");
+            h1.setTitleX("Sector "+is+" Layer "+(ic+1)+otab[ilr-1]+" (4 ns/ch)"); h1.setFillColor(0);
+            c.cd(ilr+1); h1.setTitle(" "); c.draw(h1);
+            if (lr==ilr) {            	
+                h1=dc2a.get(is,ilr,5).sliceY(ic) ; h1.setFillColor(2);            	
+                h1.setTitleX("Sector "+is+" Layer "+(ic+1)+otab[ilr-1]+" (4 ns/ch)"); h1.setTitle(" "); c.draw(h1);
             }            
-            if (app.isSingleEvent()) {h1=dc2t.get(is,il,0).sliceY(ic) ; h1.setFillColor(4); c.draw(h1,"same");}
+//            if (app.isSingleEvent()) {h1=dc2t.get(is,il,0).sliceY(il-1) ; h1.setFillColor(4); c.draw(h1,"same");}
         }
         
         c.repaint();
-        ics[idet][lr-1]=ic;
         
      } 
     
@@ -143,9 +147,9 @@ public class CNDMode1App extends FCApplication {
         
         c = mode1.getCanvas("AvsT");  c.clear(); c.divide(2,1);       
        
-        for (int il=1; il<3; il++) {
-            h2=dc2a.get(is,il,1); h2.setTitleY("Sector "+is+otab[il-1]+" TDC") ; h2.setTitleX("Sector "+is+otab[il-1]+" FADC");
-            canvasConfig(c,il-1,0.,cndPix[0].amax[0],100.,200.,true).draw(h2);            
+        for (int ilr=1; ilr<3; il++) {
+            h2=dc2a.get(is,ilr,1); h2.setTitleY("Sector "+is+otab[ilr-1]+" TDC") ; h2.setTitleX("Sector "+is+otab[ilr-1]+" FADC");
+            canvasConfig(c,ilr-1,0.,cndPix[0].amax[0],0.,200.,true).draw(h2);            
         }
         
         c.repaint();

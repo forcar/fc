@@ -175,8 +175,7 @@ public class FCCLASDecoder {
     
     public DataBank getDataBankTDC(String name, DetectorType type){
         
-        List<DetectorDataDgtz> tdcDGTZ = this.getEntriesTDC(type);
-        
+        List<DetectorDataDgtz> tdcDGTZ = this.getEntriesTDC(type);        
         DataBank tdcBANK = hipoEvent.createBank(name, tdcDGTZ.size());
         if(tdcBANK==null) return null;
         
@@ -191,6 +190,7 @@ public class FCCLASDecoder {
     }
     
     public DataBank getDataBankUndecodedADC(String name, DetectorType type){
+    	
         List<DetectorDataDgtz> adcDGTZ = this.getEntriesADC(type);
         DataBank adcBANK = hipoEvent.createBank(name, adcDGTZ.size());
         
@@ -225,11 +225,11 @@ public class FCCLASDecoder {
         
         HipoDataEvent event = (HipoDataEvent) writer.createEvent();
         
-        String[]        adcBankNames = new String[]{"FTOF::adc","ECAL::adc","CTOF::adc"};
-        DetectorType[]  adcBankTypes = new DetectorType[]{DetectorType.FTOF,DetectorType.ECAL,DetectorType.CTOF};
+        String[]        adcBankNames = new String[]{"FTOF::adc","ECAL::adc","CTOF::adc","CND::adc"};
+        DetectorType[]  adcBankTypes = new DetectorType[]{DetectorType.FTOF,DetectorType.ECAL,DetectorType.CTOF,DetectorType.CND};
         
-        String[]        tdcBankNames = new String[]{"FTOF::tdc","ECAL::tdc","CTOF::tdc"};
-        DetectorType[]  tdcBankTypes = new DetectorType[]{DetectorType.FTOF,DetectorType.ECAL,DetectorType.CTOF};
+        String[]        tdcBankNames = new String[]{"FTOF::tdc","ECAL::tdc","CTOF::tdc","CND::tdc"};
+        DetectorType[]  tdcBankTypes = new DetectorType[]{DetectorType.FTOF,DetectorType.ECAL,DetectorType.CTOF,DetectorType.CND};
         
         for(int i = 0; i < adcBankTypes.length; i++){
             DataBank adcBank = getDataBankADC(adcBankNames[i],adcBankTypes[i]);
