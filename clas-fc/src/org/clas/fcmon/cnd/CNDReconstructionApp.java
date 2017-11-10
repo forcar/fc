@@ -43,8 +43,8 @@ public class CNDReconstructionApp extends FCApplication {
    List<DetectorDataDgtz>        dataList = new ArrayList<DetectorDataDgtz>();
    IndexedList<List<Float>>          tdcs = new IndexedList<List<Float>>(3);
    IndexedList<List<Float>>          adcs = new IndexedList<List<Float>>(3);
-   IndexedList<List<Integer>>       lapmt = new IndexedList<List<Integer>>(2); 
-   IndexedList<List<Integer>>       ltpmt = new IndexedList<List<Integer>>(2); 
+   IndexedList<List<Integer>>       lapmt = new IndexedList<List<Integer>>(1); 
+   IndexedList<List<Integer>>       ltpmt = new IndexedList<List<Integer>>(1); 
    
    CNDConstants                    ftofcc = new CNDConstants();  
    
@@ -223,9 +223,9 @@ public class CNDReconstructionApp extends FCApplication {
 //           System.out.println(is+" "+il+" "+lr+" "+ip);
            if (!tdcs.hasItem(is,lr-2,il)) tdcs.add(new ArrayList<Float>(),is,lr-2,il);
                 tdcs.getItem(is,lr-2,il).add((float) ddd.getTDCData(0).getTime()*24/1000);  
-           if (!ltpmt.hasItem(is,il)) {
-        	        ltpmt.add(new ArrayList<Integer>(),is,il);
-                ltpmt.getItem(is,il).add(il);
+           if (!ltpmt.hasItem(is)) {
+        	        ltpmt.add(new ArrayList<Integer>(),is);
+                ltpmt.getItem(is).add(is);
            }
        }
        
@@ -249,9 +249,9 @@ public class CNDReconstructionApp extends FCApplication {
            
           if (!adcs.hasItem(is,lr,il)) adcs.add(new ArrayList<Float>(),is,lr,il);
                adcs.getItem(is,lr,il).add((float)ad);                
-          if (!lapmt.hasItem(is,il)) {
-        	       lapmt.add(new ArrayList<Integer>(),is,il);
-               lapmt.getItem(is,il).add(il);
+          if (!lapmt.hasItem(is)) {
+        	       lapmt.add(new ArrayList<Integer>(),is);
+               lapmt.getItem(is).add(is);
           }           
            
            Float[] tdcc; float[] tdc;
@@ -398,8 +398,26 @@ public class CNDReconstructionApp extends FCApplication {
              } 
    }
    
+   public boolean isGoodMIP() {
+	   
+	   int[] ip = new int[2];
+	   System.out.println(lapmt.getMap().size());
+       if(lapmt.getMap().size()==2) {
+           int n = 0;
+           IndexGenerator ig = new IndexGenerator();
+           for (Map.Entry<Long,List<Integer>>  entry : lapmt.getMap().entrySet()){              
+               ip[n] = ig.getIndex(entry.getKey(), 0);n++;
+           }
+       }
+       int pdif  = Math.abs(ip[0]-ip[1]);      
+       return ip[0]>0&&ip[1]>0&&pdif==12;
+	 
+   }  
+   
    public void processCalib() {
-       
+	   
+	   if (!isGoodMIP()) return;
+	   
        IndexGenerator ig = new IndexGenerator();
        
        for (Map.Entry<Long,List<Integer>>  entry : lapmt.getMap().entrySet()){
@@ -461,10 +479,10 @@ public class CNDReconstructionApp extends FCApplication {
        H1_a_Sevd = cndPix[idet].strips.hmap1.get("H1_a_Sevd");
        
        for (int is=is1;is<is2;is++) {
-           for (int il=1 ; il<3 ; il++) {
-               if (!app.isSingleEvent()) cndPix[idet].Lmap_a.add(is,il,0, toTreeMap(H2_a_Hist.get(is,il,0).projectionY().getData())); //Strip View ADC 
-               if (!app.isSingleEvent()) cndPix[idet].Lmap_t.add(is,il,0, toTreeMap(H2_t_Hist.get(is,il,0).projectionY().getData())); //Strip View TDC 
-               if  (app.isSingleEvent()) cndPix[idet].Lmap_a.add(is,il,0, toTreeMap(H1_a_Sevd.get(is,il,0).getData()));           
+           for (int lr=1 ; lr<3 ; lr++) {
+               if (!app.isSingleEvent()) cndPix[idet].Lmap_a.add(is,lr,0, toTreeMap(H2_a_Hist.get(is,lr,0).projectionY().getData())); //Strip View ADC 
+               if (!app.isSingleEvent()) cndPix[idet].Lmap_t.add(is,lr,0, toTreeMap(H2_t_Hist.get(is,lr,0).projectionY().getData())); //Strip View TDC 
+               if  (app.isSingleEvent()) cndPix[idet].Lmap_a.add(is,lr,0, toTreeMap(H1_a_Sevd.get(is,lr,0).getData()));           
            }
        } 
        
