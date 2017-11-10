@@ -401,7 +401,6 @@ public class CNDReconstructionApp extends FCApplication {
    public boolean isGoodMIP() {
 	   
 	   int[] ip = new int[2];
-	   System.out.println(lapmt.getMap().size());
        if(lapmt.getMap().size()==2) {
            int n = 0;
            IndexGenerator ig = new IndexGenerator();
@@ -416,7 +415,7 @@ public class CNDReconstructionApp extends FCApplication {
    
    public void processCalib() {
 	   
-	   if (!isGoodMIP()) return;
+//	   if (!isGoodMIP()) return;
 	   
        IndexGenerator ig = new IndexGenerator();
        
