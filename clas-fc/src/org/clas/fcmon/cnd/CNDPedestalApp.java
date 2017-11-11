@@ -25,7 +25,7 @@ public class CNDPedestalApp extends FCApplication {
     public void updateCanvas(DetectorDescriptor dd) {
         
         this.getDetIndices(dd);   
-        int  lr = layer;
+        int  lr = io+1;
         int ilm = ilmap;
         
         int col2=2,col4=4,col0=0;
@@ -41,7 +41,7 @@ public class CNDPedestalApp extends FCApplication {
         
         for(int il=1;il<3;il++){
             H2F hpix = cndPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,il,3);
-            hpix.setTitleX("PED (Ref-Measured)") ; hpix.setTitleY(otab[il-1]);         
+            hpix.setTitleX("PED (Ref-Measured)") ; hpix.setTitleY("LAYER");         
             canvasConfig(c,il-1,-20.,20.,1.,nstr+1,true) ; c.draw(hpix);
             if(lr==il) {
                 F1D f1 = new F1D("p0","[a]",-20.,20.); f1.setParameter(0,ic+1);
@@ -51,8 +51,9 @@ public class CNDPedestalApp extends FCApplication {
             }
             
             c.cd(il-1+2);
-            h=hpix.sliceY(ics); h.setOptStat(Integer.parseInt("110")); h.setFillColor(4); h.setTitle(""); h.setTitleX("Sector "+is+otab[il-1]+(ics+1)); c.draw(h);
-            if(lr==il) {h=hpix.sliceY(ic) ; h.setFillColor(2); h.setTitle(" "); h.setTitleX("Sector "+is+otab[il-1]+(ic+1));  c.draw(h);}
+            h=hpix.sliceY(ics); h.setOptStat(Integer.parseInt("10001100")); 
+            h.setFillColor(4); h.setTitle(""); h.setTitleX("SECTOR "+is+" LAYER "+(ic+1)+otab[il-1]); c.draw(h);
+            if(lr==il) {h=hpix.sliceY(ic) ; h.setFillColor(2); h.setTitle(" "); h.setTitleX("SECTOR "+is+" LAYER "+(ic+1)+otab[il-1]); c.draw(h);}
             
         }  
         

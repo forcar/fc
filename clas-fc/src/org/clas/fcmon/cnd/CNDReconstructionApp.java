@@ -153,9 +153,9 @@ public class CNDReconstructionApp extends FCApplication {
                
                if (!tdcs.hasItem(is,lr-2,il)) tdcs.add(new ArrayList<Float>(),is,lr-2,il);
                     tdcs.getItem(is,lr-2,il).add((float) bank.getInt("TDC",i)*24/1000+offset-phase*4  );              
-               if (!ltpmt.hasItem(is,il)) {
-       	            ltpmt.add(new ArrayList<Integer>(),is,il);
-                    ltpmt.getItem(is,il).add(il);
+               if (!ltpmt.hasItem(is)) {
+       	            ltpmt.add(new ArrayList<Integer>(),is);
+                    ltpmt.getItem(is).add(il);
                }   
            }
        }
@@ -174,9 +174,9 @@ public class CNDReconstructionApp extends FCApplication {
                
                if (!adcs.hasItem(is,lr,il)) adcs.add(new ArrayList<Float>(),is,lr,il);
                     adcs.getItem(is,lr,il).add((float)adc);            
-               if (!lapmt.hasItem(is,il)) {
-                    lapmt.add(new ArrayList<Integer>(),is,il);
-                    lapmt.getItem(is,il).add(il);
+               if (!lapmt.hasItem(is)) {
+                    lapmt.add(new ArrayList<Integer>(),is);
+                    lapmt.getItem(is).add(il);
                }
           
                Float[] tdcc; float[] tdc;
@@ -286,7 +286,7 @@ public class CNDReconstructionApp extends FCApplication {
            }           
        }
        
-       if (app.isHipoFileOpen&&isGoodMIP()) writeHipoOutput();
+       if (app.decoder.isHipoFileOpen&&isGoodMIP()) writeHipoOutput();
        
    }
    
