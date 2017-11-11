@@ -49,25 +49,27 @@ public class CNDPixels {
         pixdef();
 //        pixrot();
     }
-    public void getLmapMinMax(int is1, int is2, int il, int opt){
+    public void getLmapMinMax(int is1, int is2){
         TreeMap<Integer,Object> map = null;
-        double min,max,avg,aavg=0,tavg=0;
+        double mina,maxa,mint,maxt,avg,aavg=0,tavg=0;
         double[] a = {1000,0,0};
         double[] t = {1000,0,0};
         for (int is=is1 ; is<is2; is++) {
-            map = Lmap_a.get(is, il, opt);
-            min = (double) map.get(2); max = (double) map.get(3); avg = (double) map.get(4);
-            if (min<a[0]) a[0]=min; if (max>a[1]) a[1]=max; aavg+=avg;
-            map = Lmap_t.get(is, il, opt);
-            min = (double) map.get(2); max = (double) map.get(3); avg = (double) map.get(4);
-            if (min<t[0]) t[0]=min; if (max>t[1]) t[1]=max; tavg+=avg;
+        	for (int il=1 ; il<3; il++) {
+            map = Lmap_a.get(is, il, 0);
+            mina = (double) map.get(2); maxa = (double) map.get(3); avg = (double) map.get(4);
+            if (mina<a[0]) a[0]=mina; if (maxa>a[1]) a[1]=maxa; aavg+=avg;
+            map = Lmap_t.get(is, il, 0);
+            mint = (double) map.get(2); maxt = (double) map.get(3); avg = (double) map.get(4);
+            if (mint<t[0]) t[0]=mint; if (maxt>t[1]) t[1]=maxt; tavg+=avg;
+        }
         }
 
         a[2]=Math.min(500000,aavg/(is2-is1));
         t[2]=Math.min(500000,tavg/(is2-is1));
         
-        Lmap_a_z.add(a,il,opt);
-        Lmap_t_z.add(t,il,opt);        
+        Lmap_a_z.add(a,0,0);
+        Lmap_t_z.add(t,0,0);        
     }	
     
     public void init() {

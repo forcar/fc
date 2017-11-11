@@ -56,7 +56,7 @@ public class CNDDet extends FCDetector {
     
     public DetectorShape2D getPaddle(int det, int sec, int lay, int pmt, int ord) {
         
-        double rotation = Math.toRadians(360.0/cndPix[det].cnd_nsec[0]*(sec-1));
+        double rotation = Math.toRadians(360.0/cndPix[det].cnd_nsec[0]*(sec-1)+7.5);
         
         DetectorShape2D shape = new DetectorShape2D(DetectorType.CND,sec,lay,pmt,ord); 
         shape.createSplitTrapXY(ord,cndPix[det].cc.UB[pmt], cndPix[det].cc.LB[pmt], cndPix[det].cc.THICK);

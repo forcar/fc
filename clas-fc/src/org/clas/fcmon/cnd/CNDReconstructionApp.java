@@ -108,6 +108,7 @@ public class CNDReconstructionApp extends FCApplication {
        if (app.isSingleEvent()) {
            findPixels();     // Process all pixels for SED
            processSED();
+           processCalib();
         } else {
            processPixels();  // Process only single pixels 
            processCalib();   // Quantities for display and calibration engine
@@ -210,7 +211,10 @@ public class CNDReconstructionApp extends FCApplication {
        
        long phase = app.decoder.getPhase();
        app.localRun = app.decoder.getRun();
-       
+       if (app.isSingleEvent()) {
+    	     System.out.println(" ");       
+         System.out.println("Event Number "+app.getEventNumber());
+       }
        List<DetectorDataDgtz> adcDGTZ = app.decoder.getEntriesADC(DetectorType.CND);
        List<DetectorDataDgtz> tdcDGTZ = app.decoder.getEntriesTDC(DetectorType.CND);
      
@@ -220,7 +224,7 @@ public class CNDReconstructionApp extends FCApplication {
            int il = ddd.getDescriptor().getLayer();
            int lr = ddd.getDescriptor().getOrder();
            int ip = ddd.getDescriptor().getComponent();
-//           System.out.println(is+" "+il+" "+lr+" "+ip);
+           if (app.isSingleEvent()) System.out.println("Sector "+is+" Layer "+il+" Order "+lr);
            if (!tdcs.hasItem(is,lr-2,il)) tdcs.add(new ArrayList<Float>(),is,lr-2,il);
                 tdcs.getItem(is,lr-2,il).add((float) ddd.getTDCData(0).getTime()*24/1000);  
            if (!ltpmt.hasItem(is)) {
@@ -282,7 +286,7 @@ public class CNDReconstructionApp extends FCApplication {
            }           
        }
        
-       if (app.isHipoFileOpen) writeHipoOutput();
+       if (app.isHipoFileOpen&&isGoodMIP()) writeHipoOutput();
        
    }
    
@@ -415,29 +419,31 @@ public class CNDReconstructionApp extends FCApplication {
    
    public void processCalib() {
 	   
-//	   if (!isGoodMIP()) return;
+	   if (!isGoodMIP()) return;
 	   
        IndexGenerator ig = new IndexGenerator();
        
        for (Map.Entry<Long,List<Integer>>  entry : lapmt.getMap().entrySet()){
            long hash = entry.getKey();
            int is = ig.getIndex(hash, 0);
-           int ip = ig.getIndex(hash, 1);
-        	   if(adcs.hasItem(is,0,ip)&&adcs.hasItem(is,1,ip)) {
-               float gm = (float) Math.sqrt(adcs.getItem(is,0,ip).get(0)*
-                                            adcs.getItem(is,1,ip).get(0));
-        	       cndPix[0].strips.hmap2.get("H2_a_Hist").get(is, 0, 0).fill(gm,ip,1.0);  
+           for (int il=1; il<4; il++) {
+        	     if(adcs.hasItem(is,0,il)&&adcs.hasItem(is,1,il)) {
+                 float gm = (float) Math.sqrt(adcs.getItem(is,0,il).get(0)*
+                                              adcs.getItem(is,1,il).get(0));
+        	         cndPix[0].strips.hmap2.get("H2_a_Hist").get(is, 0, 0).fill(gm,il,1.0);  
         	   }
+           }
        }
        
        for (Map.Entry<Long,List<Integer>>  entry : ltpmt.getMap().entrySet()){
            long hash = entry.getKey();
            int is = ig.getIndex(hash, 0);
-           int ip = ig.getIndex(hash, 1);
-        	   if(tdcs.hasItem(is,0,ip)&&tdcs.hasItem(is,1,ip)) {
-               float td = tdcs.getItem(is,0,ip).get(0) - tdcs.getItem(is,1,ip).get(0);
-        	       cndPix[0].strips.hmap2.get("H2_t_Hist").get(is, 0, 0).fill(td,ip,1.0);  
+           for (int il=1; il<4; il++) {
+        	   if(tdcs.hasItem(is,0,il)&&tdcs.hasItem(is,1,il)) {
+               float td = tdcs.getItem(is,0,il).get(0) - tdcs.getItem(is,1,il).get(0);
+        	       cndPix[0].strips.hmap2.get("H2_t_Hist").get(is, 0, 0).fill(td,il,1.0);  
         	   }
+           }
        }      
    }
    
@@ -485,8 +491,8 @@ public class CNDReconstructionApp extends FCApplication {
            }
        } 
        
-       cndPix[idet].getLmapMinMax(is1,is2,1,0); 
-       cndPix[idet].getLmapMinMax(is1,is2,2,0); 
+       cndPix[idet].getLmapMinMax(is1,is2); 
+       cndPix[idet].getLmapMinMax(is1,is2); 
 
    }  
    

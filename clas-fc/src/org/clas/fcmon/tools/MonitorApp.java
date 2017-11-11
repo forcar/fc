@@ -94,6 +94,7 @@ public class MonitorApp extends JFrame implements ActionListener {
     public int   currentCrate = 1;
     public int   currentSlot  = 3;
     public int   currentChan  = 0;
+    public int   currentEvent = 0;
     public int  detectorIndex = 0;
     public int      viewIndex = 1;
     public int         bitsec = 0;
@@ -167,7 +168,7 @@ public class MonitorApp extends JFrame implements ActionListener {
         System.out.println("monitor.getReverseTT()"); 
         IndexedTable tt = ccdb.getConstants(10, table);
         rtt = new FTHashCollection<int[]>(4);
-        for(int ic=1; ic<61; ic++) {
+        for(int ic=1; ic<74; ic++) {
             for (int sl=3; sl<19; sl++) {
                 int chmax=16;
                 if (sl==6||sl==16) chmax=128;
@@ -451,7 +452,11 @@ public class MonitorApp extends JFrame implements ActionListener {
     }
     
     public Boolean isSingleEvent(){
-    	return eventControl.isSingleEvent;
+       	return eventControl.isSingleEvent;
+    }
+    
+    public int getEventNumber() {
+    	    return eventControl.currentEvent;
     }
     
     public String getDataSource(){
@@ -517,11 +522,19 @@ public class MonitorApp extends JFrame implements ActionListener {
         case "ECMON":   return viewIndex+3*detectorIndex; 
         case "FTOFMON": return dd.getLayer();
         case "CTOFMON": return viewIndex+2*detectorIndex;
-        case "CNDMON":  return viewIndex+2*detectorIndex;
+        case "CNDMON":  return dd.getComponent()+1;
         }
         return 0;
     }
-    
+    public int getic(DetectorDescriptor dd) {
+        switch (appName) {
+        case "ECMON":   return dd.getComponent()+1; 
+        case "FTOFMON": return dd.getComponent()+1;  
+        case "CTOFMON": return dd.getComponent()+1; 
+        case "CNDMON":  return dd.getLayer();
+        }
+        return 0;
+    }    
     public void getMode7(int cr, int sl, int ch) {    
         mode7Emulation.configMode7(cr,sl,ch);
         this.nsa    = mode7Emulation.nsa;
@@ -537,7 +550,7 @@ public class MonitorApp extends JFrame implements ActionListener {
       
         int is = dd.getSector();
         int sp = getsp(dd);        
-        int ic = dd.getComponent()+1;
+        int ic = getic(dd);
         int or = dd.getOrder();
         int cr = 0;
         int sl = 0;

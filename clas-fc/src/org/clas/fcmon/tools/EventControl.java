@@ -150,8 +150,8 @@ public class EventControl extends JPanel implements ActionListener, ChangeListen
     			isRemote	   = true;
     			isSingleEvent  = false;
     			isEtFileOpen   = true;
-                isEvioFileOpen = false;
-                isHipoFileOpen = false;
+            isEvioFileOpen = false;
+            isHipoFileOpen = false;
     			etReader.close();
     			etReader.loadEvents();
     			buttonNext.setEnabled(true);
@@ -181,10 +181,10 @@ public class EventControl extends JPanel implements ActionListener, ChangeListen
         isXHipoOpen       = false;
         buttonNext.setEnabled(true);
         buttonNextFFW.setEnabled(true);
-        Integer current = evReader.getCurrentIndex();
+        currentEvent = evReader.getCurrentIndex();
         Integer nevents = evReader.getSize();  
         this.fileLabel.setText("FILE: "+eviofile.getName());
-        this.statusLabel.setText("   EVENTS IN FILE : " + nevents.toString() + "  CURRENT : " + current.toString());
+        this.statusLabel.setText("   EVENTS IN FILE : " + nevents.toString() + "  CURRENT : " + currentEvent);
     }
     
     public void openXEvioRing(){
