@@ -83,7 +83,7 @@ public class CNDMon extends DetectorMonitor {
                 "/daq/fadc/cnd",
                 "/daq/tt/cnd"}));
         app.getReverseTT(ccdb,"/daq/tt/cnd"); 
-        app.mode7Emulation.init(ccdb,calRun,"/daq/fadc/cnd", 3,3,1);        
+        app.mode7Emulation.init(ccdb,calRun,"/daq/fadc/cnd", 73,3,1);        
     } 
     
     public void initDetector() {
