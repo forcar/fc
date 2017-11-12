@@ -20,15 +20,13 @@ public class CTOFMipApp extends FCApplication {
     public void updateCanvas(DetectorDescriptor dd) {
         
         this.getDetIndices(dd);   
-        int  lr = dd.getOrder()+1;
+        int  lr = io+1;
         int ilm = ilmap;
         
         int nstr = ctofPix[ilm].nstr;
         int min=0, max=nstr;
-        
-        switch (ilmap) {
-        case 0: c.divide(4,6); max=24 ; if (ic>23) {min=24; max=48;} if (ic>47) {min=48; max=nstr;} break;
-        }     
+    
+        c.divide(4,6); max=24 ; if (ic>23) {min=24; max=48;};       
         
         c.setAxisFontSize(12);
 //      canvas.setAxisTitleFontSize(12);
@@ -48,7 +46,7 @@ public class CTOFMipApp extends FCApplication {
             h.setOptStat(Integer.parseInt("110")); 
             h.setTitleX(alab); h.setTitle(""); h.setFillColor(32); c.draw(h);
             h = ctofPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,0,0).sliceY(iip);
-            h.setFillColor(4); c.draw(h,"same");  
+            h.setFillColor(34); c.draw(h,"same");  
 //            if (h.getEntries()>100) {h.fit(f1,"REQ");}
         }
 
