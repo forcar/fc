@@ -20,7 +20,7 @@ public class CNDMipApp extends FCApplication {
     public void updateCanvas(DetectorDescriptor dd) {
         
         this.getDetIndices(dd);   
-        int  lr = layer;
+        int  lr = io+1;
         int ilm = ilmap;
         
         int nstr = cndPix[ilm].nstr;
@@ -28,8 +28,6 @@ public class CNDMipApp extends FCApplication {
         
         switch (ilmap) {
         case 0: c.divide(4,6); break;
-        case 1: c.divide(3,7); max=21 ; if (ic>20) {min=21; max=42;} if (ic>41) {min=42; max=nstr;} break;
-        case 2: c.divide(2,3);
         }     
         
         c.setAxisFontSize(12);
@@ -39,25 +37,26 @@ public class CNDMipApp extends FCApplication {
         
         H1F h;
         String alab;
-        String otab[]={" UP PMT "," DN PMT "};
-        String lab4[]={" ADC"," TDC","GMEAN PMT "};      
+        String otab[]={" L PMT "," R PMT "};
+        String lab4[]={" ADC"," TDC","GMEAN "};      
 
        
-        for(int iip=min;iip<max;iip++) {
-            alab = otab[lr-1]+(iip+1)+lab4[0];
-            c.cd(iip-min);                           
-            h = cndPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,lr,0).sliceY(iip); 
-            h.setOptStat(Integer.parseInt("110")); 
+        for(int iis=1 ; iis<25 ; iis++) {
+            alab = "SECTOR "+iis+" LAYER "+(ic+1)+otab[lr-1]+lab4[0];
+            c.cd(iis-1);                           
+            h = cndPix[ilm].strips.hmap2.get("H2_a_Hist").get(iis,lr,0).sliceY(ic); 
+            h.setOptStat(Integer.parseInt("1000100")); 
             h.setTitleX(alab); h.setTitle(""); h.setFillColor(32); c.draw(h);
-            h = cndPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,0,0).sliceY(iip);
-            h.setFillColor(4); c.draw(h,"same");  
+            h = cndPix[ilm].strips.hmap2.get("H2_a_Hist").get(iis,0,0).sliceY(ic);
+            h.setFillColor(24); c.draw(h,"same");  
 //            if (h.getEntries()>100) {h.fit(f1,"REQ");}
         }
 
-        c.cd(ic-min); 
+        c.cd(is-1); 
         h = cndPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,0,0).sliceY(ic); 
-        h.setOptStat(Integer.parseInt("110")); 
-        alab = "PMT "+(ic+1)+" GMEAN"; h.setTitleX(alab); h.setTitle(""); h.setFillColor(2); c.draw(h); 
+        h.setOptStat(Integer.parseInt("1000100")); 
+        alab = "SECTOR "+is+" LAYER "+(ic+1)+" GMEAN"; 
+        h.setTitleX(alab); h.setTitle(""); h.setFillColor(2); c.draw(h); 
         
         c.repaint();
 
