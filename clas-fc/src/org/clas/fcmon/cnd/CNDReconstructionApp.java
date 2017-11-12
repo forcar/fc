@@ -136,7 +136,7 @@ public class CNDReconstructionApp extends FCApplication {
            evno      = bank.getInt("event",0);         
            int phase_offset = 1;
            phase = ((timestamp%6)+phase_offset)%6;
-           app.bitsec = (int) (Math.log10(trigger>>24)/0.301+1);
+           if (trigger>0) app.bitsec = (int) (Math.log10(trigger>>24)/0.301+1);
        }
        
        if (app.isMCB) offset=(float)124.25;
@@ -196,6 +196,13 @@ public class CNDReconstructionApp extends FCApplication {
                        cndPix[0].strips.hmap2.get("H2_a_Sevd").get(is,lr+1,0).fill(ii,il,wgt);
                    }
                }
+               
+               if (app.rtt.hasItem(is,il,ip,lr)) {
+                   int[] dum = (int[]) app.rtt.getItem(is,il,ip,lr);                  
+                   getMode7(dum[0],dum[1],dum[2]);                  
+               }
+               
+               if (ped>0) cndPix[0].strips.hmap2.get("H2_a_Hist").get(is,lr+1,3).fill(this.pedref-ped, il);
                
                if(isGoodSector(is)) fill(0, is, lr+1, il, adc, tdc, t, (float) adc);    
            }

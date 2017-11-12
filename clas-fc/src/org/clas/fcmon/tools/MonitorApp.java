@@ -526,6 +526,7 @@ public class MonitorApp extends JFrame implements ActionListener {
         }
         return 0;
     }
+    
     public int getic(DetectorDescriptor dd) {
         switch (appName) {
         case "ECMON":   return dd.getComponent()+1; 
@@ -534,7 +535,8 @@ public class MonitorApp extends JFrame implements ActionListener {
         case "CNDMON":  return dd.getLayer();
         }
         return 0;
-    }    
+    }   
+    
     public void getMode7(int cr, int sl, int ch) {    
         mode7Emulation.configMode7(cr,sl,ch);
         this.nsa    = mode7Emulation.nsa;
@@ -542,8 +544,7 @@ public class MonitorApp extends JFrame implements ActionListener {
         this.tet    = mode7Emulation.tet;
         this.pedref = mode7Emulation.pedref;
      }
- 
-    
+   
     public String getStatusString(DetectorDescriptor dd) {
         
         String comp=(dd.getLayer()==4) ? "  Pixel:":"  PMT:";  
@@ -575,6 +576,7 @@ public class MonitorApp extends JFrame implements ActionListener {
         openBtn.setBackground(Color.GREEN);
         decoder.openHipoFile(hipoPath);        
     }
+    
     public void closeHIPOAction() {
         openBtn.setBackground(Color.RED);
         eventControl.buttonStop.doClick();

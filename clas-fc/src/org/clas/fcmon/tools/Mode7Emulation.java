@@ -20,7 +20,7 @@ import org.jlab.utils.groups.IndexedTable;
 public class Mode7Emulation extends JPanel implements ActionListener,ItemListener {
 	
    DetectorPane2D detectorView = null;
-   IndexedTable      fadc = null;
+   IndexedTable           fadc = null;
    
    ButtonGroup       bG3  = new ButtonGroup();
    JRadioButton      bG3a = new JRadioButton("CCDB"); 
@@ -74,10 +74,15 @@ public class Mode7Emulation extends JPanel implements ActionListener,ItemListene
       if (User_nsb>0) this.nsb=User_nsb;
    }
 	   
-   public void init(ConstantsManager ccdb, int run, String table, int cr, int sl, int ch) {   
+   public void init(ConstantsManager ccdb, int run, String table, int cr, int sl, int ch) {  
+	  System.out.println("Mode7Emulation.init()");
       this.fadc = ccdb.getConstants(run, table);
       configMode7(cr,sl,ch);
       updateGUI();
+   }
+   
+   public IndexedTable getFadcTable() {
+	   return this.fadc;
    }
    
    public void updateGUI() {
