@@ -86,7 +86,7 @@ public class CTOFMon extends DetectorMonitor {
                 "/calibration/ctof/gain_balance",
                 "/calibration/ctof/status"}));
         app.getReverseTT(ccdb,"/daq/tt/ctof"); 
-        app.mode7Emulation.init(ccdb,calRun,"/daq/fadc/ctof", 3,3,1);        
+        app.mode7Emulation.init(ccdb,calRun,"/daq/fadc/ctof", 59,3,1);        
     } 
     
     public void initDetector() {
