@@ -238,7 +238,7 @@ public class DetectorEventDecoder {
                         //for(int i = 0; i < data.getADCSize(); i++){
                         //    basicFitter.fit(data.getADCData(i));
                         //}
-            	            int tet = (this.tet>0) ? this.nsa:daq.getIntValue("tet", crate,slot,channel); //lcs
+            	            int tet = (this.tet>0) ? this.tet:daq.getIntValue("tet", crate,slot,channel); //lcs
             	            int nsa = (this.nsa>0) ? this.nsa:daq.getIntValue("nsa", crate,slot,channel); //lcs
             	            int nsb = (this.nsb>0) ? this.nsb:daq.getIntValue("nsb", crate,slot,channel); //lcs
                         if(data.getADCSize()>0){

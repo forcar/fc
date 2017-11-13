@@ -10,7 +10,6 @@ import org.jlab.io.evio.EvioDataEvent;
 import org.jlab.io.hipo.HipoDataBank;
 import org.jlab.io.hipo.HipoDataEvent;
 import org.jlab.io.hipo.HipoDataSync;
-import org.jlab.detector.decode.CLASDecoder;
 import org.jlab.detector.decode.CodaEventDecoder;
 //import org.jlab.detector.decode.DetectorEventDecoder;
 import org.jlab.groot.data.H1F;

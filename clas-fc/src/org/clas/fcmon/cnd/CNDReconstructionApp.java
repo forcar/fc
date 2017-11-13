@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.clas.fcmon.tools.FADCFitter;
 import org.clas.fcmon.tools.FCApplication;
 
 //groot
@@ -20,8 +19,6 @@ import org.jlab.detector.base.DetectorCollection;
 import org.jlab.detector.base.DetectorType;
 import org.jlab.detector.decode.CodaEventDecoder;
 import org.jlab.detector.decode.DetectorDataDgtz;
-import org.jlab.detector.decode.DetectorEventDecoder;
-import org.jlab.io.evio.EvioDataEvent;
 import org.jlab.utils.groups.IndexedList;
 import org.jlab.utils.groups.IndexedList.IndexGenerator;
 import org.jlab.io.base.DataBank;
@@ -32,14 +29,12 @@ import org.jlab.io.evio.EvioDataBank;
 
 public class CNDReconstructionApp extends FCApplication {
     
-   FADCFitter     fitter  = new FADCFitter(1,15);
    String          mondet = null;
    
    String        BankType = null;
    int              detID = 0;
    
    CodaEventDecoder           codaDecoder = new CodaEventDecoder();
-   DetectorEventDecoder   detectorDecoder = new DetectorEventDecoder();
    List<DetectorDataDgtz>        dataList = new ArrayList<DetectorDataDgtz>();
    IndexedList<List<Float>>          tdcs = new IndexedList<List<Float>>(3);
    IndexedList<List<Float>>          adcs = new IndexedList<List<Float>>(3);
@@ -214,14 +209,20 @@ public class CNDReconstructionApp extends FCApplication {
        
        clear(0); tdcs.clear(); adcs.clear(); lapmt.clear(); ltpmt.clear();
        
+       app.decoder.detectorDecoder.setTET(app.mode7Emulation.tet);
+       app.decoder.detectorDecoder.setNSA(app.mode7Emulation.nsa);
+       app.decoder.detectorDecoder.setNSB(app.mode7Emulation.nsb);
+       
        app.decoder.initEvent(event);
        
-       long phase = app.decoder.getPhase();
+       long   phase = app.decoder.getPhase();
        app.localRun = app.decoder.getRun();
+       
        if (app.isSingleEvent()) {
-    	     System.out.println(" ");       
+    	 System.out.println(" ");       
          System.out.println("Event Number "+app.getEventNumber());
        }
+       
        List<DetectorDataDgtz> adcDGTZ = app.decoder.getEntriesADC(DetectorType.CND);
        List<DetectorDataDgtz> tdcDGTZ = app.decoder.getEntriesTDC(DetectorType.CND);
      
@@ -235,7 +236,7 @@ public class CNDReconstructionApp extends FCApplication {
            if (!tdcs.hasItem(is,lr-2,il)) tdcs.add(new ArrayList<Float>(),is,lr-2,il);
                 tdcs.getItem(is,lr-2,il).add((float) ddd.getTDCData(0).getTime()*24/1000);  
            if (!ltpmt.hasItem(is)) {
-        	        ltpmt.add(new ArrayList<Integer>(),is);
+                ltpmt.add(new ArrayList<Integer>(),is);
                 ltpmt.getItem(is).add(is);
            }
        }
@@ -261,7 +262,7 @@ public class CNDReconstructionApp extends FCApplication {
           if (!adcs.hasItem(is,lr,il)) adcs.add(new ArrayList<Float>(),is,lr,il);
                adcs.getItem(is,lr,il).add((float)ad);                
           if (!lapmt.hasItem(is)) {
-        	       lapmt.add(new ArrayList<Integer>(),is);
+               lapmt.add(new ArrayList<Integer>(),is);
                lapmt.getItem(is).add(is);
           }           
            

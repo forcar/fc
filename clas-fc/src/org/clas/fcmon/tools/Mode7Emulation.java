@@ -85,7 +85,7 @@ public class Mode7Emulation extends JPanel implements ActionListener,ItemListene
 	   return this.fadc;
    }
    
-   public void updateGUI() {
+   public void updateGUI() {	 
       ttet.setText(Integer.toString(this.tet)); 
       tnsa.setText(Integer.toString(this.nsa));
       tnsb.setText(Integer.toString(this.nsb));
