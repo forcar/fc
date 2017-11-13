@@ -232,6 +232,7 @@ public class CNDReconstructionApp extends FCApplication {
            int il = ddd.getDescriptor().getLayer();
            int lr = ddd.getDescriptor().getOrder();
            int ip = ddd.getDescriptor().getComponent();
+           
            if (app.isSingleEvent()) System.out.println("Sector "+is+" Layer "+il+" Order "+lr);
            if (!tdcs.hasItem(is,lr-2,il)) tdcs.add(new ArrayList<Float>(),is,lr-2,il);
                 tdcs.getItem(is,lr-2,il).add((float) ddd.getTDCData(0).getTime()*24/1000);  
@@ -386,7 +387,7 @@ public class CNDReconstructionApp extends FCApplication {
 
        for (int ii=0; ii<tdc.length; ii++) {
            
-       if(tdc[ii]>0&&tdc[ii]<500){
+       if(tdc[ii]>700&&tdc[ii]<900){
              cndPix[idet].nht[is-1][il-1]++; int inh = cndPix[idet].nht[is-1][il-1];
              if (inh>nstr) inh=nstr;
              cndPix[idet].ph[is-1][il-1][inh-1] = adph;
