@@ -216,8 +216,8 @@ public class CNDMon extends DetectorMonitor {
     public void update(DetectorShape2D shape) {
         //From DetectorView2D.DetectorViewLayer2D.drawLayer: Update color map of shape
         cndDet.update(shape);
-//        if (app.getSelectedTabName().equals("Scalers")) cndScalers.updateDetectorView(shape);
-//        if (app.getSelectedTabName().equals("HV"))           cndHv.updateDetectorView(shape);
+        if (app.getSelectedTabName().equals("Scalers")) cndScalers.updateDetectorView(shape);
+        if (app.getSelectedTabName().equals("HV"))           cndHv.updateDetectorView(shape);
     }
         
     @Override

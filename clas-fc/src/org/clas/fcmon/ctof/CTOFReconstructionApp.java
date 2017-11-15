@@ -197,7 +197,7 @@ public class CTOFReconstructionApp extends FCApplication {
                }
                
                if (app.rtt.hasItem(is,il,ip,lr)) {
-                   int[] dum = (int[]) app.rtt.getItem(is,il,ip,0);
+                   int[] dum = (int[]) app.rtt.getItem(is,il,ip,lr);
                    getMode7(dum[0],dum[1],dum[2]);
                } 
                

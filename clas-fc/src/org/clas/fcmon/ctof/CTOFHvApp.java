@@ -213,7 +213,7 @@ public class CTOFHvApp extends FCEpics implements ActionListener {
     }
     
     public void loadHV(int is1, int is2, int il1, int il2) {
-        System.out.println("FTOFHvApp.loadHV()");
+        System.out.println("CTOFHvApp.loadHV()");
         for (int is=is1; is<is2 ; is++) {
             for (int il=il1; il<il2 ; il++) {
                 for (int ic=1; ic<nlayMap.get(detName)[il-1]+1; ic++) {

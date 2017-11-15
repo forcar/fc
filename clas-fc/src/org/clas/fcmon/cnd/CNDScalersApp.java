@@ -1,11 +1,13 @@
 package org.clas.fcmon.cnd;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.LinkedList;
+import java.util.TreeMap;
 
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
@@ -15,7 +17,10 @@ import javax.swing.Timer;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ChangeEvent;
 
+import org.clas.fcmon.detector.view.DetectorShape2D;
 import org.clas.fcmon.detector.view.EmbeddedCanvasTabbed;
+import org.clas.fcmon.tools.ColorPalette;
+import org.clas.fcmon.tools.FCApplication;
 import org.clas.fcmon.tools.FCEpics;
 import org.jlab.detector.base.DetectorCollection;
 import org.jlab.detector.base.DetectorDescriptor;
@@ -29,6 +34,8 @@ public class CNDScalersApp extends FCEpics {
 
         DetectorCollection<H1F> H1_SCA = new DetectorCollection<H1F>();
         DetectorCollection<H2F> H2_SCA = new DetectorCollection<H2F>();
+        DetectorCollection<TreeMap<Integer,Object>> Lmap = new DetectorCollection<TreeMap<Integer,Object>>();  
+        
         float norm1[] = null;
         float norm2[] = null;
         float norm3[][] = new float[9][68];
@@ -54,7 +61,6 @@ public class CNDScalersApp extends FCEpics {
         public void init() {
             this.is1=CNDConstants.IS1; 
             this.is2=CNDConstants.IS2;  
-            setPvNames(this.detName,1);
             setPvNames(this.detName,2);
             sectorSelected=is1;
             layerSelected=1;
@@ -63,8 +69,9 @@ public class CNDScalersApp extends FCEpics {
         }
         
         public void startEPICS() {
-            createContext();
-            setCaNames(this.detName,1);
+        	System.out.println("CNDScalersApp: Connect to EPICS Channel Access");
+        	clearMaps(); nfifo=0;
+            createContext();            
             setCaNames(this.detName,2);
             initFifos();
             this.timer = new Timer(delay,action);  
@@ -73,7 +80,8 @@ public class CNDScalersApp extends FCEpics {
         }
         
         public void stopEPICS() {
-            if(this.timer.isRunning()) this.timer.stop();
+        	System.out.println("CNDScalersApp: Disconnect from EPICS Channel Access");
+        	if(this.timer.isRunning()) this.timer.stop();
             destroyContext();
         }   
         
@@ -194,10 +202,8 @@ public class CNDScalersApp extends FCEpics {
             System.out.println("CNDScalersApp.initHistos():");
             for (int is=is1; is<is2 ; is++) {
                 for (int il=1 ; il<layMap.get(detName).length+1 ; il++){
-                    int nb=nlayMap.get(detName)[il-1]; int mx=nb+1;
-                    H1_SCA.add(is, il, 0, new H1F("HV_dsc2"+is+"_"+il, nb,1,mx));                
-                    H1_SCA.add(is, il, 1, new H1F("HV_fadc"+is+"_"+il, nb,1,mx));                               
-                    H2_SCA.add(is, il, 0, new H2F("HV_dsc2"+is+"_"+il, nb,1,mx,nmax,0,nmax));                
+                    int nb=nlayMap.get(detName)[il-1]; int mx=nb+1;                                 
+                    H1_SCA.add(is, il, 1, new H1F("HV_fadc"+is+"_"+il, nb,1,mx));                                                                
                     H2_SCA.add(is, il, 1, new H2F("HV_fadc"+is+"_"+il, nb,1,mx,nmax,0,nmax));                               
                 }
             }
@@ -207,11 +213,9 @@ public class CNDScalersApp extends FCEpics {
             System.out.println("CNDScalersApp.initFifos():");
             for (int is=is1; is<is2 ; is++) {
                 for (int il=1; il<layMap.get(detName).length+1 ; il++) {
-                    for (int ic=1; ic<nlayMap.get(detName)[il-1]+1; ic++) {
-                        app.fifo4.add(is, il, ic,new LinkedList<Double>());
-                        app.fifo5.add(is, il, ic,new LinkedList<Double>());
-                        connectCa(1,"c3",is,il,ic);
-                        connectCa(2,"c1",is,il,ic);
+                    for (int ic=1; ic<nlayMap.get(detName)[il-1]+1; ic++) {                       
+                        app.fifo5.add(is, il, ic,new LinkedList<Double>());                       
+                        connectCa(2,"c",is,il,ic);
                     }
                 }
             }
@@ -224,12 +228,10 @@ public class CNDScalersApp extends FCEpics {
             for (int is=is1; is<is2 ; is++) {
                 for (int il=1; il<layMap.get(detName).length+1 ; il++) {
                     for (int ic=1; ic<nlayMap.get(detName)[il-1]+1; ic++) {
-                        if(nfifo>nmax) {
-                            app.fifo4.get(is, il, ic).removeFirst();
+                        if(nfifo>nmax) {                            
                             app.fifo5.get(is, il, ic).removeFirst();
-                        }
-                        app.fifo4.get(is, il, ic).add(getCaValue(1,"c3",is, il, ic));
-                        app.fifo5.get(is, il, ic).add(getCaValue(2,"c1",is, il, ic));
+                        }                        
+                        app.fifo5.get(is, il, ic).add(getCaValue(2,"c",is, il, ic));
                     }
                 }
              }
@@ -241,34 +243,36 @@ public class CNDScalersApp extends FCEpics {
             
             for (int is=is1; is<is2 ; is++) {
                 for (int il=1; il<layMap.get(detName).length+1 ; il++) {
-                    if(!isAccum) {H1_SCA.get(is, il, 0).reset(); H1_SCA.get(is, il, 1).reset();}
-                    H2_SCA.get(is, il, 0).reset(); H2_SCA.get(is, il, 1).reset();
+                    if(!isAccum) {H1_SCA.get(is, il, 1).reset();}
+                                  H2_SCA.get(is, il, 1).reset();
                     for (int ic=1; ic<nlayMap.get(detName)[il-1]+1; ic++) {                    
-                        H1_SCA.get(is, il, 0).fill(ic,app.fifo4.get(is, il, ic).getLast());
                         H1_SCA.get(is, il, 1).fill(ic,app.fifo5.get(is, il, ic).getLast());
-                        Double ts1[] = new Double[app.fifo4.get(is, il, ic).size()];
                         Double ts2[] = new Double[app.fifo5.get(is, il, ic).size()];
-                        app.fifo4.get(is, il, ic).toArray(ts1);
                         app.fifo5.get(is, il, ic).toArray(ts2);
-                        for (int it=0; it<ts1.length; it++) {
-                            if(isNorm) {
-                                ts1[it]=(ts1[it]-norm3[il-1][ic-1])/Math.sqrt(ts1[it]);
-                                ts2[it]=(ts2[it]-norm4[il-1][ic-1])/Math.sqrt(ts2[it]);
-                            }                
-                            H2_SCA.get(is, il, 0).fill(ic,it,ts1[it]);
+                        for (int it=0; it<ts2.length; it++) {
+                            if(isNorm) ts2[it]=(ts2[it]-norm4[il-1][ic-1])/Math.sqrt(ts2[it]);
                             H2_SCA.get(is, il, 1).fill(ic,it,ts2[it]);
                         }
                     }
                     if(isAccum&&!isNorm&&nTimer==10) {
-                        norm1 = H1_SCA.get(is, il, 0).getData();
                         norm2 = H1_SCA.get(is, il, 1).getData();
                         int itim = nTimer+1;
-                        for (int i=0; i<norm1.length; i++) {norm3[il-1][i]=norm1[i]/itim;norm4[il-1][i]=norm2[i]/itim;}
+                        for (int i=0; i<norm2.length; i++) norm4[il-1][i]=norm2[i]/itim;
                     }    
                 }
             }
             
         }
+        
+        public void makeMaps() {
+        	
+            for (int is=is1; is<is2 ; is++) {
+                for (int il=1; il<layMap.get(detName).length+1 ; il++) {
+                   Lmap.add(is, il,1,FCApplication.toTreeMap((float[]) H1_SCA.get(is, il, 1).getData())) ;
+                }
+            }
+       	
+        }  
         
         public synchronized void updateScalers(int flag) {
             update1DScalers(engine1DCanvas.getCanvas("Scalers"),flag);   
@@ -289,6 +293,8 @@ public class CNDScalersApp extends FCEpics {
         
         public void update1DScalers(EmbeddedCanvas canvas, int flag) {
             
+        	String tit = null;
+        	
             H1F h = new H1F();
             H1F c = new H1F();
             
@@ -302,26 +308,25 @@ public class CNDScalersApp extends FCEpics {
             canvas.getPad(0).getAxisY().setLog(isLogy); 
             canvas.getPad(1).getAxisY().setLog(isLogy); 
             
-            String tit = "Sector "+is+" "+layMap.get(detName)[lr-1]+" PMT";
-            
-            h = H1_SCA.get(is, lr, 0); h.setTitleX(tit); h.setTitleY("DSC2 HITS");
+            tit = "Sector "+is+" "+layMap.get(detName)[0]+" PMT";            
+            h = H1_SCA.get(is, 1, 1); h.setTitleX(tit); h.setTitleY("FADC L HITS");
             h.setFillColor(32); canvas.cd(0); canvas.draw(h);
 
-            h = H1_SCA.get(is, lr, 1); h.setTitleX(tit); h.setTitleY("FADC HITS");
+            tit = "Sector "+is+" "+layMap.get(detName)[1]+" PMT";            
+            h = H1_SCA.get(is, 2, 1); h.setTitleX(tit); h.setTitleY("FADC R HITS");
             h.setFillColor(32); canvas.cd(1); canvas.draw(h);
-            
-            c = H1_SCA.get(is, lr, 0).histClone("Copy"); c.reset() ; 
-            c.setBinContent(ip, H1_SCA.get(is, lr, 0).getBinContent(ip));
-            c.setFillColor(2);  canvas.cd(0); canvas.draw(c,"same");
+
             
             c = H1_SCA.get(is, lr, 1).histClone("Copy"); c.reset() ; 
             c.setBinContent(ip, H1_SCA.get(is, lr, 1).getBinContent(ip));
-            c.setFillColor(2);  canvas.cd(1); canvas.draw(c,"same");
+            c.setFillColor(2);  canvas.cd(lr-1); canvas.draw(c,"same");
               
             canvas.repaint();
         }
         
         public void update2DScalers(EmbeddedCanvas canvas, int flag) {
+        	
+        	String tit = null;
             
             H2F h = new H2F();
             
@@ -347,12 +352,12 @@ public class CNDScalersApp extends FCEpics {
                 canvas.getPad(1).getAxisZ().setRange(-3.0,3.0);
             }
             
-            String tit = "Sector "+is+" "+layMap.get(detName)[lr-1]+" PMT";
-            
-            h = H2_SCA.get(is, lr, 0); h.setTitleX(tit); h.setTitleY("TIME");
+            tit = "Sector "+is+" "+layMap.get(detName)[0]+" PMT";            
+            h = H2_SCA.get(is, 1, 1); h.setTitleX(tit); h.setTitleY("TIME");
             canvas.cd(0); canvas.draw(h);
             
-            h = H2_SCA.get(is, lr, 1); h.setTitleX(tit); h.setTitleY("TIME");
+            tit = "Sector "+is+" "+layMap.get(detName)[1]+" PMT";            
+            h = H2_SCA.get(is, 2, 1); h.setTitleX(tit); h.setTitleY("TIME");
             canvas.cd(1); canvas.draw(h);
             
             isCurrentSector = is;
@@ -361,5 +366,28 @@ public class CNDScalersApp extends FCEpics {
             canvas.repaint();
             
         }
-
+        
+        public void updateDetectorView(DetectorShape2D shape) {
+        	
+            ColorPalette palette3 = new ColorPalette(3);
+            ColorPalette palette4 = new ColorPalette(4);
+                       
+            ColorPalette pal = palette4;
+            
+            DetectorDescriptor dd = shape.getDescriptor(); 
+            
+            int is = dd.getSector();  
+            int il = dd.getOrder()+1;
+            int ip = dd.getComponent(); 
+                        
+            float z = (float) H1_SCA.get(is, il, 1).getBinContent(ip) ;
+            
+            if (app.omap==3) {
+            	double colorfraction=(z-zMinLab)/(zMaxLab-zMinLab);
+                app.getDetectorView().getView().zmax = zMaxLab;
+                app.getDetectorView().getView().zmin = zMinLab;
+                Color col = pal.getRange(colorfraction);
+                shape.setColor(col.getRed(),col.getGreen(),col.getBlue());              
+            }
+        }
 }

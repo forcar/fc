@@ -231,8 +231,7 @@ public class CNDReconstructionApp extends FCApplication {
            int is = ddd.getDescriptor().getSector();
            int il = ddd.getDescriptor().getLayer();
            int lr = ddd.getDescriptor().getOrder();
-           int ip = ddd.getDescriptor().getComponent();
-           
+           int ip = ddd.getDescriptor().getComponent();          
            if (app.isSingleEvent()) System.out.println("Sector "+is+" Layer "+il+" Order "+lr);
            if (!tdcs.hasItem(is,lr-2,il)) tdcs.add(new ArrayList<Float>(),is,lr-2,il);
                 tdcs.getItem(is,lr-2,il).add((float) ddd.getTDCData(0).getTime()*24/1000);  
@@ -279,6 +278,7 @@ public class CNDReconstructionApp extends FCApplication {
            }
            
            getMode7(cr,sl,ch); 
+           
            
            for (int ii=0 ; ii< pulse.length ; ii++) {
                cndPix[0].strips.hmap2.get("H2_a_Hist").get(is,lr+1,5).fill(ii,il,pulse[ii]-pd);

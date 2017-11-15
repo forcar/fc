@@ -63,10 +63,12 @@ public class FCEpics  {
     String   ltcc[] = {"L","R"};
     String   ftof[] = {"PANEL1A_L","PANEL1A_R","PANEL1B_L","PANEL1B_R","PANEL2_L","PANEL2_R"};
     String   ctof[] = {"U","D"};
+    String    cnd[] = {"Inner","Middle","Outer"};
     String     ec[] = {"U","V","W","UI","VI","WI","UO","VO","WO"};
     int     nltcc[] = {18,18};
     int     nftof[] = {23,23,62,62,5,5};
     int     nctof[] = {48,48};
+    int      ncnd[] = {2,2,2};
     int       nec[] = {68,62,62,36,36,36,36,36,36};
     
     public int is1,is2;
@@ -80,7 +82,8 @@ public class FCEpics  {
         this.layMap.put("LTCC",ltcc); this.nlayMap.put("LTCC", nltcc);
         this.layMap.put("FTOF",ftof); this.nlayMap.put("FTOF", nftof);
         this.layMap.put("CTOF",ctof); this.nlayMap.put("CTOF", nctof);
-        this.layMap.put("EC",ec);     this.nlayMap.put("EC", nec);
+        this.layMap.put("CND",cnd);   this.nlayMap.put("CND",  ncnd);
+        this.layMap.put("EC",ec);     this.nlayMap.put("EC",   nec);
 	}
 	
 	public void clearMaps() {
@@ -253,6 +256,7 @@ public class FCEpics  {
 	    case "LTCC": return det;
 	    case "FTOF": return det;
 	    case "CTOF": return det;
+	    case  "CND": return det;
 	    case   "EC": return (layer<4) ? "PCAL":"ECAL";
 	    }
 	    return "";
@@ -261,9 +265,12 @@ public class FCEpics  {
 	public String getPvString(String det, int grp, int sector, int layer, int channel, String action) {
 		
 	    String pv = "B_DET_"+detAlias(det,layer)+"_"+grps[grp]+"_SEC"+sector+"_"+layToStr(det,layer)+"_E"+chanToStr(channel);
+	    
 	    switch (det) {
-	    case "CTOF": pv = "B_DET_"+detAlias(det,layer)+"_"+grps[grp]+"_"+layToStr(det,layer)+chanToStr(channel);
+	    case "CTOF": pv = "B_DET_"+detAlias(det,layer)+"_"+grps[grp]+"_"+layToStr(det,layer)+chanToStr(channel); break;
+	    case  "CND": pv = "B_DET_"+detAlias(det,layer)+"_"+grps[grp]+"_"+layToStr(det,layer)+"_Seg"+chanToStr(sector)+"_E"+channel;
 	    }
+	    
 	    return pv+":"+action;
 	} 
     

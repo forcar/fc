@@ -252,13 +252,14 @@ public class CTOFScalersApp extends FCEpics {
                         Double ts2[] = new Double[app.fifo5.get(is, il, ic).size()];                        
                         app.fifo5.get(is, il, ic).toArray(ts2);
                         for (int it=0; it<ts2.length; it++) {
+                            if(isNorm) ts2[it]=(ts2[it]-norm4[il-1][ic-1])/Math.sqrt(ts2[it]);                                                        
                             H2_SCA.get(is, il, 1).fill(ic,it,ts2[it]);
                         }
                     }
                     if(isAccum&&!isNorm&&nTimer==10) {
                         norm2 = H1_SCA.get(is, il, 1).getData();
                         int itim = nTimer+1;
-                        for (int i=0; i<norm1.length; i++) {norm3[il-1][i]=norm1[i]/itim;norm4[il-1][i]=norm2[i]/itim;}
+                        for (int i=0; i<norm2.length; i++) norm4[il-1][i]=norm2[i]/itim;
                     }    
                 }
             }
@@ -343,6 +344,7 @@ public class CTOFScalersApp extends FCEpics {
             canvas.getPad(0).getAxisZ().setRange(zMinLab,zMaxLab);
             canvas.getPad(1).getAxisZ().setLog(isLogz); 
             canvas.getPad(1).getAxisZ().setRange(zMinLab,zMaxLab);
+            
             if (isNorm) {
                 canvas.getPad(0).getAxisZ().setLog(false); 
                 canvas.getPad(1).getAxisZ().setLog(false); 
@@ -350,13 +352,11 @@ public class CTOFScalersApp extends FCEpics {
                 canvas.getPad(1).getAxisZ().setRange(-3.0,3.0);
             }
             
-            String tit = "Sector "+is+" "+layMap.get(detName)[0]+" PMT";            
-            h = H2_SCA.get(is, 1, 1); h.setTitleX(tit); h.setTitleY("TIME");
-            canvas.cd(0); canvas.draw(h);
-            
-                   tit = "Sector "+is+" "+layMap.get(detName)[1]+" PMT";
-            h = H2_SCA.get(is, 2, 1); h.setTitleX(tit); h.setTitleY("TIME");
-            canvas.cd(1); canvas.draw(h);
+            for (int i=0; i<2; i++) {
+                String tit = "Sector "+is+" "+layMap.get(detName)[i]+" PMT";            
+                h = H2_SCA.get(is, i+1, 1); h.setTitleX(tit); h.setTitleY("TIME");
+                canvas.cd(i); canvas.draw(h);
+            }
             
             isCurrentSector = is;
             isCurrentLayer  = lr;

@@ -1,6 +1,7 @@
 package org.clas.fcmon.cnd;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -13,7 +14,9 @@ import javax.swing.JSplitPane;
 import javax.swing.JTextField;
 import javax.swing.Timer;
 
+import org.clas.fcmon.detector.view.DetectorShape2D;
 import org.clas.fcmon.detector.view.EmbeddedCanvasTabbed;
+import org.clas.fcmon.tools.ColorPalette;
 import org.clas.fcmon.tools.FCEpics;
 import org.jlab.detector.base.DetectorCollection;
 import org.jlab.detector.base.DetectorDescriptor;
@@ -33,6 +36,7 @@ public class CNDHvApp extends FCEpics implements ActionListener {
     updateGUIAction action = new updateGUIAction();
     
     Timer timer = null;
+    boolean epicsEnabled = false;
     int delay=2000;
     int nfifo=0, nmax=120;
     int isCurrentSector;
@@ -54,7 +58,9 @@ public class CNDHvApp extends FCEpics implements ActionListener {
     }
     
     public void startEPICS() {
-        createContext();
+    	System.out.println("CNDHvApp: Connect to EPICS Channel Access");
+    	clearMaps(); nfifo=0; 
+    	createContext();
         setCaNames(this.detName,0);
         initFifos();
         this.timer = new Timer(delay,action);  
@@ -63,7 +69,9 @@ public class CNDHvApp extends FCEpics implements ActionListener {
     }
     
     public void stopEPICS() {
-        if(this.timer.isRunning()) this.timer.stop();
+    	System.out.println("CNDHvApp: Disconnect from EPICS Channel Access");
+    	epicsEnabled = false;
+    	if(this.timer.isRunning()) this.timer.stop();
         destroyContext();
     }   
     
@@ -172,7 +180,7 @@ public class CNDHvApp extends FCEpics implements ActionListener {
             }
          }
        // System.out.println("time= "+(System.currentTimeMillis()-startTime));
-        
+        epicsEnabled = true;        
     }
 
     public void fillHistos() {
@@ -204,7 +212,7 @@ public class CNDHvApp extends FCEpics implements ActionListener {
     }
     
     public void loadHV(int is1, int is2, int il1, int il2) {
-        System.out.println("FTOFHvApp.loadHV()");
+        System.out.println("CNDHvApp.loadHV()");
         for (int is=is1; is<is2 ; is++) {
             for (int il=il1; il<il2 ; il++) {
                 for (int ic=1; ic<nlayMap.get(detName)[il-1]+1; ic++) {
@@ -234,8 +242,9 @@ public class CNDHvApp extends FCEpics implements ActionListener {
         
         update1DScalers(engine1DCanvas.getCanvas("HV"),0);   
         update2DScalers(engine2DCanvas.getCanvas("Stripcharts"),0);
-        updateStatus(sectorSelected,layerSelected+2*app.detectorIndex,channelSelected+1);
-
+        
+        if (epicsEnabled) updateStatus(sectorSelected,layerSelected+2*app.detectorIndex,channelSelected+1);
+        
         isCurrentSector = sectorSelected;
         isCurrentLayer  = layerSelected;
     }
@@ -255,19 +264,19 @@ public class CNDHvApp extends FCEpics implements ActionListener {
              
         canvas.divide(4, 1);
         
-        h = H1_HV.get(is, 1+off, 0); h.setTitleX("Sector "+is+" UP PMT"); h.setTitleY("VOLTS");
+        h = H1_HV.get(is, 1+off, 0); h.setTitleX("Sector "+is+" L PMT"); h.setTitleY("VOLTS");
         h.setFillColor(33); canvas.cd(0); canvas.draw(h);
-        h = H1_HV.get(is, 2+off, 0); h.setTitleX("Sector "+is+" DN PMT"); h.setTitleY("VOLTS");
+        h = H1_HV.get(is, 2+off, 0); h.setTitleX("Sector "+is+" R PMT"); h.setTitleY("VOLTS");
         h.setFillColor(33); canvas.cd(1);    canvas.draw(h);
         
-        h = H1_HV.get(is, 1+off, 1); h.setTitleX("Sector "+is+" UP PMT"); h.setTitleY("VOLTS");
+        h = H1_HV.get(is, 1+off, 1); h.setTitleX("Sector "+is+" L PMT"); h.setTitleY("VOLTS");
         h.setFillColor(32); canvas.cd(0); canvas.draw(h,"same");
-        h = H1_HV.get(is, 2+off, 1); h.setTitleX("Sector "+is+" DN PMT"); h.setTitleY("VOLTS");
+        h = H1_HV.get(is, 2+off, 1); h.setTitleX("Sector "+is+" R PMT"); h.setTitleY("VOLTS");
         h.setFillColor(32); canvas.cd(1);    canvas.draw(h,"same");
 
-        h = H1_HV.get(is, 1+off, 2); h.setTitleX("Sector "+is+" UP PMT"); h.setTitleY("MICROAMPS");
+        h = H1_HV.get(is, 1+off, 2); h.setTitleX("Sector "+is+" L PMT"); h.setTitleY("MICROAMPS");
         h.setFillColor(32); canvas.cd(2); canvas.draw(h);
-        h = H1_HV.get(is, 2+off, 2); h.setTitleX("Sector "+is+" DN PMT"); h.setTitleY("MICROAMPS");
+        h = H1_HV.get(is, 2+off, 2); h.setTitleX("Sector "+is+" R PMT"); h.setTitleY("MICROAMPS");
         h.setFillColor(32); canvas.cd(3); canvas.draw(h);
         
         c = H1_HV.get(is, lr+off, 0).histClone("Copy"); c.reset() ; 
@@ -297,14 +306,14 @@ public class CNDHvApp extends FCEpics implements ActionListener {
         
         canvas.divide(4, 1);
         
-        h = H2_HV.get(is, 1+off, 0); h.setTitleX("Sector "+is+" UP PMT"); h.setTitleY("TIME");
+        h = H2_HV.get(is, 1+off, 0); h.setTitleX("Sector "+is+" L PMT"); h.setTitleY("TIME");
         canvas.cd(0); canvas.draw(h);
-        h = H2_HV.get(is, 2+off, 0); h.setTitleX("Sector "+is+" DN PMT"); h.setTitleY("TIME");
+        h = H2_HV.get(is, 2+off, 0); h.setTitleX("Sector "+is+" R PMT"); h.setTitleY("TIME");
         canvas.cd(1);    canvas.draw(h);
 
-        h = H2_HV.get(is, 1+off, 2); h.setTitleX("Sector "+is+" UP PMT"); h.setTitleY("TIME");
+        h = H2_HV.get(is, 1+off, 2); h.setTitleX("Sector "+is+" L PMT"); h.setTitleY("TIME");
         canvas.cd(2); canvas.draw(h);
-        h = H2_HV.get(is, 2+off, 2); h.setTitleX("Sector "+is+" DN PMT"); h.setTitleY("TIME");
+        h = H2_HV.get(is, 2+off, 2); h.setTitleX("Sector "+is+" R PMT"); h.setTitleY("TIME");
         canvas.cd(3); canvas.draw(h);
         
         canvas.repaint();
@@ -312,6 +321,30 @@ public class CNDHvApp extends FCEpics implements ActionListener {
         isCurrentSector = is;
         
     }
+    
+    public void updateDetectorView(DetectorShape2D shape) {
+    	
+        ColorPalette palette3 = new ColorPalette(3);
+        ColorPalette palette4 = new ColorPalette(4);
+                   
+        ColorPalette pal = palette4;
+        
+        DetectorDescriptor dd = shape.getDescriptor(); 
+        
+        int is = dd.getSector();  
+        int il = dd.getOrder()+1;
+        int ip = dd.getComponent(); 
+                    
+        float z = (float) H1_HV.get(is, il, 2).getBinContent(ip) ;
+        float zmin = 300 ; float zmax = 400;
+        if (app.omap==3) {
+        	double colorfraction=(z-zmin)/(zmax-zmin);
+            app.getDetectorView().getView().zmax = zmin;
+            app.getDetectorView().getView().zmin = zmax;
+            Color col = pal.getRange(colorfraction);
+            shape.setColor(col.getRed(),col.getGreen(),col.getBlue());              
+        }
+    }  
     
     @Override
     public void actionPerformed(ActionEvent e) {
