@@ -521,6 +521,7 @@ public class MonitorApp extends JFrame implements ActionListener {
         switch (appName) {
         case "ECMON":   return viewIndex+3*detectorIndex; 
         case "FTOFMON": return dd.getLayer();
+        case "HTCCMON": return dd.getLayer();
         case "CTOFMON": return viewIndex+2*detectorIndex;
         case "CNDMON":  return dd.getComponent()+1;
         }
@@ -531,6 +532,7 @@ public class MonitorApp extends JFrame implements ActionListener {
         switch (appName) {
         case "ECMON":   return dd.getComponent()+1; 
         case "FTOFMON": return dd.getComponent()+1;  
+        case "HTCCMON": return dd.getComponent()+1;  
         case "CTOFMON": return dd.getComponent()+1; 
         case "CNDMON":  return dd.getLayer();
         }

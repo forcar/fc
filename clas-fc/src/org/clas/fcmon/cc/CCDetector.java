@@ -30,10 +30,10 @@ public class CCDetector extends FCDetector {
         app.currentView = "LR";
         
         for(int is=is1; is<is2; is++) {
-            for(int ip=0; ip<ccPix.cc_nstr[0] ; ip++) app.getDetectorView().getView().addShape("LR0",getMirror(is,1,ip));
-            for(int ip=0; ip<ccPix.cc_nstr[1] ; ip++) app.getDetectorView().getView().addShape("LR0",getMirror(is,2,ip));
-            for(int ip=0; ip<ccPix.cc_nstr[0] ; ip++) app.getDetectorView().getView().addShape("L0",getMirror(is,1,ip));
-            for(int ip=0; ip<ccPix.cc_nstr[1] ; ip++) app.getDetectorView().getView().addShape("R0",getMirror(is,2,ip));
+            for(int ip=0; ip<ccPix.cc_nstr[0] ; ip++) app.getDetectorView().getView().addShape("LR0",getMirror(is,1,ip,0));
+            for(int ip=0; ip<ccPix.cc_nstr[1] ; ip++) app.getDetectorView().getView().addShape("LR0",getMirror(is,1,ip,1));
+            for(int ip=0; ip<ccPix.cc_nstr[0] ; ip++) app.getDetectorView().getView().addShape("L0",getMirror(is,1,ip,0));
+            for(int ip=0; ip<ccPix.cc_nstr[1] ; ip++) app.getDetectorView().getView().addShape("R0",getMirror(is,1,ip,1));
         }   
         
         app.getDetectorView().getView().addDetectorListener(mon);
@@ -51,9 +51,9 @@ public class CCDetector extends FCDetector {
         
     }    
     
-    public DetectorShape2D getMirror(int sector, int layer, int mirror) {
+    public DetectorShape2D getMirror(int sector, int layer, int mirror, int or) {
         
-        DetectorShape2D shape = new DetectorShape2D(DetectorType.LTCC,sector,layer,mirror);     
+        DetectorShape2D shape = new DetectorShape2D(DetectorType.LTCC,sector,layer,mirror,or);     
         Path3D shapePath = shape.getShapePath();
         
         int off = (layer-1)*ccPix.cc_nstr[0];

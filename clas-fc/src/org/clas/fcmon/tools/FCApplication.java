@@ -29,6 +29,7 @@ import org.clas.fcmon.ec.ECPixels;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import org.clas.fcmon.ftof.FTOFPixels;
+import org.clas.fcmon.htcc.HTCCPixels;
 import org.clas.fcmon.ctof.CTOFPixels;
 import org.jlab.detector.base.DetectorCollection;
 import org.jlab.detector.base.DetectorDescriptor;
@@ -58,6 +59,7 @@ public class FCApplication implements ActionListener  {
 //    private List<FCParameter>                    parameters = new ArrayList<FCParameter>();
     
     public ECPixels[]                                   ecPix = new ECPixels[2];
+    public HTCCPixels[]                                htccPix = null;
     public CCPixels                                     ccPix = null;
     public FTOFPixels[]                               ftofPix = null;
     public CTOFPixels[]                               ctofPix = null;
@@ -111,6 +113,12 @@ public class FCApplication implements ActionListener  {
         this.ecPix = ecPix;   
         this.addCanvas(name);
     }
+    
+    public FCApplication(String name, HTCCPixels[] htccPix) {
+        this.appName = name;
+        this.htccPix = htccPix;   
+        this.addCanvas(name);
+    }  
     
     public FCApplication(String name, CCPixels ccPix) {
         this.appName = name;

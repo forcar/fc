@@ -40,7 +40,7 @@ public class CCMon extends DetectorMonitor {
     public int               calRun = 2;
     int                       detID = 0;
     int                         is1 = 1 ;
-    int                         is2 = 2 ; 
+    int                         is2 = 7 ; 
     int    nsa,nsb,tet,p1,p2,pedref = 0;
     double               PCMon_zmin = 0;
     double               PCMon_zmax = 0;
@@ -252,7 +252,7 @@ public class CCMon extends DetectorMonitor {
     @Override
     public void processShape(DetectorShape2D shape) {       
         DetectorDescriptor dd = shape.getDescriptor();
-        app.updateStatus(getStatusString(dd));
+        app.updateStatusString(dd);
         this.analyze();        
         switch (app.getSelectedTabName()) {
         case "Mode1":                ccMode1.updateCanvas(dd); break;
