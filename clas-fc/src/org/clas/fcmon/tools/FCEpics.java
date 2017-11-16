@@ -72,7 +72,7 @@ public class FCEpics  {
     int       nec[] = {68,62,62,36,36,36,36,36,36};
     
     public int is1,is2;
-    public int sectorSelected, layerSelected, channelSelected;
+    public int sectorSelected, layerSelected, channelSelected, orderSelected;
     public Boolean online = true;
     
 	public FCEpics(String name, String det){
