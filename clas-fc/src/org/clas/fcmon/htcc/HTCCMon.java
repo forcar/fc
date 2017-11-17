@@ -13,7 +13,7 @@ import org.jlab.io.base.DataEvent;
 
 public class HTCCMon extends DetectorMonitor {
 	
-    static MonitorApp             app = new MonitorApp("CTOFMon",1800,950);	
+    static MonitorApp             app = new MonitorApp("HTCCMon",1800,950);	
     
     HTCCPixels              htccPix[] = new HTCCPixels[1];
     ConstantsManager             ccdb = new ConstantsManager();
