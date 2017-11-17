@@ -67,7 +67,7 @@ public class HTCCMode1App extends FCApplication {
         c = mode1.getCanvas("Event");       
         
 
-        c.divide(4,6); max=24 ; 
+        c.divide(6,4); max=24 ; 
     
 
         c.setAxisFontSize(14);
@@ -88,9 +88,9 @@ public class HTCCMode1App extends FCApplication {
        
         c.clear();
         int n=0;
-        
-        for (int iis=1 ; iis<7 ; iis++) {
-            for(int ip=0;ip<4;ip++){
+
+        for(int ip=0;ip<4;ip++){
+            for (int iis=1 ; iis<7 ; iis++) {
                 c.cd(n); 
                 c.getPad(n).setOptStat(Integer.parseInt("0"));
                 c.getPad(n).getAxisX().setRange(0.,100.);

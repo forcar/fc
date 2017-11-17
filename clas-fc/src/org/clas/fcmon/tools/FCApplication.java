@@ -59,7 +59,7 @@ public class FCApplication implements ActionListener  {
 //    private List<FCParameter>                    parameters = new ArrayList<FCParameter>();
     
     public ECPixels[]                                   ecPix = new ECPixels[2];
-    public HTCCPixels[]                                htccPix = null;
+    public HTCCPixels[]                               htccPix = null;
     public CCPixels                                     ccPix = null;
     public FTOFPixels[]                               ftofPix = null;
     public CTOFPixels[]                               ctofPix = null;

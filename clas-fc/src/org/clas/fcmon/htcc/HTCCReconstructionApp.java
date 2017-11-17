@@ -213,6 +213,10 @@ public class HTCCReconstructionApp extends FCApplication {
        
        clear(0); tdcs.clear(); adcs.clear(); lapmt.clear(); ltpmt.clear();
        
+       app.decoder.detectorDecoder.setTET(app.mode7Emulation.tet);
+       app.decoder.detectorDecoder.setNSA(app.mode7Emulation.nsa);
+       app.decoder.detectorDecoder.setNSB(app.mode7Emulation.nsb);
+       
        app.decoder.initEvent(event);
       
        long phase = app.decoder.getPhase();
@@ -230,7 +234,7 @@ public class HTCCReconstructionApp extends FCApplication {
            if (!tdcs.hasItem(is,il,ip)) tdcs.add(new ArrayList<Float>(),is,il,ip);
                 tdcs.getItem(is,il,ip).add((float) ddd.getTDCData(0).getTime()*24/1000);              
            if (!ltpmt.hasItem(is,ip)) {
-        	        ltpmt.add(new ArrayList<Integer>(),is,ip);
+        	    ltpmt.add(new ArrayList<Integer>(),is,ip);
                 ltpmt.getItem(is,ip).add(is,ip);
            }
        }

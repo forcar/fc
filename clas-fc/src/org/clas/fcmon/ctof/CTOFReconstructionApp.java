@@ -212,6 +212,10 @@ public class CTOFReconstructionApp extends FCApplication {
    public void updateRawData(DataEvent event) {
        
        clear(0); tdcs.clear(); adcs.clear(); lapmt.clear(); ltpmt.clear();
+              
+       app.decoder.detectorDecoder.setTET(app.mode7Emulation.tet);
+       app.decoder.detectorDecoder.setNSA(app.mode7Emulation.nsa);
+       app.decoder.detectorDecoder.setNSB(app.mode7Emulation.nsb);
        
        app.decoder.initEvent(event);
       
