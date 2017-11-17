@@ -65,6 +65,7 @@ public class CNDScalersApp extends FCEpics {
             sectorSelected=is1;
             layerSelected=1;
             channelSelected=1;
+            orderSelected=1;
             initHistos();
         }
         
@@ -282,9 +283,10 @@ public class CNDScalersApp extends FCEpics {
         public void updateCanvas(DetectorDescriptor dd) {
             
             sectorSelected  = dd.getSector();  
-            layerSelected   = dd.getLayer();
-            channelSelected = dd.getComponent(); 
-            
+            channelSelected = dd.getLayer();
+            layerSelected   = dd.getComponent(); 
+            orderSelected   = dd.getOrder()+1;
+           
             updateScalers(0);
             
             isCurrentSector = sectorSelected;
@@ -299,7 +301,8 @@ public class CNDScalersApp extends FCEpics {
             H1F c = new H1F();
             
             int is = sectorSelected;
-            int lr = layerSelected+2*app.detectorIndex;
+//            int lr = layerSelected+2*app.detectorIndex;
+            int lr = orderSelected;
             int ip = channelSelected; 
             
             if (lr==0||lr>layMap.get(detName).length) return;
@@ -331,7 +334,8 @@ public class CNDScalersApp extends FCEpics {
             H2F h = new H2F();
             
             int is = sectorSelected;
-            int lr = layerSelected+2*app.detectorIndex; 
+//            int lr = layerSelected+2*app.detectorIndex; 
+            int lr = orderSelected;  
             
             if (lr==0||lr>layMap.get(detName).length) return;
             
