@@ -27,7 +27,7 @@ public class CCDet extends FCDetector {
     
     public void initDetector(int is1, int is2) {
         
-        app.currentView = "LR";
+        app.currentView = "LRR";
         
         System.out.println("CCDetector.initDetector() is1="+is1+" is2="+is2+" NSTRIPS="+ccPix.nstr);        
         for(int is=is1; is<is2; is++) {
