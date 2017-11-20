@@ -5,14 +5,14 @@ import org.clas.fcmon.tools.FCDetector;
 import org.jlab.detector.base.DetectorType;
 import org.jlab.geom.prim.Path3D;
 
-public class CCDetector extends FCDetector {
+public class CCDet extends FCDetector {
     
-    public CCDetector(String name , CCPixels ccPix) {
+    public CCDet(String name , CCPixels ccPix) {
         super(name, ccPix);       
      } 
     
-    public void init(int is1, int is2) {
-        initDetector(is1,is2);
+    public void init() {
+        initDetector(CCConstants.IS1,CCConstants.IS2);
    }
     
     public void initButtons() {
@@ -29,11 +29,12 @@ public class CCDetector extends FCDetector {
         
         app.currentView = "LR";
         
+        System.out.println("CCDetector.initDetector() is1="+is1+" is2="+is2+" NSTRIPS="+ccPix.nstr);        
         for(int is=is1; is<is2; is++) {
             for(int ip=0; ip<ccPix.cc_nstr[0] ; ip++) app.getDetectorView().getView().addShape("LR0",getMirror(is,1,ip,0));
-            for(int ip=0; ip<ccPix.cc_nstr[1] ; ip++) app.getDetectorView().getView().addShape("LR0",getMirror(is,1,ip,1));
+            for(int ip=0; ip<ccPix.cc_nstr[0] ; ip++) app.getDetectorView().getView().addShape("LR0",getMirror(is,1,ip,1));
             for(int ip=0; ip<ccPix.cc_nstr[0] ; ip++) app.getDetectorView().getView().addShape("L0",getMirror(is,1,ip,0));
-            for(int ip=0; ip<ccPix.cc_nstr[1] ; ip++) app.getDetectorView().getView().addShape("R0",getMirror(is,1,ip,1));
+            for(int ip=0; ip<ccPix.cc_nstr[0] ; ip++) app.getDetectorView().getView().addShape("R0",getMirror(is,1,ip,1));
         }   
         
         app.getDetectorView().getView().addDetectorListener(mon);
