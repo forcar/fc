@@ -235,7 +235,7 @@ public class FCDetector {
                         break;     
         case "HTCCDet": if(!useTDC) {dc = htccPix[ilmap].Lmap_a; mapz=htccPix[ilmap].Lmap_a_z;}
                         if( useTDC) {dc = htccPix[ilmap].Lmap_t; mapz=htccPix[ilmap].Lmap_t_z;}  
-                        layer = dd.getOrder()+1; layz=layer;
+                        layer = dd.getLayer(); layz=layer;
                         break;     
         case   "CCDet": if(!useTDC) dc = ccPix.Lmap_a; 
                         if( useTDC) dc = ccPix.Lmap_t;

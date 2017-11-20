@@ -59,7 +59,7 @@ public class CNDDet extends FCDetector {
         double rotation = Math.toRadians(360.0/cndPix[det].cnd_nsec[0]*(sec-1)+7.5);
         
         DetectorShape2D shape = new DetectorShape2D(DetectorType.CND,sec,lay,pmt,ord); 
-        shape.createSplitTrapXY(ord,cndPix[det].cc.UB[pmt], cndPix[det].cc.LB[pmt], cndPix[det].cc.THICK);
+        shape.createSplitTrapXY(1-ord,cndPix[det].cc.UB[pmt], cndPix[det].cc.LB[pmt], cndPix[det].cc.THICK);
         shape.getShapePath().rotateZ(Math.PI/2.);
         shape.getShapePath().translateXYZ(-cndPix[det].cc.R[pmt], 0.0, 0.0);       
         shape.getShapePath().rotateZ(rotation);

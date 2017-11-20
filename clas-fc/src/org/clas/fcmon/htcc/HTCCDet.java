@@ -61,7 +61,7 @@ public class HTCCDet extends FCDetector {
         double rotation = Math.toRadians(360.0/htccPix[det].htcc_nsec[0]*(sec-1));
         
         DetectorShape2D shape = new DetectorShape2D(DetectorType.HTCC,sec,lay,pmt,ord);     
-        shape.createSplitTrapXY(lay-1,htccPix[det].cc.UB[pmt], htccPix[det].cc.LB[pmt], htccPix[det].cc.THICK);
+        shape.createSplitTrapXY(2-lay,htccPix[det].cc.UB[pmt], htccPix[det].cc.LB[pmt], htccPix[det].cc.THICK);
         shape.getShapePath().rotateZ(Math.PI/2.);
         shape.getShapePath().translateXYZ(-htccPix[det].cc.R[pmt], 0.0, 0.0);       
         shape.getShapePath().rotateZ(rotation);
