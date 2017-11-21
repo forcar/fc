@@ -45,7 +45,7 @@ public class CCReconstructionApp extends FCApplication {
    double[]                sed7=null,sed8=null;
    TreeMap<Integer,Object> map7=null,map8=null; 
    
-   int nstr[] = {ccPix.cc_nstr[0], ccPix.cc_nstr[1]};
+   int nstr[] = {ccPix.cc_nstr[0]};
    
    int        nha[][] = new    int[6][2];
    int        nht[][] = new    int[6][2];

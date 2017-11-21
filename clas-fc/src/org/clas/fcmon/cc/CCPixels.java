@@ -7,6 +7,7 @@ import org.clas.fcmon.tools.Strips;
 import org.jlab.detector.base.DetectorCollection;
 import org.jlab.groot.data.H1F;
 import org.jlab.groot.data.H2F;
+import org.jlab.utils.groups.IndexedList;
 
 public class CCPixels {
 	
@@ -14,12 +15,21 @@ public class CCPixels {
     
     public double cc_xpix[][][] = new double[4][36][7];
     public double cc_ypix[][][] = new double[4][36][7];
-    public    int     cc_nstr[] = {18,18};
+    public    int     cc_nstr[] = {18};
     
     public DetectorCollection<TreeMap<Integer,Object>> Lmap_a = new DetectorCollection<TreeMap<Integer,Object>>();
     public DetectorCollection<TreeMap<Integer,Object>> Lmap_t = new DetectorCollection<TreeMap<Integer,Object>>();
-	
-    public CCPixels() {
+    public IndexedList<double[]>                     Lmap_a_z = new IndexedList<double[]>(2);
+    public IndexedList<double[]>                     Lmap_t_z = new IndexedList<double[]>(2);	
+
+    int id;
+    public int nstr;
+    public String detName = null;
+    
+    public CCPixels(String det) {
+        if (det.equals("LTCC")) id=0;
+        nstr = cc_nstr[id];
+        detName = det;
         this.ccpixdef();
         this.ccpixrot();
     }
@@ -28,6 +38,27 @@ public class CCPixels {
         System.out.println("CCPixels.init():");
         Lmap_a.clear();
         Lmap_t.clear();
+    }	
+    
+    public void getLmapMinMax(int is1, int is2, int il, int opt){
+        TreeMap<Integer,Object> map = null;
+        double min,max,avg,aavg=0,tavg=0;
+        double[] a = {1000,0,0};
+        double[] t = {1000,0,0};
+        for (int is=is1 ; is<is2; is++) {
+            map = Lmap_a.get(is, il, opt);
+            min = (double) map.get(2); max = (double) map.get(3); avg = (double) map.get(4);
+            if (min<a[0]) a[0]=min; if (max>a[1]) a[1]=max; aavg+=avg;
+            map = Lmap_t.get(is, il, opt);
+            min = (double) map.get(2); max = (double) map.get(3); avg = (double) map.get(4);
+            if (min<t[0]) t[0]=min; if (max>t[1]) t[1]=max; tavg+=avg;
+        }
+
+        a[2]=Math.min(500000,aavg/(is2-is1));
+        t[2]=Math.min(500000,tavg/(is2-is1));
+        
+        Lmap_a_z.add(a,il,opt);
+        Lmap_t_z.add(t,il,opt);        
     }	
     
     public void ccpixdef() {

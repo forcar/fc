@@ -1,6 +1,7 @@
 package org.clas.fcmon.cc;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -13,7 +14,9 @@ import javax.swing.JSplitPane;
 import javax.swing.JTextField;
 import javax.swing.Timer;
 
+import org.clas.fcmon.detector.view.DetectorShape2D;
 import org.clas.fcmon.detector.view.EmbeddedCanvasTabbed;
+import org.clas.fcmon.tools.ColorPalette;
 import org.clas.fcmon.tools.FCEpics;
 import org.jlab.detector.base.DetectorCollection;
 import org.jlab.detector.base.DetectorDescriptor;
@@ -32,6 +35,7 @@ public class CCHvApp extends FCEpics implements ActionListener {
     updateGUIAction action = new updateGUIAction();
     
     Timer timer = null;
+    boolean epicsEnabled = false;
     int delay=2000;
     int nfifo=0, nmax=120;
     int isCurrentSector;
@@ -52,13 +56,25 @@ public class CCHvApp extends FCEpics implements ActionListener {
         layerSelected=1;
         channelSelected=1;
         initHistos();
+    }
+    
+    public void startEPICS() {
+    	System.out.println("CCHvApp: Connect to EPICS Channel Access");
+    	clearMaps(); nfifo=0; 
         createContext();
         setCaNames(this.detName,0);
         initFifos();
         this.timer = new Timer(delay,action);  
         this.timer.setDelay(delay);
-        this.timer.start();
-    }
+        this.timer.start();           	
+   }
+    
+    public void stopEPICS() {
+    	System.out.println("CCHvApp: Disconnect from EPICS Channel Access");
+    	epicsEnabled = false;
+        if(this.timer.isRunning()) this.timer.stop();
+        destroyContext();
+    }   
     
     public JPanel getPanel() {        
         engineView.setLayout(new BorderLayout());
@@ -300,6 +316,29 @@ public class CCHvApp extends FCEpics implements ActionListener {
         canvas.repaint();
         
     }
+    public void updateDetectorView(DetectorShape2D shape) {
+    	
+        ColorPalette palette3 = new ColorPalette(3);
+        ColorPalette palette4 = new ColorPalette(4);
+                   
+        ColorPalette pal = palette4;
+        
+        DetectorDescriptor dd = shape.getDescriptor(); 
+        
+        int is = dd.getSector();  
+        int il = dd.getOrder()+1;
+        int ip = dd.getComponent(); 
+                    
+        float z = (float) H1_HV.get(is, il, 2).getBinContent(ip) ;
+        float zmin = 300 ; float zmax = 400;
+        if (app.omap==3) {
+        	double colorfraction=(z-zmin)/(zmax-zmin);
+            app.getDetectorView().getView().zmax = zmin;
+            app.getDetectorView().getView().zmin = zmax;
+            Color col = pal.getRange(colorfraction);
+            shape.setColor(col.getRed(),col.getGreen(),col.getBlue());              
+        }
+    }  
     
     @Override
     public void actionPerformed(ActionEvent e) {

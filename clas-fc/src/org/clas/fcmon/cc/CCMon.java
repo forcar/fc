@@ -23,10 +23,10 @@ public class CCMon extends DetectorMonitor {
 	
     static MonitorApp           app = new MonitorApp("LTCCMon",1800,950);
     
-    CCPixels                  ccPix = new CCPixels();
+    CCPixels                  ccPix = null;
     ConstantsManager           ccdb = new ConstantsManager();  
     FTHashCollection            rtt = null;    
-    CCDetector                ccDet = null;  
+    CCDet                     ccDet = null;  
     
     CCReconstructionApp     ccRecon = null;
     CCMode1App              ccMode1 = null;
@@ -46,6 +46,7 @@ public class CCMon extends DetectorMonitor {
     double               PCMon_zmax = 0;
     
     String                   mondet = "LTCC";
+    static String           appname = "LTCCMON";
     
     DetectorCollection<H1F> H1_CCa_Sevd = new DetectorCollection<H1F>();
     DetectorCollection<H1F> H1_CCt_Sevd = new DetectorCollection<H1F>();
@@ -58,6 +59,7 @@ public class CCMon extends DetectorMonitor {
     public CCMon(String det) {
         super("CCMON", "1.0", "lcsmith");
         mondet = det;
+        ccPix = new CCPixels("LTCC");  
     }
 
     public static void main(String[] args){		
@@ -68,6 +70,7 @@ public class CCMon extends DetectorMonitor {
             monitor.is2=Integer.parseInt(args[1]);    
          }
         app.setPluginClass(monitor);
+        app.setAppName(appname);
         app.makeGUI();
         app.getEnv();
         monitor.initConstants();
@@ -75,36 +78,13 @@ public class CCMon extends DetectorMonitor {
         monitor.initGlob();
         monitor.makeApps();
         monitor.addCanvas();
-        monitor.initEPICS();
         monitor.init();
         monitor.initDetector();
         app.init();
         app.getDetectorView().setFPS(10);
         app.setSelectedTab(1); 
-        app.setIsMC(false);
         monitor.ccDet.initButtons();
     }
-    
-    public FTHashCollection getReverseTT(ConstantsManager ccdb) {
-        System.out.println("monitor.getReverseTT()"); 
-        IndexedTable tt = ccdb.getConstants(10,  "/daq/tt/ltcc");
-        FTHashCollection rtt = new FTHashCollection<int[]>(4);
-        for(int ic=1; ic<35; ic++) {
-            for (int sl=16; sl<21; sl++) {
-                int chmax=16;
-                if (sl==16) chmax=128;
-                for (int ch=0; ch<chmax; ch++){
-                    if (tt.hasEntry(ic,sl,ch)) {
-                        int[] dum = {ic,sl,ch}; rtt.add(dum,tt.getIntValue("sector",    ic,sl,ch),
-                                                            tt.getIntValue("layer",     ic,sl,ch),
-                                                            tt.getIntValue("component", ic,sl,ch),
-                                                            tt.getIntValue("order",     ic,sl,ch));
-                    };
-                }
-            }
-        }
-        return rtt;
-    }  
     
     public void initConstants() {
         CCConstants.setSectors(is1,is2);
@@ -117,23 +97,23 @@ public class CCMon extends DetectorMonitor {
                 "/calibration/ltcc/gain",
                 "/calibration/ltcc/timing_offset",
                 "/calibration/ltcc/status"}));
-        rtt = getReverseTT(ccdb);
+        app.getReverseTT(ccdb,"/daq/tt/ltcc");
         app.mode7Emulation.init(ccdb, calRun, "/daq/fadc/ltcc", 1,18,12);        
     }
     
     public void initDetector() {
         System.out.println("monitor.initDetector()"); 
-        ccDet = new CCDetector("CCDet",ccPix);
+        ccDet = new CCDet("CCDet",ccPix);
         ccDet.setMonitoringClass(this);
         ccDet.setApplicationClass(app);
-        ccDet.init(is1,is2);
+        ccDet.init();
     }
 	
     public void makeApps() {
         
         System.out.println("monitor.makeApps()");  
         
-        ccRecon = new CCReconstructionApp("CCREC",ccPix);        
+        ccRecon = new CCReconstructionApp("LTCCREC",ccPix);        
         ccRecon.setMonitoringClass(this);
         ccRecon.setApplicationClass(app);	
         
@@ -166,6 +146,9 @@ public class CCMon extends DetectorMonitor {
         ccScalers = new CCScalersApp("Scalers","LTCC");
         ccScalers.setMonitoringClass(this);
         ccScalers.setApplicationClass(app);  
+        
+        if(app.xMsgHost=="localhost") app.startEpics();
+        
     }
 	
     public void addCanvas() {
@@ -190,12 +173,6 @@ public class CCMon extends DetectorMonitor {
         System.out.println("monitor.initApps()");
         ccPix.init();
         ccRecon.init();
-    }
-    
-    public void initEPICS() {
-        System.out.println("monitor.initScalers():Initializing EPICS Channel Access");
-        ccHv.init(app.doEpics);        
-        ccScalers.init(app.doEpics);         
     }
     
     public void initGlob() {
@@ -231,13 +208,7 @@ public class CCMon extends DetectorMonitor {
     public void dataEventAction(DataEvent de) {
         ccRecon.addEvent(de);	
     }
-
-    @Override
-    public void update(DetectorShape2D shape) {
-        ccDet.update(shape);
-        //ccCalib.updateDetectorView(shape);
-    }
-		
+	
     @Override
     public void analyze() {
         
@@ -248,6 +219,14 @@ public class CCMon extends DetectorMonitor {
                 app.setInProcess(3); 
         }
     }
+    
+    @Override
+    public void update(DetectorShape2D shape) {
+        ccDet.update(shape);
+        if (app.getSelectedTabName().equals("Scalers"))   ccScalers.updateDetectorView(shape);
+        if (app.getSelectedTabName().equals("HV"))             ccHv.updateDetectorView(shape);
+    }
+
 
     @Override
     public void processShape(DetectorShape2D shape) {       
@@ -268,27 +247,6 @@ public class CCMon extends DetectorMonitor {
     public void loadHV(int is1, int is2, int il1, int il2) {
         ccHv.loadHV(is1,is2,il1,il2);
     }
-    
-    public String getStatusString(DetectorDescriptor dd) {
-        
-        String comp=(dd.getLayer()==4) ? "  Pixel:":"  PMT:";  
-      
-        int is = dd.getSector();
-        int lr = dd.getLayer();
-        int ic = dd.getComponent()+1;
-        int or = 0;
-        int cr = 0;
-        int sl = 0;
-        int ch = 0;
-        if (app.getSelectedTabName()=="TDC") or=2;
-        if (rtt.hasItem(is,lr,ic,or)) {
-            int[] dum = (int[]) rtt.getItem(is,lr,ic,or);
-            cr = dum[0];
-            sl = dum[1];
-            ch = dum[2];
-        }   
-        return " Sector:"+is+"  Layer:"+lr+comp+ic+" "+" Crate:"+cr+" Slot:"+sl+" Chan:"+ch;
-    } 
     
     @Override
     public void resetEventListener() {
@@ -312,7 +270,7 @@ public class CCMon extends DetectorMonitor {
     public void writeHipoFile() {
         System.out.println("monitor.writeHipoFile()");
         String hipoFileName = app.hipoPath+mondet+"_"+app.runNumber+".hipo";
-        System.out.println("Saving Histograms to "+hipoFileName);
+        System.out.println("Writing Histograms to "+hipoFileName);
         HipoFile histofile = new HipoFile(hipoFileName);
         histofile.addToMap("H2_CCa_Hist", this.H2_CCa_Hist);
         histofile.addToMap("H2_CCt_Hist", this.H2_CCt_Hist);
@@ -343,9 +301,12 @@ public class CCMon extends DetectorMonitor {
     }
 
 	@Override
-	public void initEpics(Boolean isEpics) {
+	public void initEpics(Boolean doEpics) {
 		// TODO Auto-generated method stub
-		
+        System.out.println("monitor.initEpics():Initializing EPICS Channel Access");
+        if (app.xMsgHost=="localhost") {ccHv.online=false ; ccScalers.online=false;}
+        if ( doEpics) {ccHv.startEPICS(); ccScalers.startEPICS();}
+        if (!doEpics) {ccHv.stopEPICS();  ccScalers.stopEPICS();}		
 	}
     
 }

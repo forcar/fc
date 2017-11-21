@@ -436,7 +436,7 @@ public class CCCalibrationApp extends FCApplication implements CalibrationConsta
 
             for(int is=is1; is<is2; is++) {
                 for (int sl=1; sl<3 ; sl++) {
-                    for(int ip = 1; ip < ccPix.cc_nstr[sl-1]+1; ip++) {
+                    for(int ip = 1; ip < ccPix.cc_nstr[0]+1; ip++) {
                         calib.addEntry(is,sl,ip);
                         calib.setDoubleValue(0.00, "Gain",   is,sl,ip);
                         calib.setDoubleValue(0.00, "GainErr",is,sl,ip);

@@ -369,12 +369,12 @@ public class HTCCReconstructionApp extends FCApplication {
        
        if (app.isSingleEvent()) {
            for (int is=iis1 ; is<iis2 ; is++) {
-               for (int il=0 ; il<2 ; il++) {
-                    htccPix[idet].strips.hmap1.get("H1_a_Sevd").get(is+1,il+1,0).reset();
-                    htccPix[idet].strips.hmap2.get("H2_a_Sevd").get(is+1,il+1,0).reset();
-                    htccPix[idet].strips.hmap2.get("H2_a_Sevd").get(is+1,il+1,1).reset();
-                    htccPix[idet].strips.hmap2.get("H2_a_Hist").get(is+1,il+1,5).reset();
-                    htccPix[idet].strips.hmap2.get("H2_t_Sevd").get(is+1,il+1,0).reset();
+               for (int il=1 ; il<3 ; il++) {
+                    htccPix[idet].strips.hmap1.get("H1_a_Sevd").get(is+1,il,0).reset();
+                    htccPix[idet].strips.hmap2.get("H2_a_Sevd").get(is+1,il,0).reset();
+                    htccPix[idet].strips.hmap2.get("H2_a_Sevd").get(is+1,il,1).reset();
+                    htccPix[idet].strips.hmap2.get("H2_a_Hist").get(is+1,il,5).reset();
+                    htccPix[idet].strips.hmap2.get("H2_t_Sevd").get(is+1,il,0).reset();
                }
            }
        }   
@@ -458,21 +458,21 @@ public class HTCCReconstructionApp extends FCApplication {
    public void processSED() {
        
        for (int idet=0; idet<htccPix.length; idet++) {
-       for (int is=iis1; is<iis2; is++) {
-          for (int il=0; il<2; il++ ){;
-          for (int n=0 ; n<htccPix[idet].nha[is][il] ; n++) {
-              int ip=htccPix[idet].strra[is][il][n]; int ad=htccPix[idet].adcr[is][il][n];
-              htccPix[idet].strips.hmap1.get("H1_a_Sevd").get(is+1,il+1,0).fill(ip,ad);
-          }
-          for (int n=0 ; n<htccPix[idet].nht[is][il] ; n++) {
-              int ip=htccPix[idet].strrt[is][il][n]; float td=htccPix[idet].tdcr[is][il][n];
-              double tdc = 0.25*(td-HTCCConstants.TOFFSET);
-              float  wgt = htccPix[idet].ph[is][il][n];
-              wgt = (wgt > 0) ? wgt:1000;
-              htccPix[idet].strips.hmap2.get("H2_t_Sevd").get(is+1,il+1,0).fill((float)tdc,ip,wgt);
-          }
-          }
-       } 
+           for (int is=iis1; is<iis2; is++) {
+              for (int il=0; il<2; il++ ){        	 
+                  for (int n=0 ; n<htccPix[idet].nha[is][il] ; n++) {
+                      int ip=htccPix[idet].strra[is][il][n]; int ad=htccPix[idet].adcr[is][il][n];              
+                      htccPix[idet].strips.hmap1.get("H1_a_Sevd").get(is+1,il+1,0).fill(ip,ad);
+                  }
+                  for (int n=0 ; n<htccPix[idet].nht[is][il] ; n++) {
+                      int ip=htccPix[idet].strrt[is][il][n]; float td=htccPix[idet].tdcr[is][il][n];
+                      double tdc = 0.25*(td-HTCCConstants.TOFFSET);
+                      float  wgt = htccPix[idet].ph[is][il][n];
+                      wgt = (wgt > 0) ? wgt:1000;
+                      htccPix[idet].strips.hmap2.get("H2_t_Sevd").get(is+1,il+1,0).fill((float)tdc,ip,wgt);
+                  }
+              }
+           } 
        }
    } 
    
