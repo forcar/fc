@@ -278,13 +278,14 @@ public class CTOFReconstructionApp extends FCApplication {
            ctofPix[il-1].strips.hmap2.get("H2_t_Hist").get(is,3,4).fill(tdc[0],phase);
            
            getMode7(cr,sl,ch); 
+           int ped = app.mode7Emulation.User_pedref==1 ? this.pedref:pd;
            
            for (int ii=0 ; ii< pulse.length ; ii++) {
-               ctofPix[il-1].strips.hmap2.get("H2_a_Hist").get(is,lr+1,5).fill(ii,ip,pulse[ii]-pd);
+               ctofPix[il-1].strips.hmap2.get("H2_a_Hist").get(is,lr+1,5).fill(ii,ip,pulse[ii]-ped);
                if (app.isSingleEvent()) {
-                  ctofPix[il-1].strips.hmap2.get("H2_a_Sevd").get(is,lr+1,0).fill(ii,ip,pulse[ii]-pd);
+                  ctofPix[il-1].strips.hmap2.get("H2_a_Sevd").get(is,lr+1,0).fill(ii,ip,pulse[ii]-ped);
                   int w1 = t0-this.nsb ; int w2 = t0+this.nsa;
-                  if (ad>0&&ii>=w1&&ii<=w2) ctofPix[il-1].strips.hmap2.get("H2_a_Sevd").get(is,lr+1,1).fill(ii,ip,pulse[ii]-pd);                     
+                  if (ad>0&&ii>=w1&&ii<=w2) ctofPix[il-1].strips.hmap2.get("H2_a_Sevd").get(is,lr+1,1).fill(ii,ip,pulse[ii]-ped);                     
                }
             }
            

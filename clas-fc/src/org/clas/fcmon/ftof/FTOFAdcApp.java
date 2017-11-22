@@ -28,7 +28,7 @@ public class FTOFAdcApp extends FCApplication {
         
         this.getDetIndices(dd); 
         int lr = layer;
-        lr = dd.getOrder()+1;
+        lr = dd.getOrder()+1; 
         
         int col0=0,col1=4,col2=2;
         

@@ -278,13 +278,14 @@ public class HTCCReconstructionApp extends FCApplication {
            htccPix[0].strips.hmap2.get("H2_t_Hist").get(is,3,4).fill(tdc[0],phase);
            
            getMode7(cr,sl,ch); 
+           int ped = app.mode7Emulation.User_pedref==1 ? this.pedref:pd;
            
            for (int ii=0 ; ii< pulse.length ; ii++) {
-               htccPix[0].strips.hmap2.get("H2_a_Hist").get(is,il,5).fill(ii,ip,pulse[ii]-pd);
+               htccPix[0].strips.hmap2.get("H2_a_Hist").get(is,il,5).fill(ii,ip,pulse[ii]-ped);
                if (app.isSingleEvent()) {
-                  htccPix[0].strips.hmap2.get("H2_a_Sevd").get(is,il,0).fill(ii,ip,pulse[ii]-pd);
+                  htccPix[0].strips.hmap2.get("H2_a_Sevd").get(is,il,0).fill(ii,ip,pulse[ii]-ped);
                   int w1 = t0-this.nsb ; int w2 = t0+this.nsa;
-                  if (ad>0&&ii>=w1&&ii<=w2) htccPix[0].strips.hmap2.get("H2_a_Sevd").get(is,il,1).fill(ii,ip,pulse[ii]-pd);                     
+                  if (ad>0&&ii>=w1&&ii<=w2) htccPix[0].strips.hmap2.get("H2_a_Sevd").get(is,il,1).fill(ii,ip,pulse[ii]-ped);                     
                }
             }
            

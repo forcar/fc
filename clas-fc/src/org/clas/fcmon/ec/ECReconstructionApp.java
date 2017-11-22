@@ -102,7 +102,16 @@ public class ECReconstructionApp extends FCApplication {
                }
            }       
        } 
-   }      
+   }   
+   
+   public void getMode7(int cr, int sl, int ch) {    
+	      app.mode7Emulation.configMode7(cr,sl,ch);
+	      this.nsa    = app.mode7Emulation.nsa;
+	      this.nsb    = app.mode7Emulation.nsb;
+	      this.tet    = app.mode7Emulation.tet;
+	      this.pedref = app.mode7Emulation.pedref;  
+   }   
+   
    
    public void addEvent(DataEvent event) {
        
@@ -302,14 +311,15 @@ public class ECReconstructionApp extends FCApplication {
                ecPix[idet].strips.hmap2.get("H2_t_Hist").get(is,3,4).fill(tdc[0],phase);
             }
            
-           app.getMode7(cr,sl,ch); 
+           getMode7(cr,sl,ch);            
+           int ped = app.mode7Emulation.User_pedref==1 ? this.pedref:pd;
            
            for (int ii=0 ; ii< pulse.length ; ii++) {
-               ecPix[idet].strips.hmap2.get("H2_Mode1_Hist").get(is,ilay,0).fill(ii,ip,pulse[ii]-pd);
+               ecPix[idet].strips.hmap2.get("H2_Mode1_Hist").get(is,ilay,0).fill(ii,ip,pulse[ii]-ped);
                if (app.isSingleEvent()) {
-                  ecPix[idet].strips.hmap2.get("H2_Mode1_Sevd").get(is,ilay,0).fill(ii,ip,pulse[ii]-pd);
+                  ecPix[idet].strips.hmap2.get("H2_Mode1_Sevd").get(is,ilay,0).fill(ii,ip,pulse[ii]-ped);
                   int w1 = t0-this.nsb ; int w2 = t0+this.nsa;
-                  if (ad>0&&ii>=w1&&ii<=w2) ecPix[idet].strips.hmap2.get("H2_Mode1_Sevd").get(is,ilay,1).fill(ii,ip,pulse[ii]-pd);                     
+                  if (ad>0&&ii>=w1&&ii<=w2) ecPix[idet].strips.hmap2.get("H2_Mode1_Sevd").get(is,ilay,1).fill(ii,ip,pulse[ii]-ped);                     
                }
             }
            
