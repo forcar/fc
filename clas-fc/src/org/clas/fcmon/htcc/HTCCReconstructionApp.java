@@ -289,7 +289,7 @@ public class HTCCReconstructionApp extends FCApplication {
                }
             }
            
-           if (pd>0) htccPix[0].strips.hmap2.get("H2_a_Hist").get(is,lr+1,3).fill(this.pedref-pd, ip);
+           if (pd>0) htccPix[0].strips.hmap2.get("H2_a_Hist").get(is,il,3).fill(this.pedref-pd, ip);
            
            fill(0, is, il, ip, ad, tdc, tf, ph);   
            

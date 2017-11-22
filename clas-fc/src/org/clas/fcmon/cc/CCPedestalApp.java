@@ -21,7 +21,7 @@ public class CCPedestalApp extends FCApplication {
         if (app.isMC) return;
         
         this.getDetIndices(dd);   
-        int lr = layer;
+        int lr = dd.getOrder()+1;
                
         double nstr = ccPix.cc_nstr[0];
         

@@ -51,7 +51,7 @@ public class HTCCPedestalApp extends FCApplication {
             }
             
             c.cd(il-1+2);
-            h=hpix.sliceY(ics); h.setOptStat(Integer.parseInt("110")); h.setFillColor(4); h.setTitle(""); h.setTitleX("Sector "+is+otab[il-1]+(ics+1)); c.draw(h);
+            h=hpix.sliceY(ics); h.setOptStat(Integer.parseInt("10001100")); h.setFillColor(4); h.setTitle(""); h.setTitleX("Sector "+is+otab[il-1]+(ics+1)); c.draw(h);
             if(lr==il) {h=hpix.sliceY(ic) ; h.setFillColor(2); h.setTitle(" "); h.setTitleX("Sector "+is+otab[il-1]+(ic+1));  c.draw(h);}
             
         }  
