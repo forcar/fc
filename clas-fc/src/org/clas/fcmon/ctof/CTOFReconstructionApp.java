@@ -206,7 +206,7 @@ public class CTOFReconstructionApp extends FCApplication {
                if(isGoodSector(is)) fill(il-1, is, lr+1, ip, adc, tdc, t, (float) adc);    
            }
        }
-       
+       if (app.decoder.isHipoFileOpen&&isGoodMIP(isSingleTrack())) app.decoder.writer.writeEvent(event);       
    }  
    
    public void updateRawData(DataEvent event) {
@@ -295,7 +295,7 @@ public class CTOFReconstructionApp extends FCApplication {
            }           
        }
        
-       if (app.decoder.isHipoFileOpen&&isGoodMIP()) writeHipoOutput();
+       if (app.decoder.isHipoFileOpen&&isGoodMIP(isSingleTrack())) writeHipoOutput();
        
    }
    
@@ -382,10 +382,10 @@ public class CTOFReconstructionApp extends FCApplication {
 
    
    public void fill(int idet, int is, int il, int ip, int adc, float[] tdc, float tdcf, float adph) {
-
+	  
        for (int ii=0; ii<tdc.length; ii++) {
            
-       if(tdc[ii]>0&&tdc[ii]<500){
+       if(tdc[ii]>ctofPix[idet].tlim[0]&&tdc[ii]<ctofPix[idet].tlim[1]){
              ctofPix[idet].nht[is-1][il-1]++; int inh = ctofPix[idet].nht[is-1][il-1];
              if (inh>nstr) inh=nstr;
              ctofPix[idet].ph[is-1][il-1][inh-1] = adph;
@@ -406,12 +406,13 @@ public class CTOFReconstructionApp extends FCApplication {
              ctofPix[idet].tf[is-1][il-1][inh-1] = tdcf;
              ctofPix[idet].strra[is-1][il-1][inh-1] = ip;
              ctofPix[idet].strips.hmap2.get("H2_a_Hist").get(is,il,0).fill(adc,ip,1.0);
-             } 
+       } 
    }
    
-   public boolean isGoodMIP() {
+   public int isSingleTrack() {
 	   
 	   int[] ip = new int[2];
+	   int pdif = 0;
 	   
        if(lapmt.getMap().size()==2) {
            int n = 0;
@@ -419,21 +420,29 @@ public class CTOFReconstructionApp extends FCApplication {
            for (Map.Entry<Long,List<Integer>>  entry : lapmt.getMap().entrySet()){              
                ip[n] = ig.getIndex(entry.getKey(), 0);n++;
            }
+           pdif  = Math.abs(ip[0]-ip[1]); 
        }
-       int pdif  = Math.abs(ip[0]-ip[1]);      
-       return ip[0]>0&&ip[1]>0&&pdif>21&&pdif<25;
+       
+       return pdif>0 ? pdif:-1;
 	 
    }
    
+   public Boolean isGoodMIP(int pdif) {
+	   return pdif>21&&pdif<25;
+   }
+   
    public void processCalib() {
-       
-	   if (!isGoodMIP()) return;
+	   int pdif = isSingleTrack();
+	   if (isGoodMIP(pdif)) processMIP();
+//	   if (pdif>0) processTrack(pdif);
+   }
+   
+   public void processMIP() {
 	   
        IndexGenerator ig = new IndexGenerator();
        
        for (Map.Entry<Long,List<Integer>>  entry : lapmt.getMap().entrySet()){
-           long hash = entry.getKey();
-           int ip = ig.getIndex(hash, 0);
+           int ip = ig.getIndex(entry.getKey(), 0);
         	   if(adcs.hasItem(0,ip)&&adcs.hasItem(1,ip)) {
                    float gm = (float) Math.sqrt(adcs.getItem(0,ip).get(0)*
                                                 adcs.getItem(1,ip).get(0));
@@ -441,15 +450,37 @@ public class CTOFReconstructionApp extends FCApplication {
         	   }
        }
        
-       for (Map.Entry<Long,List<Integer>>  entry : ltpmt.getMap().entrySet()){
-           long hash = entry.getKey();
-           int ip = ig.getIndex(hash, 0);
+       for (Map.Entry<Long,List<Integer>>  entry : ltpmt.getMap().entrySet()){           
+           int ip = ig.getIndex(entry.getKey(), 0);
         	   if(tdcs.hasItem(0,ip)&&tdcs.hasItem(1,ip)) {
                    float td = tdcs.getItem(0,ip).get(0) -
             		          tdcs.getItem(1,ip).get(0);               
         	       ctofPix[0].strips.hmap2.get("H2_t_Hist").get(1, 0, 0).fill(td,ip,1.0);  
         	   }
        }      
+   }
+   
+   public void processTrack(int pdif) {
+	   
+	   if(ltpmt.getMap().size()!=2) return;
+		   
+       float tsum[] = new float[2];
+       int ipp[] = new int[2];
+	   int n = 0;
+       IndexGenerator ig = new IndexGenerator();
+       
+       for (Map.Entry<Long,List<Integer>>  entry : ltpmt.getMap().entrySet()){           
+           int ip = ig.getIndex(entry.getKey(), 0);
+        	   if(tdcs.hasItem(0,ip)&&tdcs.hasItem(1,ip)) {
+        		    ipp[n] = ip;
+                   tsum[n] = (float) 0.5*(tdcs.getItem(0,ip).get(0) +
+            		                      tdcs.getItem(1,ip).get(0)); 
+                   n++;
+        	   }
+       }  
+
+       if (ipp[0]==12 || ipp[1]==12) ctofPix[0].strips.hmap2.get("H2_t_Hist").get(1, 0, 1).fill(tsum[1]-tsum[0],pdif,1.0);  
+      
    }
    
    public void processSED() {

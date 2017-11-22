@@ -26,7 +26,10 @@ public class CTOFTdcApp extends FCApplication {
         
         this.getDetIndices(dd); 
         int lr = dd.getOrder()+1;
-    
+        
+        double tlo = ctofPix[0].tlim[0];
+        double thi = ctofPix[0].tlim[1];
+        
         int col0=0,col1=4,col2=2;
         
         H1F h1a,h1b,h1c,copy1=null,copy2=null;  
@@ -44,12 +47,12 @@ public class CTOFTdcApp extends FCApplication {
         H2F h2a = ctofPix[ilm].strips.hmap2.get("H2_t_Hist").get(is,1,0); h2a.setTitleY("Sector "+is+" UP PMT") ; h2a.setTitleX("UP PMT TDC");
         H2F h2b = ctofPix[ilm].strips.hmap2.get("H2_t_Hist").get(is,2,0); h2b.setTitleY("Sector "+is+" DN PMT") ; h2b.setTitleX("DN PMT TDC");
         H2F h2c = ctofPix[ilm].strips.hmap2.get("H2_t_Hist").get(is,0,0); h2c.setTitleY("Sector "+is+" PADDLE") ; h2c.setTitleX("TDIF");
-        canvasConfig(c,0,0.,200.,1.,nstr+1.,true).draw(h2a);
-        canvasConfig(c,1,0.,200.,1.,nstr+1.,true).draw(h2b);
+        canvasConfig(c,0,tlo,thi,1.,nstr+1.,true).draw(h2a);
+        canvasConfig(c,1,tlo,thi,1.,nstr+1.,true).draw(h2b);
         canvasConfig(c,2, -35.,  35.,1.,nstr+1.,true).draw(h2c);
         
-        F1D f1 = new F1D("p0","[a]",0.,200.); f1.setParameter(0,ic+1);
-        F1D f2 = new F1D("p0","[a]",0.,200.); f2.setParameter(0,ic+2);
+        F1D f1 = new F1D("p0","[a]",tlo,thi); f1.setParameter(0,ic+1);
+        F1D f2 = new F1D("p0","[a]",tlo,thi); f2.setParameter(0,ic+2);
         c.cd(lr-1);        
         f1.setLineColor(2); c.draw(f1,"same"); 
         f2.setLineColor(2); c.draw(f2,"same");

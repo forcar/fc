@@ -27,6 +27,8 @@ public class CTOFMode1App extends FCApplication {
     int is,lr,ic,idet,nstr;
     int ics[][] = new int[3][2];
     String otab[]={" UP PMT "," DOWN PMT "};
+    double tlo = ctofPix[0].tlim[0];
+    double thi = ctofPix[0].tlim[1];
     
     public CTOFMode1App(String name, CTOFPixels[] ctofPix) {
         super(name,ctofPix);    
@@ -141,6 +143,7 @@ public class CTOFMode1App extends FCApplication {
     public void updateAvsT() {
         
         DetectorCollection<H2F> dc2a = ctofPix[idet].strips.hmap2.get("H2_a_Hist");       
+        DetectorCollection<H2F> dc2t = ctofPix[idet].strips.hmap2.get("H2_t_Hist");       
         
         H2F h2;
         
@@ -148,8 +151,11 @@ public class CTOFMode1App extends FCApplication {
        
         for (int il=1; il<3; il++) {
             h2=dc2a.get(is,il,1); h2.setTitleY("Sector "+is+otab[il-1]+" TDC") ; h2.setTitleX("Sector "+is+otab[il-1]+" FADC");
-            canvasConfig(c,il-1,0.,ctofPix[0].amax[0],0.,200.,true).draw(h2);            
+            canvasConfig(c,il-1,0.,ctofPix[0].amax[0],tlo,thi,true).draw(h2);            
         }
+        
+//        h2=dc2t.get(is, 0, 1); h2.setTitleX("Paddle Pair Time Difference (ns)") ; h2.setTitleY("Paddle Separation");        
+//        canvasConfig(c,2,-20.,20.,1.,49.,true).draw(h2);
         
         c.repaint();
         
@@ -164,10 +170,10 @@ public class CTOFMode1App extends FCApplication {
         
  
         h2 = dc2a.get(is,3,3) ;  h2.setTitleY("PHASE") ; h2.setTitleX("Sector "+is+" CTOF Raw TDC (ns)");   
-        canvasConfig(c,is-1,0.,200.,0.,6.,true).draw(h2);
+        canvasConfig(c,is-1,tlo,thi,0.,6.,true).draw(h2);
               
         h2 = dc2a.get(is,3,4) ;  h2.setTitleY("PHASE") ; h2.setTitleX("Sector "+is+" CTOF Corrected TDC (ns)");   
-        canvasConfig(c,is,0.,200.,0.,6.,true).draw(h2);
+        canvasConfig(c,is,tlo,thi,0.,6.,true).draw(h2);
                
         c.repaint();   
     }    

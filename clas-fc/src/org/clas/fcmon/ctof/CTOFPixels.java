@@ -22,7 +22,8 @@ public class CTOFPixels {
     
     public    int     ctof_nstr[] = {48};
     public double           amax[]= {8000.};
-   
+    public double           tlim[]= {200.,500.};
+    
     int        nha[][] = new    int[6][4];
     int        nht[][] = new    int[6][4];
     int    strra[][][] = new    int[6][4][48]; 
@@ -131,11 +132,12 @@ public class CTOFPixels {
             int ill=0; iid="s"+Integer.toString(is)+"_l"+Integer.toString(ill)+"_c";
             H2_a_Hist.add(is, 0, 0, new H2F("a_gmean_"+iid+0, 100,   0., amax[id],nstr, 1., nend));
             H2_t_Hist.add(is, 0, 0, new H2F("a_tdif_"+iid+0,  100, -35.,      35.,nstr, 1., nend));
-            for (int il=1 ; il<3 ; il++){
+            H2_t_Hist.add(is, 0, 1, new H2F("b_tdif_"+iid+1,   50, -20.,      20.,48,1.,49.));
+           for (int il=1 ; il<3 ; il++){
                 iid="s"+Integer.toString(is)+"_l"+Integer.toString(il)+"_c";
                 H2_a_Hist.add(is, il, 0, new H2F("a_raw_"+iid+0,      100,   0., amax[id],nstr, 1., nend));
-                H2_t_Hist.add(is, il, 0, new H2F("a_raw_"+iid+0,      100,   0.,  200.,nstr, 1., nend));
-                H2_a_Hist.add(is, il, 1, new H2F("a_raw_"+iid+1,      100,   0., amax[id], 100,  0., 200.));
+                H2_t_Hist.add(is, il, 0, new H2F("a_raw_"+iid+0,      100, tlim[0], tlim[1],nstr, 1., nend));
+                H2_a_Hist.add(is, il, 1, new H2F("a_raw_"+iid+1,      100,   0., amax[id], 100, tlim[0], tlim[1]));
                 H2_a_Hist.add(is, il, 3, new H2F("a_ped_"+iid+3,       40, -20.,  20., nstr, 1., nend)); 
                 H2_a_Hist.add(is, il, 5, new H2F("a_fadc_"+iid+5,     100,   0., 100., nstr, 1., nend));
                 H1_a_Sevd.add(is, il, 0, new H1F("a_sed_"+iid+0,                       nstr, 1., nend));
@@ -144,8 +146,8 @@ public class CTOFPixels {
                 H2_t_Sevd.add(is, il, 0, new H2F("a_sed_fadc_"+iid+0, 200,   0., 100., nstr, 1., nend));
             }
             iid="s"+Integer.toString(is)+"_l"+Integer.toString(3)+"_c";
-            H2_t_Hist.add(is, 3, 3, new H2F("a_raw_"+iid+3, 100, 0., 200., 6, 0., 6.)); // No phase correction
-            H2_t_Hist.add(is, 3, 4, new H2F("a_raw_"+iid+4, 100, 0., 200., 6, 0., 6.)); // With phase correction
+            H2_t_Hist.add(is, 3, 3, new H2F("a_raw_"+iid+3, 100, tlim[0],tlim[1], 6, 0., 6.)); // No phase correction
+            H2_t_Hist.add(is, 3, 4, new H2F("a_raw_"+iid+4, 100, tlim[0],tlim[1], 6, 0., 6.)); // With phase correction
         }       
 
         if(!hipoFile.equals(" ")){
