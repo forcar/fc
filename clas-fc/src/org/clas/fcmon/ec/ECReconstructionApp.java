@@ -333,7 +333,7 @@ public class ECReconstructionApp extends FCApplication {
            }    // Good sector        
        }
        
-       if (app.isHipoFileOpen) writeHipoOutput();
+       if (app.decoder.isHipoFileOpen) writeHipoOutput();
        
    }
    
@@ -420,7 +420,7 @@ public class ECReconstructionApp extends FCApplication {
        DataEvent  decodedEvent = app.decoder.getDataEvent();
        DataBank   header = app.decoder.createHeaderBank(decodedEvent,0,0,0,0);
        decodedEvent.appendBanks(header);
-       app.writer.writeEvent(decodedEvent);
+       app.decoder.writer.writeEvent(decodedEvent);
               
    }
    
