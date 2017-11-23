@@ -255,7 +255,12 @@ public class FTOFReconstructionApp extends FCApplication {
                        ftofPix[il-1].strips.hmap2.get("H2_a_Sevd").get(is,lr+1,0).fill(ii,ip,wgt);
                    }
                }
-                              
+               
+               if (app.rtt.hasItem(is,il,ip,lr)) {
+                   int[] dum = (int[]) app.rtt.getItem(is,il,ip,lr);
+                   getMode7(dum[0],dum[1],dum[2]);
+               }
+               
                if (ped>0) ftofPix[il-1].strips.hmap2.get("H2_a_Hist").get(is,lr+1,3).fill(this.pedref-ped, ip);  
                
                if(isGoodSector(is)) fill(il-1, is, lr+1, ip, adc, tdc, t, (float) adc);    
