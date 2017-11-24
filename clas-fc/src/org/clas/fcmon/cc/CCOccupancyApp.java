@@ -17,7 +17,7 @@ public class CCOccupancyApp extends FCApplication {
         
         EmbeddedCanvas c = this.getCanvas(this.getName()); 
         this.getDetIndices(dd); 
-        int lr = layer;
+        int lr = dd.getOrder()+1;
     
         int col0=0,col1=4,col2=2;
         

@@ -238,7 +238,7 @@ public class FCDetector {
                         layer = dd.getLayer(); layz=layer;
                         break;     
         case   "CCDet": if(!useTDC) {dc = ccPix.Lmap_a;  mapz=ccPix.Lmap_a_z;}
-                        layer = dd.getOrder()+1; layz=layer;
+                        layer = dd.getLayer(); layz=layer;
                         //if( useTDC) dc = ccPix.Lmap_t;
         }
         

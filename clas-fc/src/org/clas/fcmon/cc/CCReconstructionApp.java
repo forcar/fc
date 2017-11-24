@@ -215,7 +215,7 @@ public class CCReconstructionApp extends FCApplication {
       
       List<DetectorDataDgtz> adcDGTZ = app.decoder.getEntriesADC(DetectorType.LTCC);
       List<DetectorDataDgtz> tdcDGTZ = app.decoder.getEntriesTDC(DetectorType.LTCC);
-    
+
       for (int i=0; i < tdcDGTZ.size(); i++) {
           DetectorDataDgtz ddd=tdcDGTZ.get(i);
           int is = ddd.getDescriptor().getSector();
@@ -245,12 +245,13 @@ public class CCReconstructionApp extends FCApplication {
           int ad = ddd.getADCData(0).getADC();
           int pd = ddd.getADCData(0).getPedestal();
           int t0 = ddd.getADCData(0).getTimeCourse();  
+         
           float tf = (float) ddd.getADCData(0).getTime();
           float ph = (float) ddd.getADCData(0).getHeight()-pd;
           short[]    pulse = ddd.getADCData(0).getPulseArray();          
           
-         if (!adcs.hasItem(is,lr,il)) adcs.add(new ArrayList<Float>(),is,lr,il);
-              adcs.getItem(is,lr,il).add((float)ad);                
+         if (!adcs.hasItem(is,lr,ip)) adcs.add(new ArrayList<Float>(),is,lr,ip);
+              adcs.getItem(is,lr,ip).add((float)ad);                
          if (!lapmt.hasItem(is)) {
               lapmt.add(new ArrayList<Integer>(),is);
               lapmt.getItem(is).add(is);
@@ -258,9 +259,9 @@ public class CCReconstructionApp extends FCApplication {
           
           Float[] tdcc; float[] tdc;
           
-          if (tdcs.hasItem(is,lr,il)) {
+          if (tdcs.hasItem(is,lr,ip)) {
               List<Float> list = new ArrayList<Float>();
-              list = tdcs.getItem(is,lr,il); tdcc=new Float[list.size()]; list.toArray(tdcc);
+              list = tdcs.getItem(is,lr,ip); tdcc=new Float[list.size()]; list.toArray(tdcc);
               tdc  = new float[list.size()];
               for (int ii=0; ii<tdcc.length; ii++) tdc[ii] = tdcc[ii]-phase*4;  
           } else {
@@ -271,16 +272,16 @@ public class CCReconstructionApp extends FCApplication {
           int ped = app.mode7Emulation.User_pedref==1 ? this.pedref:pd;
                      
           for (int ii=0 ; ii< pulse.length ; ii++) {
-              ccPix.strips.hmap2.get("H2_a_Hist").get(is,lr+1,5).fill(ii,il,pulse[ii]-ped);
+              ccPix.strips.hmap2.get("H2_a_Hist").get(is,lr+1,5).fill(ii,ip,pulse[ii]-ped);
               if (app.isSingleEvent()) {
-                 ccPix.strips.hmap2.get("H2_a_Sevd").get(is,lr+1,0).fill(ii,il,pulse[ii]-ped);
+                 ccPix.strips.hmap2.get("H2_a_Sevd").get(is,lr+1,0).fill(ii,ip,pulse[ii]-ped);
                  int w1 = t0-this.nsb ; int w2 = t0+this.nsa;
-                 if (ad>0&&ii>=w1&&ii<=w2) ccPix.strips.hmap2.get("H2_a_Sevd").get(is,lr+1,1).fill(ii,il,pulse[ii]-ped);                     
+                 if (ad>0&&ii>=w1&&ii<=w2) ccPix.strips.hmap2.get("H2_a_Sevd").get(is,lr+1,1).fill(ii,ip,pulse[ii]-ped);                     
               }
            }
           
-          if (pd>0) ccPix.strips.hmap2.get("H2_a_Hist").get(is,lr+1,3).fill(this.pedref-pd, il);
-          fill(is, lr+1, il, ad, tdc, tf, ph);   
+          if (pd>0) ccPix.strips.hmap2.get("H2_a_Hist").get(is,lr+1,3).fill(this.pedref-pd, ip);
+          fill(is, lr+1, ip, ad, tdc, tf, ph);   
           
           }           
       }
@@ -333,7 +334,7 @@ public class CCReconstructionApp extends FCApplication {
            
        for (int ii=0; ii<tdc.length; ii++) {
     	   
-    	      if(tdc[ii]>700&&tdc[ii]<900){
+    	      if(tdc[ii]>0&&tdc[ii]<900){
       
              ccPix.nht[is-1][il-1]++; int inh = ccPix.nht[is-1][il-1];
     	         if(inh>nstr) inh=nstr;
@@ -393,8 +394,7 @@ public class CCReconstructionApp extends FCApplication {
            }
        }   
 
-       ccPix.getLmapMinMax(is1,is2,1,0); 
-       ccPix.getLmapMinMax(is1,is2,2,0); 
+       ccPix.getLmapMinMax(is1,is2); 
        
    }    
 }
