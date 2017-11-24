@@ -12,32 +12,31 @@ import org.clas.fcmon.tools.FCApplication;
 
 //clas12rec
 import org.jlab.detector.base.DetectorCollection;
+import org.jlab.detector.base.DetectorType;
 import org.jlab.detector.decode.CodaEventDecoder;
 import org.jlab.detector.decode.DetectorDataDgtz;
 import org.jlab.detector.decode.DetectorEventDecoder;
 import org.jlab.groot.data.H1F;
 import org.jlab.groot.data.H2F;
 import org.jlab.io.evio.EvioDataEvent;
+import org.jlab.utils.groups.IndexedList;
+import org.jlab.io.base.DataBank;
 import org.jlab.io.base.DataEvent;
 import org.jlab.io.evio.EvioDataBank;
 
 public class CCReconstructionApp extends FCApplication {
     
    String          mondet ;
-   Boolean           inMC ;
-   int              detID=0 ;
-   FADCFitter     fitter  = new FADCFitter(1,15);
-   String BankType        ;
+   
+   String BankType = null;        
+   int       detID = 0 ;
 
-   CodaEventDecoder            newdecoder = new CodaEventDecoder();
-   DetectorEventDecoder   detectorDecoder = new DetectorEventDecoder();
-   List<DetectorDataDgtz>  detectorData   = new ArrayList<DetectorDataDgtz>();
-  
-   DetectorCollection<H1F> H1_CCa_Sevd = new DetectorCollection<H1F>();
-   DetectorCollection<H1F> H1_CCt_Sevd = new DetectorCollection<H1F>();
-   DetectorCollection<H2F> H2_CCa_Hist = new DetectorCollection<H2F>();
-   DetectorCollection<H2F> H2_CCt_Hist = new DetectorCollection<H2F>();
-   DetectorCollection<H2F> H2_CCa_Sevd = new DetectorCollection<H2F>();
+   CodaEventDecoder           codaDecoder = new CodaEventDecoder();
+   List<DetectorDataDgtz>       dataList  = new ArrayList<DetectorDataDgtz>();
+   IndexedList<List<Float>>          tdcs = new IndexedList<List<Float>>(3);
+   IndexedList<List<Float>>          adcs = new IndexedList<List<Float>>(3);
+   IndexedList<List<Integer>>       lapmt = new IndexedList<List<Integer>>(1); 
+   IndexedList<List<Integer>>       ltpmt = new IndexedList<List<Integer>>(1); 
    
    public DetectorCollection<TreeMap<Integer,Object>> Lmap_a = new DetectorCollection<TreeMap<Integer,Object>>();
    public DetectorCollection<TreeMap<Integer,Object>> Lmap_t = new DetectorCollection<TreeMap<Integer,Object>>();
@@ -45,15 +44,8 @@ public class CCReconstructionApp extends FCApplication {
    double[]                sed7=null,sed8=null;
    TreeMap<Integer,Object> map7=null,map8=null; 
    
-   int nstr[] = {ccPix.cc_nstr[0]};
+   int nstr = ccPix.nstr[0];
    
-   int        nha[][] = new    int[6][2];
-   int        nht[][] = new    int[6][2];
-   int    strra[][][] = new    int[6][2][nstr[0]]; 
-   int    strrt[][][] = new    int[6][2][nstr[0]]; 
-   int     adcr[][][] = new    int[6][2][nstr[0]];      
-   double  tdcr[][][] = new double[6][2][nstr[0]];  
-     
    int nsa,nsb,tet,pedref;     
    int     thrcc = 20;
    short[] pulse = new short[100]; 
@@ -64,19 +56,23 @@ public class CCReconstructionApp extends FCApplication {
    
    public void init() {
        System.out.println("CCReconstruction.init()");
-       mondet =           (String) mon.getGlob().get("mondet");
-//       detID  =              (int) mon.getGlob().get("detID"); 
+       mondet = (String) mon.getGlob().get("mondet");
+       is1 = CCConstants.IS1;
+       is2 = CCConstants.IS2;
+      iis1 = CCConstants.IS1-1;
+      iis2 = CCConstants.IS2-1;   
    }
    
    public void clearHistograms() {
        
-       for (int is=1 ; is<7 ; is++) {
+       for (int is=is1 ; is<is2 ; is++) {
            for (int il=1 ; il<3 ; il++) {
-                H2_CCa_Hist.get(is,il,0).reset();
-                H2_CCa_Hist.get(is,il,3).reset();
-                H2_CCa_Hist.get(is,il,5).reset();
+                ccPix.strips.hmap2.get("H2_CCa_Hist").get(is,il,0).reset();
+                ccPix.strips.hmap2.get("H2_CCa_Hist").get(is,il,3).reset();
+                ccPix.strips.hmap2.get("H2_CCa_Hist").get(is,il,5).reset();
            }
-       }       
+       }  
+       
    }  
    
    public void getMode7(int cr, int sl, int ch) {    
@@ -89,160 +85,240 @@ public class CCReconstructionApp extends FCApplication {
    
    public void addEvent(DataEvent event) {
       
-      if(app.isMC==true) {
-          this.updateSimulatedData(event);
-      } else {
-          this.updateRealData(event);         
-      }
+       if(app.getDataSource()=="ET") this.updateRawData(event);
+       
+       if(app.getDataSource()=="EVIO") {    	   
+    	   if(app.isMC==true)  this.updateSimulatedData(event);
+           if(app.isMC==false) this.updateRawData(event); 
+       }
+       
+       if(app.getDataSource()=="XHIPO"||app.getDataSource()=="HIPO") this.updateHipoData(event);;
+       
+       if (app.isSingleEvent()) {
+           findPixels();     // Process all pixels for SED
+           processSED();
+//           processCalib();
+        } else {
+           processPixels();  // Process only single pixels 
+//           processCalib();   // Quantities for display and calibration engine
+        }
+       
+   }
+   public void updateHipoData(DataEvent event) {
+       
+       int evno;
+       long phase = 0;
+       int trigger = 0;
+       long timestamp = 0;
+       float offset = 0;
+       
+       clear(); tdcs.clear(); adcs.clear(); ltpmt.clear(); lapmt.clear();
+       
+       if(!app.isMC&&event.hasBank("RUN::config")){
+           DataBank bank = event.getBank("RUN::config");
+           timestamp = bank.getLong("timestamp",0);
+           trigger   = bank.getInt("trigger",0);
+           evno      = bank.getInt("event",0);         
+           int phase_offset = 1;
+           phase = ((timestamp%6)+phase_offset)%6;
+           if (trigger>0) app.bitsec = (int) (Math.log10(trigger>>24)/0.301+1);
+       }
+       
+       if (app.isMCB) offset=(float)124.25;
+       
+       if(event.hasBank("LTCC::tdc")){
+           DataBank  bank = event.getBank("LTCC::tdc");
+           int rows = bank.rows();
+           
+           for(int i = 0; i < rows; i++){
+               int  is = bank.getByte("sector",i);
+               int  il = bank.getByte("layer",i);
+               int  lr = bank.getByte("order",i);                       
+               int  ip = bank.getShort("component",i);
+               
+               if (!tdcs.hasItem(is,lr-2,il)) tdcs.add(new ArrayList<Float>(),is,lr-2,il);
+                    tdcs.getItem(is,lr-2,il).add((float) bank.getInt("TDC",i)*24/1000+offset-phase*4  );              
+               if (!ltpmt.hasItem(is)) {
+       	            ltpmt.add(new ArrayList<Integer>(),is);
+                    ltpmt.getItem(is).add(il);
+               }   
+           }
+       }
+              
+       if(event.hasBank("LTCC::adc")){
+           DataBank  bank = event.getBank("LTCC::adc");
+           int rows = bank.rows();
+           for(int i = 0; i < rows; i++){
+               int  is = bank.getByte("sector",i);
+               int  il = bank.getByte("layer",i);
+               int  lr = bank.getByte("order",i);
+               int  ip = bank.getShort("component",i);
+               int adc = bank.getInt("ADC",i);
+               float t = bank.getFloat("time",i);               
+               int ped = bank.getShort("ped", i);
+               
+               if (!adcs.hasItem(is,lr,il)) adcs.add(new ArrayList<Float>(),is,lr,il);
+                    adcs.getItem(is,lr,il).add((float)adc);            
+               if (!lapmt.hasItem(is)) {
+                    lapmt.add(new ArrayList<Integer>(),is);
+                    lapmt.getItem(is).add(il);
+               }
+          
+               Float[] tdcc; float[] tdc;
+               
+               if (tdcs.hasItem(is,lr,il)) {
+                   List<Float> list = new ArrayList<Float>();
+                   list = tdcs.getItem(is,lr,il); tdcc=new Float[list.size()]; list.toArray(tdcc);
+                   tdc  = new float[list.size()];
+                   for (int ii=0; ii<tdcc.length; ii++) tdc[ii] = tdcc[ii];  
+               } else {
+                   tdc = new float[1];
+               }
+               for (int ii=0 ; ii< 100 ; ii++) {
+                   float wgt = (ii==(int)(t/4)) ? adc:0;
+                   ccPix.strips.hmap2.get("H2_CCa_Hist").get(is,lr+1,5).fill(ii,il,wgt);
+                   if (app.isSingleEvent()) {
+                       ccPix.strips.hmap2.get("H2_CCa_Sevd").get(is,lr+1,0).fill(ii,il,wgt);
+                   }
+               }
+               
+               if (app.rtt.hasItem(is,il,ip,lr)) {
+                   int[] dum = (int[]) app.rtt.getItem(is,il,ip,lr);                  
+                   getMode7(dum[0],dum[1],dum[2]);                  
+               }
+               
+               if (ped>0) ccPix.strips.hmap2.get("H2_CCa_Hist").get(is,lr+1,3).fill(this.pedref-ped, il);
+               
+               if(isGoodSector(is)) fill(is, lr+1, il, adc, tdc, t, (float) adc);    
+           }
+       }
+       
+   }  
+   
+   public void updateRawData(DataEvent event){
+
+      clear(); tdcs.clear(); adcs.clear(); lapmt.clear(); ltpmt.clear();
+      
+      app.decoder.detectorDecoder.setTET(app.mode7Emulation.tet);
+      app.decoder.detectorDecoder.setNSA(app.mode7Emulation.nsa);
+      app.decoder.detectorDecoder.setNSB(app.mode7Emulation.nsb);
+      
+      app.decoder.initEvent(event);
+      
+      long   phase = app.decoder.getPhase();
+      app.localRun = app.decoder.getRun();
       
       if (app.isSingleEvent()) {
-         findPixels();     // Process all pixels for SED
-         processSED();
-      } else {
-         processPixels();  // Process only single pixels 
+        System.out.println(" ");       
+        System.out.println("Event Number "+app.getEventNumber());
       }
+      
+      List<DetectorDataDgtz> adcDGTZ = app.decoder.getEntriesADC(DetectorType.LTCC);
+      List<DetectorDataDgtz> tdcDGTZ = app.decoder.getEntriesTDC(DetectorType.LTCC);
+    
+      for (int i=0; i < tdcDGTZ.size(); i++) {
+          DetectorDataDgtz ddd=tdcDGTZ.get(i);
+          int is = ddd.getDescriptor().getSector();
+          int il = ddd.getDescriptor().getLayer();
+          int lr = ddd.getDescriptor().getOrder();
+          int ip = ddd.getDescriptor().getComponent();          
+          if (app.isSingleEvent()) System.out.println("Sector "+is+" Layer "+il+" Order "+lr);
+          if (!tdcs.hasItem(is,lr-2,il)) tdcs.add(new ArrayList<Float>(),is,lr-2,il);
+               tdcs.getItem(is,lr-2,il).add((float) ddd.getTDCData(0).getTime()*24/1000);  
+          if (!ltpmt.hasItem(is)) {
+               ltpmt.add(new ArrayList<Integer>(),is);
+               ltpmt.getItem(is).add(is);
+          }
+      }
+      
+      for (int i=0; i < adcDGTZ.size(); i++) {
+   	   
+          DetectorDataDgtz ddd=adcDGTZ.get(i);
+          int is = ddd.getDescriptor().getSector();
+          if (isGoodSector(is)) {
+          int cr = ddd.getDescriptor().getCrate();
+          int sl = ddd.getDescriptor().getSlot();
+          int ch = ddd.getDescriptor().getChannel();  
+          int il = ddd.getDescriptor().getLayer();
+          int lr = ddd.getDescriptor().getOrder();
+          int ip = ddd.getDescriptor().getComponent();
+          int ad = ddd.getADCData(0).getADC();
+          int pd = ddd.getADCData(0).getPedestal();
+          int t0 = ddd.getADCData(0).getTimeCourse();  
+          float tf = (float) ddd.getADCData(0).getTime();
+          float ph = (float) ddd.getADCData(0).getHeight()-pd;
+          short[]    pulse = ddd.getADCData(0).getPulseArray();          
+          
+         if (!adcs.hasItem(is,lr,il)) adcs.add(new ArrayList<Float>(),is,lr,il);
+              adcs.getItem(is,lr,il).add((float)ad);                
+         if (!lapmt.hasItem(is)) {
+              lapmt.add(new ArrayList<Integer>(),is);
+              lapmt.getItem(is).add(is);
+         }           
+          
+          Float[] tdcc; float[] tdc;
+          
+          if (tdcs.hasItem(is,lr,il)) {
+              List<Float> list = new ArrayList<Float>();
+              list = tdcs.getItem(is,lr,il); tdcc=new Float[list.size()]; list.toArray(tdcc);
+              tdc  = new float[list.size()];
+              for (int ii=0; ii<tdcc.length; ii++) tdc[ii] = tdcc[ii]-phase*4;  
+          } else {
+              tdc = new float[1];
+          }
+          
+          getMode7(cr,sl,ch); 
+          int ped = app.mode7Emulation.User_pedref==1 ? this.pedref:pd;
+                     
+          for (int ii=0 ; ii< pulse.length ; ii++) {
+              cndPix[0].strips.hmap2.get("H2_CCa_Hist").get(is,lr+1,5).fill(ii,il,pulse[ii]-ped);
+              if (app.isSingleEvent()) {
+                 cndPix[0].strips.hmap2.get("H2_CCa_Sevd").get(is,lr+1,0).fill(ii,il,pulse[ii]-ped);
+                 int w1 = t0-this.nsb ; int w2 = t0+this.nsa;
+                 if (ad>0&&ii>=w1&&ii<=w2) cndPix[0].strips.hmap2.get("H2_CCa_Sevd").get(is,lr+1,1).fill(ii,il,pulse[ii]-ped);                     
+              }
+           }
+          
+          if (pd>0) cndPix[0].strips.hmap2.get("H2_CCa_Hist").get(is,lr+1,3).fill(this.pedref-pd, il);
+          fill(is, lr+1, il, ad, tdc, tf, ph);   
+          
+          }           
+      }
+      
+      if (app.decoder.isHipoFileOpen) writeHipoOutput();      
+      
    }
    
-   public String detID(int layer) {
-       return "LTCC";
-   }
-   
-   public void updateRealData(DataEvent event){
-
-      int adc,ped,npk;
-      double tdc=0,tdcf=0;
-      String AdcType ;
-      
-      List<DetectorDataDgtz>  dataSet = newdecoder.getDataEntries((EvioDataEvent) event);
-      
-      detectorDecoder.translate(dataSet);   
-      detectorDecoder.fitPulses(dataSet);
-      this.detectorData.clear();
-      this.detectorData.addAll(dataSet);
-      
-      clear();
-      int nsum=0;
-      
-      for (DetectorDataDgtz strip : detectorData) {
-         if(strip.getDescriptor().getType().getName()=="LTCC") {
-            adc=ped=pedref=npk=0 ; tdc=tdcf=0;
-            int icr = strip.getDescriptor().getCrate(); 
-            int isl = strip.getDescriptor().getSlot(); 
-            int ich = strip.getDescriptor().getChannel(); 
-            int is  = strip.getDescriptor().getSector();
-            int il  = strip.getDescriptor().getLayer();  
-            int ip  = strip.getDescriptor().getComponent();
-            int iord= strip.getDescriptor().getOrder(); 
-            
-            if (detID(il)==mondet) {
-                
-            if (strip.getTDCSize()>0) {
-                tdc = strip.getTDCData(0).getTime()*24./1000.;
-            }
-            
-            if (strip.getADCSize()>0) {     
+   public void writeHipoOutput() {
+       
+       DataEvent  decodedEvent = app.decoder.getDataEvent();
+       DataBank   header = app.decoder.createHeaderBank(decodedEvent,0,0,0,0);
+       decodedEvent.appendBanks(header);
+       app.decoder.writer.writeEvent(decodedEvent);
               
-               AdcType = strip.getADCData(0).getPulseSize()>0 ? "ADCPULSE":"ADCFPGA";
-               
-               if(AdcType=="ADCFPGA") { // FADC MODE 7
-                  adc = strip.getADCData(0).getIntegral();
-                  ped = strip.getADCData(0).getPedestal();
-                  npk = strip.getADCData(0).getHeight();
-                 tdcf = strip.getADCData(0).getTime();            
-                  getMode7(icr,isl,ich);
-                  if (app.mode7Emulation.User_pedref==0) adc = (adc-ped*(this.nsa+this.nsb));
-                  if (app.mode7Emulation.User_pedref==1) adc = (adc-this.pedref*(this.nsa+this.nsb));
-               }   
-               
-               if (AdcType=="ADCPULSE") { // FADC MODE 1
-                  for (int i=0 ; i<strip.getADCData(0).getPulseSize();i++) {               
-                     pulse[i] = (short) strip.getADCData(0).getPulseValue(i);
-                  }              
-                  getMode7(icr,isl,ich);
-                  if (app.mode7Emulation.User_pedref==0) fitter.fit(this.nsa,this.nsb,this.tet,0,pulse);                  
-                  if (app.mode7Emulation.User_pedref==1) fitter.fit(this.nsa,this.nsb,this.tet,pedref,pulse);                    
-                  adc = fitter.adc;
-                  ped = fitter.pedsum;
-                  for (int i=0 ; i< pulse.length ; i++) {
-                     ccPix.strips.hmap2.get("H2_CCa_Hist").get(is,il,5).fill(i,ip,pulse[i]-this.pedref);
-                     if (app.isSingleEvent()) {
-                        ccPix.strips.hmap2.get("H2_CCa_Sevd").get(is,il,0).fill(i,ip,pulse[i]-this.pedref);
-                        int w1 = fitter.t0-this.nsb ; int w2 = fitter.t0+this.nsa;
-                        if (fitter.adc>0&&i>=w1&&i<=w2) ccPix.strips.hmap2.get("H2_CCa_Sevd").get(is,il,1).fill(i,ip,pulse[i]-this.pedref);                     
-                     }
-                  }
-               }               
-               if (ped>0) ccPix.strips.hmap2.get("H2_CCa_Hist").get(is,il,3).fill(this.pedref-ped, ip);
-             }           
-             fill(is, il, ip, adc, tdc, tdcf);    
-            }
-         }
-      }
-   }
+   }  
    
    public void updateSimulatedData(DataEvent event) {
        
-      float tdcmax=100000;
-      int nrows, adc, fac;
-      double mc_t=0.,tdc=0,tdcf=0;
-      Boolean bypass=false;
-         
-      if(event.hasBank(mondet+"::true")==true) {
-         EvioDataBank bank  = (EvioDataBank) event.getBank(mondet+"::true");      
-         for(int i=0; i < bank.rows(); i++) mc_t = bank.getDouble("avgT",i);
-         fac = 1;
-      } else {
-         mc_t = 0;
-         fac = 6;
-      }
-                
-      inMC = true; mon.putGlob("inMC",true); 
-             
-      clear();
-        
-      EvioDataBank bank = (EvioDataBank) event.getBank(mondet+"::dgtz");
-      nrows = bank.rows();
-
-      // Use latest hit time for time reference (tdcmax).
-      
-      for(int i = 0; i < nrows; i++){
-         float dum = (float)bank.getInt("TDC",i)-(float)mc_t*1000;
-         if (dum<tdcmax) tdcmax=dum;
-      }      
-       
-      for(int i = 0; i < nrows; i++){
-         int is  = bank.getInt("sector",i);
-         int ip  = bank.getInt("strip",i);
-         int ic  = bank.getInt("stack",i);     
-         int il  = bank.getInt("view",i);  
-             adc = bank.getInt("ADC",i)/fac;
-        int tdcc = bank.getInt("TDC",i);
-            tdcf = tdcc;
-              il = il+(ic-1)*3;
-             tdc = (((float)tdcc-(float)mc_t*1000)-tdcmax+1340000)/1000; 
-             bypass = false;
-        if((ic==1||ic==2)&&bypass==false) fill(is, il, ip, adc, tdc, tdcf); 
-      }
-         
    }
    
    public void clear() {
        
-       for (int is=0 ; is<6 ; is++) {
+       for (int is=iis1 ; is<iis2 ; is++) {
            for (int il=0 ; il<2 ; il++) {
-               nha[is][il] = 0;
-               nht[is][il] = 0;
-               for (int ip=0 ; ip<nstr[il] ; ip++) {
-                   strra[is][il][ip] = 0;
-                   strrt[is][il][ip] = 0;
-                    adcr[is][il][ip] = 0;
-                    tdcr[is][il][ip] = 0;
+               ccPix.nha[is][il] = 0;
+               ccPix.nht[is][il] = 0;
+               for (int ip=0 ; ip<ccPix.nstr[0] ; ip++) {
+                   ccPix.strra[is][il][ip] = 0;
+                   ccPix.strrt[is][il][ip] = 0;
+                    ccPix.adcr[is][il][ip] = 0;
+                    ccPix.tdcr[is][il][ip] = 0;
                }
            }
        }
        
        if (app.isSingleEvent()) {
-           for (int is=0 ; is<6 ; is++) {
+           for (int is=iis1 ; is<iis2 ; is++) {
                for (int il=0 ; il<2 ; il++) {
                     ccPix.strips.hmap1.get("H1_CCa_Sevd").get(is+1,il+1,0).reset();
                     ccPix.strips.hmap2.get("H2_CCa_Sevd").get(is+1,il+1,0).reset();
@@ -253,28 +329,41 @@ public class CCReconstructionApp extends FCApplication {
        }   
    }
    
-   public void fill(int is, int il, int ip, int adc, double tdc, double tdcf) {
+   public void fill(int is, int il, int ip, int adc, float[] tdc, float tdcf, float adph) {
            
-       if(tdc>1200&&tdc<1500){
-            nht[is-1][il-1]++; int inh = nht[is-1][il-1];
-           tdcr[is-1][il-1][inh-1] = tdc;
-          strrt[is-1][il-1][inh-1] = ip;
-             ccPix.strips.hmap2.get("H2_CCt_Hist").get(is,il,0).fill(tdc,ip,1.0);
-             }
+       for (int ii=0; ii<tdc.length; ii++) {
+    	   
+    	      if(tdc[ii]>700&&tdc[ii]<900){
+      
+             ccPix.nht[is-1][il-1]++; int inh = ccPix.nht[is-1][il-1];
+    	         if(inh>nstr) inh=nstr;
+             ccPix.tdcr[is-1][il-1][inh-1] = tdc[ii];
+             ccPix.strrt[is-1][il-1][inh-1] = ip;
+             ccPix.ph[is-1][il-1][inh-1] = adph;
+             ccPix.strips.hmap2.get("H2_CCt_Hist").get(is,il,0).fill(tdc[ii],ip,1.0);
+          }
+    	      
+    	       ccPix.strips.hmap2.get("H2_CCa_Hist").get(is,il,1).fill(adc,tdc[ii],1.0);   
+    	       
+       }
+       
+       
        if(adc>thrcc){
-            nha[is-1][il-1]++; int inh = nha[is-1][il-1];
-           adcr[is-1][il-1][inh-1] = adc;
-          strra[is-1][il-1][inh-1] = ip;
-             ccPix.strips.hmap2.get("H2_CCa_Hist").get(is,il,0).fill(adc,ip,1.0);
-             } 
+             ccPix.nha[is-1][il-1]++; int inh = ccPix.nha[is-1][il-1];
+             if (inh>nstr) inh=nstr;
+             ccPix.adcr[is-1][il-1][inh-1] = adc;
+             ccPix.tf[is-1][il-1][inh-1] = tdcf;
+             ccPix.strra[is-1][il-1][inh-1] = ip;
+             ccPix.strips.hmap2.get("H2_CCa_Hist").get(is,il,0).fill(adc,ip,1.0);             
+       } 
    }
    
    public void processSED() {
        
-       for (int is=0; is<6; is++) {
+       for (int is=iis1; is<iis2; is++) {
           for (int il=0; il<2; il++ ){;
-              for (int n=0 ; n<nha[is][il] ; n++) {
-                  int ip=strra[is][il][n]; int ad=adcr[is][il][n];
+              for (int n=0 ; n<ccPix.nha[is][il] ; n++) {
+                  int ip=ccPix.strra[is][il][n]; int ad=ccPix.adcr[is][il][n];
                   ccPix.strips.hmap1.get("H1_CCa_Sevd").get(is+1,il+1,0).fill(ip,ad);
               }
           }
@@ -290,7 +379,10 @@ public class CCReconstructionApp extends FCApplication {
    }
 
    public void makeMaps() {
-
+	   
+	   DetectorCollection<H2F> H2_CCa_Hist = new DetectorCollection<H2F>();
+	   DetectorCollection<H1F> H1_CCa_Sevd = new DetectorCollection<H1F>();
+	   
        H2_CCa_Hist = ccPix.strips.hmap2.get("H2_CCa_Hist");
        H1_CCa_Sevd = ccPix.strips.hmap1.get("H1_CCa_Sevd");
        
@@ -300,6 +392,10 @@ public class CCReconstructionApp extends FCApplication {
                if  (app.isSingleEvent()) ccPix.Lmap_a.add(is,il,0, toTreeMap(H1_CCa_Sevd.get(is,il,0).getData()));           
            }
        }   
+
+       ccPix.getLmapMinMax(is1,is2,1,0); 
+       ccPix.getLmapMinMax(is1,is2,2,0); 
+       
    }    
 }
     

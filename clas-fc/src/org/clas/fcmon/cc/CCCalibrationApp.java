@@ -318,7 +318,7 @@ public class CCCalibrationApp extends FCApplication implements CalibrationConsta
         }  
         public synchronized void drawPlots(int is, int il, int ic) {
             if (il>3) return;
-            int nstr = ccPix.cc_nstr[il-1];
+            int nstr = ccPix.nstr[0];
             if (app.getInProcess()<2) analyze(is,is+1,il,il+1,1,nstr+1);
             EmbeddedCanvas  c = new EmbeddedCanvas(); 
             int   sl = il;
@@ -383,7 +383,7 @@ public class CCCalibrationApp extends FCApplication implements CalibrationConsta
         public final double[]     SPE_REF = {350,350};
         
         int is1,is2;
-        int npmt = ccPix.cc_nstr[0];
+        int npmt = ccPix.nstr[0];
         
         double      xSliderMin = 0.0;
         double      xSliderMax = 100.0;
@@ -436,7 +436,7 @@ public class CCCalibrationApp extends FCApplication implements CalibrationConsta
 
             for(int is=is1; is<is2; is++) {
                 for (int sl=1; sl<3 ; sl++) {
-                    for(int ip = 1; ip < ccPix.cc_nstr[0]+1; ip++) {
+                    for(int ip = 1; ip < ccPix.nstr[0]+1; ip++) {
                         calib.addEntry(is,sl,ip);
                         calib.setDoubleValue(0.00, "Gain",   is,sl,ip);
                         calib.setDoubleValue(0.00, "GainErr",is,sl,ip);
@@ -551,7 +551,7 @@ public class CCCalibrationApp extends FCApplication implements CalibrationConsta
                    int il =  lay; 
                    int ip1=1,ip2=1;
                    if (sliderMode=="Strip") {ip1=ic+1; ip2=ic+2;}
-                   if (sliderMode=="View")  {ip1=1;  ip2=ccPix.cc_nstr[il-1]+1;}
+                   if (sliderMode=="View")  {ip1=1;  ip2=ccPix.nstr[0]+1;}
                    for (int ip=ip1; ip<ip2; ip++) {
                       calib.setDoubleValue(currentRangeMin*0.01,"FitMin",is, il, ip);
                       calib.setDoubleValue(currentRangeMax*0.01,"FitMax",is, il, ip);
@@ -607,7 +607,7 @@ public class CCCalibrationApp extends FCApplication implements CalibrationConsta
             GStyle.getGraphErrorsAttributes().setFillStyle(1);  
             
             if (app.getInProcess()>0) {
-                int npmt = ccPix.cc_nstr[il-1];
+                int npmt = ccPix.nstr[0];
                 if (app.getInProcess()==1&&app.getIsRunning())  {analyze(is,is+1,il,il+1,1,npmt+1);}
                 if (collection.hasEntry(is, il, ic+1)) {
                     for (int ip=0; ip<npmt ; ip++) {

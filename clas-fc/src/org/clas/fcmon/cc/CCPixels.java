@@ -15,7 +15,16 @@ public class CCPixels {
     
     public double cc_xpix[][][] = new double[4][36][7];
     public double cc_ypix[][][] = new double[4][36][7];
-    public    int     cc_nstr[] = {18};
+    public    int        nstr[] = {18};
+    
+    int        nha[][] = new    int[6][2];
+    int        nht[][] = new    int[6][2];
+    int    strra[][][] = new    int[6][2][18]; 
+    int    strrt[][][] = new    int[6][2][18]; 
+    int     adcr[][][] = new    int[6][2][18];      
+    double  tdcr[][][] = new double[6][2][18];  
+    float     tf[][][] = new  float[6][2][18]; 
+    float     ph[][][] = new  float[6][2][18];  
     
     public DetectorCollection<TreeMap<Integer,Object>> Lmap_a = new DetectorCollection<TreeMap<Integer,Object>>();
     public DetectorCollection<TreeMap<Integer,Object>> Lmap_t = new DetectorCollection<TreeMap<Integer,Object>>();
@@ -23,15 +32,13 @@ public class CCPixels {
     public IndexedList<double[]>                     Lmap_t_z = new IndexedList<double[]>(2);	
 
     int id;
-    public int nstr;
+  
     public String detName = null;
     
-    public CCPixels(String det) {
-        if (det.equals("LTCC")) id=0;
-        nstr = cc_nstr[id];
+    public CCPixels(String det) {       
         detName = det;
-        this.ccpixdef();
-        this.ccpixrot();
+        this.pixdef();
+        this.pixrot();
     }
     
     public void init() {
@@ -61,9 +68,9 @@ public class CCPixels {
         Lmap_t_z.add(t,il,opt);        
     }	
     
-    public void ccpixdef() {
+    public void pixdef() {
         
-        System.out.println("CCPixels.ccpixdef():");
+        System.out.println("CCPixels.pixdef():");
 		  
         double   k;
         double   y_inc=19.0;
@@ -116,16 +123,15 @@ public class CCPixels {
         }
 	}
 		       
-    public void ccpixrot() {
+    public void pixrot() {
         
-        System.out.println("CCPixels.ccpixrot():");
+        System.out.println("CCPixels.pixrot():");
 		
         double[] theta={270.0,330.0,30.0,90.0,150.0,210.0};
-        int nstr = cc_nstr[0];
-	               
+        	               
         for(int is=0; is<6; is++) {
             double thet=theta[is]*Math.PI/180.;
-            for (int ipix=0; ipix<2*nstr; ipix++) {
+            for (int ipix=0; ipix<2*nstr[0]; ipix++) {
                 for (int k=0;k<4;k++){
                     cc_xpix[k][ipix][is]= -(cc_xpix[k][ipix][6]*Math.cos(thet)+cc_ypix[k][ipix][6]*Math.sin(thet));
                     cc_ypix[k][ipix][is]=  -cc_xpix[k][ipix][6]*Math.sin(thet)+cc_ypix[k][ipix][6]*Math.cos(thet);
@@ -144,17 +150,17 @@ public class CCPixels {
         DetectorCollection<H2F> H2_CCt_Hist = new DetectorCollection<H2F>();
         DetectorCollection<H2F> H2_CCa_Sevd = new DetectorCollection<H2F>();
         
-        int nstr = cc_nstr[0] ; double nend = nstr+1;  
+        double nend = nstr[0]+1;  
         
         for (int is=1; is<7 ; is++) {
             for (int il=1 ; il<3 ; il++){
-                H2_CCa_Hist.add(is, il, 0, new H2F("CCa_Hist_Raw_"+il, 100,   0., 2000.,nstr, 1., nend));
-                H2_CCt_Hist.add(is, il, 0, new H2F("CCt_Hist_Raw_"+il, 100,1330., 1370.,nstr, 1., nend));
-                H2_CCa_Hist.add(is, il, 3, new H2F("CCa_Hist_PED_"+il,  40, -20.,  20., nstr, 1., nend)); 
-                H2_CCa_Hist.add(is, il, 5, new H2F("CCa_Hist_FADC_"+il,100,   0., 100., nstr, 1., nend));
-                H1_CCa_Sevd.add(is, il, 0, new H1F("ECa_Sed_"+il,                       nstr, 1., nend));
-                H2_CCa_Sevd.add(is, il, 0, new H2F("CCa_Sed_FADC_"+il, 100,   0., 100., nstr, 1., nend));
-                H2_CCa_Sevd.add(is, il, 1, new H2F("CCa_Sed_FADC_"+il, 100,   0., 100., nstr, 1., nend));
+                H2_CCa_Hist.add(is, il, 0, new H2F("CCa_Hist_Raw_"+il, 100,   0., 2000.,nstr[0], 1., nend));
+                H2_CCt_Hist.add(is, il, 0, new H2F("CCt_Hist_Raw_"+il, 100,1330., 1370.,nstr[0], 1., nend));
+                H2_CCa_Hist.add(is, il, 3, new H2F("CCa_Hist_PED_"+il,  40, -20.,  20., nstr[0], 1., nend)); 
+                H2_CCa_Hist.add(is, il, 5, new H2F("CCa_Hist_FADC_"+il,100,   0., 100., nstr[0], 1., nend));
+                H1_CCa_Sevd.add(is, il, 0, new H1F("ECa_Sed_"+il,                       nstr[0], 1., nend));
+                H2_CCa_Sevd.add(is, il, 0, new H2F("CCa_Sed_FADC_"+il, 100,   0., 100., nstr[0], 1., nend));
+                H2_CCa_Sevd.add(is, il, 1, new H2F("CCa_Sed_FADC_"+il, 100,   0., 100., nstr[0], 1., nend));
             }
         }       
 

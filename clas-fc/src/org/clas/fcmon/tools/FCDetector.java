@@ -88,8 +88,8 @@ public class FCDetector {
     public FCDetector(String name, CCPixels ccPix) {
         this.appName = name;
         this.ccPix = ccPix;   
-        this.nStrips[0] = ccPix.cc_nstr[0];
-        this.nStrips[1] = ccPix.cc_nstr[1];
+        this.nStrips[0] = ccPix.nstr[0];
+        this.nStrips[1] = ccPix.nstr[0];
     }
     
     public FCDetector(String name, FTOFPixels[] ftofPix) {

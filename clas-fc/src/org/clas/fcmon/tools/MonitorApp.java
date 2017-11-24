@@ -169,7 +169,7 @@ public class MonitorApp extends JFrame implements ActionListener {
         IndexedTable tt = ccdb.getConstants(10, table);
         rtt = new FTHashCollection<int[]>(4);
         for(int ic=1; ic<74; ic++) {
-            for (int sl=3; sl<19; sl++) {
+            for (int sl=3; sl<21; sl++) {
                 int chmax=16;
                 if (sl==6||sl==16) chmax=128;
                 for (int ch=0; ch<chmax; ch++){
@@ -523,6 +523,7 @@ public class MonitorApp extends JFrame implements ActionListener {
         case "FTOFMON": return dd.getLayer();
         case "HTCCMON": return dd.getLayer();
         case "CTOFMON": return viewIndex+2*detectorIndex;
+        case "LTCCMON": return dd.getLayer();
         case "CNDMON":  return dd.getComponent()+1;
         }
         return 0;
@@ -534,6 +535,7 @@ public class MonitorApp extends JFrame implements ActionListener {
         case "FTOFMON": return dd.getComponent()+1;  
         case "HTCCMON": return dd.getComponent()+1;  
         case "CTOFMON": return dd.getComponent()+1; 
+        case "LTCCMON": return dd.getComponent()+1;
         case "CNDMON":  return dd.getLayer();
         }
         return 0;

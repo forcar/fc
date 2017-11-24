@@ -30,7 +30,7 @@ public class CCOccupancyApp extends FCApplication {
         c.setAxisFontSize(14);
         c.setStatBoxFontSize(12);
         
-        double nstr = ccPix.cc_nstr[0];
+        double nstr = ccPix.nstr[0];
         
         H2F h2a = ccPix.strips.hmap2.get("H2_CCa_Hist").get(is,1,0); h2a.setTitleY("Sector "+is+otab[0]+"PMTs") ; h2a.setTitleX("Sector "+is+otab[0]+"PMT"+lab4[0]);
         H2F h2b = ccPix.strips.hmap2.get("H2_CCa_Hist").get(is,2,0); h2b.setTitleY("Sector "+is+otab[1]+"PMTs") ; h2b.setTitleX("Sector "+is+otab[1]+"PMT"+lab4[0]);

@@ -19,7 +19,7 @@ public class CCSpeApp extends FCApplication {
         int lr = layer;
         
         int il=1,col0=0,col1=4,col2=2;
-        int nstr = ccPix.cc_nstr[0];
+        int nstr = ccPix.nstr[0];
         
         H1F h;
         String alab;

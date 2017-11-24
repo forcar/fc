@@ -23,7 +23,7 @@ public class CCPedestalApp extends FCApplication {
         this.getDetIndices(dd);   
         int lr = dd.getOrder()+1;
                
-        double nstr = ccPix.cc_nstr[0];
+        double nstr = ccPix.nstr[0];
         
         H1F h;
         String otab[]={" Left PMT "," Right PMT "};

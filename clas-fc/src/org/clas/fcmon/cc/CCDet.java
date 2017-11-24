@@ -31,10 +31,10 @@ public class CCDet extends FCDetector {
         
         System.out.println("CCDetector.initDetector() is1="+is1+" is2="+is2+" NSTRIPS="+ccPix.nstr);        
         for(int is=is1; is<is2; is++) {
-            for(int ip=0; ip<ccPix.cc_nstr[0] ; ip++) app.getDetectorView().getView().addShape("LR0",getMirror(is,1,ip,0));
-            for(int ip=0; ip<ccPix.cc_nstr[0] ; ip++) app.getDetectorView().getView().addShape("LR0",getMirror(is,1,ip,1));
-            for(int ip=0; ip<ccPix.cc_nstr[0] ; ip++) app.getDetectorView().getView().addShape("L0",getMirror(is,1,ip,0));
-            for(int ip=0; ip<ccPix.cc_nstr[0] ; ip++) app.getDetectorView().getView().addShape("R0",getMirror(is,1,ip,1));
+            for(int ip=0; ip<ccPix.nstr[0] ; ip++) app.getDetectorView().getView().addShape("LR0",getMirror(is,1,ip,0));
+            for(int ip=0; ip<ccPix.nstr[0] ; ip++) app.getDetectorView().getView().addShape("LR0",getMirror(is,1,ip,1));
+            for(int ip=0; ip<ccPix.nstr[0] ; ip++) app.getDetectorView().getView().addShape("L0",getMirror(is,1,ip,0));
+            for(int ip=0; ip<ccPix.nstr[0] ; ip++) app.getDetectorView().getView().addShape("R0",getMirror(is,1,ip,1));
         }   
         
         app.getDetectorView().getView().addDetectorListener(mon);
@@ -52,12 +52,12 @@ public class CCDet extends FCDetector {
         
     }    
     
-    public DetectorShape2D getMirror(int sector, int layer, int mirror, int or) {
+    public DetectorShape2D getMirror(int sector, int layer, int mirror, int order) {
         
-        DetectorShape2D shape = new DetectorShape2D(DetectorType.LTCC,sector,layer,mirror,or);     
+        DetectorShape2D shape = new DetectorShape2D(DetectorType.LTCC,sector,layer,mirror,order);     
         Path3D shapePath = shape.getShapePath();
         
-        int off = (layer-1)*ccPix.cc_nstr[0];
+        int off = order*ccPix.nstr[0];
         
         for(int j = 0; j < 4; j++){
             shapePath.addPoint(ccPix.cc_xpix[j][mirror+off][sector-1],ccPix.cc_ypix[j][mirror+off][sector-1],0.0);
