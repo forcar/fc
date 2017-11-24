@@ -29,7 +29,7 @@ public class CCDet extends FCDetector {
         
         app.currentView = "LR";
         
-        System.out.println("CCDetector.initDetector() is1="+is1+" is2="+is2+" NSTRIPS="+ccPix.nstr);        
+        System.out.println("CCDetector.initDetector() is1="+is1+" is2="+is2+" NSTRIPS="+ccPix.nstr[0]);        
         for(int is=is1; is<is2; is++) {
             for(int ip=0; ip<ccPix.nstr[0] ; ip++) app.getDetectorView().getView().addShape("LR0",getMirror(is,1,ip,0));
             for(int ip=0; ip<ccPix.nstr[0] ; ip++) app.getDetectorView().getView().addShape("LR0",getMirror(is,1,ip,1));

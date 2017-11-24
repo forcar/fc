@@ -56,16 +56,16 @@ public class CCPixels {
             map = Lmap_a.get(is, il, opt);
             min = (double) map.get(2); max = (double) map.get(3); avg = (double) map.get(4);
             if (min<a[0]) a[0]=min; if (max>a[1]) a[1]=max; aavg+=avg;
-            map = Lmap_t.get(is, il, opt);
-            min = (double) map.get(2); max = (double) map.get(3); avg = (double) map.get(4);
-            if (min<t[0]) t[0]=min; if (max>t[1]) t[1]=max; tavg+=avg;
+//            map = Lmap_t.get(is, il, opt);
+//            min = (double) map.get(2); max = (double) map.get(3); avg = (double) map.get(4);
+//            if (min<t[0]) t[0]=min; if (max>t[1]) t[1]=max; tavg+=avg;
         }
 
         a[2]=Math.min(500000,aavg/(is2-is1));
-        t[2]=Math.min(500000,tavg/(is2-is1));
+ //       t[2]=Math.min(500000,tavg/(is2-is1));
         
         Lmap_a_z.add(a,il,opt);
-        Lmap_t_z.add(t,il,opt);        
+ //       Lmap_t_z.add(t,il,opt);        
     }	
     
     public void pixdef() {
@@ -142,40 +142,44 @@ public class CCPixels {
     
     public void initHistograms(String hipoFile) {
         
-        System.out.println("CCPixels.initHistograms()");  
+        System.out.println("CCPixels.initHistograms()"); 
         
-        DetectorCollection<H1F> H1_CCa_Sevd = new DetectorCollection<H1F>();
-        DetectorCollection<H1F> H1_CCt_Sevd = new DetectorCollection<H1F>();
-        DetectorCollection<H2F> H2_CCa_Hist = new DetectorCollection<H2F>();
-        DetectorCollection<H2F> H2_CCt_Hist = new DetectorCollection<H2F>();
-        DetectorCollection<H2F> H2_CCa_Sevd = new DetectorCollection<H2F>();
+        String iid;
+        
+        DetectorCollection<H1F> H1_a_Sevd = new DetectorCollection<H1F>();
+        DetectorCollection<H1F> H1_t_Sevd = new DetectorCollection<H1F>();
+        DetectorCollection<H2F> H2_a_Hist = new DetectorCollection<H2F>();
+        DetectorCollection<H2F> H2_t_Hist = new DetectorCollection<H2F>();
+        DetectorCollection<H2F> H2_a_Sevd = new DetectorCollection<H2F>();
         
         double nend = nstr[0]+1;  
         
         for (int is=1; is<7 ; is++) {
             for (int il=1 ; il<3 ; il++){
-                H2_CCa_Hist.add(is, il, 0, new H2F("CCa_Hist_Raw_"+il, 100,   0., 2000.,nstr[0], 1., nend));
-                H2_CCt_Hist.add(is, il, 0, new H2F("CCt_Hist_Raw_"+il, 100,1330., 1370.,nstr[0], 1., nend));
-                H2_CCa_Hist.add(is, il, 3, new H2F("CCa_Hist_PED_"+il,  40, -20.,  20., nstr[0], 1., nend)); 
-                H2_CCa_Hist.add(is, il, 5, new H2F("CCa_Hist_FADC_"+il,100,   0., 100., nstr[0], 1., nend));
-                H1_CCa_Sevd.add(is, il, 0, new H1F("ECa_Sed_"+il,                       nstr[0], 1., nend));
-                H2_CCa_Sevd.add(is, il, 0, new H2F("CCa_Sed_FADC_"+il, 100,   0., 100., nstr[0], 1., nend));
-                H2_CCa_Sevd.add(is, il, 1, new H2F("CCa_Sed_FADC_"+il, 100,   0., 100., nstr[0], 1., nend));
+                iid="s"+Integer.toString(is)+"_l"+Integer.toString(il)+"_c";
+                H2_a_Hist.add(is, il, 0, new H2F("a_raw_"+iid+0,      100,   0., 2000.,nstr[0], 1., nend));
+                H2_t_Hist.add(is, il, 0, new H2F("a_raw_"+iid+0,      100,1330., 1370.,nstr[0], 1., nend));
+                H2_a_Hist.add(is, il, 1, new H2F("a_raw_"+iid+1,      100,   0., 2000.,100, 300.,1200.));
+                H2_a_Hist.add(is, il, 3, new H2F("a_ped_"+iid+3,       40, -20.,  20., nstr[0], 1., nend)); 
+                H2_a_Hist.add(is, il, 5, new H2F("a_fadc_"+iid+5,     100,   0., 100., nstr[0], 1., nend));
+                H1_a_Sevd.add(is, il, 0, new H1F("a_sed_"+iid+0,                       nstr[0], 1., nend));
+                H2_a_Sevd.add(is, il, 0, new H2F("a_sed_fadc_"+iid+0, 100,   0., 100., nstr[0], 1., nend));
+                H2_a_Sevd.add(is, il, 1, new H2F("a_sed_fadc_"+iid+1, 100,   0., 100., nstr[0], 1., nend));
             }
         }       
 
         if(!hipoFile.equals(" ")){
             FCCalibrationData calib = new FCCalibrationData();
             calib.getFile(hipoFile);
-            H2_CCa_Hist = calib.getCollection("H2_CCa_Hist");
-            H2_CCt_Hist = calib.getCollection("H2_CCt_Hist");
+            H2_a_Hist = calib.getCollection("H2_a_Hist");
+            H2_t_Hist = calib.getCollection("H2_t_Hist");
         }         
         
-        strips.addH1DMap("H1_CCa_Sevd",  H1_CCa_Sevd);
-        strips.addH1DMap("H1_CCt_Sevd",  H1_CCt_Sevd);
-        strips.addH2DMap("H2_CCa_Hist",  H2_CCa_Hist);
-        strips.addH2DMap("H2_CCt_Hist",  H2_CCt_Hist);
-        strips.addH2DMap("H2_CCa_Sevd",  H2_CCa_Sevd);
+        strips.addH1DMap("H1_a_Sevd",  H1_a_Sevd);
+        strips.addH1DMap("H1_t_Sevd",  H1_t_Sevd);
+        strips.addH2DMap("H2_a_Hist",  H2_a_Hist);
+        strips.addH2DMap("H2_t_Hist",  H2_t_Hist);
+        strips.addH2DMap("H2_a_Sevd",  H2_a_Sevd);
     } 
     
 }

@@ -16,7 +16,7 @@ public class CCSpeApp extends FCApplication {
         
         EmbeddedCanvas c = this.getCanvas(this.getName()); 
         this.getDetIndices(dd);   
-        int lr = layer;
+        int lr = dd.getOrder()+1;
         
         int il=1,col0=0,col1=4,col2=2;
         int nstr = ccPix.nstr[0];
@@ -34,7 +34,7 @@ public class CCSpeApp extends FCApplication {
         
         for(int iip=0;iip<nstr;iip++) {
             alab = "Sector "+is+otab[lr-1]+(iip+1)+lab4[0];
-            c.cd(iip); h = ccPix.strips.hmap2.get("H2_CCa_Hist").get(is,lr,0).sliceY(iip); 
+            c.cd(iip); h = ccPix.strips.hmap2.get("H2_a_Hist").get(is,lr,0).sliceY(iip); 
             h.setOptStat(Integer.parseInt("1110"));
             h.setTitleX(alab); h.setTitle(""); h.setFillColor(col1); c.draw(h);
         }
@@ -50,7 +50,7 @@ public class CCSpeApp extends FCApplication {
         h.setTitle(""); h.setFillColor(col2); canvas.draw(h,"same");  
         */
         
-        c.cd(ic); h = ccPix.strips.hmap2.get("H2_CCa_Hist").get(is,lr,0).sliceY(ic); 
+        c.cd(ic); h = ccPix.strips.hmap2.get("H2_a_Hist").get(is,lr,0).sliceY(ic); 
         h.setTitle(""); h.setFillColor(col2); c.draw(h,"same");    
 
         c.repaint();

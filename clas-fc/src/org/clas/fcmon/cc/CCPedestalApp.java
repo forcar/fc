@@ -32,7 +32,7 @@ public class CCPedestalApp extends FCApplication {
         c.setAxisFontSize(14);
         
         for(int il=1;il<3;il++){
-            H2F hpix = ccPix.strips.hmap2.get("H2_CCa_Hist").get(is,il,3);
+            H2F hpix = ccPix.strips.hmap2.get("H2_a_Hist").get(is,il,3);
             hpix.setTitleX("PED (Ref-Measured)") ; hpix.setTitleY(otab[il-1]);
          
             canvasConfig(c,il-1,-20.,20.,1.,nstr+1,true); c.draw(hpix);

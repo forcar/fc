@@ -237,8 +237,9 @@ public class FCDetector {
                         if( useTDC) {dc = htccPix[ilmap].Lmap_t; mapz=htccPix[ilmap].Lmap_t_z;}  
                         layer = dd.getLayer(); layz=layer;
                         break;     
-        case   "CCDet": if(!useTDC) dc = ccPix.Lmap_a; 
-                        if( useTDC) dc = ccPix.Lmap_t;
+        case   "CCDet": if(!useTDC) {dc = ccPix.Lmap_a;  mapz=ccPix.Lmap_a_z;}
+                        layer = dd.getOrder()+1; layz=layer;
+                        //if( useTDC) dc = ccPix.Lmap_t;
         }
         
         // Update shape color map depending on process status and layer

@@ -176,9 +176,9 @@ public class CCReconstructionApp extends FCApplication {
                }
                for (int ii=0 ; ii< 100 ; ii++) {
                    float wgt = (ii==(int)(t/4)) ? adc:0;
-                   ccPix.strips.hmap2.get("H2_CCa_Hist").get(is,lr+1,5).fill(ii,il,wgt);
+                   ccPix.strips.hmap2.get("H2_a_Hist").get(is,lr+1,5).fill(ii,il,wgt);
                    if (app.isSingleEvent()) {
-                       ccPix.strips.hmap2.get("H2_CCa_Sevd").get(is,lr+1,0).fill(ii,il,wgt);
+                       ccPix.strips.hmap2.get("H2_a_Sevd").get(is,lr+1,0).fill(ii,il,wgt);
                    }
                }
                
@@ -187,7 +187,7 @@ public class CCReconstructionApp extends FCApplication {
                    getMode7(dum[0],dum[1],dum[2]);                  
                }
                
-               if (ped>0) ccPix.strips.hmap2.get("H2_CCa_Hist").get(is,lr+1,3).fill(this.pedref-ped, il);
+               if (ped>0) ccPix.strips.hmap2.get("H2_a_Hist").get(is,lr+1,3).fill(this.pedref-ped, il);
                
                if(isGoodSector(is)) fill(is, lr+1, il, adc, tdc, t, (float) adc);    
            }
@@ -271,15 +271,15 @@ public class CCReconstructionApp extends FCApplication {
           int ped = app.mode7Emulation.User_pedref==1 ? this.pedref:pd;
                      
           for (int ii=0 ; ii< pulse.length ; ii++) {
-              ccPix.strips.hmap2.get("H2_CCa_Hist").get(is,lr+1,5).fill(ii,il,pulse[ii]-ped);
+              ccPix.strips.hmap2.get("H2_a_Hist").get(is,lr+1,5).fill(ii,il,pulse[ii]-ped);
               if (app.isSingleEvent()) {
-                 ccPix.strips.hmap2.get("H2_CCa_Sevd").get(is,lr+1,0).fill(ii,il,pulse[ii]-ped);
+                 ccPix.strips.hmap2.get("H2_a_Sevd").get(is,lr+1,0).fill(ii,il,pulse[ii]-ped);
                  int w1 = t0-this.nsb ; int w2 = t0+this.nsa;
-                 if (ad>0&&ii>=w1&&ii<=w2) ccPix.strips.hmap2.get("H2_CCa_Sevd").get(is,lr+1,1).fill(ii,il,pulse[ii]-ped);                     
+                 if (ad>0&&ii>=w1&&ii<=w2) ccPix.strips.hmap2.get("H2_a_Sevd").get(is,lr+1,1).fill(ii,il,pulse[ii]-ped);                     
               }
            }
           
-          if (pd>0) ccPix.strips.hmap2.get("H2_CCa_Hist").get(is,lr+1,3).fill(this.pedref-pd, il);
+          if (pd>0) ccPix.strips.hmap2.get("H2_a_Hist").get(is,lr+1,3).fill(this.pedref-pd, il);
           fill(is, lr+1, il, ad, tdc, tf, ph);   
           
           }           
@@ -320,10 +320,10 @@ public class CCReconstructionApp extends FCApplication {
        if (app.isSingleEvent()) {
            for (int is=iis1 ; is<iis2 ; is++) {
                for (int il=0 ; il<2 ; il++) {
-                    ccPix.strips.hmap1.get("H1_CCa_Sevd").get(is+1,il+1,0).reset();
-                    ccPix.strips.hmap2.get("H2_CCa_Sevd").get(is+1,il+1,0).reset();
-                    ccPix.strips.hmap2.get("H2_CCa_Sevd").get(is+1,il+1,1).reset();
-                    ccPix.strips.hmap2.get("H2_CCa_Hist").get(is+1,il+1,5).reset();
+                    ccPix.strips.hmap1.get("H1_a_Sevd").get(is+1,il+1,0).reset();
+                    ccPix.strips.hmap2.get("H2_a_Sevd").get(is+1,il+1,0).reset();
+                    ccPix.strips.hmap2.get("H2_a_Sevd").get(is+1,il+1,1).reset();
+                    ccPix.strips.hmap2.get("H2_a_Hist").get(is+1,il+1,5).reset();
                }
            }
        }   
@@ -340,10 +340,10 @@ public class CCReconstructionApp extends FCApplication {
              ccPix.tdcr[is-1][il-1][inh-1] = tdc[ii];
              ccPix.strrt[is-1][il-1][inh-1] = ip;
              ccPix.ph[is-1][il-1][inh-1] = adph;
-             ccPix.strips.hmap2.get("H2_CCt_Hist").get(is,il,0).fill(tdc[ii],ip,1.0);
+             ccPix.strips.hmap2.get("H2_t_Hist").get(is,il,0).fill(tdc[ii],ip,1.0);
           }
     	      
-    	       ccPix.strips.hmap2.get("H2_CCa_Hist").get(is,il,1).fill(adc,tdc[ii],1.0);   
+    	       ccPix.strips.hmap2.get("H2_a_Hist").get(is,il,1).fill(adc,tdc[ii],1.0);   
     	       
        }
        
@@ -354,7 +354,7 @@ public class CCReconstructionApp extends FCApplication {
              ccPix.adcr[is-1][il-1][inh-1] = adc;
              ccPix.tf[is-1][il-1][inh-1] = tdcf;
              ccPix.strra[is-1][il-1][inh-1] = ip;
-             ccPix.strips.hmap2.get("H2_CCa_Hist").get(is,il,0).fill(adc,ip,1.0);             
+             ccPix.strips.hmap2.get("H2_a_Hist").get(is,il,0).fill(adc,ip,1.0);             
        } 
    }
    
@@ -364,7 +364,7 @@ public class CCReconstructionApp extends FCApplication {
           for (int il=0; il<2; il++ ){;
               for (int n=0 ; n<ccPix.nha[is][il] ; n++) {
                   int ip=ccPix.strra[is][il][n]; int ad=ccPix.adcr[is][il][n];
-                  ccPix.strips.hmap1.get("H1_CCa_Sevd").get(is+1,il+1,0).fill(ip,ad);
+                  ccPix.strips.hmap1.get("H1_a_Sevd").get(is+1,il+1,0).fill(ip,ad);
               }
           }
        }           
@@ -380,16 +380,16 @@ public class CCReconstructionApp extends FCApplication {
 
    public void makeMaps() {
 	   
-	   DetectorCollection<H2F> H2_CCa_Hist = new DetectorCollection<H2F>();
-	   DetectorCollection<H1F> H1_CCa_Sevd = new DetectorCollection<H1F>();
+	   DetectorCollection<H2F> H2_a_Hist = new DetectorCollection<H2F>();
+	   DetectorCollection<H1F> H1_a_Sevd = new DetectorCollection<H1F>();
 	   
-       H2_CCa_Hist = ccPix.strips.hmap2.get("H2_CCa_Hist");
-       H1_CCa_Sevd = ccPix.strips.hmap1.get("H1_CCa_Sevd");
+       H2_a_Hist = ccPix.strips.hmap2.get("H2_a_Hist");
+       H1_a_Sevd = ccPix.strips.hmap1.get("H1_a_Sevd");
        
        for (int is=1;is<7;is++) {
            for (int il=1 ; il<3 ; il++) {
-               if (!app.isSingleEvent()) ccPix.Lmap_a.add(is,il,0, toTreeMap(H2_CCa_Hist.get(is,il,0).projectionY().getData())); //Strip View ADC 
-               if  (app.isSingleEvent()) ccPix.Lmap_a.add(is,il,0, toTreeMap(H1_CCa_Sevd.get(is,il,0).getData()));           
+               if (!app.isSingleEvent()) ccPix.Lmap_a.add(is,il,0, toTreeMap(H2_a_Hist.get(is,il,0).projectionY().getData())); //Strip View ADC 
+               if  (app.isSingleEvent()) ccPix.Lmap_a.add(is,il,0, toTreeMap(H1_a_Sevd.get(is,il,0).getData()));           
            }
        }   
 

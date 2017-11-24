@@ -167,7 +167,7 @@ public class CCCalibrationApp extends FCApplication implements CalibrationConsta
     
     public void analyzeAllEngines(int is1, int is2, int il1, int il2) {
         for (int i=0; i<engines.length; i++) {
-            engines[i].analyze(is1,is2,il1,il2,1,19); 
+//            engines[i].analyze(is1,is2,il1,il2,1,19); 
         }
     }
    
@@ -575,7 +575,7 @@ public class CCCalibrationApp extends FCApplication implements CalibrationConsta
                     for (int ip=ip1 ; ip<ip2; ip++) {                      
                         CalibrationData fits = new CalibrationData(is, il, ip);
                         fits.getDescriptor().setType(DetectorType.LTCC);
-                        fits.addGraph(ccPix.strips.hmap2.get("H2_CCa_Hist").get(is,il,0).sliceY(ip-1).getGraph());
+                        fits.addGraph(ccPix.strips.hmap2.get("H2_a_Hist").get(is,il,0).sliceY(ip-1).getGraph());
                         fits.setFitLimits(calib.getDoubleValue("FitMin",is,il,ip),
                                           calib.getDoubleValue("FitMax",is,il,ip));
                         fits.analyze(0);
@@ -686,7 +686,7 @@ public class CCCalibrationApp extends FCApplication implements CalibrationConsta
         
         @Override
         public void fit(int sector, int layer, int paddle, double minRange, double maxRange){ 
-           double mean = ccPix.strips.hmap2.get("H2_CCa_Hist").get(sector,layer,0).sliceY(paddle-1).getMean();
+           double mean = ccPix.strips.hmap2.get("H2_a_Hist").get(sector,layer,0).sliceY(paddle-1).getMean();
            calib.addEntry(sector, layer, paddle);
            calib.setDoubleValue(mean, "gain", sector, layer, paddle);
         } 

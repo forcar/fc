@@ -74,10 +74,10 @@ public class CCMode1App extends FCApplication {
         for(int ip=0;ip<ccPix.nstr[0];ip++){
             c.cd(ip); c.getPad(ip).setOptStat(Integer.parseInt("0")); 
             c.getPad(ip).setAxisRange(0.,100.,-15.,4000*app.displayControl.pixMax);
-            h = ccPix.strips.hmap2.get("H2_CCa_Sevd").get(is,lr,0).sliceY(ip); 
+            h = ccPix.strips.hmap2.get("H2_a_Sevd").get(is,lr,0).sliceY(ip); 
             h.setTitleX("Sector "+is+otab[lr-1]+(ip+1)+" (4 ns/ch)"); h.setTitleY("Counts");
             h.setFillColor(4); c.draw(h);
-            h = ccPix.strips.hmap2.get("H2_CCa_Sevd").get(is,lr,1).sliceY(ip); 
+            h = ccPix.strips.hmap2.get("H2_a_Sevd").get(is,lr,1).sliceY(ip); 
             h.setFillColor(2); c.draw(h,"same");
             c.draw(f1,"same"); c.draw(f2,"same");
             }  
@@ -86,7 +86,7 @@ public class CCMode1App extends FCApplication {
     
     public void updateSum() {
         
-        DetectorCollection<H2F> dc2a = ccPix.strips.hmap2.get("H2_CCa_Hist");        
+        DetectorCollection<H2F> dc2a = ccPix.strips.hmap2.get("H2_a_Hist");        
         H1F h1; H2F h2;
         
         F1D f1 = new F1D("p0","[a]",0.,100.); 
