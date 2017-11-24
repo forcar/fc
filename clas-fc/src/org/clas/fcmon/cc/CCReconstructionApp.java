@@ -271,15 +271,15 @@ public class CCReconstructionApp extends FCApplication {
           int ped = app.mode7Emulation.User_pedref==1 ? this.pedref:pd;
                      
           for (int ii=0 ; ii< pulse.length ; ii++) {
-              cndPix[0].strips.hmap2.get("H2_CCa_Hist").get(is,lr+1,5).fill(ii,il,pulse[ii]-ped);
+              ccPix.strips.hmap2.get("H2_CCa_Hist").get(is,lr+1,5).fill(ii,il,pulse[ii]-ped);
               if (app.isSingleEvent()) {
-                 cndPix[0].strips.hmap2.get("H2_CCa_Sevd").get(is,lr+1,0).fill(ii,il,pulse[ii]-ped);
+                 ccPix.strips.hmap2.get("H2_CCa_Sevd").get(is,lr+1,0).fill(ii,il,pulse[ii]-ped);
                  int w1 = t0-this.nsb ; int w2 = t0+this.nsa;
-                 if (ad>0&&ii>=w1&&ii<=w2) cndPix[0].strips.hmap2.get("H2_CCa_Sevd").get(is,lr+1,1).fill(ii,il,pulse[ii]-ped);                     
+                 if (ad>0&&ii>=w1&&ii<=w2) ccPix.strips.hmap2.get("H2_CCa_Sevd").get(is,lr+1,1).fill(ii,il,pulse[ii]-ped);                     
               }
            }
           
-          if (pd>0) cndPix[0].strips.hmap2.get("H2_CCa_Hist").get(is,lr+1,3).fill(this.pedref-pd, il);
+          if (pd>0) ccPix.strips.hmap2.get("H2_CCa_Hist").get(is,lr+1,3).fill(this.pedref-pd, il);
           fill(is, lr+1, il, ad, tdc, tf, ph);   
           
           }           

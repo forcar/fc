@@ -238,7 +238,7 @@ public class ECReconstructionApp extends FCApplication {
                
                if (app.rtt.hasItem(is,il,ip,0)) {
                    int[] dum = (int[]) app.rtt.getItem(is,il,ip,0);
-                   app.getMode7(dum[0],dum[1],dum[2]);
+                   getMode7(dum[0],dum[1],dum[2]);
                }
                
                if (ped>0) ecPix[idet].strips.hmap2.get("H2_Peds_Hist").get(is,ilay,0).fill(this.pedref-ped, ip);
