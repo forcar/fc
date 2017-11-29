@@ -43,7 +43,7 @@ public class ECMon extends DetectorMonitor {
     EvioDataSync             writer = null;
     Boolean                saveFile = false;
    
-    public static int        calRun = 760;
+    public static int        calRun = 1586;
     public static String  variation = "default";
     int                       detID = 0;
     int                         is1 = 1;
@@ -312,7 +312,7 @@ public class ECMon extends DetectorMonitor {
         // From updateGUI timer or mouseover : process entering a new detector shape and repaint
         DetectorDescriptor dd = shape.getDescriptor();
         app.updateStatusString(dd); // For strip/pixel ID and reverse translation table
-        this.analyze(); // Refresh color maps 
+        this.analyze();             // Refresh color maps 
         switch (app.getSelectedTabName()) {
         case "Mode1":                       ecMode1.updateCanvas(dd); break;
         case "ADC":                           ecAdc.updateCanvas(dd); break;

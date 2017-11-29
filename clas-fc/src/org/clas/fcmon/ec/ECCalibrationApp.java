@@ -3,6 +3,8 @@ package org.clas.fcmon.ec;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -15,6 +17,7 @@ import java.util.TreeMap;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -82,7 +85,9 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
     int selectedSector = 1;
     int selectedLayer = 1;
     int selectedPaddle = 1;
-
+    
+    Boolean[]   doIDET = {false,false,false};
+    Boolean[] doSector = {false,false,false,false,false,false};
     int calrun = 1;
     
     public ECCalibrationApp(String name , ECPixels[] ecPix) {
@@ -106,6 +111,56 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
         return engineView;       
     }  
     
+    public JCheckBox getPCButton() {
+        JCheckBox button = new JCheckBox("PC");
+        button.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                if(e.getStateChange() == ItemEvent.SELECTED) {
+                    doIDET[0]=true;
+                } else {
+                    doIDET[0]=false;
+                };
+            }
+        });           
+        button.setSelected(false);
+        
+        return button;
+    	
+    }
+    
+    public JCheckBox getECButton() {
+        JCheckBox button = new JCheckBox("EC");
+        button.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                if(e.getStateChange() == ItemEvent.SELECTED) {
+                    doIDET[1] = true; doIDET[2]=true;
+                } else {
+                    doIDET[1] = false; doIDET[2]=false;
+                };
+            }
+        });           
+        button.setSelected(false);
+        
+        return button;    	
+    }    
+    
+    public JCheckBox getSectorButton(int s) {
+        JCheckBox button = new JCheckBox("S"+s);
+        button.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                if(e.getStateChange() == ItemEvent.SELECTED) {
+                    doSector[s-1] = true; 
+                } else {
+                    doSector[s-1] = false; 
+                };
+            }
+        });           
+        button.setSelected(false);
+        
+        return button;    	
+    }     
+    
+    
     public JPanel getButtonPane(){
         buttonPane = new JPanel();
         tableWrite = new JButton("Write Table");
@@ -120,6 +175,9 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
         hvSave  = new JButton("Load HVnew");
         hvSave.addActionListener(this);
         hvSave.setActionCommand("LOADHV");
+        for (int s=1; s<7 ; s++) buttonPane.add(getSectorButton(s));
+        buttonPane.add(getPCButton());
+        buttonPane.add(getECButton());
         buttonPane.add(tableWrite);
         buttonPane.add(tableSave);
         buttonPane.add(tableRead);
@@ -437,12 +495,13 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
                     is  = Integer.parseInt(lineValues[0]);
                     il  = Integer.parseInt(lineValues[1]);
                     ip  = Integer.parseInt(lineValues[2]);
-                    dum = Double.parseDouble(lineValues[3]);  calib.setDoubleValue(dum,"Gain",  is,il,ip);
-                    dum = Double.parseDouble(lineValues[4]);  calib.setDoubleValue(dum,"HVold", is,il,ip);
-                    dum = Double.parseDouble(lineValues[5]);  calib.setDoubleValue(dum,"HVnew", is,il,ip);
-                    app.fifo6.get(is, il, ip).add(dum);
-                    dum = Double.parseDouble(lineValues[6]);  calib.setDoubleValue(dum,"DHV",   is,il,ip);
-                    
+                    if (calib.hasEntry(is,il,ip)) {
+                      dum = Double.parseDouble(lineValues[3]);  calib.setDoubleValue(dum,"Gain",  is,il,ip);
+                      dum = Double.parseDouble(lineValues[4]);  calib.setDoubleValue(dum,"HVold", is,il,ip);
+                      dum = Double.parseDouble(lineValues[5]);  calib.setDoubleValue(dum,"HVnew", is,il,ip);
+                      app.fifo6.get(is, il, ip).add(dum);
+                      dum = Double.parseDouble(lineValues[6]);  calib.setDoubleValue(dum,"DHV",   is,il,ip);
+                    }
                     line = br.readLine();                    
                 }
                 br.close();            
@@ -673,7 +732,8 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
                    
                }
            });   
-       }        
+       } 
+        
         public void makeNewTable(int is1, int is2) {
             
             calib = new CalibrationConstants(3,"A/F:Aerr/F:B/F:Berr/F:C/F:Cerr/F:FitMin/F:FitMax/F");
@@ -695,12 +755,12 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
                         int sl = il+idet*3;
                         for(int ip = 1; ip < ecPix[idet].ec_nstr[il-1]+1; ip++) {
                             calib.addEntry(is, sl, ip);
-                            calib.setDoubleValue(1.00, "A",     is, sl, ip);
-                            calib.setDoubleValue(0.00, "Aerr",  is, sl, ip);
-                            calib.setDoubleValue(0.00, "B",     is, sl, ip);
-                            calib.setDoubleValue(0.00, "Berr",  is, sl, ip);
-                            calib.setDoubleValue(0.00, "C",     is, sl, ip);
-                            calib.setDoubleValue(0.00, "Cerr",  is, sl, ip);
+                            calib.setDoubleValue(atten.getDoubleValue("A",    is,sl,ip), "A",     is, sl, ip);
+                            calib.setDoubleValue(atten.getDoubleValue("Aerr", is,sl,ip), "Aerr",  is, sl, ip);
+                            calib.setDoubleValue(atten.getDoubleValue("B",    is,sl,ip), "B",     is, sl, ip);
+                            calib.setDoubleValue(atten.getDoubleValue("Berr", is,sl,ip), "Berr",  is, sl, ip);
+                            calib.setDoubleValue(atten.getDoubleValue("C",    is,sl,ip), "C",     is, sl, ip);
+                            calib.setDoubleValue(atten.getDoubleValue("Cerr", is,sl,ip), "Cerr",  is, sl, ip);
                             calib.setDoubleValue(atten.getDoubleValue("FitMin", is,sl,ip), "FitMin",is, sl, ip);
                             calib.setDoubleValue(atten.getDoubleValue("FitMax", is,sl,ip), "FitMax",is, sl, ip);
                         }
@@ -709,17 +769,12 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
             }
             list.add(calib);  
         }
+        
         @Override
         public void writeDefaultTables(String runno) {
           System.out.println("Creating EC_CALIB_ATTEN tables for "+runno);
-          makeNewTable(1,7);
-          updateTable(app.calibPath+"EC_CALIB_ATTEN_r9");          
-          updateTable(app.calibPath+"EC_CALIB_ATTEN_s1_r"+runno);   
-          updateTable(app.calibPath+"EC_CALIB_ATTEN_s2_r"+runno);   
-          updateTable(app.calibPath+"EC_CALIB_ATTEN_s3_r"+runno);   
-//        updateTable(app.calibPath+"EC_CALIB_ATTEN_s4_r"+runno);   
-          updateTable(app.calibPath+"EC_CALIB_ATTEN_s5_r"+runno);   
-          updateTable(app.calibPath+"EC_CALIB_ATTEN_s6_r"+runno);   
+          makeNewTable(1,7);         
+          updateTable(app.calibPath+"EC_CALIB_ATTEN_s0_"+runno);   
           calib.save(app.calibPath+"EC_CALIB_ATTEN_r"+runno);   
         }
         
@@ -770,18 +825,21 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
                     is  = Integer.parseInt(lineValues[0]);
                     il  = Integer.parseInt(lineValues[1]);
                     ip  = Integer.parseInt(lineValues[2]);
-                    double A = Double.parseDouble(lineValues[3]);
-                    double C = Double.parseDouble(lineValues[7]);
-                    if (A==0) A=1.0;
-                    double sca = A+C;
-                    calib.setDoubleValue(A/sca,"A",     is,il,ip);
-                    dum = Double.parseDouble(lineValues[4]);  calib.setDoubleValue(dum/sca,"Aerr",  is,il,ip);
-                    dum = Double.parseDouble(lineValues[5]);  calib.setDoubleValue(dum,"B",         is,il,ip);
-                    dum = Double.parseDouble(lineValues[6]);  calib.setDoubleValue(dum,"Berr",      is,il,ip);
-                    calib.setDoubleValue(C/sca,"C",     is,il,ip);
-                    dum = Double.parseDouble(lineValues[8]);  calib.setDoubleValue(dum/sca,"Cerr",  is,il,ip);
-                    dum = Double.parseDouble(lineValues[9]);  calib.setDoubleValue(dum,"FitMin",    is,il,ip);
-                    dum = Double.parseDouble(lineValues[10]); calib.setDoubleValue(dum,"FitMax",    is,il,ip);
+                    
+                    if (calib.hasEntry(is,il,ip)&&doIDET[il>3?1:0]) {
+                        double A = Double.parseDouble(lineValues[3]);
+                        double C = Double.parseDouble(lineValues[7]);
+                        if (A==0) A=1.0;
+                        double sca = A+C;
+                        calib.setDoubleValue(A/sca,"A",     is,il,ip);
+                        dum = Double.parseDouble(lineValues[4]);  calib.setDoubleValue(dum/sca,"Aerr",  is,il,ip);
+                        dum = Double.parseDouble(lineValues[5]);  calib.setDoubleValue(dum,"B",         is,il,ip);
+                        dum = Double.parseDouble(lineValues[6]);  calib.setDoubleValue(dum,"Berr",      is,il,ip);
+                        calib.setDoubleValue(C/sca,"C",     is,il,ip);
+                        dum = Double.parseDouble(lineValues[8]);  calib.setDoubleValue(dum/sca,"Cerr",  is,il,ip);
+                        dum = Double.parseDouble(lineValues[9]);  calib.setDoubleValue(dum,"FitMin",    is,il,ip);
+                        dum = Double.parseDouble(lineValues[10]); calib.setDoubleValue(dum,"FitMax",    is,il,ip);
+                    }
                     
                     line = br.readLine();                    
                 }
@@ -868,13 +926,15 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
                                           calib.getDoubleValue("FitMax",is,sl,ip));
                         fits.analyze(idet,scale);
                         
-                        calib.setDoubleValue(fits.getFunc(0).parameter(0).value()/scale, "A",    is, sl, ip);
-                        calib.setDoubleValue(fits.getFunc(0).parameter(1).value(),       "B",    is, sl, ip);
-                        calib.setDoubleValue(fits.getFunc(0).parameter(2).value()/scale, "C",    is, sl, ip);
-                        calib.setDoubleValue(fits.getFunc(0).parameter(0).error()/scale, "Aerr", is, sl, ip);
-                        calib.setDoubleValue(fits.getFunc(0).parameter(1).error(),       "Berr", is, sl, ip);
-                        calib.setDoubleValue(fits.getFunc(0).parameter(2).error()/scale, "Cerr", is, sl, ip);
-                        
+                        if(doIDET[idet]&&doSector[is-1]) {
+                            calib.setDoubleValue(fits.getFunc(0).parameter(0).value()/scale, "A",    is, sl, ip);
+                            calib.setDoubleValue(fits.getFunc(0).parameter(1).value(),       "B",    is, sl, ip);
+                            calib.setDoubleValue(fits.getFunc(0).parameter(2).value()/scale, "C",    is, sl, ip);
+                            calib.setDoubleValue(fits.getFunc(0).parameter(0).error()/scale, "Aerr", is, sl, ip);
+                            calib.setDoubleValue(fits.getFunc(0).parameter(1).error(),       "Berr", is, sl, ip);
+                            calib.setDoubleValue(fits.getFunc(0).parameter(2).error()/scale, "Cerr", is, sl, ip);
+                        }
+                     
                         collection.add(fits.getDescriptor(),fits);
                      }
                   }
@@ -1146,10 +1206,10 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
                         int sl = il+idet*3;
                         for(int ip = 1; ip < ecPix[idet].ec_nstr[il-1]+1; ip++) {
                             calib.addEntry(is, sl, ip);
-                            double scale = (is==5)?ecc.SCALE5[sl-1]:ecc.SCALE[sl-1];
-                            double gain = ecc.MIP[sl-1]/ecc.REF[sl-1]/scale;
-                            calib.setDoubleValue(gain, "gain",     is, sl, ip);
-                            calib.setDoubleValue(0.00, "gainErr",  is, sl, ip);
+//                            double scale = (is==5)?ecc.SCALE5[sl-1]:ecc.SCALE[sl-1];
+//                            double gain = ecc.MIP[sl-1]/ecc.REF[sl-1]/scale;
+                            calib.setDoubleValue(gain.getDoubleValue("gain",   is,sl,ip), "gain",     is, sl, ip);
+                            calib.setDoubleValue(gain.getDoubleValue("gainErr",is,sl,ip), "gainErr",  is, sl, ip);
                         }
                     }
                 }
@@ -1211,10 +1271,12 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
                     is  = Integer.parseInt(lineValues[0]);
                     il  = Integer.parseInt(lineValues[1]);
                     ip  = Integer.parseInt(lineValues[2]);
-                    double  gain = Double.parseDouble(lineValues[3]);
-                    double gaine = Double.parseDouble(lineValues[4]);
-                    calib.setDoubleValue(gain, "gain",   is,il,ip);
-                    calib.setDoubleValue(gaine,"gainErr",is,il,ip);
+                    if (calib.hasEntry(is,il,ip)&&doIDET[il>3?1:0]) {
+                        double  gain = Double.parseDouble(lineValues[3]);
+                        double gaine = Double.parseDouble(lineValues[4]);
+                        calib.setDoubleValue(gain, "gain",   is,il,ip);
+                        calib.setDoubleValue(gaine,"gainErr",is,il,ip);
+                    }
                     
                     line = br.readLine();                    
                 }
@@ -1247,8 +1309,10 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
                             double gaine = Math.sqrt(Aerr*Aerr+Cerr*Cerr); 
                             double scale = (is==5)?ECConstants.SCALE5[sl-1]:ECConstants.SCALE[sl-1];
                             double FADC2ENER = ECConstants.MIP[sl-1]/ECConstants.REF[sl-1]/scale;
-                            calib.setDoubleValue(FADC2ENER/gain,                 "gain", is, sl, ip);
-                            calib.setDoubleValue(FADC2ENER*gaine/(gain*gain), "gainErr", is, sl, ip);
+                            if (doIDET[idet]&&doSector[is-1]) {
+                                calib.setDoubleValue(FADC2ENER/gain,                 "gain", is, sl, ip);
+                                calib.setDoubleValue(FADC2ENER*gaine/(gain*gain), "gainErr", is, sl, ip);
+                            }
                         }
                     }
                 }
