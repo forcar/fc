@@ -335,7 +335,7 @@ public class HTCCScalersApp extends FCEpics {
             if (lr==0||lr>layMap.get(detName).length) return;
             
             //Don't redraw unless timer fires or new sector selected
-            if (flag==0&&lr==isCurrentLayer) return;  
+            if (flag==0&&is==isCurrentSector) return;  
             
             canvas.divide(2, 1);
             canvas.getPad(0).getAxisY().setLog(false); 

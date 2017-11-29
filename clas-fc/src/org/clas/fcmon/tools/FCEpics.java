@@ -271,11 +271,11 @@ public class FCEpics  {
 	    String pv = "B_DET_"+detAlias(det,layer)+"_"+grps[grp]+"_SEC"+sector+"_"+layToStr(det,layer)+"_E"+chanToStr(channel);
 	    
 	    switch (det) {
-	    case "HTCC": pv = "B_DET_"+detAlias(det,layer)+"_"+grps[grp]+"_"+layToStr(det,layer)+chanToStr(channel); break;
+	    case "HTCC": pv = "B_DET_"+detAlias(det,layer)+"_"+grps[grp]+"_"+"SEC"+sector+"_"+layToStr(det,layer)+channel; break;
 	    case "CTOF": pv = "B_DET_"+detAlias(det,layer)+"_"+grps[grp]+"_"+layToStr(det,layer)+chanToStr(channel); break;
 	    case  "CND": pv = "B_DET_"+detAlias(det,layer)+"_"+grps[grp]+"_"+layToStr(det,layer)+"_Seg"+chanToStr(sector)+"_E"+channel;
 	    }
-	    
+	    System.out.println(pv+":"+action);
 	    return pv+":"+action;
 	} 
     
