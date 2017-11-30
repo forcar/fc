@@ -48,11 +48,11 @@ public class CCMon extends DetectorMonitor {
     String                   mondet = "LTCC";
     static String           appname = "LTCCMON";
     
-    DetectorCollection<H1F> H1_CCa_Sevd = new DetectorCollection<H1F>();
-    DetectorCollection<H1F> H1_CCt_Sevd = new DetectorCollection<H1F>();
-    DetectorCollection<H2F> H2_CCa_Hist = new DetectorCollection<H2F>();
-    DetectorCollection<H2F> H2_CCt_Hist = new DetectorCollection<H2F>();
-    DetectorCollection<H2F> H2_CCa_Sevd = new DetectorCollection<H2F>();
+//    DetectorCollection<H1F> H1_CCa_Sevd = new DetectorCollection<H1F>();
+//    DetectorCollection<H1F> H1_CCt_Sevd = new DetectorCollection<H1F>();
+//    DetectorCollection<H2F> H2_CCa_Hist = new DetectorCollection<H2F>();
+//    DetectorCollection<H2F> H2_CCt_Hist = new DetectorCollection<H2F>();
+//    DetectorCollection<H2F> H2_CCa_Sevd = new DetectorCollection<H2F>();
 		
     TreeMap<String,Object> glob = new TreeMap<String,Object>();
 	   
@@ -139,13 +139,15 @@ public class CCMon extends DetectorMonitor {
         ccCalib.setConstantsManager(ccdb,calRun);
         ccCalib.init();
         
-        ccHv = new CCHvApp("HV","LTCC");
+        ccHv = new CCHvApp("HV",mondet);
         ccHv.setMonitoringClass(this);
         ccHv.setApplicationClass(app);  
+        ccHv.init();
         
-        ccScalers = new CCScalersApp("Scalers","LTCC");
+        ccScalers = new CCScalersApp("Scalers",mondet);
         ccScalers.setMonitoringClass(this);
         ccScalers.setApplicationClass(app);  
+        ccScalers.init();
         
         if(app.xMsgHost=="localhost") app.startEpics();
         
@@ -272,8 +274,8 @@ public class CCMon extends DetectorMonitor {
         String hipoFileName = app.hipoPath+mondet+"_"+app.runNumber+".hipo";
         System.out.println("Writing Histograms to "+hipoFileName);
         HipoFile histofile = new HipoFile(hipoFileName);
-        histofile.addToMap("H2_CCa_Hist", this.H2_CCa_Hist);
-        histofile.addToMap("H2_CCt_Hist", this.H2_CCt_Hist);
+        histofile.addToMap("H2_a_Hist", ccPix.strips.hmap2.get("H2_a_Hist"));
+        histofile.addToMap("H2_t_Hist", ccPix.strips.hmap2.get("H2_t_Hist"));
         histofile.writeHipoFile(hipoFileName);
     }
     

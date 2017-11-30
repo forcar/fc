@@ -46,9 +46,8 @@ public class CCHvApp extends FCEpics implements ActionListener {
         super(name, det);
     }
     
-    public void init(Boolean online) {
+    public void init() {
         System.out.println("CCHvApp.init():");
-        this.online = online;
         this.is1=CCConstants.IS1;
         this.is2=CCConstants.IS2;
         setPvNames(this.detName,0);

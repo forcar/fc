@@ -58,7 +58,7 @@ public class CCScalersApp extends FCEpics {
             super(name, det);
         }
         
-        public void init(Boolean online) {
+        public void init() {
             System.out.println("CCScalersApp.init():");
             this.is1=CCConstants.IS1; 
             this.is2=CCConstants.IS2;  
