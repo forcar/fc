@@ -224,6 +224,8 @@ public class FTOFMon extends DetectorMonitor {
     public void update(DetectorShape2D shape) {
         //From DetectorView2D.DetectorViewLayer2D.drawLayer: Update color map of shape
         ftofDet.update(shape);
+        if (app.getSelectedTabName().equals("Scalers")) ftofScalers.updateDetectorView(shape);
+        if (app.getSelectedTabName().equals("HV"))           ftofHv.updateDetectorView(shape);
 //        ftofCalib.updateDetectorView(shape);
     }
         

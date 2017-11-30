@@ -128,12 +128,12 @@ public class CNDMon extends DetectorMonitor {
         cndHv = new CNDHvApp("HV","CND");
         cndHv.setMonitoringClass(this);
         cndHv.setApplicationClass(app);  
-//        cndHv.init();
+        cndHv.init();
         
         cndScalers = new CNDScalersApp("Scalers","CND");
         cndScalers.setMonitoringClass(this);
         cndScalers.setApplicationClass(app); 
-//        cndScalers.init();
+        cndScalers.init();
         
         if(app.xMsgHost=="localhost") app.startEpics();
     }

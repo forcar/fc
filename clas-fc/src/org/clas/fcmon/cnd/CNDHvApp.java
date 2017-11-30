@@ -130,7 +130,7 @@ public class CNDHvApp extends FCEpics implements ActionListener {
     } 
     
     public void initHistos() {       
-        System.out.println("FTOFHvApp.initHistos():");
+        System.out.println("CNDHvApp.initHistos():");
         for (int is=is1; is<is2 ; is++) {
             for (int il=1 ; il<layMap.get(detName).length+1 ; il++){
                 int nb=nlayMap.get(detName)[il-1]; int mx=nb+1;
@@ -145,8 +145,9 @@ public class CNDHvApp extends FCEpics implements ActionListener {
     }
         
     public void initFifos() {
-        System.out.println("FTOFHvApp.initFifos():");
-        for (int is=is1; is<is2 ; is++) {
+       System.out.println("CNDHvApp.initFifos():");
+       app.fifo1.clear(); app.fifo2.clear(); app.fifo3.clear(); app.fifo6.clear();
+       for (int is=is1; is<is2 ; is++) {
             for (int il=1; il<layMap.get(detName).length+1 ; il++) {
                 for (int ic=1; ic<nlayMap.get(detName)[il-1]+1; ic++) {
                     app.fifo1.add(is, il, ic, new LinkedList<Double>());
@@ -173,6 +174,7 @@ public class CNDHvApp extends FCEpics implements ActionListener {
                         app.fifo2.get(is, il, ic).removeFirst();
                         app.fifo3.get(is, il, ic).removeFirst();
                     }
+                    System.out.println("Filling fifos "+is+" "+il+" "+ic);
                     app.fifo1.get(is, il, ic).add(getCaValue(0,"vset",is, il, ic));
                     app.fifo2.get(is, il, ic).add(getCaValue(0,"vmon",is, il, ic));
                     app.fifo3.get(is, il, ic).add(getCaValue(0,"imon",is, il, ic));

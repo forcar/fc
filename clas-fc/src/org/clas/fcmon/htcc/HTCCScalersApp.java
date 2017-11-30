@@ -200,7 +200,7 @@ public class HTCCScalersApp extends FCEpics {
         } 
         
         public void initHistos() {       
-            System.out.println("CTOFScalersApp.initHistos():");
+            System.out.println("HTCCScalersApp.initHistos():");
             for (int is=is1; is<is2 ; is++) {
                 for (int il=1 ; il<layMap.get(detName).length+1 ; il++){
                     int nb=nlayMap.get(detName)[il-1]; int mx=nb+1;
@@ -211,7 +211,7 @@ public class HTCCScalersApp extends FCEpics {
         }
             
         public void initFifos() {
-            System.out.println("CTOFScalersApp.initFifos():");
+            System.out.println("HTCCScalersApp.initFifos():");
             app.fifo5.clear();
             for (int is=is1; is<is2 ; is++) {
                 for (int il=1; il<layMap.get(detName).length+1 ; il++) {

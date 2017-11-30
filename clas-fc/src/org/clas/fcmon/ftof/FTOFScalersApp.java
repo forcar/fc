@@ -1,6 +1,7 @@
 package org.clas.fcmon.ftof;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -15,7 +16,9 @@ import javax.swing.Timer;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ChangeEvent;
 
+import org.clas.fcmon.detector.view.DetectorShape2D;
 import org.clas.fcmon.detector.view.EmbeddedCanvasTabbed;
+import org.clas.fcmon.tools.ColorPalette;
 import org.clas.fcmon.tools.FCEpics;
 import org.jlab.detector.base.DetectorCollection;
 import org.jlab.detector.base.DetectorDescriptor;
@@ -59,6 +62,7 @@ public class FTOFScalersApp extends FCEpics {
             sectorSelected=is1;
             layerSelected=1;
             channelSelected=1;
+            orderSelected=1;
             initHistos();
         }
         
@@ -361,5 +365,29 @@ public class FTOFScalersApp extends FCEpics {
             canvas.repaint();
             
         }
-
+        
+        public void updateDetectorView(DetectorShape2D shape) {
+        	
+            ColorPalette palette3 = new ColorPalette(3);
+            ColorPalette palette4 = new ColorPalette(4);
+                       
+            ColorPalette pal = palette4;
+            
+            DetectorDescriptor dd = shape.getDescriptor(); 
+            
+            int is = dd.getSector();  
+            int il = dd.getOrder()+1;
+            int ip = dd.getComponent(); 
+                        
+            float z = (float) H1_SCA.get(is, il, 1).getBinContent(ip) ;
+            
+            if (app.omap==3) {
+            	double colorfraction=(z-zMinLab)/(zMaxLab-zMinLab);
+                app.getDetectorView().getView().zmax = zMaxLab;
+                app.getDetectorView().getView().zmin = zMinLab;
+                Color col = pal.getRange(colorfraction);
+                shape.setColor(col.getRed(),col.getGreen(),col.getBlue());              
+            }
+        }
+        
 }
