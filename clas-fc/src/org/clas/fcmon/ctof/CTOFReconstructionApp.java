@@ -134,7 +134,6 @@ public class CTOFReconstructionApp extends FCApplication {
            evno      = bank.getInt("event",0);         
            int phase_offset = 1;
            phase = ((timestamp%6)+phase_offset)%6;
-           app.bitsec = (int) (Math.log10(trigger>>24)/0.301+1);
        }
        
        if (app.isMCB) offset=(float)124.25;
@@ -300,7 +299,8 @@ public class CTOFReconstructionApp extends FCApplication {
        
    }
    
-   public void writeHipoOutput() {       
+   public void writeHipoOutput() {    
+	   System.out.println(" I am here");
        DataEvent  decodedEvent = app.decoder.getDataEvent();
        DataBank   header = app.decoder.createHeaderBank(decodedEvent,0,0,0,0);
        decodedEvent.appendBanks(header);
