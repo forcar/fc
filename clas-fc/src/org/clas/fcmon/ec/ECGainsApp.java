@@ -694,8 +694,7 @@ public class ECGainsApp extends FCApplication implements ActionListener {
         int off=0;
         double min=1,max=20,mip=10;
         System.out.println("I am in analyzeGraphs");
-        for (int is=is1; is<is2; is++) {
-            System.out.println("SectorLoop"+is);
+        for (int is=is1; is<is2; is++) {            
             for (int id=id1; id<id2; id++) {
                 if(ro.equals("c")) {min = fitLimc[id]; max = fitLimc[id+3]; off=0; mip=mipc[id];}
                 if(ro.equals("p")) {min = fitLimp[id]; max = fitLimp[id+3]; off=2; mip=mipp[id];}  

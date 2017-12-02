@@ -263,6 +263,9 @@ public class ECReconstructionApp extends FCApplication {
        long phase = app.decoder.getPhase();
        app.localRun = app.decoder.getRun();
        
+//       System.out.println(app.decoder.getFCTrigger()+" "+app.decoder.getCDTrigger());
+//       System.out.println(" ");
+       
        List<DetectorDataDgtz> adcDGTZ = app.decoder.getEntriesADC(DetectorType.ECAL);
        List<DetectorDataDgtz> tdcDGTZ = app.decoder.getEntriesTDC(DetectorType.ECAL);
 

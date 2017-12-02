@@ -15,6 +15,15 @@ import org.jlab.detector.decode.CodaEventDecoder;
 import org.jlab.groot.data.H1F;
 import org.jlab.detector.decode.DetectorDataDgtz;
 
+import org.jlab.io.evio.EvioDataEvent;
+import org.jlab.io.evio.EvioSource;
+import org.jlab.io.evio.EvioTreeBranch;
+import org.jlab.coda.jevio.ByteDataTransformer;
+import org.jlab.coda.jevio.CompositeData;
+import org.jlab.coda.jevio.DataType;
+import org.jlab.coda.jevio.EvioException;
+import org.jlab.coda.jevio.EvioNode;
+
 public class FCCLASDecoder {
        
     public CodaEventDecoder          codaDecoder = null; 
@@ -67,6 +76,7 @@ public class FCCLASDecoder {
                 evtno       = codaDecoder.getEventNumber();
                 timeStamp   = codaDecoder.getTimeStamp();
                 triggerBits = codaDecoder.getTriggerBits();
+//                List<DetectorDataDgtz> junk = getDataEntries_TI((EvioDataEvent) event);
                 if(this.decoderDebugMode>0){
                     System.out.println("\n>>>>>>>>> RAW decoded data");
                     for(DetectorDataDgtz data : dataList){
@@ -87,6 +97,44 @@ public class FCCLASDecoder {
         }
     } 
     
+    public void clearTriggerbits() {
+      	this.triggerBits = 0;
+    }
+    
+    public void setTriggerbits(int word) {
+    	   this.triggerBits  = word;
+    }
+    
+    public List<DetectorDataDgtz>  getDataEntries_TI(EvioDataEvent event){
+
+    	    clearTriggerbits();
+    	    
+        List<DetectorDataDgtz> tiEntries = new ArrayList<>();
+        List<EvioTreeBranch> branches = codaDecoder.getEventBranches(event);
+
+        for(EvioTreeBranch branch : branches){
+            int  crate = branch.getTag();
+            EvioTreeBranch cbranch = codaDecoder.getEventBranch(branches, branch.getTag());
+            for(EvioNode node : cbranch.getNodes()){
+                if(node.getTag()==57610){
+                    long[] longData = ByteDataTransformer.toLongArray(node.getStructureBuffer(false));
+                    int[]  intData  = ByteDataTransformer.toIntArray(node.getStructureBuffer(false));
+                    DetectorDataDgtz entry = new DetectorDataDgtz(crate,0,0);
+                    long tStamp = longData[2]&0x00000000ffffffff;
+                    entry.setTimeStamp(tStamp);
+                    if(node.getDataLength()==4) tiEntries.add(entry);
+                    else if(node.getDataLength()==5) { // data before run 1700
+                      this.setTriggerbits(intData[5]);
+                    }
+                    else if(node.getDataLength()==6) { // data after run 1700
+                      this.setTriggerbits(intData[6]<<16|intData[7]);
+                    }
+                }
+            }
+        }
+        return tiEntries;
+    }   
+    
     public void setPhaseOffset(int offset) {
     	this.phase_offset = offset;
     }
@@ -102,6 +150,14 @@ public class FCCLASDecoder {
     public long getTimestamp() {
     	    return this.timeStamp;
     }
+   
+    public int getFCTrigger() {    	    
+    	    return (getTriggerbits()>>16)&0x0000ffff;
+    }
+    
+    public int getCDTrigger() {
+    	    return getTriggerbits()&0x00000fff;
+    }
     
     public int getTriggerbits() {
     	    return this.triggerBits;    	
@@ -111,8 +167,10 @@ public class FCCLASDecoder {
     	    return ((this.timeStamp%6)+this.phase_offset)%6;
     }
     
-    public int getBitsec() {
-        return	(int) (Math.log10(this.triggerBits>>24)/0.301+1);
+    public int getBitsec() {    
+    	    int trig = getFCTrigger();
+        if (trig>0) return (int) (Math.log10(trig>>8)/0.301+1);
+        return 0;
     }
     
     public List<DetectorDataDgtz>  getEntriesADC(DetectorType type){
