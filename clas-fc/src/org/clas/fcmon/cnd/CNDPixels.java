@@ -24,6 +24,7 @@ public class CNDPixels {
     public    int     cnd_nstr[] = {3};
     public    int     cnd_nlay[] = {1};
     public double         amax[] = {5000.};
+    public double         tlim[] = {280.,380.};
     
     int        nha[][] = new    int[24][2];
     int        nht[][] = new    int[24][2];
@@ -147,9 +148,11 @@ public class CNDPixels {
             H2_t_Hist.add(is, 0, 0, new H2F("a_tdif_"+iid+0,  100, -15.,      15.,nstr, 1., nend));
             for (int lr=1 ; lr<3 ; lr++){
                 iid="s"+Integer.toString(is)+"_l"+Integer.toString(lr)+"_c";
-                H2_a_Hist.add(is, lr, 0, new H2F("a_raw_"+iid+1,      100,   0.,amax[id], nstr, 1., nend));
-                H2_t_Hist.add(is, lr, 0, new H2F("a_raw_"+iid+1,      100,  700., 900.,    nstr, 1., nend));
-                H2_a_Hist.add(is, lr, 1, new H2F("a_raw_"+iid+1,      100,   0.,amax[id],100,  700., 900.));
+                H2_a_Hist.add(is, lr, 0, new H2F("a_raw_"+iid+0,      100,   0.,amax[id], nstr, 1., nend));
+                H2_t_Hist.add(is, lr, 0, new H2F("t_raw_"+iid+1,      100,  tlim[0], tlim[1],    nstr, 1., nend));
+                H2_t_Hist.add(is, lr, 1, new H2F("t_raw_"+iid+1,      100,   0.,amax[id],100, tlim[0], tlim[1]));
+                H2_t_Hist.add(is, lr, 2, new H2F("t_raw_"+iid+2,      100,   0.,amax[id],100, tlim[0], tlim[1]));
+                H2_t_Hist.add(is, lr, 3, new H2F("t_raw_"+iid+3,      100,   0.,amax[id],100, tlim[0], tlim[1]));
                 H2_a_Hist.add(is, lr, 3, new H2F("a_ped_"+iid+3,       40, -20.,  20., nstr, 1., nend)); 
                 H2_a_Hist.add(is, lr, 5, new H2F("a_fadc_"+iid+5,     100,   0., 100., nstr, 1., nend));
                 H1_a_Sevd.add(is, lr, 0, new H1F("a_sed_"+iid+0,                       nstr, 1., nend));

@@ -387,7 +387,7 @@ public class CNDReconstructionApp extends FCApplication {
 
        for (int ii=0; ii<tdc.length; ii++) {
            
-       if(tdc[ii]>700&&tdc[ii]<900){
+       if(tdc[ii]>cndPix[0].tlim[0]&&tdc[ii]<cndPix[0].tlim[1]){
              cndPix[idet].nht[is-1][il-1]++; int inh = cndPix[idet].nht[is-1][il-1];
              if (inh>nstr) inh=nstr;
              cndPix[idet].ph[is-1][il-1][inh-1] = adph;
@@ -397,7 +397,7 @@ public class CNDReconstructionApp extends FCApplication {
              cndPix[idet].strips.hmap2.get("H2_t_Hist").get(is,il,0).fill(tdc[ii],ip,1.0);
        }
        
-       cndPix[idet].strips.hmap2.get("H2_a_Hist").get(is,il,1).fill(adc,tdc[ii],1.0);
+       cndPix[idet].strips.hmap2.get("H2_t_Hist").get(is,il,ip).fill(adc,tdc[ii],1.0);
           
        }
        

@@ -173,8 +173,7 @@ public class CNDHvApp extends FCEpics implements ActionListener {
                         app.fifo1.get(is, il, ic).removeFirst();
                         app.fifo2.get(is, il, ic).removeFirst();
                         app.fifo3.get(is, il, ic).removeFirst();
-                    }
-                    System.out.println("Filling fifos "+is+" "+il+" "+ic);
+                    }                   
                     app.fifo1.get(is, il, ic).add(getCaValue(0,"vset",is, il, ic));
                     app.fifo2.get(is, il, ic).add(getCaValue(0,"vmon",is, il, ic));
                     app.fifo3.get(is, il, ic).add(getCaValue(0,"imon",is, il, ic));
@@ -264,22 +263,28 @@ public class CNDHvApp extends FCEpics implements ActionListener {
         
         int off = 2*app.detectorIndex;
              
-        canvas.divide(4, 1);
+        canvas.divide(6, 1);
         
-        h = H1_HV.get(is, 1+off, 0); h.setTitleX("Sector "+is+" L PMT"); h.setTitleY("VOLTS");
+        h = H1_HV.get(is, 1+off, 0); h.setTitleX("Sector "+is+" Inner PMT"); h.setTitleY("VOLTS");
         h.setFillColor(33); canvas.cd(0); canvas.draw(h);
-        h = H1_HV.get(is, 2+off, 0); h.setTitleX("Sector "+is+" R PMT"); h.setTitleY("VOLTS");
+        h = H1_HV.get(is, 2+off, 0); h.setTitleX("Sector "+is+" Middle PMT"); h.setTitleY("VOLTS");
         h.setFillColor(33); canvas.cd(1);    canvas.draw(h);
-        
-        h = H1_HV.get(is, 1+off, 1); h.setTitleX("Sector "+is+" L PMT"); h.setTitleY("VOLTS");
+        h = H1_HV.get(is, 3+off, 0); h.setTitleX("Sector "+is+" Outer PMT"); h.setTitleY("VOLTS");
+        h.setFillColor(33); canvas.cd(2);    canvas.draw(h);
+         
+        h = H1_HV.get(is, 1+off, 1); h.setTitleX("Sector "+is+" Inner PMT"); h.setTitleY("VOLTS");
         h.setFillColor(32); canvas.cd(0); canvas.draw(h,"same");
-        h = H1_HV.get(is, 2+off, 1); h.setTitleX("Sector "+is+" R PMT"); h.setTitleY("VOLTS");
+        h = H1_HV.get(is, 2+off, 1); h.setTitleX("Sector "+is+" Middle PMT"); h.setTitleY("VOLTS");
         h.setFillColor(32); canvas.cd(1);    canvas.draw(h,"same");
+        h = H1_HV.get(is, 3+off, 1); h.setTitleX("Sector "+is+" Outer PMT"); h.setTitleY("VOLTS");
+        h.setFillColor(32); canvas.cd(2);    canvas.draw(h,"same");
 
-        h = H1_HV.get(is, 1+off, 2); h.setTitleX("Sector "+is+" L PMT"); h.setTitleY("MICROAMPS");
-        h.setFillColor(32); canvas.cd(2); canvas.draw(h);
-        h = H1_HV.get(is, 2+off, 2); h.setTitleX("Sector "+is+" R PMT"); h.setTitleY("MICROAMPS");
+        h = H1_HV.get(is, 1+off, 2); h.setTitleX("Sector "+is+" Inner PMT"); h.setTitleY("MICROAMPS");
         h.setFillColor(32); canvas.cd(3); canvas.draw(h);
+        h = H1_HV.get(is, 2+off, 2); h.setTitleX("Sector "+is+" Middle PMT"); h.setTitleY("MICROAMPS");
+        h.setFillColor(32); canvas.cd(4); canvas.draw(h);
+        h = H1_HV.get(is, 2+off, 2); h.setTitleX("Sector "+is+" OuterPMT"); h.setTitleY("MICROAMPS");
+        h.setFillColor(32); canvas.cd(5); canvas.draw(h);
         
         c = H1_HV.get(is, lr+off, 0).histClone("Copy"); c.reset() ; 
         c.setBinContent(ip, H1_HV.get(is, lr+off, 0).getBinContent(ip));

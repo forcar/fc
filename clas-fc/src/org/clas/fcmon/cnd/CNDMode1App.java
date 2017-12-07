@@ -26,6 +26,8 @@ public class CNDMode1App extends FCApplication {
     
     int is,il,lr,ic,idet,nstr;
     String otab[]={" L PMT "," R PMT "};
+    double tlo = cndPix[0].tlim[0];
+    double thi = cndPix[0].tlim[1];
     
     public CNDMode1App(String name, CNDPixels[] cndPix) {
         super(name,cndPix);    
@@ -141,15 +143,22 @@ public class CNDMode1App extends FCApplication {
     
     public void updateAvsT() {
         
-        DetectorCollection<H2F> dc2a = cndPix[idet].strips.hmap2.get("H2_a_Hist");       
-        
+        DetectorCollection<H2F> dc2t = cndPix[idet].strips.hmap2.get("H2_t_Hist");       
+         
         H2F h2;
         
-        c = mode1.getCanvas("AvsT");  c.clear(); c.divide(2,1);       
+        c = mode1.getCanvas("AvsT");  c.clear(); c.divide(2,3);       
        
-        for (int ilr=1; ilr<3; il++) {
-            h2=dc2a.get(is,ilr,1); h2.setTitleY("Sector "+is+otab[ilr-1]+" TDC") ; h2.setTitleX("Sector "+is+otab[ilr-1]+" FADC");
-            canvasConfig(c,ilr-1,0.,cndPix[0].amax[0],0.,200.,true).draw(h2);            
+        int n = 0;
+        
+        for (int il=1; il<4; il++) {
+        for (int lr=1; lr<3; lr++) {
+            h2=dc2t.get(is,lr,1); 
+            h2.setTitleY("Sector "+is+" Layer "+il+otab[lr-1]+" TDC") ; 
+            h2.setTitleX("Sector "+is+" Layer "+il+otab[lr-1]+" FADC");
+            canvasConfig(c,n,0.,cndPix[0].amax[0],tlo,thi,true).draw(h2);   
+            n++;
+        }
         }
         
         c.repaint();
