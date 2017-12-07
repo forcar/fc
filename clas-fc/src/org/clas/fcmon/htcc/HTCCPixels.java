@@ -23,7 +23,7 @@ public class HTCCPixels {
     public    int     htcc_nstr[] = {4};
     public    int     htcc_nsec[] = {6};
     public    int     htcc_nlay[] = {1};
-    public double           amax[]= {8000.};
+    public double           amax[]= {3000.};
    
     int        nha[][] = new    int[6][4];
     int        nht[][] = new    int[6][4];

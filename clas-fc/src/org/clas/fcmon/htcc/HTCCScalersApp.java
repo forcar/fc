@@ -284,7 +284,7 @@ public class HTCCScalersApp extends FCEpics {
         public void updateCanvas(DetectorDescriptor dd) {
             
             sectorSelected  = dd.getSector();  
-            layerSelected   = dd.getOrder()+1;
+            layerSelected   = dd.getLayer();
             channelSelected = dd.getComponent(); 
             
             updateScalers(0);

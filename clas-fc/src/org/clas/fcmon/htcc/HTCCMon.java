@@ -25,7 +25,7 @@ public class HTCCMon extends DetectorMonitor {
     HTCCAdcApp                htccAdc = null;
     HTCCTdcApp                htccTdc = null;
     HTCCPedestalApp      htccPedestal = null;
-    HTCCMipApp                htccMip = null;    
+    HTCCSPEApp                htccSpe = null;    
     HTCCCalibrationApp      htccCalib = null;
     HTCCScalersApp        htccScalers = null;
     HTCCHvApp                  htccHv = null;
@@ -119,9 +119,9 @@ public class HTCCMon extends DetectorMonitor {
         htccPedestal.setMonitoringClass(this);
         htccPedestal.setApplicationClass(app);       
         
-        htccMip = new HTCCMipApp("MIP",htccPix);        
-        htccMip.setMonitoringClass(this);
-        htccMip.setApplicationClass(app);  
+        htccSpe = new HTCCSPEApp("SPE",htccPix);        
+        htccSpe.setMonitoringClass(this);
+        htccSpe.setApplicationClass(app);  
         
         htccCalib = new HTCCCalibrationApp("Calibration", htccPix);
         htccCalib.setMonitoringClass(this);
@@ -147,7 +147,7 @@ public class HTCCMon extends DetectorMonitor {
         app.addCanvas(htccAdc.getName(),             htccAdc.getCanvas());          
         app.addCanvas(htccTdc.getName(),             htccTdc.getCanvas());          
         app.addCanvas(htccPedestal.getName(),   htccPedestal.getCanvas());
-        app.addCanvas(htccMip.getName(),             htccMip.getCanvas()); 
+        app.addCanvas(htccSpe.getName(),             htccSpe.getCanvas()); 
         app.addFrame(htccCalib.getName(),          htccCalib.getCalibPane());
         app.addFrame(htccHv.getName(),                htccHv.getPanel());
         app.addFrame(htccScalers.getName(),      htccScalers.getPanel());
@@ -234,7 +234,7 @@ public class HTCCMon extends DetectorMonitor {
         case "ADC":                            htccAdc.updateCanvas(dd); break;
         case "TDC":                            htccTdc.updateCanvas(dd); break;
         case "Pedestal":                  htccPedestal.updateCanvas(dd); break;
-        case "MIP":                            htccMip.updateCanvas(dd); break; 
+        case "SPE":                            htccSpe.updateCanvas(dd); break; 
         case "HV":                              htccHv.updateCanvas(dd); break;
         case "Scalers":                    htccScalers.updateCanvas(dd);
        } 

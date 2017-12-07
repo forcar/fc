@@ -238,7 +238,7 @@ public class HTCCHvApp extends FCEpics implements ActionListener {
     public void updateCanvas(DetectorDescriptor dd) {
         
         sectorSelected  = dd.getSector();
-        layerSelected   = dd.getOrder()+1;
+        layerSelected   = dd.getLayer();
         channelSelected = dd.getComponent(); 
         
         update1DScalers(engine1DCanvas.getCanvas("HV"),0);   
