@@ -127,6 +127,7 @@ public class FCCLASDecoder {
                       this.setTriggerbits(intData[5]);
                     }
                     else if(node.getDataLength()==6) { // data after run 1700
+//                      System.out.println(intData[6]+" "+intData[7]+" "+intData2[6]+" "+intData2[7]);
                       this.setTriggerbits(intData[6]<<16|intData[7]);
                     }
                 }
@@ -168,7 +169,7 @@ public class FCCLASDecoder {
     }
     
     public int getBitsec() {    
-    	    int trig = getFCTrigger();
+    	int trig = getFCTrigger();
         if (trig>0) return (int) (Math.log10(trig>>8)/0.301+1);
         return 0;
     }
