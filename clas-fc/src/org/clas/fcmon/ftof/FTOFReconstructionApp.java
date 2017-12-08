@@ -279,6 +279,8 @@ public class FTOFReconstructionApp extends FCApplication {
        long   phase = app.decoder.getPhase();
        app.localRun = app.decoder.getRun();
        
+//       System.out.println(app.decoder.getFCTrigger()+" "+app.decoder.getCDTrigger());
+       
        List<DetectorDataDgtz> adcDGTZ = app.decoder.getEntriesADC(DetectorType.FTOF);
        List<DetectorDataDgtz> tdcDGTZ = app.decoder.getEntriesTDC(DetectorType.FTOF);
 
