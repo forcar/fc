@@ -75,8 +75,8 @@ public class FCCLASDecoder {
                 runno       = codaDecoder.getRunNumber();
                 evtno       = codaDecoder.getEventNumber();
                 timeStamp   = codaDecoder.getTimeStamp();
-                triggerBits = codaDecoder.getTriggerBits();
-//                List<DetectorDataDgtz> junk = getDataEntries_TI((EvioDataEvent) event);
+//                triggerBits = codaDecoder.getTriggerBits();
+                List<DetectorDataDgtz> junk = getDataEntries_TI((EvioDataEvent) event);
                 if(this.decoderDebugMode>0){
                     System.out.println("\n>>>>>>>>> RAW decoded data");
                     for(DetectorDataDgtz data : dataList){
@@ -127,7 +127,11 @@ public class FCCLASDecoder {
                       this.setTriggerbits(intData[5]);
                     }
                     else if(node.getDataLength()==6) { // data after run 1700
-//                      System.out.println(intData[6]+" "+intData[7]+" "+intData2[6]+" "+intData2[7]);
+//                      System.out.println("6 words "+intData[6]+" "+intData[7]);
+                      this.setTriggerbits(intData[6]<<16|intData[7]);
+                    }
+                    else if(node.getDataLength()==7) { // data after run 1787
+//                      System.out.println("7 words "+intData[6]+" "+intData[7]);
                       this.setTriggerbits(intData[6]<<16|intData[7]);
                     }
                 }
