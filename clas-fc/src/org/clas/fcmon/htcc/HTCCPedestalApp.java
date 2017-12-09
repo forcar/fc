@@ -36,6 +36,7 @@ public class HTCCPedestalApp extends FCApplication {
         
         c.divide(2,2);
         c.setAxisFontSize(14);
+        c.setGridX(false); c.setGridY(false);
 //        canvas.setTitleFontSize(14);
 //        canvas.setAxisTitleFontSize(14);
         
@@ -46,13 +47,17 @@ public class HTCCPedestalApp extends FCApplication {
             if(lr==il) {
                 F1D f1 = new F1D("p0","[a]",-20.,20.); f1.setParameter(0,ic+1);
                 F1D f2 = new F1D("p0","[a]",-20.,20.); f2.setParameter(0,ic+2);
-                f1.setLineColor(2); c.draw(f1,"same"); 
-                f2.setLineColor(2); c.draw(f2,"same");
+                f1.setLineColor(2); f1.setLineWidth(3); c.draw(f1,"same"); 
+                f2.setLineColor(2); f2.setLineWidth(3); c.draw(f2,"same");
             }
             
             c.cd(il-1+2);
-            h=hpix.sliceY(ics); h.setOptStat(Integer.parseInt("10001100")); h.setFillColor(4); h.setTitle(""); h.setTitleX("Sector "+is+otab[il-1]+(ics+1)); c.draw(h);
-            if(lr==il) {h=hpix.sliceY(ic) ; h.setFillColor(2); h.setTitle(" "); h.setTitleX("Sector "+is+otab[il-1]+(ic+1));  c.draw(h);}
+            h=hpix.sliceY(ics); h.setOptStat(Integer.parseInt("10001100")); h.setFillColor(4); h.setTitle(" "); h.setTitleX("Sector "+is+otab[il-1]+(ics+1)); c.draw(h);
+            if(lr==il) {h=hpix.sliceY(ic) ; 
+                        h.setFillColor(2); h.setTitle(" "); 
+                        h.setOptStat(Integer.parseInt("10001100"));
+                        h.setTitleX("Sector "+is+otab[il-1]+(ic+1));  c.draw(h);            
+            }
             
         }  
         

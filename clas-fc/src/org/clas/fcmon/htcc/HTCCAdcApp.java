@@ -38,6 +38,7 @@ public class HTCCAdcApp extends FCApplication {
           
         c.divide(3,3);       
         c.setAxisFontSize(14);
+        c.setGridX(false); c.setGridY(false);
         
 //        canvas.setAxisTitleFontSize(14);
 //        canvas.setTitleFontSize(14);
@@ -56,8 +57,8 @@ public class HTCCAdcApp extends FCApplication {
         F1D f1 = new F1D("p0","[a]",0.,amax); f1.setParameter(0,ic+1);
         F1D f2 = new F1D("p0","[a]",0.,amax); f2.setParameter(0,ic+2);
         c.cd(lr-1);        
-        f1.setLineColor(2); c.draw(f1,"same"); 
-        f2.setLineColor(2); c.draw(f2,"same");
+        f1.setLineColor(2); f1.setLineWidth(2); c.draw(f1,"same"); 
+        f2.setLineColor(2); f2.setLineWidth(2); c.draw(f2,"same");
         f1 = new F1D("p0","[a]",0.,amax); f1.setParameter(0,ic+1);
         f2 = new F1D("p0","[a]",0.,amax); f2.setParameter(0,ic+2);
         c.cd(2);        
