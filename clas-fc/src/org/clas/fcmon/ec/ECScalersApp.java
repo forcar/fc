@@ -5,6 +5,14 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.EOFException;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.LinkedList;
 
@@ -23,8 +31,11 @@ import org.jlab.detector.base.DetectorDescriptor;
 
 import org.jlab.groot.graphics.EmbeddedCanvas;
 import org.jlab.groot.ui.RangeSlider;
+import org.jlab.groot.data.GraphErrors;
 import org.jlab.groot.data.H1F;
 import org.jlab.groot.data.H2F;
+import java.io.EOFException;
+import java.io.IOException;
 
 public class ECScalersApp extends FCEpics {
    
@@ -34,6 +45,8 @@ public class ECScalersApp extends FCEpics {
     float norm2[] = null;
     float norm3[][] = new float[9][68];
     float norm4[][] = new float[9][68];
+    float  rate[][] = new float[9][68];
+    
     
     updateGUIAction action = new updateGUIAction();
     
@@ -61,6 +74,7 @@ public class ECScalersApp extends FCEpics {
         layerSelected=1;
         channelSelected=1;
         initHistos(); 
+        getScalerMap("/Users/colesmith/ECMON/SCALERS/ecal_occupancy_cut.txt");
     }
     
     public void startEPICS() {
@@ -318,8 +332,7 @@ public class ECScalersApp extends FCEpics {
 
         h = H1_SCA.get(is, lr, 1); h.setTitleX(tit); h.setTitleY("FADC HITS");
         h.setFillColor(32); canvas.cd(1); canvas.draw(h);
-
-        
+       
         c = H1_SCA.get(is, lr, 0).histClone("Copy"); c.reset() ; 
         c.setBinContent(ip, H1_SCA.get(is, lr, 0).getBinContent(ip));
         c.setFillColor(2);  canvas.cd(0); canvas.draw(c,"same");
@@ -371,4 +384,41 @@ public class ECScalersApp extends FCEpics {
         isCurrentLayer  = lr;
         
     }
+    
+    public H1F histScalerMap(H1F h, int layer, double scale) {
+    	   
+       	H1F c = h.histClone("Copy"); c.reset() ;
+       	for (int i=1; i<h.getAxis().getNBins(); i++) c.setBinContent(i, rate[layer-1][i]*scale);
+       	return c;
+    }
+    
+    public void getScalerMap(String filename) {   
+        
+        try{
+            FileReader       file = new FileReader(filename);
+            BufferedReader reader = new BufferedReader(file);
+            int n = 0 ;
+            while (n<420) {
+              String line = reader.readLine();
+              String[] col = line.trim().split("\\s+"); 
+              int i = Integer.parseInt(col[0]); int j = Integer.parseInt(col[1]);
+              rate[i-1][j-1] = Float.parseFloat(col[2]);
+              n++;
+            }    
+            reader.close();
+            file.close();
+         }  
+         
+         catch(FileNotFoundException ex) {
+            ex.printStackTrace();            
+         }     
+         catch(IOException ex) {
+             ex.printStackTrace();
+         }
+        
+         System.out.println("Exiting getScalerMap()");
+
+    }
+              
+    
 }
