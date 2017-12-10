@@ -74,7 +74,7 @@ public class ECScalersApp extends FCEpics {
         layerSelected=1;
         channelSelected=1;
         initHistos(); 
-        getScalerMap("/home/clasrun/ECMON/SCALERS/ecal_occupancy_cut.txt");
+        getScalerMap(app.scalerPath+"ecal_occupancy_cut.txt");
     }
     
     public void startEPICS() {
@@ -419,7 +419,6 @@ public class ECScalersApp extends FCEpics {
               String[] col = line.trim().split("\\s+"); 
               int i = Integer.parseInt(col[0]); int j = Integer.parseInt(col[1]);
               rate[i-1][j-1] = Float.parseFloat(col[2]);
-              System.out.println(i+" "+j+" "+col[2]);
               n++;
             }    
             reader.close();
