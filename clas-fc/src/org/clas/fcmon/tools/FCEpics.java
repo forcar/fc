@@ -1,10 +1,5 @@
 package org.clas.fcmon.tools;
 
-import java.awt.BorderLayout;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
 import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -13,25 +8,14 @@ import java.util.concurrent.TimeoutException;
 
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
-import javax.swing.Timer;
 
 import org.clas.fcmon.detector.view.EmbeddedCanvasTabbed;
 
 import org.epics.ca.Channel;
 import org.epics.ca.Context;
-import org.epics.ca.Listener;
 import org.epics.ca.Monitor;
-import org.epics.ca.Status;
-import org.epics.ca.data.Alarm;
-import org.epics.ca.data.Control;
-import org.epics.ca.data.Graphic;
-import org.epics.ca.data.GraphicEnum;
-import org.epics.ca.data.Timestamped;
 
-import org.jlab.detector.base.DetectorDescriptor;
 import org.jlab.utils.groups.IndexedList;
-
-import org.jlab.groot.graphics.EmbeddedCanvas;
 
 public class FCEpics  {
     
@@ -88,7 +72,7 @@ public class FCEpics  {
         this.layMap.put("CND",cnd);   this.nlayMap.put("CND",  ncnd);
         this.layMap.put("EC",ec);     this.nlayMap.put("EC",   nec);
 	}
-	
+    
 	public void clearMaps() {
 		System.out.println("FCEpics: Clearing Maps");
 	    this.map.clear();
