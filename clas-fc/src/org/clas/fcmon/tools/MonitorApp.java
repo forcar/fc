@@ -105,6 +105,8 @@ public class MonitorApp extends JFrame implements ActionListener {
     public String    hipoPath = null;
     public String   calibPath = null;
     public String      hvPath = null;
+    public String  scalerPath = null;
+    public String    evioPath = null;
     public String    xMsgHost = "localhost";
     public String   runNumber = "100";
     public boolean      debug = false;
@@ -210,6 +212,8 @@ public class MonitorApp extends JFrame implements ActionListener {
         hipoPath  = rootPath+"/HIPO/";
         calibPath = rootPath+"/CALIB/";
            hvPath = rootPath+"/HV/";
+       scalerPath = rootPath+"/SCALERS/";
+         evioPath = rootPath+"/EVIO/";
     }    
     
     public void makeGUI(){
