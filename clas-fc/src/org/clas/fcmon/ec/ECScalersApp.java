@@ -46,7 +46,7 @@ public class ECScalersApp extends FCEpics {
     float norm3[][] = new float[9][68];
     float norm4[][] = new float[9][68];
     float  rate[][] = new float[9][68];
-    
+    double ca_fc=0, ca_2c24a=0, ca_2h01=0;
     
     updateGUIAction action = new updateGUIAction();
     
@@ -74,13 +74,14 @@ public class ECScalersApp extends FCEpics {
         layerSelected=1;
         channelSelected=1;
         initHistos(); 
-        getScalerMap("/Users/colesmith/ECMON/SCALERS/ecal_occupancy_cut.txt");
+        getScalerMap("/home/clasrun/ECMON/SCALERS/ecal_occupancy_cut.txt");
     }
     
     public void startEPICS() {
         createContext();
         setCaNames(this.detName,1);
         setCaNames(this.detName,2);
+        setCaNames(this.detName,3);
         initFifos();
         this.timer = new Timer(delay,action);  
         this.timer.setDelay(delay);
@@ -232,6 +233,9 @@ public class ECScalersApp extends FCEpics {
                 }
             }
         }
+        app.fifo4.add(0,0,1,new LinkedList<Double>()); connectCa(3,"BEAM",0,0,1);
+        app.fifo4.add(0,0,2,new LinkedList<Double>()); connectCa(3,"BEAM",0,0,2);
+        app.fifo4.add(0,0,3,new LinkedList<Double>()); connectCa(3,"BEAM",0,0,3);
     }
     
     public void fillFifos() {
@@ -250,6 +254,10 @@ public class ECScalersApp extends FCEpics {
                 }
             }
          }
+        app.fifo4.get(0,0,1).add(getCaValue(3,"BEAM",0,0,1));
+        app.fifo4.get(0,0,2).add(getCaValue(3,"BEAM",0,0,2));
+        app.fifo4.get(0,0,3).add(getCaValue(3,"BEAM",0,0,3));
+               
        // System.out.println("time= "+(System.currentTimeMillis()-startTime));
         
     }
@@ -284,7 +292,10 @@ public class ECScalersApp extends FCEpics {
                }
             }
         }
-        
+        ca_fc    = app.fifo4.get(0,0,1).getLast(); 
+        ca_2c24a = app.fifo4.get(0,0,2).getLast();
+        ca_2h01  = app.fifo4.get(0,0,3).getLast();
+                
     }
     
     public synchronized void updateScalers(int flag) {
@@ -325,14 +336,19 @@ public class ECScalersApp extends FCEpics {
         canvas.getPad(1).getAxisY().getAttributes().setAxisMinimum(isLogy?1.0:0.0);
 //        canvas.getPad(1).getAxisY().getAttributes().setAxisMaximum(isLogy?1500.0:1200.0);
                 
-        String tit = "Sector "+is+" "+layMap.get(detName)[lr-1]+" PMT";
+        String titx = "Sector "+is+" "+layMap.get(detName)[lr-1]+" PMT";
         
-        h = H1_SCA.get(is, lr, 0); h.setTitleX(tit); h.setTitleY("DSC2 HITS");
+        String tit = "FC: "+String.format("%5.2f",ca_fc)+"   2C24A: "+ca_2c24a+"   2H01: "+ca_2h01;
+        
+        h = H1_SCA.get(is, lr, 0); h.setTitleX(titx); h.setTitle(tit); h.setTitleY("DSC2 RATE (HZ)");
         h.setFillColor(32); canvas.cd(0); canvas.draw(h);
 
-        h = H1_SCA.get(is, lr, 1); h.setTitleX(tit); h.setTitleY("FADC HITS");
-        h.setFillColor(32); canvas.cd(1); canvas.draw(h);
-       
+        h = H1_SCA.get(is, lr, 1); h.setTitleX(titx); h.setTitle(tit); h.setTitleY("FADC RATE (HZ)");
+        h.setFillColor(32); canvas.cd(1); canvas.draw(h); 
+        
+        H1F hbeam = histScalerMap(h,lr,ca_fc*1e3/75.);
+        canvas.draw(hbeam,"same");
+        
         c = H1_SCA.get(is, lr, 0).histClone("Copy"); c.reset() ; 
         c.setBinContent(ip, H1_SCA.get(is, lr, 0).getBinContent(ip));
         c.setFillColor(2);  canvas.cd(0); canvas.draw(c,"same");
@@ -340,7 +356,7 @@ public class ECScalersApp extends FCEpics {
         c = H1_SCA.get(is, lr, 1).histClone("Copy"); c.reset() ; 
         c.setBinContent(ip, H1_SCA.get(is, lr, 1).getBinContent(ip));
         c.setFillColor(2);  canvas.cd(1); canvas.draw(c,"same");
-               
+        
         canvas.repaint();
     }
     
@@ -388,7 +404,7 @@ public class ECScalersApp extends FCEpics {
     public H1F histScalerMap(H1F h, int layer, double scale) {
     	   
        	H1F c = h.histClone("Copy"); c.reset() ;
-       	for (int i=1; i<h.getAxis().getNBins(); i++) c.setBinContent(i, rate[layer-1][i]*scale);
+       	for (int i=0; i<h.getAxis().getNBins(); i++) c.setBinContent(i, rate[layer-1][i]*scale);
        	return c;
     }
     
@@ -403,6 +419,7 @@ public class ECScalersApp extends FCEpics {
               String[] col = line.trim().split("\\s+"); 
               int i = Integer.parseInt(col[0]); int j = Integer.parseInt(col[1]);
               rate[i-1][j-1] = Float.parseFloat(col[2]);
+              System.out.println(i+" "+j+" "+col[2]);
               n++;
             }    
             reader.close();
