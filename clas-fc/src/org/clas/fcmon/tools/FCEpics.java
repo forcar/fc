@@ -59,6 +59,10 @@ public class FCEpics  {
     public TreeMap<String,String[]>              layMap = new TreeMap<String,String[]>();
     public TreeMap<String,int[]>                nlayMap = new TreeMap<String,int[]>();
    
+    String ca_FC    = "scaler_calc1";
+    String ca_2C24A = "hallb_IPM2C24A_CUR";
+    String ca_2H01  = "hallb_IPM2H01_CUR";
+    
     String   grps[] = {"HV","DISC","FADC"};
     String   ltcc[] = {"L","R"};
     String   htcc[] = {"L","R"};
@@ -178,7 +182,20 @@ public class FCEpics  {
         break;  
         case 2: 
         setCaActionNames(det,grp,"c"); 
+        break;
+        case 3:
+        setCaActionNames(grp,"BEAM");
         }
+    }
+    
+    public int setCaActionNames(int grp, String action) {
+        if (!online) return 0;
+        IndexedList<Channel<Double>> map = new IndexedList<Channel<Double>>(4);
+        map.add(context.createChannel(ca_FC,    Double.class),grp,0,0,1); //org.epics.ca
+        map.add(context.createChannel(ca_2C24A, Double.class),grp,0,0,2); //org.epics.ca
+        map.add(context.createChannel(ca_2H01,  Double.class),grp,0,0,3); //org.epics.ca
+        caMap.put(action,map);
+    	return 1;
     }
     
     public int setCaActionNames(String det, int grp, String action) {
@@ -191,7 +208,6 @@ public class FCEpics  {
             for (int il=1; il<layMap.get(det).length+1; il++) {
                 for (int ic=1; ic<nlayMap.get(det)[il-1]+1; ic++) {
                     String pv = getPvName(grp,action,is,il,ic);
-                    //System.out.println(pv);
                     map.add(context.createChannel(pv, Double.class),grp,is,il,ic); //org.epics.ca
                 }
             }
