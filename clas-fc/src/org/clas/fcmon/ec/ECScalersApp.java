@@ -338,7 +338,9 @@ public class ECScalersApp extends FCEpics {
                 
         String titx = "Sector "+is+" "+layMap.get(detName)[lr-1]+" PMT";
         
-        String tit = "FC: "+String.format("%5.2f",ca_fc)+"   2C24A: "+ca_2c24a+"   2H01: "+ca_2h01;
+        String tit = "FC: "+String.format("%5.2f",ca_fc)+
+               "   2C24A: "+String.format("%5.2f",ca_2c24a)+
+                "   2H01: "+String.format("%5.2f",ca_2h01);
         
         h = H1_SCA.get(is, lr, 0); h.setTitleX(titx); h.setTitle(tit); h.setTitleY("DSC2 RATE (HZ)");
         h.setFillColor(32); canvas.cd(0); canvas.draw(h);
@@ -346,7 +348,7 @@ public class ECScalersApp extends FCEpics {
         h = H1_SCA.get(is, lr, 1); h.setTitleX(titx); h.setTitle(tit); h.setTitleY("FADC RATE (HZ)");
         h.setFillColor(32); canvas.cd(1); canvas.draw(h); 
         
-        H1F hbeam = histScalerMap(h,lr,ca_fc*1e3/75.);
+        H1F hbeam = histScalerMap(h,lr,ca_2h01*1e3/75.);
         canvas.draw(hbeam,"same");
         
         c = H1_SCA.get(is, lr, 0).histClone("Copy"); c.reset() ; 
