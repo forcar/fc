@@ -38,7 +38,7 @@ public class FCCLASDecoder {
     public int runno;
     public int evtno;
     public long timeStamp;
-    public int triggerBits;
+    public long triggerBits;
    
     public int phase_offset = 1;
     
@@ -75,8 +75,8 @@ public class FCCLASDecoder {
                 runno       = codaDecoder.getRunNumber();
                 evtno       = codaDecoder.getEventNumber();
                 timeStamp   = codaDecoder.getTimeStamp();
-//                triggerBits = codaDecoder.getTriggerBits();
-                List<DetectorDataDgtz> junk = getDataEntries_TI((EvioDataEvent) event);
+                triggerBits = codaDecoder.getTriggerBits();
+//                List<DetectorDataDgtz> junk = getDataEntries_TI((EvioDataEvent) event);
                 if(this.decoderDebugMode>0){
                     System.out.println("\n>>>>>>>>> RAW decoded data");
                     for(DetectorDataDgtz data : dataList){
@@ -132,7 +132,7 @@ public class FCCLASDecoder {
                     }
                     else if(node.getDataLength()==7) { // data after run 1787
 //                      System.out.println("7 words "+intData[6]+" "+intData[7]);
-                      this.setTriggerbits(intData[6]<<16|intData[7]);
+                      this.setTriggerbits(intData[6]|intData[7]<<32);
                     }
                 }
             }
@@ -157,14 +157,14 @@ public class FCCLASDecoder {
     }
    
     public int getFCTrigger() {    	    
-    	    return (getTriggerbits()>>16)&0x0000ffff;
+    	    return (int)(getTriggerbits())&0x00000000ffffffff;
     }
     
     public int getCDTrigger() {
-    	    return getTriggerbits()&0x00000fff;
+    	    return (int)(getTriggerbits()>>32)&0x00000000ffffffff;
     }
     
-    public int getTriggerbits() {
+    public long getTriggerbits() {
     	    return this.triggerBits;    	
     }
     
@@ -342,10 +342,10 @@ public class FCCLASDecoder {
     public HipoDataBank createHeaderBank(DataEvent event, int nrun, int nevent, float torus, float solenoid){
         HipoDataBank bank = (HipoDataBank) event.createBank("RUN::config", 1);
         
-        int    localRun = this.codaDecoder.getRunNumber();
-        int  localEvent = this.codaDecoder.getEventNumber();
-        long  timeStamp = this.codaDecoder.getTimeStamp();
-        int triggerBits = this.codaDecoder.getTriggerBits();
+        int    localRun  = this.codaDecoder.getRunNumber();
+        int  localEvent  = this.codaDecoder.getEventNumber();
+        long  timeStamp  = this.codaDecoder.getTimeStamp();
+        long triggerBits = this.codaDecoder.getTriggerBits();
         
         if(nrun>0){
             localRun = nrun;
@@ -353,7 +353,7 @@ public class FCCLASDecoder {
         }
         bank.setInt("run",        0, localRun);
         bank.setInt("event",      0, localEvent);
-        bank.setInt("trigger",    0, triggerBits);        
+        bank.setLong("trigger",   0, triggerBits);        
         bank.setFloat("torus",    0, torus);
         bank.setFloat("solenoid", 0, solenoid);        
         bank.setLong("timestamp", 0, timeStamp);        
