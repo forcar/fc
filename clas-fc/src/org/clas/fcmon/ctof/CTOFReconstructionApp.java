@@ -429,7 +429,8 @@ public class CTOFReconstructionApp extends FCApplication {
    }
    
    public Boolean isGoodMIP(int pdif) {
-	   return pdif>21&&pdif<25;
+	   return true;
+//	   return pdif>21&&pdif<25;
    }
    
    public void processCalib() {
