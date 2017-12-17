@@ -253,8 +253,8 @@ public class ECEngine extends ReconstructionEngine {
             bankD.setFloat("rawEU",  c, (float) clusters.get(c).getRawEnergy(0));
             bankD.setFloat("rawEV",  c, (float) clusters.get(c).getRawEnergy(1));
             bankD.setFloat("rawEW",  c, (float) clusters.get(c).getRawEnergy(2));
-            bankD.setFloat("recEU",  c, (float) clusters.get(c).getEnergy(0));
-            bankD.setFloat("recEV",  c, (float) clusters.get(c).getEnergy(1));
+            bankD.setFloat("recEU",  c, (float) clusters.get(c).getEnergy(0));            
+            bankD.setFloat("recEV",  c, (float) clusters.get(c).getEnergy(1));           
             bankD.setFloat("recEW",  c, (float) clusters.get(c).getEnergy(2));            
         }
          

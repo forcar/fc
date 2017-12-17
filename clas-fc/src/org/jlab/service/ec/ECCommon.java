@@ -124,10 +124,10 @@ public class ECCommon {
 			int rowsADC = bankADC.rows();
 			int rowsTDC = bankTDC.rows();
 			
-			if (rowsTDC != rowsADC) {
-				System.out.println("Error in ECCommon::readStripsHipo, diff. banks size " + rowsADC + " " + rowsTDC);
-				return strips;
-			}  
+//			if (rowsTDC != rowsADC) {
+//				System.out.println("Error in ECCommon::readStripsHipo, diff. banks size " + rowsADC + " " + rowsTDC);
+//				return strips;
+//			}  
 			
            for(int loop = 0; loop < rowsADC; loop++){        	   
         	       int     sector = bankADC.getByte("sector",loop);
@@ -135,7 +135,7 @@ public class ECCommon {
                int  component = bankADC.getShort("component",loop);
                ECStrip  strip = new ECStrip(sector, layer, component);
 			   strip.setADC(bankADC.getInt("ADC", loop));
-			   strip.setTDC(bankTDC.getInt("TDC", loop));             
+			   //strip.setTDC(bankTDC.getInt("TDC", loop));             
                double sca = (sector==5)?AtoE5[ind[layer-1]]:AtoE[ind[layer-1]]; 
                if (variation=="clas6") sca = 1.0;
                if(strip.getADC()>sca*ECCommon.stripThreshold[ind[layer-1]]) strips.add(strip);                       

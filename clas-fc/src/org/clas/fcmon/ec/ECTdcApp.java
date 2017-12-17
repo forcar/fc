@@ -80,7 +80,7 @@ public class ECTdcApp extends FCApplication {
 
         H1F h1 = new H1F(); h1.setFillColor(0);  
         H2F h2 = new H2F();
-
+        
         c.divide(3,3);
         c.setAxisFontSize(14);
         c.setStatBoxFontSize(12);

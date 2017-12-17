@@ -326,7 +326,7 @@ public class ECPart {
             n2hit++; h6.fill(refE);        	
         }
         if((DetectorResponse.getListByLayer(p1.getDetectorResponses(),DetectorType.ECAL, 1).size()!=0  &&
-            DetectorResponse.getListByLayer(p1.getDetectorResponses(),DetectorType.ECAL, 4).size()!=0) ||
+            DetectorResponse.getListByLayer(p1.getDetectorResponses(),DetectorType.ECAL, 4).size()!=0) &&
            (DetectorResponse.getListByLayer(p2.getDetectorResponses(),DetectorType.ECAL, 1).size()!=0  &&
             DetectorResponse.getListByLayer(p2.getDetectorResponses(),DetectorType.ECAL, 4).size()!=0))  {    
               X = (e1c-e2c)/(e1c+e2c);
