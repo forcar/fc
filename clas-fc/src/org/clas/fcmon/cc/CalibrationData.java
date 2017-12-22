@@ -23,8 +23,8 @@ public class CalibrationData {
     
     public double[] fitLimits = {0.0,1.0};
     public double   fitXmin   = 0.;
-    public double   fitXmax   = 1000.;
-    public double  xprawMax   = 1000.;
+    public double   fitXmax   = 2500.;
+    public double  xprawMax   = 2500.;
     
     private int sector,view,pmt;
     
@@ -66,7 +66,7 @@ public class CalibrationData {
     public void addFitFunction(int opt) {
         switch (opt) {
         case 0: f1 = new F1D("Gaus","[A]*gaus(x,[B],[C])",fitXmin,fitXmax);
-        f1.setParameter(1,400.); f1.setParLimits(1,10.,1000.);
+        f1.setParameter(1,400.); f1.setParLimits(1,10.,2500.);
         f1.setParameter(2,200.); f1.setParLimits(2,50.,300.); break;
         case 1: break;
         case 2: 

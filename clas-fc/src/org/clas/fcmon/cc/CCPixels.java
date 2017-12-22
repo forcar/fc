@@ -31,6 +31,8 @@ public class CCPixels {
     public IndexedList<double[]>                     Lmap_a_z = new IndexedList<double[]>(2);
     public IndexedList<double[]>                     Lmap_t_z = new IndexedList<double[]>(2);	
 
+    public double amax=4000;
+    
     int id;
   
     public String detName = null;
@@ -160,9 +162,9 @@ public class CCPixels {
         for (int is=1; is<7 ; is++) {
             for (int il=1 ; il<3 ; il++){
                 iid="s"+Integer.toString(is)+"_l"+Integer.toString(il)+"_c";
-                H2_a_Hist.add(is, il, 0, new H2F("a_raw_"+iid+0,      100,   0., 2000.,nstr[0], 1., nend));
+                H2_a_Hist.add(is, il, 0, new H2F("a_raw_"+iid+0,      100,   0., amax,nstr[0], 1., nend));
                 H2_t_Hist.add(is, il, 0, new H2F("a_raw_"+iid+0,      100,1330., 1370.,nstr[0], 1., nend));
-                H2_a_Hist.add(is, il, 1, new H2F("a_raw_"+iid+1,      100,   0., 2000.,100, 300.,1200.));
+                H2_a_Hist.add(is, il, 1, new H2F("a_raw_"+iid+1,      100,   0., amax,100, 300.,1200.));
                 H2_a_Hist.add(is, il, 3, new H2F("a_ped_"+iid+3,       40, -20.,  20., nstr[0], 1., nend)); 
                 H2_a_Hist.add(is, il, 5, new H2F("a_fadc_"+iid+5,     100,   0., 100., nstr[0], 1., nend));
                 H1_a_Sevd.add(is, il, 0, new H1F("a_sed_"+iid+0,                       nstr[0], 1., nend));

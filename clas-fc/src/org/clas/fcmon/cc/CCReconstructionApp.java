@@ -108,7 +108,7 @@ public class CCReconstructionApp extends FCApplication {
        
        int evno;
        long phase = 0;
-       int trigger = 0;
+       long trigger = 0;
        long timestamp = 0;
        float offset = 0;
        
@@ -117,7 +117,7 @@ public class CCReconstructionApp extends FCApplication {
        if(!app.isMC&&event.hasBank("RUN::config")){
            DataBank bank = event.getBank("RUN::config");
            timestamp = bank.getLong("timestamp",0);
-           trigger   = bank.getInt("trigger",0);
+           trigger   = bank.getLong("trigger",0);
            evno      = bank.getInt("event",0);         
            int phase_offset = 1;
            phase = ((timestamp%6)+phase_offset)%6;
@@ -136,11 +136,11 @@ public class CCReconstructionApp extends FCApplication {
                int  lr = bank.getByte("order",i);                       
                int  ip = bank.getShort("component",i);
                
-               if (!tdcs.hasItem(is,lr-2,il)) tdcs.add(new ArrayList<Float>(),is,lr-2,il);
-                    tdcs.getItem(is,lr-2,il).add((float) bank.getInt("TDC",i)*24/1000+offset-phase*4  );              
+               if (!tdcs.hasItem(is,lr-2,ip)) tdcs.add(new ArrayList<Float>(),is,lr-2,ip);
+                    tdcs.getItem(is,lr-2,ip).add((float) bank.getInt("TDC",i)*24/1000+offset-phase*4  );              
                if (!ltpmt.hasItem(is)) {
        	            ltpmt.add(new ArrayList<Integer>(),is);
-                    ltpmt.getItem(is).add(il);
+                    ltpmt.getItem(is).add(is);
                }   
            }
        }
@@ -157,18 +157,18 @@ public class CCReconstructionApp extends FCApplication {
                float t = bank.getFloat("time",i);               
                int ped = bank.getShort("ped", i);
                
-               if (!adcs.hasItem(is,lr,il)) adcs.add(new ArrayList<Float>(),is,lr,il);
-                    adcs.getItem(is,lr,il).add((float)adc);            
+               if (!adcs.hasItem(is,lr,ip)) adcs.add(new ArrayList<Float>(),is,lr,ip);
+                    adcs.getItem(is,lr,ip).add((float)adc);            
                if (!lapmt.hasItem(is)) {
                     lapmt.add(new ArrayList<Integer>(),is);
-                    lapmt.getItem(is).add(il);
+                    lapmt.getItem(is).add(is);
                }
           
                Float[] tdcc; float[] tdc;
                
-               if (tdcs.hasItem(is,lr,il)) {
+               if (tdcs.hasItem(is,lr,ip)) {
                    List<Float> list = new ArrayList<Float>();
-                   list = tdcs.getItem(is,lr,il); tdcc=new Float[list.size()]; list.toArray(tdcc);
+                   list = tdcs.getItem(is,lr,ip); tdcc=new Float[list.size()]; list.toArray(tdcc);
                    tdc  = new float[list.size()];
                    for (int ii=0; ii<tdcc.length; ii++) tdc[ii] = tdcc[ii];  
                } else {
@@ -176,9 +176,9 @@ public class CCReconstructionApp extends FCApplication {
                }
                for (int ii=0 ; ii< 100 ; ii++) {
                    float wgt = (ii==(int)(t/4)) ? adc:0;
-                   ccPix.strips.hmap2.get("H2_a_Hist").get(is,lr+1,5).fill(ii,il,wgt);
+                   ccPix.strips.hmap2.get("H2_a_Hist").get(is,lr+1,5).fill(ii,ip,wgt);
                    if (app.isSingleEvent()) {
-                       ccPix.strips.hmap2.get("H2_a_Sevd").get(is,lr+1,0).fill(ii,il,wgt);
+                       ccPix.strips.hmap2.get("H2_a_Sevd").get(is,lr+1,0).fill(ii,ip,wgt);
                    }
                }
                
@@ -187,9 +187,9 @@ public class CCReconstructionApp extends FCApplication {
                    getMode7(dum[0],dum[1],dum[2]);                  
                }
                
-               if (ped>0) ccPix.strips.hmap2.get("H2_a_Hist").get(is,lr+1,3).fill(this.pedref-ped, il);
+               if (ped>0) ccPix.strips.hmap2.get("H2_a_Hist").get(is,lr+1,3).fill(this.pedref-ped, ip);
                
-               if(isGoodSector(is)) fill(is, lr+1, il, adc, tdc, t, (float) adc);    
+               if(isGoodSector(is)) fill(is, lr+1, ip, adc, tdc, t, (float) adc);    
            }
        }
        
@@ -223,8 +223,8 @@ public class CCReconstructionApp extends FCApplication {
           int lr = ddd.getDescriptor().getOrder();
           int ip = ddd.getDescriptor().getComponent();          
           if (app.isSingleEvent()) System.out.println("Sector "+is+" Layer "+il+" Order "+lr);
-          if (!tdcs.hasItem(is,lr-2,il)) tdcs.add(new ArrayList<Float>(),is,lr-2,il);
-               tdcs.getItem(is,lr-2,il).add((float) ddd.getTDCData(0).getTime()*24/1000);  
+          if (!tdcs.hasItem(is,lr-2,ip)) tdcs.add(new ArrayList<Float>(),is,lr-2,ip);
+               tdcs.getItem(is,lr-2,ip).add((float) ddd.getTDCData(0).getTime()*24/1000);  
           if (!ltpmt.hasItem(is)) {
                ltpmt.add(new ArrayList<Integer>(),is);
                ltpmt.getItem(is).add(is);

@@ -352,7 +352,7 @@ public class CCCalibrationApp extends FCApplication implements CalibrationConsta
                 if (app.getInProcess()==1&&app.getIsRunning()) engines[0].analyze(is,is+1,il,il+1,1,nstr+1);
                 if (engines[0].collection.hasEntry(is, sl, ic+1)) {
                     if(engines[0].collection.get(is,sl,ic+1).getFitGraph(0).getDataSize(0)>0) {
-                        c.getPad(2).getAxisX().setRange(0.,1500.); 
+                        c.getPad(2).getAxisX().setRange(0.,ccPix.amax); 
                         c.cd(2); c.draw(engines[0].collection.get(is,sl,ic+1).getFitGraph(0));
                     }
                 }
@@ -659,7 +659,7 @@ public class CCCalibrationApp extends FCApplication implements CalibrationConsta
                     
                     c = fitAdc.getCanvas("ADC Fit");  
                     if(collection.get(is,il,ic+1).getFitGraph(0).getDataSize(0)>0) {
-                        c.getPad(0).getAxisX().setRange(0.,1500.); 
+                        c.getPad(0).getAxisX().setRange(0.,ccPix.amax); 
                         c.draw(collection.get(is,il,ic+1).getFitGraph(0));                                                 
                     }
                     c.repaint();  

@@ -34,13 +34,13 @@ public class CCOccupancyApp extends FCApplication {
         
         H2F h2a = ccPix.strips.hmap2.get("H2_a_Hist").get(is,1,0); h2a.setTitleY("Sector "+is+otab[0]+"PMTs") ; h2a.setTitleX("Sector "+is+otab[0]+"PMT"+lab4[0]);
         H2F h2b = ccPix.strips.hmap2.get("H2_a_Hist").get(is,2,0); h2b.setTitleY("Sector "+is+otab[1]+"PMTs") ; h2b.setTitleX("Sector "+is+otab[1]+"PMT"+lab4[0]);
-        canvasConfig(c,0,0.,2000.,1.,nstr+1,true); c.draw(h2a);
-        canvasConfig(c,1,0.,2000.,1.,nstr+1,true); c.draw(h2b);
+        canvasConfig(c,0,0.,ccPix.amax,1.,nstr+1,true); c.draw(h2a);
+        canvasConfig(c,1,0.,ccPix.amax,1.,nstr+1,true); c.draw(h2b);
         
         c.cd(lr-1);
         
-        F1D f1 = new F1D("p0","[a]",0.,2000.); f1.setParameter(0,ic+1);
-        F1D f2 = new F1D("p0","[a]",0.,2000.); f2.setParameter(0,ic+2);
+        F1D f1 = new F1D("p0","[a]",0.,ccPix.amax); f1.setParameter(0,ic+1);
+        F1D f2 = new F1D("p0","[a]",0.,ccPix.amax); f2.setParameter(0,ic+2);
         f1.setLineColor(2); c.draw(f1,"same"); 
         f2.setLineColor(2); c.draw(f2,"same");
         
