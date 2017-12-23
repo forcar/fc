@@ -34,11 +34,13 @@ import javax.swing.event.ChangeListener;
 
 import org.clas.containers.FTHashCollection;
 import org.clas.fcmon.detector.view.DetectorPane2D;
-import org.jlab.clas.mq.IpcReceiver;
-import org.jlab.clas.mq.IpcServer;
+//import org.jlab.clas.mq.IpcReceiver;
+//import org.jlab.clas.mq.IpcServer;
 import org.jlab.detector.base.DetectorCollection;
 import org.jlab.detector.base.DetectorDescriptor;
 import org.jlab.detector.calib.utils.ConstantsManager;
+import org.jlab.detector.decode.CLASDecoder;
+import org.jlab.detector.decode.CodaEventDecoder;
 import org.jlab.groot.graphics.EmbeddedCanvas;
 import org.jlab.io.base.DataEvent;
 import org.jlab.io.hipo.HipoDataBank;
@@ -53,7 +55,7 @@ import org.jlab.utils.groups.IndexedTable;
 @SuppressWarnings("serial")
 public class MonitorApp extends JFrame implements ActionListener {
     
-	public IpcServer          ipc = null;
+//	public IpcServer          ipc = null;
 	
 	DetectorPane2D       detectorView;  	
     JTabbedPane      canvasTabbedPane;
@@ -81,9 +83,10 @@ public class MonitorApp extends JFrame implements ActionListener {
     
     TreeMap<String,EmbeddedCanvas>  paneCanvas = new TreeMap<String,EmbeddedCanvas>();
 	
-    public FCCLASDecoder           decoder = new FCCLASDecoder();
-    
     EventControl              eventControl = null;    
+    
+    public CodaEventDecoder    codadecoder = new CodaEventDecoder();
+    public CLASDecoder             decoder = new CLASDecoder();
     public DisplayControl   displayControl = null;	
     public Mode7Emulation   mode7Emulation = null;
     public HipoDataSync             writer = null;
@@ -301,7 +304,7 @@ public class MonitorApp extends JFrame implements ActionListener {
         
         tbBtn.setSelected(false);              
         buttonPane.add(tbBtn);
-        
+/*        
         ipcBtn = new JCheckBox("IPC");
         ipcBtn.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
@@ -315,7 +318,7 @@ public class MonitorApp extends JFrame implements ActionListener {
         });         
         ipcBtn.setSelected(false);        
         buttonPane.add(ipcBtn);  
-        
+*/        
         openBtn = new JButton("Open HIPO");
         openBtn.addActionListener(this);
         buttonPane.add(openBtn);  
@@ -361,8 +364,6 @@ public class MonitorApp extends JFrame implements ActionListener {
         displayControl.setPluginClass(this.detectorView);
         mode7Emulation.setPluginClass(this.detectorView);
         
-    	this.setJMenuBar(new FCMenuBar(eventControl));
-		
         this.controlsPanel0.setBackground(Color.LIGHT_GRAY);
         this.controlsPanel1.setBackground(Color.LIGHT_GRAY);
         this.controlsPanel2.setBackground(Color.LIGHT_GRAY);
@@ -374,8 +375,12 @@ public class MonitorApp extends JFrame implements ActionListener {
         c.gridx=0 ; c.gridy=0 ; this.controlsPanel0.add(this.controlsPanel1,c);
         c.gridx=0 ; c.gridy=1 ; this.controlsPanel0.add(this.controlsPanel2,c);
         c.gridx=0 ; c.gridy=2 ; this.controlsPanel0.add(this.controlsPanel3,c);
+        
+// Menu Bar  
+        
+        this.setJMenuBar(new FCMenuBar(eventControl));		
         		
-// Basic GUI layout
+// GUI layout
         
         this.hSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,detectorPane,controlsPanel0);		
         this.hSplitPane.setDividerLocation(600);  
@@ -579,10 +584,24 @@ public class MonitorApp extends JFrame implements ActionListener {
         this.statusLabel.setText(getStatusString(dd)) ; 
     }
     
+    public void openHipoFile(String path) {               
+        HipoFileName = path+"clas_00"+runno+".hipo";
+        System.out.println("app.openHipoFile(): Opening "+HipoFileName);
+        writer.setCompressionType(2);
+        writer.open(HipoFileName);
+        isHipoFileOpen = true;
+    }
+    
+    public void closeHipoFile() {
+        System.out.println("app.closeHipoFile(): Closing "+HipoFileName);
+        writer.close();
+        isHipoFileOpen = false;
+    }  
+    
     public void openHIPOAction() {
         openBtn.setOpaque(true);
         openBtn.setBackground(Color.GREEN);
-        decoder.openHipoFile(hipoPath);        
+        openHipoFile(hipoPath);        
     }
     
     public void closeHIPOAction() {
@@ -591,7 +610,7 @@ public class MonitorApp extends JFrame implements ActionListener {
         pause(2000);
         openBtn.setOpaque(false);
         openBtn.setBackground(Color.WHITE);
-        decoder.closeHipoFile();  
+        closeHipoFile();  
     }
     
     public void pause(int msec) {
