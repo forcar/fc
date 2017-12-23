@@ -8,12 +8,12 @@ import java.util.TreeMap;
 import org.clas.fcmon.ftof.DataProvider;
 import org.clas.fcmon.ftof.TOFPaddle;
 import org.jlab.clas.physics.Particle;
-import org.jlab.hipo.data.HipoEvent;
-import org.jlab.hipo.data.HipoGroup;
-import org.jlab.hipo.io.HipoReader;
-import org.jlab.hipo.io.HipoWriter;
-import org.jlab.hipo.schema.Schema;
-import org.jlab.hipo.schema.SchemaFactory;
+import org.jlab.jnp.hipo.data.HipoEvent;
+import org.jlab.jnp.hipo.data.HipoGroup;
+import org.jlab.jnp.hipo.io.HipoReader;
+import org.jlab.jnp.hipo.io.HipoWriter;
+import org.jlab.jnp.hipo.schema.Schema;
+import org.jlab.jnp.hipo.schema.SchemaFactory;
 import org.jlab.io.base.DataBank;
 import org.jlab.io.base.DataEvent;
 import org.jlab.io.hipo.HipoDataBank;
@@ -103,10 +103,13 @@ public class HipoDST {
             }
             int nEvents = reader.getEventCount();
             for(int nev = 0; nev < nEvents; nev++){
-                HipoEvent    event = reader.readHipoEvent(nev);
+//              HipoEvent    event = reader.readHipoEvent(nev);
+                HipoEvent    event = reader.readEvent(nev);
                 HipoEvent outEvent = writerFactory.getFilteredEvent(event);                
-                byte[] array = reader.readEvent(nev);
-                DataEvent de = (DataEvent) new HipoDataEvent(array,reader.getSchemaFactory());
+//              byte[] array = reader.readEvent(nev);
+                HipoEvent array = reader.readEvent(nev);
+//              DataEvent de = (DataEvent) new HipoDataEvent(array,reader.getSchemaFactory());
+                DataEvent de = (DataEvent) new HipoDataEvent(array);
                 ecEngine.processDataEvent(de);
                 if (saveEvent(de,outEvent,filter)) {
                     if (debug==1) de.getBank("ECAL::clusters").show();

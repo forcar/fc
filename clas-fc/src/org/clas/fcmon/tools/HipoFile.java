@@ -19,8 +19,8 @@ import org.jlab.groot.data.DataSetSerializer;
 import org.jlab.groot.data.GraphErrors;
 import org.jlab.groot.data.TDirectory;
 import org.jlab.groot.ui.TBrowser;
-import org.jlab.hipo.data.HipoEvent;
-import org.jlab.hipo.io.HipoReader;
+import org.jlab.jnp.hipo.data.HipoEvent;
+import org.jlab.jnp.hipo.io.HipoReader;
 
 /**
  *
@@ -132,9 +132,10 @@ public class HipoFile {
         hdirr.clear();
         
         for(int i = 0; i < reader.getEventCount(); i++){
-            byte[] eventBuffer = reader.readEvent(i);
+//            byte[] eventBuffer = reader.readEvent(i);
+            HipoEvent event = reader.readEvent(i);
             //System.out.println(" EVENT # " + i + "  SIZE = " + eventBuffer.length);
-            HipoEvent    event = new HipoEvent(eventBuffer);
+//            HipoEvent    event = new HipoEvent(eventBuffer);
             
             if(event.hasGroup(1200)==true){
 //                System.out.println("--> reading data group descriptor");
