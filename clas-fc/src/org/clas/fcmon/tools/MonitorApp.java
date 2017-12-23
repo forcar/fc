@@ -585,8 +585,9 @@ public class MonitorApp extends JFrame implements ActionListener {
     }
     
     public void openHipoFile(String path) {               
-        HipoFileName = path+"clas_00"+runno+".hipo";
+        HipoFileName = path+"clas_00"+runNumber+".hipo";
         System.out.println("app.openHipoFile(): Opening "+HipoFileName);
+        writer = new HipoDataSync();
         writer.setCompressionType(2);
         writer.open(HipoFileName);
         isHipoFileOpen = true;
