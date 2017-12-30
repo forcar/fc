@@ -108,6 +108,8 @@ public class ECTriggerApp extends FCApplication{
     	    
      	DataGroup dgECClust = new DataGroup(4,3);
 
+	    dgECClust.addDataSet(new H2F("h_EC_Dalitz_Clust1", 40, -0.5, 0.5, 7, -0.5, 6.5),1);
+     	
      	dgECClust.addDataSet(new H2F("h_N_ECClust1", 11, -0.5, 10.5, 7, -0.5, 6.5),1);     	
     	    dgECClust.addDataSet(new H2F("h_N_ECClust2", 11, -0.5, 10.5, 7, -0.5, 6.5),1);
     	    dgECClust.addDataSet(new H2F("h_ECcl_t1",    21, -0.5, 20.5, 7, -0.5, 6.5),1);    	    
@@ -116,7 +118,7 @@ public class ECTriggerApp extends FCApplication{
     	    dgECClust.addDataSet(new H2F("h_ECcl_U1",    41, -0.5, 40.5, 7, -0.5, 6.5),1);   
     	    dgECClust.addDataSet(new H2F("h_ECcl_V1",    41, -0.5, 40.5, 7, -0.5, 6.5),1);   
     	    dgECClust.addDataSet(new H2F("h_ECcl_W1",    41, -0.5, 40.5, 7, -0.5, 6.5),1);   
-         	
+       	    
     	    DataGroup dgECClustXY = new DataGroup(4,3);
     	    
     	    dgECClustXY.addDataSet(new H2F("h_EC_yxc1",    200, -500., 500., 200, -500., 500.),1);
@@ -130,7 +132,21 @@ public class ECTriggerApp extends FCApplication{
     	        dgECClustXY.addDataSet(new H2F("h_EC_th_phi_cl_"+i, 360, 0., 360., 200, 0., 50.),1);
     	    }  
     	    
+    	    DataGroup dgECPeak = new DataGroup(4,3);
+    	    
+    	    dgECPeak.addDataSet(new H2F("h_EC_Dalitz_Peaks1",  40, -0.5, 0.5, 7, -0.5, 6.5),1);
+
+    	    for (int i_view = 0; i_view < n_view; i_view++) {
+    	        dgECPeak.addDataSet(new H2F("h_N_ECpeaks1_"+i_view,    11, -0.5, 10.5, 7, -0.5, 6.5),1);
+    	        dgECPeak.addDataSet(new H2F("h_N_ECpeaks2_"+i_view,    11, -0.5, 10.5, 7, -0.5, 6.5),1);
+    	        dgECPeak.addDataSet(new H2F("h_N_ECpeaks3_"+i_view,    11, -0.5, 10.5, 7, -0.5, 6.5),1);
+    	        dgECPeak.addDataSet(new H2F("h_t_ECpeak1_"+i_view,     21, -0.5, 20.5, 7, -0.5, 6.5),1);
+    	        dgECPeak.addDataSet(new H2F("h_coord_ECpeak1_"+i_view, 41, -0.5, 40.5, 7, -0.5, 6.5),1);
+    	    }
+    	        	    
     	    DataGroup dgPCClust = new DataGroup(4,3);
+    	    
+    	    dgPCClust.addDataSet(new H2F("h_PC_Dalitz_Clust1", 40, -0.5, 0.5, 7, -0.5, 6.5),1);   
     	    
     	    dgPCClust.addDataSet(new H2F("h_N_PCClust1", 11, -0.5, 10.5, 7, -0.5, 6.5),1);
     	    dgPCClust.addDataSet(new H2F("h_N_PCClust2", 11, -0.5, 10.5, 7, -0.5, 6.5),1);
@@ -157,24 +173,14 @@ public class ECTriggerApp extends FCApplication{
     	    dgPCClustXY.addDataSet(new H2F("h_PC_th_phi_cl1", 360, 0., 360., 200, 0., 50.),1);
 
     	    for (int i = 0; i < n_E_bins; i++) {
-    	       dgPCClustXY.addDataSet(new H2F("h_pcal_th_phi_cl_"+i, 360, 0., 360., 200, 0., 50.),1);
+    	       dgPCClustXY.addDataSet(new H2F("h_PC_th_phi_cl_"+i, 360, 0., 360., 200, 0., 50.),1);
     	    } 
     	    
     	    DataGroup dgPCPeak = new DataGroup(4,3);
-    	    DataGroup dgECPeak = new DataGroup(4,3);
     	    
-    	    dgECPeak.addDataSet(new H2F("h_Dalitz_cl1",        40, -0.5, 0.5, 7, -0.5, 6.5),1);
-    	    dgECPeak.addDataSet(new H2F("h_Dalitz_Peaks1",     40, -0.5, 0.5, 7, -0.5, 6.5),1);
     	    dgPCPeak.addDataSet(new H2F("h_PC_Dalitz_Peaks1",  40, -0.5, 0.5, 7, -0.5, 6.5),1);
-    	    dgPCPeak.addDataSet(new H2F("h_PC_Dalitz_Clust1",  40, -0.5, 0.5, 7, -0.5, 6.5),1);   
-
+    	    
     	    for (int i_view = 0; i_view < n_view; i_view++) {
-    	        dgECPeak.addDataSet(new H2F("h_N_ECpeaks1_"+i_view,    11, -0.5, 10.5, 7, -0.5, 6.5),1);
-    	        dgECPeak.addDataSet(new H2F("h_N_ECpeaks2_"+i_view,    11, -0.5, 10.5, 7, -0.5, 6.5),1);
-    	        dgECPeak.addDataSet(new H2F("h_N_ECpeaks3_"+i_view,    11, -0.5, 10.5, 7, -0.5, 6.5),1);
-    	        dgECPeak.addDataSet(new H2F("h_t_ECpeak1_"+i_view,     21, -0.5, 20.5, 7, -0.5, 6.5),1);
-    	        dgECPeak.addDataSet(new H2F("h_coord_ECpeak1_"+i_view, 41, -0.5, 40.5, 7, -0.5, 6.5),1);
-
     	        dgPCPeak.addDataSet(new H2F("h_N_PCpeaks1_"+i_view,    11, -0.5, 10.5, 7, -0.5, 6.5),1);
     	        dgPCPeak.addDataSet(new H2F("h_N_PCpeaks2_"+i_view,    11, -0.5, 10.5, 7, -0.5, 6.5),1);
     	        dgPCPeak.addDataSet(new H2F("h_N_PCpeaks3_"+i_view,    11, -0.5, 10.5, 7, -0.5, 6.5),1);
@@ -182,7 +188,6 @@ public class ECTriggerApp extends FCApplication{
     	        dgPCPeak.addDataSet(new H2F("h_coord_PCpeak1_"+i_view, 86, -0.5, 85.5, 7, -0.5, 6.5),1);
     	    }
 
-    	    System.out.println("ECTrigApp: Adding Data Groups to Collection");
         this.getDataGroup().clear();
         this.getDataGroup().add(dgTrig,     1,0,0);        
         this.getDataGroup().add(dgECPeak,   2,0,0);        
@@ -260,6 +265,7 @@ public class ECTriggerApp extends FCApplication{
     	         IndexedList<List<TEC_Peak>> v_Peaks_ = new IndexedList<List<TEC_Peak>>(1);
     	         
               // ====== EC Peaks ======
+    	         
              for (int i_view = 0; i_view < n_view; i_view++) {
 
                  int n_ECpeaks = trig.GetNPeaks(0, i_view);
@@ -283,19 +289,14 @@ public class ECTriggerApp extends FCApplication{
                  for (int iV = 0; iV < (v_Peaks_.hasItem(1)?v_Peaks_.getItem(1).size():0); iV++) {
                      for (int iW = 0; iW < (v_Peaks_.hasItem(2)?v_Peaks_.getItem(2).size():0); iW++) {
 
-                         //if( v_Peaks_[2].at(iW)->coord / 8. < 35 ){continue;}
-                    	     
                          TECGeom ec_geom_peaks = new TECGeom(v_Peaks_.getItem(0).get(iU).coord / 8., 
                                                              v_Peaks_.getItem(1).get(iV).coord / 8., 
                                                              v_Peaks_.getItem(2).get(iW).coord / 8.);
-                         //TECGeom ec_geom_peaks(v_Peaks_[0].at(iU)->coord / 8., 15., 57 - v_Peaks_[0].at(iU)->coord / 8.);
+
                          ec_geom_peaks.SetSector(sector);
-                         System.out.println(iU+" "+iV+" "+iW+" "+v_Peaks_.getItem(0).get(iU).coord/8+" "+
-                        		                                    v_Peaks_.getItem(1).get(iV).coord/8+" "+
-                        		                                    v_Peaks_.getItem(2).get(iW).coord/8);
+
                          double hall_x_UV = ec_geom_peaks.GetHallX_UV();
                          double hall_y_UV = ec_geom_peaks.GetHallY_UV();
-                         System.out.println("Sector,x,y "+sector+" "+hall_x_UV+ " "+hall_y_UV);
                          dg4.getH2F("h_EC_yxc_UV1").fill(hall_x_UV, hall_y_UV);
 
                          double hall_x_UW = ec_geom_peaks.GetHallX_UW();
@@ -308,10 +309,67 @@ public class ECTriggerApp extends FCApplication{
 
                          double Dalitz_peaks = ec_geom_peaks.GetDalitz();
 
-                         dg2.getH2F("h_Dalitz_Peaks1").fill(Dalitz_peaks, sector);
+                         dg2.getH2F("h_EC_Dalitz_Peaks1").fill(Dalitz_peaks, sector);
                      }
                  }                                   
              } 
+             // ====== EC Clusters =======
+             
+    	         DataGroup dg3 = this.getDataGroup().getItem(2,0,0);
+
+             int n_cl = trig.GetNClust(0); // Argument is the EC instance, but now it should be 0 all the time
+
+             dg3.getH2F("h_N_ECClust1").fill(n_cl, sector);
+ 
+             int n_cl_in_1_tbin = 0;
+
+             for (int i_cl = 0; i_cl < n_cl; i_cl++) {
+                 int cl_time = trig.GetECCluster(0, i_cl).time;
+                 double cl_U = trig.GetECCluster(0, i_cl).Ustrip / 8.;
+                 double cl_V = trig.GetECCluster(0, i_cl).Vstrip / 8.;
+                 double cl_W = trig.GetECCluster(0, i_cl).Wstrip / 8.;
+                 double cl_E = trig.GetECCluster(0, i_cl).energy * ADC2GeV;
+
+                 TECGeom ec_geom = new TECGeom(cl_U, cl_V, cl_W);
+
+                 ec_geom.SetSector(sector);
+
+                 double hall_x_cl = ec_geom.GetHallX_UV();
+                 double hall_y_cl = ec_geom.GetHallY_UV();
+                 double hall_z_cl = ec_geom.GetHallZ_UV();
+
+                 int E_bin = (int) Math.min((int)(cl_E / E_bin_width), n_E_bins - 1); // for not being out of range
+
+                 double phi_cl = Math.atan2(hall_y_cl, hall_x_cl) * r2d + 30.;
+                 
+                 if (phi_cl < 0.) phi_cl = phi_cl + 360.;
+                 
+                 double th_cl = Math.atan(Math.sqrt(hall_x_cl * hall_x_cl + hall_y_cl * hall_y_cl) / hall_z_cl) * r2d;
+
+                 dg4.getH2F("h_EC_th_phi_cl1").fill(phi_cl, th_cl);
+                 dg4.getH2F("h_EC_th_phi_cl_"+E_bin).fill(phi_cl, th_cl);
+                 dg4.getH2F("h_EC_yxc1").fill(hall_x_cl, hall_y_cl);
+                 
+                 //cout<<"Ev. number is "<<ev_number<<"    n_cl is "<<n_cl<<"    sector is "<<sector<<"    cl energy is "<<trig.GetECCluster(0, i_cl)->energy<<endl;
+
+                 double cl_Dalitz = ec_geom.GetDalitz();
+
+                 dg4.getH2F("h_EC_Dalitz_Clust1").fill(cl_Dalitz, sector);
+
+                 dg3.getH2F("h_ECcl_t1").fill(cl_time, sector);
+                 dg3.getH2F("h_ECcl_U1").fill(cl_U, sector);
+                 dg3.getH2F("h_ECcl_V1").fill(cl_V, sector);
+                 dg3.getH2F("h_ECcl_W1").fill(cl_W, sector);
+                 dg3.getH2F("h_ECcl_E1").fill(cl_E, sector);
+
+	             if(cl_time == 7){
+	                 n_cl_in_1_tbin = n_cl_in_1_tbin + 1;
+	                 dg3.getH2F("h_ECcl_E2").fill(cl_E, sector);
+	             }
+             }
+ 
+             dg3.getH2F("h_N_ECClust2").fill(n_cl_in_1_tbin, sector);
+                      
     	     }
      }
      

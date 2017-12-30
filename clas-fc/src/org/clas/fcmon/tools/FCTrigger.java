@@ -374,7 +374,7 @@ public class FCTrigger {
         }
     }
     
-    public TEC_Cluster getECCluster(int ainst, int aind) {    	
+    public TEC_Cluster GetECCluster(int ainst, int aind) {    	
         if (fv_ECAllClusters.hasItem(ainst)) return fv_ECAllClusters.getItem(ainst).get(aind);
         return null;
     }
