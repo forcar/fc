@@ -13,28 +13,28 @@ public class TPCGeom {
 		setGeometry(aU,aV,aW) ;// U, V and W are strip coordinates in the (0-36) range
 	}
 	    
-    public void setGeometry(double aU, double aV, double aW) {
+	public void setGeometry(double aU, double aV, double aW) {
     	
-		  fSector = -1;
+		fSector = -1;
 		    
-		  fU = aU*fdU/Math.sin(alpha_base);
-		  fV = aV*fdV/Math.sin(alpha_base);
-		  fW = aW*fdW/Math.sin(alpha_base);
+		fU = aU*fdU/Math.sin(alpha_base);
+		fV = aV*fdV/Math.sin(alpha_base);
+		fW = aW*fdW/Math.sin(alpha_base);
 
-		  fDalitz = aU / fNUStrips + aV / fNVStrips + aW / fNWStrips - 2.;
+		fDalitz = aU / fNUStrips + aV / fNVStrips + aW / fNWStrips - 2.;
 		  
-		  fyU = fy0_U + aU * fdU;
-		  fxV = fx0_V + fV;
-		  fxW = fx0_W - fW;
+		fyU = fy0_U + aU * fdU;
+		fxV = fx0_V + fV;
+		fxW = fx0_W - fW;
 
-		  fy_UV = fyU;
-		  fx_UV = fxV - (fyh - fy_UV) / Math.tan(alpha_base);
+		fy_UV = fyU;
+		fx_UV = fxV - (fyh - fy_UV) / Math.tan(alpha_base);
 
-		  fy_UW = fyU;
-		  fx_UW = fxW + (fyh - fy_UV) / Math.tan(alpha_base);
+		fy_UW = fyU;
+		fx_UW = fxW + (fyh - fy_UV) / Math.tan(alpha_base);
 
-		  fx_VW = 0.5 * (fxV + fxW);
-		  fy_VW = fyh - (fxV - fx_VW) * Math.tan(alpha_base);
+		fx_VW = 0.5 * (fxV + fxW);
+		fy_VW = fyh - (fxV - fx_VW) * Math.tan(alpha_base);
 
 	}	
 	
@@ -97,11 +97,11 @@ public class TPCGeom {
 		    
 	double fx, fy;        // local coordinates, x, y in a Cartesian system
 	double fU, fV, fW;    // fU,fV, fW are along the edges of the triangle
-    double fyU;           // y coordinate of a U Strip on the side of the triangle (y constant along a U strip). 
-    double fxV;           // x coordinate of the V strip on the base of the triangle
-    double fxW;           // x coordinate of the W strip on the base of the triangle
+	double fyU;           // y coordinate of a U Strip on the side of the triangle (y constant along a U strip). 
+	double fxV;           // x coordinate of the V strip on the base of the triangle
+	double fxW;           // x coordinate of the W strip on the base of the triangle
     
-    double fDalitz;       // Dalitz, note 2 is subtracted, so it is expected to be peaked at 0
+	double fDalitz;       // Dalitz, note 2 is subtracted, so it is expected to be peaked at 0
 
 	double fx_Hall, fy_Hall, fz_Hall; // x, y and z coordinates in the Hall Frame where (0., 0., 0) is the target center and z is along th beamline
 		  
@@ -129,12 +129,12 @@ public class TPCGeom {
 	static double fyh =   94.4;                            // Y coordinate of the base of the triangle (All points have the same y)
 	static double fyl = -290.8;                            // Y coordinate of the vertex closest to the beamline
 	
-    static int fNUStrips = 84; // Number of U strips
-    static int fNVStrips = 78; // Number of V strips
-    static int fNWStrips = 78; // Number of W strips
-    static int fNUsingle = 52; // Number of single readout strips in U
-    static int fNVsingle = 46; // Number of single readout strips in U
-    static int fNWsingle = 46; // Number of single readout strips in U
+	static int fNUStrips = 84; // Number of U strips
+	static int fNVStrips = 78; // Number of V strips
+	static int fNWStrips = 78; // Number of W strips
+	static int fNUsingle = 52; // Number of single readout strips in U
+	static int fNVsingle = 46; // Number of single readout strips in U
+	static int fNWsingle = 46; // Number of single readout strips in U
 
 	static double fy0_U = fyh - fNUStrips * fdU;                        // Y coordinate of the Shortest U strip
 	static double fx0_V = fxl - fNVStrips * fdV / Math.sin(alpha_base); // X coordinate of the Shortest V strip 

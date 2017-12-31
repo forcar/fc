@@ -23,6 +23,7 @@ import org.clas.fcmon.tools.FCTrigger;
 import org.clas.fcmon.tools.FCTrigger.TEC_Cluster;
 import org.clas.fcmon.tools.FCTrigger.TEC_Peak;
 import org.clas.fcmon.tools.TECGeom;
+import org.clas.fcmon.tools.TPCGeom;
 import org.jlab.coda.jevio.ByteDataTransformer;
 import org.jlab.coda.jevio.EvioNode;
 import org.jlab.detector.base.DetectorDescriptor;
@@ -45,16 +46,16 @@ public class ECTriggerApp extends FCApplication{
     
     FCTrigger                 trig = null;
     
-	String tbit = "Trigger Bits: ECAL.PCAL.HTCC(0)    ECAL.PCAL.HTCC(1-6)    HTCC(7-12)    PCAL(13-18)    ECAL(19-24)   HT.PC(25)   HT.EC(26) "
-			+ "  PC.EC(27)   FTOF.PC(28)    1K Pulser(31)";
+    String tbit = "Trigger Bits: ECAL.PCAL.HTCC(0)    ECAL.PCAL.HTCC(1-6)    HTCC(7-12)    PCAL(13-18)    ECAL(19-24)   HT.PC(25)   HT.EC(26) "
+                  + "  PC.EC(27)   FTOF.PC(28)    1K Pulser(31)";
     double Dalitz_ECout_max = 0.0833333;
     double Dalitz_ECout_min = -0.0555556;
 
     double r2d = 57.2957795130823229;
-    // ===== Put temporarly 2.75 for all
+    
     double U_conv = 2.75; // This converts U coordinate from the Trigger bank into coordinate real U coordinate
-    double V_conv = 3.; // This converts V coordinate from the Trigger bank into coordinate real V coordinate
-    double W_conv = 3.; // This converts W coordinate from the Trigger bank into coordinate real W coordinate
+    double V_conv = 3.00; // This converts V coordinate from the Trigger bank into coordinate real V coordinate
+    double W_conv = 3.00; // This converts W coordinate from the Trigger bank into coordinate real W coordinate
 
     int n_sect = 6;
     int n_view = 3;
@@ -70,10 +71,9 @@ public class ECTriggerApp extends FCApplication{
     int ftrig_crate_ID = 37;
     int trig_bank_tag = 57610;
 
-	public ECTriggerApp(String name, ECPixels[] ecPix) {
-		super(name, ecPix);
-		
-	}
+    public ECTriggerApp(String name, ECPixels[] ecPix) {
+        super(name, ecPix);
+    }
 	
     public void init() {
         System.out.println("ECTrigApp:init():");
@@ -91,12 +91,12 @@ public class ECTriggerApp extends FCApplication{
          trigger.addCanvas("VTP ECAL");
          trigger.addCanvas("VTP PCAL");
          engineView.add(trigger);
-	     return engineView;       
+         return engineView;       
 	 }  
      
      public void createHistos( ) {
     	 
- 	    DataGroup dgTrig = new DataGroup(4,3);
+        DataGroup dgTrig = new DataGroup(4,3);
  	    
         H1F trig = new H1F(tbit, tbit, 32,-0.5,31.5);
         trig.setFillColor(4);      
@@ -106,11 +106,11 @@ public class ECTriggerApp extends FCApplication{
         dgTrig.addDataSet(trig, 1);
 //    	    dgTrig.addDataSet(new H1F("h_tr_bit_distr", "", 33, -0.5, 32.5),1); 
     	    
-     	DataGroup dgECClust = new DataGroup(4,3);
+        DataGroup dgECClust = new DataGroup(4,3);
 
-	    dgECClust.addDataSet(new H2F("h_EC_Dalitz_Clust1", 40, -0.5, 0.5, 7, -0.5, 6.5),1);
+        dgECClust.addDataSet(new H2F("h_EC_Dalitz_Clust1", 40, -0.5, 0.5, 7, -0.5, 6.5),1);
      	
-     	dgECClust.addDataSet(new H2F("h_N_ECClust1", 11, -0.5, 10.5, 7, -0.5, 6.5),1);     	
+        dgECClust.addDataSet(new H2F("h_N_ECClust1", 11, -0.5, 10.5, 7, -0.5, 6.5),1);     	
     	    dgECClust.addDataSet(new H2F("h_N_ECClust2", 11, -0.5, 10.5, 7, -0.5, 6.5),1);
     	    dgECClust.addDataSet(new H2F("h_ECcl_t1",    21, -0.5, 20.5, 7, -0.5, 6.5),1);    	    
     	    dgECClust.addDataSet(new H2F("h_ECcl_E1",   200,  0.,   3,   7, -0.5, 6.5),1);      
@@ -159,6 +159,10 @@ public class ECTriggerApp extends FCApplication{
     	    dgPCClust.addDataSet(new H2F("h_PCcl_U1",    86, -0.5, 85.5, 7, -0.5, 6.5),1);
     	    dgPCClust.addDataSet(new H2F("h_PCcl_V1",    86, -0.5, 85.5, 7, -0.5, 6.5),1);
     	    dgPCClust.addDataSet(new H2F("h_PCcl_W1",    86, -0.5, 85.5, 7, -0.5, 6.5),1);
+    	    
+        dgPCClust.addDataSet(new H1F("h_PC_dU_43", "", 600, -90., 90.),1);
+    	    dgPCClust.addDataSet(new H1F("h_PC_dV_43", "", 600, -80., 80.),1);
+    	    dgPCClust.addDataSet(new H1F("h_PC_dW_43", "", 600, -80., 80.),1);
     	        	    
     	    DataGroup dgPCClustXY = new DataGroup(4,3);
     	    
@@ -218,10 +222,8 @@ public class ECTriggerApp extends FCApplication{
      
      public void addEvent(DataEvent event) {
     	 
-         if(event instanceof EvioDataEvent) getDataEntries_VTP((EvioDataEvent) event);         
-    
+         if(event instanceof EvioDataEvent) getDataEntries_VTP((EvioDataEvent) event);             
          if (!testTriggerMask()) return;
-         
     	     fillTriggerBitHistos();
      }
          
@@ -275,7 +277,7 @@ public class ECTriggerApp extends FCApplication{
 
                      dg2.getH2F("h_t_ECpeak1_"+i_view).fill(trig.GetECPeak(0, i_view, i_peak).time, sector);
 
-                     double coord = (trig.GetECPeak(0, i_view, i_peak).coord) / 8.;
+                     double coord = trig.GetECPeak(0, i_view, i_peak).coord / 8.;
                      dg2.getH2F("h_coord_ECpeak1_"+i_view).fill(coord, sector);
 
                      if(!v_Peaks_.hasItem(i_view)) {
@@ -292,7 +294,6 @@ public class ECTriggerApp extends FCApplication{
                          TECGeom ec_geom_peaks = new TECGeom(v_Peaks_.getItem(0).get(iU).coord / 8., 
                                                              v_Peaks_.getItem(1).get(iV).coord / 8., 
                                                              v_Peaks_.getItem(2).get(iW).coord / 8.);
-
                          ec_geom_peaks.SetSector(sector);
 
                          double hall_x_UV = ec_geom_peaks.GetHallX_UV();
@@ -315,7 +316,7 @@ public class ECTriggerApp extends FCApplication{
              } 
              // ====== EC Clusters =======
              
-    	         DataGroup dg3 = this.getDataGroup().getItem(2,0,0);
+    	         DataGroup dg3 = this.getDataGroup().getItem(3,0,0);
 
              int n_cl = trig.GetNClust(0); // Argument is the EC instance, but now it should be 0 all the time
 
@@ -354,7 +355,7 @@ public class ECTriggerApp extends FCApplication{
 
                  double cl_Dalitz = ec_geom.GetDalitz();
 
-                 dg4.getH2F("h_EC_Dalitz_Clust1").fill(cl_Dalitz, sector);
+                 dg3.getH2F("h_EC_Dalitz_Clust1").fill(cl_Dalitz, sector);
 
                  dg3.getH2F("h_ECcl_t1").fill(cl_time, sector);
                  dg3.getH2F("h_ECcl_U1").fill(cl_U, sector);
@@ -362,14 +363,196 @@ public class ECTriggerApp extends FCApplication{
                  dg3.getH2F("h_ECcl_W1").fill(cl_W, sector);
                  dg3.getH2F("h_ECcl_E1").fill(cl_E, sector);
 
-	             if(cl_time == 7){
-	                 n_cl_in_1_tbin = n_cl_in_1_tbin + 1;
-	                 dg3.getH2F("h_ECcl_E2").fill(cl_E, sector);
-	             }
+                 if(cl_time == 7) {
+                     n_cl_in_1_tbin = n_cl_in_1_tbin + 1;
+                     dg3.getH2F("h_ECcl_E2").fill(cl_E, sector);
+                 }
              }
  
              dg3.getH2F("h_N_ECClust2").fill(n_cl_in_1_tbin, sector);
                       
+    	     } else if (detector == 2) { //PCAL
+             
+    	         IndexedList<List<TEC_Peak>> v_Peaks_ = new IndexedList<List<TEC_Peak>>(1);
+
+    	         // ====== PCAL Peaks ======
+    	         
+        	     DataGroup dg5 = this.getDataGroup().getItem(5,0,0);
+        	     DataGroup dg7 = this.getDataGroup().getItem(7,0,0);
+    	    	     
+             int n_PC_peaks_in1_timebin_[] = {0, 0, 0};
+             
+             for (int i_view = 0; i_view < n_view; i_view++) {
+
+                 int n_PCpeaks = trig.GetNPeaks(0, i_view);
+                 dg5.getH2F("h_N_PCpeaks1_"+i_view).fill(n_PCpeaks, sector);
+		
+                 for (int i_peak = 0; i_peak < n_PCpeaks; i_peak++) {
+
+                     dg5.getH2F("h_t_PCpeak1_"+i_view).fill(trig.GetECPeak(0, i_view, i_peak).time, sector);
+		    
+		             if( trig.GetECPeak(0, i_view, i_peak).time == 7 ){
+		                n_PC_peaks_in1_timebin_[i_view] = n_PC_peaks_in1_timebin_[i_view] + 1;
+		             }
+		            
+		             double coord_conv = (i_view == 0) ? 2.75:3.00;
+                     double coord = trig.GetECPeak(0, i_view, i_peak).coord / coord_conv;                    
+                     dg5.getH2F("h_coord_PCpeak1_"+i_view).fill(coord, sector);
+
+                     if(!v_Peaks_.hasItem(i_view)) {
+                         v_Peaks_.add(new ArrayList<TEC_Peak>(),i_view);}
+                         v_Peaks_.getItem(i_view).add(trig.GetECPeak(0, i_view, i_peak));        
+                 }
+		
+		         dg5.getH2F("h_N_PCpeaks2_"+i_view).fill(n_PC_peaks_in1_timebin_[i_view], sector);
+	    
+//		         if( tr_bit.El_Sec(sector) ) {
+//		             dg5.getH2F("h_N_PCpeaks3_"+i_view).fill(n_PC_peaks_in1_timebin_[i_view], sector);
+//		         }		    
+            }
+    	    	   
+            for (int iU = 0; iU < (v_Peaks_.hasItem(0)?v_Peaks_.getItem(0).size():0); iU++) {
+                for (int iV = 0; iV < (v_Peaks_.hasItem(1)?v_Peaks_.getItem(1).size():0); iV++) {
+                    for (int iW = 0; iW < (v_Peaks_.hasItem(2)?v_Peaks_.getItem(2).size():0); iW++) {
+
+                        TPCGeom pcal_geom_peaks = new TPCGeom(v_Peaks_.getItem(0).get(iU).coord / U_conv, 
+                                                              v_Peaks_.getItem(1).get(iV).coord / V_conv, 
+                                                              v_Peaks_.getItem(2).get(iW).coord / W_conv);
+
+                        pcal_geom_peaks.SetSector(sector);
+
+                        double hall_x_UV = pcal_geom_peaks.GetHallX_UV();
+                        double hall_y_UV = pcal_geom_peaks.GetHallY_UV();
+                        dg7.getH2F("h_PC_yxc_UV1").fill(hall_x_UV, hall_y_UV);
+                        double hall_x_UW = pcal_geom_peaks.GetHallX_UW();
+                        double hall_y_UW = pcal_geom_peaks.GetHallY_UW();
+                        dg7.getH2F("h_PC_yxc_UW1").fill(hall_x_UW, hall_y_UW);
+                        double hall_x_VW = pcal_geom_peaks.GetHallX_VW();
+                        double hall_y_VW = pcal_geom_peaks.GetHallY_VW();
+                        dg7.getH2F("h_PC_yxc_VW1").fill(hall_x_VW, hall_y_VW);
+
+                        double Dalitz_peaks = pcal_geom_peaks.GetDalitz();
+                        dg5.getH2F("h_PC_Dalitz_Peaks1").fill(Dalitz_peaks, sector);
+                    }
+
+                }
+
+            }
+            
+            // ====== PCAL Clusters =======
+
+   	        DataGroup dg6 = this.getDataGroup().getItem(6,0,0);
+   	        
+            double u_coord_conv = 2.75;
+            double v_coord_conv = 3.;
+            double w_coord_conv = 3.;
+   	        
+            int n_cl = trig.GetNClust(0); // Argument is the EC instance, but now it should be 0 all the time
+
+            dg6.getH2F("h_N_PCClust1").fill(n_cl, sector);
+
+            int n_cl_in_1_tbin = 0;
+
+            List<Double> v_cl_E_1_tbin = new ArrayList<Double>();
+            List<Double> v_cl_y_1_tbin = new ArrayList<Double>();  
+            List<Double> v_cl_x_1_tbin = new ArrayList<Double>();
+            List<Double> v_cl_U_1_tbin = new ArrayList<Double>();
+            List<Double> v_cl_V_1_tbin = new ArrayList<Double>(); 
+            List<Double> v_cl_W_1_tbin = new ArrayList<Double>();			    
+
+            for (int i_cl = 0; i_cl < n_cl; i_cl++) {
+
+                int cl_time = trig.GetECCluster(0, i_cl).time;
+                double cl_U = trig.GetECCluster(0, i_cl).Ustrip / u_coord_conv;
+                double cl_V = trig.GetECCluster(0, i_cl).Vstrip / v_coord_conv;
+                double cl_W = trig.GetECCluster(0, i_cl).Wstrip / w_coord_conv;
+                double cl_E = trig.GetECCluster(0, i_cl).energy * ADC2GeV;
+
+                TPCGeom pc_geom = new TPCGeom(cl_U, cl_V, cl_W);
+                
+                pc_geom.SetSector(sector);
+
+                double hall_x_cl = pc_geom.GetHallX_VW();
+                double hall_y_cl = pc_geom.GetHallY_VW();
+                double hall_z_cl = pc_geom.GetHallZ_VW();
+
+                int E_bin = (int) Math.min(cl_E / E_bin_width, n_E_bins - 1); // for not being out of range
+
+                double phi_cl = Math.atan2(hall_y_cl, hall_x_cl) * r2d + 30.;
+                
+                if (phi_cl < 0.)  phi_cl = phi_cl + 360.;
+              
+                double th_cl = Math.atan(Math.sqrt(hall_x_cl * hall_x_cl + hall_y_cl * hall_y_cl) / hall_z_cl) * r2d;
+
+                dg7.getH2F("h_PC_th_phi_cl1").fill(phi_cl, th_cl);
+                dg7.getH2F("h_PC_th_phi_cl_"+E_bin).fill(phi_cl, th_cl);
+                dg7.getH2F("h_PC_yxc1").fill(hall_x_cl, hall_y_cl);
+
+                double cl_Dalitz = pc_geom.GetDalitz();
+
+                dg6.getH2F("h_PC_Dalitz_Clust1").fill(cl_Dalitz, sector);
+
+                //                            cout<<" \n\n\n\n ========== cluster info ============"<<endl;
+                //                            cout << "U: " << trig.GetECCluster(0, i_cl)->Ustrip<< "     " << cl_U << endl;
+                //                            cout << "V: " << trig.GetECCluster(0, i_cl)->Vstrip<< "     " << cl_V << endl;
+                //                            cout << "W: " << trig.GetECCluster(0, i_cl)->Wstrip<< "     " << cl_W << endl;
+                //                            cout<<"Dalitz = "<<Dalitz<<endl;
+
+                //cout<<"Ev. number is "<<ev_number<<"    n_cl is "<<n_cl<<"    sector is "<<sector<<"    cl energy is "<<trig.GetECCluster(0, i_cl)->energy<<endl;
+
+                dg6.getH2F("h_PCcl_t1").fill(cl_time, sector);
+                dg6.getH2F("h_PCcl_U1").fill(cl_U, sector);
+                dg6.getH2F("h_PCcl_V1").fill(cl_V, sector);
+                dg6.getH2F("h_PCcl_W1").fill(cl_W, sector);
+                dg6.getH2F("h_PCcl_E1").fill(cl_E, sector);
+
+                if(cl_time == 7) {
+                    n_cl_in_1_tbin = n_cl_in_1_tbin + 1;
+                	    dg6.getH2F("h_PCcl_E2").fill(cl_E, sector);
+                	    dg7.getH2F("h_PC_yxc2").fill(hall_x_cl, hall_y_cl);
+
+                  	v_cl_E_1_tbin.add(cl_E);
+                	    v_cl_y_1_tbin.add(hall_y_cl);
+                	    v_cl_x_1_tbin.add(hall_x_cl);
+
+                	    v_cl_U_1_tbin.add(cl_U);
+                	    v_cl_V_1_tbin.add(cl_V);
+                	    v_cl_W_1_tbin.add(cl_W);
+                }
+
+            }
+
+            dg6.getH2F("h_N_PCClust2").fill(n_cl_in_1_tbin, sector);
+
+            if(v_cl_E_1_tbin.size()>0) {
+              	dg6.getH2F("h_PCcl_E3").fill(v_cl_E_1_tbin.get(0), sector);
+            	    dg7.getH2F("h_PC_yxc3").fill(v_cl_x_1_tbin.get(0), v_cl_y_1_tbin.get(0));
+
+
+            	    if( v_cl_E_1_tbin.size() == 4 ) {
+            		    dg6.getH2F("h_PCcl_E4").fill(v_cl_E_1_tbin.get(3), sector);
+            		    dg7.getH2F("h_PC_yxc4").fill(v_cl_x_1_tbin.get(3), v_cl_y_1_tbin.get(3));
+
+            		    double dU_43 = v_cl_U_1_tbin.get(3) - v_cl_U_1_tbin.get(2);
+            		    double dV_43 = v_cl_V_1_tbin.get(3) - v_cl_V_1_tbin.get(2);
+            		    double dW_43 = v_cl_W_1_tbin.get(3) - v_cl_W_1_tbin.get(2);
+
+            		    dg6.getH1F("h_PC_dU_43").fill(dU_43);
+            	      	dg6.getH1F("h_PC_dV_43").fill(dV_43);
+            		    dg6.getH1F("h_PC_dW_43").fill(dW_43);
+
+            		// A temporary test, to check, if clusters ordered by energy
+
+            		    if( v_cl_E_1_tbin.get(0) <= v_cl_E_1_tbin.get(1) ||
+            		        v_cl_E_1_tbin.get(1) <= v_cl_E_1_tbin.get(2) || 
+            		        v_cl_E_1_tbin.get(2) <= v_cl_E_1_tbin.get(3) ){
+            			    System.out.println(v_cl_E_1_tbin.get(0)+"  "+
+            		                           v_cl_E_1_tbin.get(1)+"  "+
+            		                           v_cl_E_1_tbin.get(2)+"  "+
+            		                           v_cl_E_1_tbin.get(3));
+            		    }
+            	    }
+            }    	    	 
     	     }
      }
      
@@ -423,5 +606,21 @@ public class ECTriggerApp extends FCApplication{
      
      public void updateVTPPC() {
     	 
+	     DataGroup dg5 = this.getDataGroup().getItem(5,0,0);
+	     DataGroup dg7 = this.getDataGroup().getItem(7,0,0);
+	     String[] uvw = {"UV","UW","VW"};
+	     
+	     c = trigger.getCanvas("VTP PCAL");	     
+	     c.divide(3, 4);
+	     
+	     for (int i=0; i<3; i++) {
+             c.cd(i);   c.draw(dg5.getH2F("h_N_PCpeaks1_"+i));
+             c.cd(i+3); c.draw(dg5.getH2F("h_t_PCpeak1_"+i));
+             c.cd(i+6); c.draw(dg5.getH2F("h_coord_PCpeak1_"+i));
+             c.cd(i+9); c.draw(dg7.getH2F("h_PC_yxc_"+uvw[i]+"1"));
+	     }
+	     
+  	     c.update();
+   	 
      }
 }
