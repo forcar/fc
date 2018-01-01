@@ -46,7 +46,7 @@ public class TECGeom {
 
 	   double[] f_UW = GetHallCoordinates(fx_UW, fy_UW);
 	   double[] f_UV = GetHallCoordinates(fx_UV, fy_UV);
-	   double[] f_VW = GetHallCoordinates(fx_VW, fy_UV);
+	   double[] f_VW = GetHallCoordinates(fx_VW, fy_VW);
 	   fx_UW_Hall = f_UW[0]; fy_UW_Hall = f_UW[1] ; fz_UW_Hall = f_UW[2];
 	   fx_UV_Hall = f_UV[0]; fy_UV_Hall = f_UV[1] ; fz_UV_Hall = f_UV[2];
 	   fx_VW_Hall = f_VW[0]; fy_VW_Hall = f_VW[1] ; fz_VW_Hall = f_VW[2];
