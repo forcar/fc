@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.swing.JPanel;
@@ -33,10 +34,13 @@ import org.jlab.groot.data.H1F;
 import org.jlab.groot.data.H2F;
 import org.jlab.groot.graphics.EmbeddedCanvas;
 import org.jlab.groot.group.DataGroup;
+import org.jlab.io.base.DataBank;
 import org.jlab.io.base.DataEvent;
 import org.jlab.io.evio.EvioDataEvent;
 import org.jlab.io.evio.EvioTreeBranch;
+import org.jlab.io.hipo.HipoDataEvent;
 import org.jlab.utils.groups.IndexedList;
+import org.jlab.utils.groups.IndexedList.IndexGenerator;
 
 public class ECTriggerApp extends FCApplication{
 	
@@ -88,8 +92,10 @@ public class ECTriggerApp extends FCApplication{
     
      public JPanel getPanel() {        
          engineView.setLayout(new BorderLayout());
-         trigger.addCanvas("VTP ECAL");
-         trigger.addCanvas("VTP PCAL");
+         trigger.addCanvas("EC Peaks");
+         trigger.addCanvas("PC Peaks");
+         trigger.addCanvas("EC Clusters");
+         trigger.addCanvas("PC Clusters");
          engineView.add(trigger);
          return engineView;       
 	 }  
@@ -108,16 +114,16 @@ public class ECTriggerApp extends FCApplication{
     	    
         DataGroup dgECClust = new DataGroup(4,3);
 
-        dgECClust.addDataSet(new H2F("h_EC_Dalitz_Clust1", 40, -0.5, 0.5, 7, -0.5, 6.5),1);
+        dgECClust.addDataSet(new H2F("h_EC_Dalitz_Clust1", 40, -0.5, 0.5, 6, -0.5, 5.5),1);
      	
-        dgECClust.addDataSet(new H2F("h_N_ECClust1", 11, -0.5, 10.5, 7, -0.5, 6.5),1);     	
-    	    dgECClust.addDataSet(new H2F("h_N_ECClust2", 11, -0.5, 10.5, 7, -0.5, 6.5),1);
-    	    dgECClust.addDataSet(new H2F("h_ECcl_t1",    21, -0.5, 20.5, 7, -0.5, 6.5),1);    	    
-    	    dgECClust.addDataSet(new H2F("h_ECcl_E1",   200,  0.,   3,   7, -0.5, 6.5),1);      
-    	    dgECClust.addDataSet(new H2F("h_ECcl_E2",   200,  0.,   3,   7, -0.5, 6.5),1);      
-    	    dgECClust.addDataSet(new H2F("h_ECcl_U1",    41, -0.5, 40.5, 7, -0.5, 6.5),1);   
-    	    dgECClust.addDataSet(new H2F("h_ECcl_V1",    41, -0.5, 40.5, 7, -0.5, 6.5),1);   
-    	    dgECClust.addDataSet(new H2F("h_ECcl_W1",    41, -0.5, 40.5, 7, -0.5, 6.5),1);   
+        dgECClust.addDataSet(new H2F("h_N_ECClust1", 11, -0.5, 10.5, 6, -0.5, 5.5),1);     	
+    	    dgECClust.addDataSet(new H2F("h_N_ECClust2", 11, -0.5, 10.5, 6, -0.5, 5.5),1);
+    	    dgECClust.addDataSet(new H2F("h_ECcl_t1",    21, -0.5, 20.5, 6, -0.5, 5.5),1);    	    
+    	    dgECClust.addDataSet(new H2F("h_ECcl_E1",   200,  0.,   3,   6, -0.5, 5.5),1);      
+    	    dgECClust.addDataSet(new H2F("h_ECcl_E2",   200,  0.,   3,   6, -0.5, 5.5),1);      
+    	    dgECClust.addDataSet(new H2F("h_ECcl_U1",    41, -0.5, 40.5, 6, -0.5, 5.5),1);   
+    	    dgECClust.addDataSet(new H2F("h_ECcl_V1",    41, -0.5, 40.5, 6, -0.5, 5.5),1);   
+    	    dgECClust.addDataSet(new H2F("h_ECcl_W1",    41, -0.5, 40.5, 6, -0.5, 5.5),1);   
        	    
     	    DataGroup dgECClustXY = new DataGroup(4,3);
     	    
@@ -134,31 +140,31 @@ public class ECTriggerApp extends FCApplication{
     	    
     	    DataGroup dgECPeak = new DataGroup(4,3);
     	    
-    	    dgECPeak.addDataSet(new H2F("h_EC_Dalitz_Peaks1",  40, -0.5, 0.5, 7, -0.5, 6.5),1);
+    	    dgECPeak.addDataSet(new H2F("h_EC_Dalitz_Peaks1",  40, -0.5, 0.5, 6, -0.5, 5.5),1);
 
     	    for (int i_view = 0; i_view < n_view; i_view++) {
-    	        dgECPeak.addDataSet(new H2F("h_N_ECpeaks1_"+i_view,    11, -0.5, 10.5, 7, -0.5, 6.5),1);
-    	        dgECPeak.addDataSet(new H2F("h_N_ECpeaks2_"+i_view,    11, -0.5, 10.5, 7, -0.5, 6.5),1);
-    	        dgECPeak.addDataSet(new H2F("h_N_ECpeaks3_"+i_view,    11, -0.5, 10.5, 7, -0.5, 6.5),1);
-    	        dgECPeak.addDataSet(new H2F("h_t_ECpeak1_"+i_view,     21, -0.5, 20.5, 7, -0.5, 6.5),1);
-    	        dgECPeak.addDataSet(new H2F("h_coord_ECpeak1_"+i_view, 41, -0.5, 40.5, 7, -0.5, 6.5),1);
+    	        dgECPeak.addDataSet(new H2F("h_N_ECpeaks1_"+i_view,    11, -0.5, 10.5, 6, -0.5, 5.5),1);
+    	        dgECPeak.addDataSet(new H2F("h_N_ECpeaks2_"+i_view,    11, -0.5, 10.5, 6, -0.5, 5.5),1);
+    	        dgECPeak.addDataSet(new H2F("h_N_ECpeaks3_"+i_view,    11, -0.5, 10.5, 6, -0.5, 5.5),1);
+    	        dgECPeak.addDataSet(new H2F("h_t_ECpeak1_"+i_view,     21, -0.5, 20.5, 6, -0.5, 5.5),1);
+    	        dgECPeak.addDataSet(new H2F("h_coord_ECpeak1_"+i_view, 41, -0.5, 40.5, 6, -0.5, 5.5),1);
     	    }
     	        	    
     	    DataGroup dgPCClust = new DataGroup(4,3);
     	    
-    	    dgPCClust.addDataSet(new H2F("h_PC_Dalitz_Clust1", 40, -0.5, 0.5, 7, -0.5, 6.5),1);   
+    	    dgPCClust.addDataSet(new H2F("h_PC_Dalitz_Clust1", 40, -0.5, 0.5, 6, -0.5, 5.5),1);   
     	    
-    	    dgPCClust.addDataSet(new H2F("h_N_PCClust1", 11, -0.5, 10.5, 7, -0.5, 6.5),1);
-    	    dgPCClust.addDataSet(new H2F("h_N_PCClust2", 11, -0.5, 10.5, 7, -0.5, 6.5),1);
-    	    dgPCClust.addDataSet(new H2F("h_N_PCClust3", 11, -0.5, 10.5, 7, -0.5, 6.5),1);
-    	    dgPCClust.addDataSet(new H2F("h_PCcl_t1",    21, -0.5, 20.5, 7, -0.5, 6.5),1);
-    	    dgPCClust.addDataSet(new H2F("h_PCcl_E1",   200,  0.,   4.,  7, -0.5, 6.5),1);
-    	    dgPCClust.addDataSet(new H2F("h_PCcl_E2",   200,  0.,   4.,  7, -0.5, 6.5),1);
-    	    dgPCClust.addDataSet(new H2F("h_PCcl_E3",   200,  0.,   4.,  7, -0.5, 6.5),1);
-    	    dgPCClust.addDataSet(new H2F("h_PCcl_E4",   200,  0.,   4.,  7, -0.5, 6.5),1);
-    	    dgPCClust.addDataSet(new H2F("h_PCcl_U1",    86, -0.5, 85.5, 7, -0.5, 6.5),1);
-    	    dgPCClust.addDataSet(new H2F("h_PCcl_V1",    86, -0.5, 85.5, 7, -0.5, 6.5),1);
-    	    dgPCClust.addDataSet(new H2F("h_PCcl_W1",    86, -0.5, 85.5, 7, -0.5, 6.5),1);
+    	    dgPCClust.addDataSet(new H2F("h_N_PCClust1", 11, -0.5, 10.5, 6, -0.5, 5.5),1);
+    	    dgPCClust.addDataSet(new H2F("h_N_PCClust2", 11, -0.5, 10.5, 6, -0.5, 5.5),1);
+    	    dgPCClust.addDataSet(new H2F("h_N_PCClust3", 11, -0.5, 10.5, 6, -0.5, 5.5),1);
+    	    dgPCClust.addDataSet(new H2F("h_PCcl_t1",    21, -0.5, 20.5, 6, -0.5, 5.5),1);
+    	    dgPCClust.addDataSet(new H2F("h_PCcl_E1",   200,  0.,   2.,  6, -0.5, 5.5),1);
+    	    dgPCClust.addDataSet(new H2F("h_PCcl_E2",   200,  0.,   2.,  6, -0.5, 5.5),1);
+    	    dgPCClust.addDataSet(new H2F("h_PCcl_E3",   200,  0.,   2.,  6, -0.5, 5.5),1);
+    	    dgPCClust.addDataSet(new H2F("h_PCcl_E4",   200,  0.,   2.,  6, -0.5, 5.5),1);
+    	    dgPCClust.addDataSet(new H2F("h_PCcl_U1",    86, -0.5, 85.5, 6, -0.5, 5.5),1);
+    	    dgPCClust.addDataSet(new H2F("h_PCcl_V1",    86, -0.5, 85.5, 6, -0.5, 5.5),1);
+    	    dgPCClust.addDataSet(new H2F("h_PCcl_W1",    86, -0.5, 85.5, 6, -0.5, 5.5),1);
     	    
         dgPCClust.addDataSet(new H1F("h_PC_dU_43", "", 600, -90., 90.),1);
     	    dgPCClust.addDataSet(new H1F("h_PC_dV_43", "", 600, -80., 80.),1);
@@ -182,14 +188,14 @@ public class ECTriggerApp extends FCApplication{
     	    
     	    DataGroup dgPCPeak = new DataGroup(4,3);
     	    
-    	    dgPCPeak.addDataSet(new H2F("h_PC_Dalitz_Peaks1",  40, -0.5, 0.5, 7, -0.5, 6.5),1);
+    	    dgPCPeak.addDataSet(new H2F("h_PC_Dalitz_Peaks1",  40, -0.5, 0.5, 6, -0.5, 5.5),1);
     	    
     	    for (int i_view = 0; i_view < n_view; i_view++) {
-    	        dgPCPeak.addDataSet(new H2F("h_N_PCpeaks1_"+i_view,    11, -0.5, 10.5, 7, -0.5, 6.5),1);
-    	        dgPCPeak.addDataSet(new H2F("h_N_PCpeaks2_"+i_view,    11, -0.5, 10.5, 7, -0.5, 6.5),1);
-    	        dgPCPeak.addDataSet(new H2F("h_N_PCpeaks3_"+i_view,    11, -0.5, 10.5, 7, -0.5, 6.5),1);
-    	        dgPCPeak.addDataSet(new H2F("h_t_PCpeak1_"+i_view,     21, -0.5, 20.5, 7, -0.5, 6.5),1);
-    	        dgPCPeak.addDataSet(new H2F("h_coord_PCpeak1_"+i_view, 86, -0.5, 85.5, 7, -0.5, 6.5),1);
+    	        dgPCPeak.addDataSet(new H2F("h_N_PCpeaks1_"+i_view,    11, -0.5, 10.5, 6, -0.5, 5.5),1);
+    	        dgPCPeak.addDataSet(new H2F("h_N_PCpeaks2_"+i_view,    11, -0.5, 10.5, 6, -0.5, 5.5),1);
+    	        dgPCPeak.addDataSet(new H2F("h_N_PCpeaks3_"+i_view,    11, -0.5, 10.5, 6, -0.5, 5.5),1);
+    	        dgPCPeak.addDataSet(new H2F("h_t_PCpeak1_"+i_view,     21, -0.5, 20.5, 6, -0.5, 5.5),1);
+    	        dgPCPeak.addDataSet(new H2F("h_coord_PCpeak1_"+i_view, 86, -0.5, 85.5, 6, -0.5, 5.5),1);
     	    }
 
         this.getDataGroup().clear();
@@ -222,12 +228,41 @@ public class ECTriggerApp extends FCApplication{
      
      public void addEvent(DataEvent event) {
     	 
-         if(event instanceof EvioDataEvent) getDataEntries_VTP((EvioDataEvent) event);             
+         if(event instanceof EvioDataEvent) getTriggerBank((EvioDataEvent) event);             
+         if(event instanceof HipoDataEvent) getTriggerBank(event);             
          if (!testTriggerMask()) return;
     	     fillTriggerBitHistos();
      }
+     
+     public void getTriggerBank(DataEvent event) {
+    	 
+         if(!event.hasBank("RAW::vtp")==true) return;
          
-     public void getDataEntries_VTP(EvioDataEvent event){
+         IndexedList<List<Integer>> crates = new IndexedList<List<Integer>>(1);
+         DataBank  bank = event.getBank("RAW::vtp");
+         int rows = bank.rows();
+         for(int i = 0; i < rows; i++){            
+             int  ic = bank.getByte("crate",i);
+             int  iw = bank.getInt("word",i);
+             if(!crates.hasItem(ic)) {
+                 crates.add(new ArrayList<Integer>(),ic);}
+                 crates.getItem(ic).add(iw);
+         }
+         
+         IndexGenerator ig = new IndexGenerator();
+         
+         for (Map.Entry<Long,List<Integer>>  entry : crates.getMap().entrySet()){
+             long hash = entry.getKey();
+             int crate = ig.getIndex(hash, 0);              
+             List<Integer> list = crates.getItem(crate); 
+             Iterator<Integer> it = list.iterator();
+             trig = new FCTrigger(); trig.resetAll(); trig.getTriggerWords(it,crate);
+             fillVTPHistos();
+         }
+         
+     }
+         
+     public void getTriggerBank(EvioDataEvent event){
              
 //         System.out.println("Event Number "+app.evtno);
              
@@ -391,10 +426,8 @@ public class ECTriggerApp extends FCApplication{
 
                      dg5.getH2F("h_t_PCpeak1_"+i_view).fill(trig.GetECPeak(0, i_view, i_peak).time, sector);
 		    
-		             if( trig.GetECPeak(0, i_view, i_peak).time == 7 ){
-		                n_PC_peaks_in1_timebin_[i_view] = n_PC_peaks_in1_timebin_[i_view] + 1;
-		             }
-		            
+		             if( trig.GetECPeak(0, i_view, i_peak).time == 7 ) n_PC_peaks_in1_timebin_[i_view]++;
+		            		            
 		             double coord_conv = (i_view == 0) ? 2.75:3.00;
                      double coord = trig.GetECPeak(0, i_view, i_peak).coord / coord_conv;                    
                      dg5.getH2F("h_coord_PCpeak1_"+i_view).fill(coord, sector);
@@ -563,8 +596,10 @@ public class ECTriggerApp extends FCApplication{
      public void updatePlots() {
          switch (trigger.selectedCanvas) {
          case "TriggerBits": updateTrigger(); break;
-         case    "VTP ECAL": updateVTPEC(); break;
-         case    "VTP PCAL": updateVTPPC();
+         case    "EC Peaks": updateECPeaks(); break;
+         case    "PC Peaks": updatePCPeaks(); break;
+         case    "EC Clusters": updateECClusters(); break; 
+         case    "PC Clusters": updatePCClusters();  
          }   	     
     	     
      }
@@ -585,13 +620,13 @@ public class ECTriggerApp extends FCApplication{
          
      }
      
-     public void updateVTPEC() {
+     public void updateECPeaks() {
     	 
 	     DataGroup dg2 = this.getDataGroup().getItem(2,0,0);
 	     DataGroup dg4 = this.getDataGroup().getItem(4,0,0);
 	     String[] uvw = {"UV","UW","VW"};
 	     
-	     c = trigger.getCanvas("VTP ECAL");	     
+	     c = trigger.getCanvas("EC Peaks");	     
 	     c.divide(3, 4);
 	     
 	     for (int i=0; i<3; i++) {
@@ -604,23 +639,69 @@ public class ECTriggerApp extends FCApplication{
   	     c.update();
      }
      
-     public void updateVTPPC() {
+     public void updatePCPeaks() {
     	 
 	     DataGroup dg5 = this.getDataGroup().getItem(5,0,0);
 	     DataGroup dg7 = this.getDataGroup().getItem(7,0,0);
 	     String[] uvw = {"UV","UW","VW"};
 	     
-	     c = trigger.getCanvas("VTP PCAL");	     
-	     c.divide(3, 4);
+	     c = trigger.getCanvas("PC Peaks");	     
+	     c.divide(3, 5);
 	     
 	     for (int i=0; i<3; i++) {
              c.cd(i);   c.draw(dg5.getH2F("h_N_PCpeaks1_"+i));
              c.cd(i+3); c.draw(dg5.getH2F("h_t_PCpeak1_"+i));
-             c.cd(i+6); c.draw(dg5.getH2F("h_coord_PCpeak1_"+i));
-             c.cd(i+9); c.draw(dg7.getH2F("h_PC_yxc_"+uvw[i]+"1"));
+             c.cd(i+6); c.draw(dg5.getH2F("h_N_PCpeaks2_"+i));
+             c.cd(i+9); c.draw(dg5.getH2F("h_coord_PCpeak1_"+i));
+             c.cd(i+12);c.draw(dg7.getH2F("h_PC_yxc_"+uvw[i]+"1"));
 	     }
 	     
-  	     c.update();
-   	 
+  	     c.update();  	 
+     }
+     
+     public void updateECClusters() {
+    	 
+	     DataGroup dg3 = this.getDataGroup().getItem(3,0,0);
+	     DataGroup dg4 = this.getDataGroup().getItem(4,0,0);
+	     
+	     c = trigger.getCanvas("EC Clusters");	     
+	     c.divide(3, 4);
+	     
+	     int n=0;
+         c.cd(n++); c.draw(dg3.getH2F("h_EC_Dalitz_Clust1"));
+	     c.cd(n++); c.draw(dg3.getH2F("h_N_ECClust1"));
+	     c.cd(n++); c.draw(dg3.getH2F("h_N_ECClust2"));
+	     c.cd(n++); c.draw(dg3.getH2F("h_ECcl_E1"));
+	     c.cd(n++); c.draw(dg3.getH2F("h_ECcl_E2"));
+	     c.cd(n++); c.draw(dg3.getH2F("h_ECcl_t1"));
+	     c.cd(n++); c.draw(dg3.getH2F("h_ECcl_U1"));
+	     c.cd(n++); c.draw(dg3.getH2F("h_ECcl_V1"));
+	     c.cd(n++); c.draw(dg3.getH2F("h_ECcl_W1"));
+	     c.cd(n++); c.draw(dg4.getH2F("h_EC_yxc1"));
+             
+	     c.update();
+     }
+     
+     public void updatePCClusters() {
+    	 
+	     DataGroup dg6 = this.getDataGroup().getItem(6,0,0);
+	     DataGroup dg7 = this.getDataGroup().getItem(7,0,0);
+	     
+	     c = trigger.getCanvas("PC Clusters");	     
+	     c.divide(3, 4);
+	     
+	     int n=0;
+         c.cd(n++); c.draw(dg6.getH2F("h_PC_Dalitz_Clust1"));
+	     c.cd(n++); c.draw(dg6.getH2F("h_N_PCClust1"));
+	     c.cd(n++); c.draw(dg6.getH2F("h_N_PCClust2"));
+	     c.cd(n++); c.draw(dg6.getH2F("h_PCcl_E1"));
+	     c.cd(n++); c.draw(dg6.getH2F("h_PCcl_E2"));
+	     c.cd(n++); c.draw(dg6.getH2F("h_PCcl_t1"));
+	     c.cd(n++); c.draw(dg6.getH2F("h_PCcl_U1"));
+	     c.cd(n++); c.draw(dg6.getH2F("h_PCcl_V1"));
+	     c.cd(n++); c.draw(dg6.getH2F("h_PCcl_W1"));
+	     c.cd(n++); c.draw(dg7.getH2F("h_PC_yxc1"));   
+	     
+	     c.update();
      }
 }
