@@ -181,7 +181,8 @@ public class EventControl extends JPanel implements ActionListener, ChangeListen
         isXHipoOpen       = false;
         buttonNext.setEnabled(true);
         buttonNextFFW.setEnabled(true);
-        currentEvent = evReader.getCurrentIndex();
+        currentEvent = 1;
+//        currentEvent = evReader.getCurrentIndex();
         Integer nevents = evReader.getSize();  
         this.fileLabel.setText("FILE: "+eviofile.getName());
         this.statusLabel.setText("   EVENTS IN FILE : " + nevents.toString() + "  CURRENT : " + currentEvent);
@@ -245,7 +246,6 @@ public class EventControl extends JPanel implements ActionListener, ChangeListen
         isSingleEvent = false;
         if (delay!=0) isSingleEvent=true;     		
 	}
-
 	   
 	@Override
     public void actionPerformed(ActionEvent e) {
@@ -253,11 +253,13 @@ public class EventControl extends JPanel implements ActionListener, ChangeListen
         if(e.getActionCommand().compareTo("<")==0){
             isSingleEvent = true;
             if(evReader.hasEvent()){
-                currentEvent = evReader.getCurrentIndex();
+//                currentEvent = evReader.getCurrentIndex();
                 DataEvent event = null;
                 if(currentEvent>=2){                    
+                	    currentEvent--; currentEvent--;
                     DataEvent   dum = evReader.getPreviousEvent();
-                    currentEvent = evReader.getCurrentIndex();
+                    currentEvent++;
+//                    currentEvent = evReader.getCurrentIndex();
                     if(eventList.hasItem(currentEvent)) {
                         event = eventList.getItem(currentEvent);
                     }else{
@@ -287,10 +289,10 @@ public class EventControl extends JPanel implements ActionListener, ChangeListen
         
         if(e.getActionCommand().compareTo(">")==0){
             if (!isRunning) isRunning = true;
-        	isSingleEvent = true;
-        	inProcess = 1;
-        	this.processNextEvent();
-        	buttonPrev.setEnabled(true);        	
+         	isSingleEvent = true;
+         	inProcess = 1;
+         	this.processNextEvent();
+         	buttonPrev.setEnabled(true);        	
             this.detectorView.update();
             this.detectorView.getView().updateGUI();
         }
@@ -298,16 +300,18 @@ public class EventControl extends JPanel implements ActionListener, ChangeListen
         if(e.getActionCommand().compareTo(">>")==0){
             eventList.clear();
             monitoringClass.go();
-        	isSingleEvent = false;
-        	isRunning     = true;
-        	inProcess     = 1;
+            isSingleEvent = false;
+            isRunning     = true;
+            inProcess     = 1;
+         	
             class CrunchifyReminder extends TimerTask {
-            	public void run() {
-            		for (int i=1 ; i<200 ; i++) {
-                      processNextEvent();
-            		}
-            	}
+            	    public void run() {
+            	      	for (int i=1 ; i<200 ; i++) {
+                         processNextEvent();
+            		    }
+            	    }
             }
+            
             processTimer = new java.util.Timer();
             processTimer.schedule(new CrunchifyReminder(),1,1);
             buttonStop.setEnabled(true);
@@ -320,7 +324,7 @@ public class EventControl extends JPanel implements ActionListener, ChangeListen
             isRunning = false;
             inProcess = 2;
             monitoringClass.pause();
-        	killTimer();
+         	killTimer();
             buttonNextFFW.setEnabled(true);
             buttonStop.setEnabled(false);
             buttonNext.setEnabled(true);
@@ -346,12 +350,13 @@ public class EventControl extends JPanel implements ActionListener, ChangeListen
                 int maxTries = 20;
                 int trycount = 0;
                 etReader.clearEvents();
-                while(trycount<maxTries&&etReader.getSize()<=0){
-                    
+                while(trycount<maxTries&&etReader.getSize()<=0){                    
 //                    System.out.println("[Et-Ring::Thread] ---> reloading the data....");
                     try {
                         Thread.sleep(threadDelay);
-                    } catch (InterruptedException ex) {
+                    } 
+                    
+                    catch (InterruptedException ex) {
                         Logger.getLogger(MonitorApp.class.getName()).log(Level.SEVERE, null, ex);
                     }
                     
@@ -376,14 +381,18 @@ public class EventControl extends JPanel implements ActionListener, ChangeListen
                                   
                     try {
                         monitoringClass.dataEventAction(event);
-                    } catch (Exception ex) {
+                    } 
+                    
+                    catch (Exception ex) {
                         ex.printStackTrace();
                     }
                 
                     try {
-                    	Thread.sleep(threadDelay);
-                    } catch (InterruptedException ex) {
-                    	Logger.getLogger(MonitorApp.class.getName()).log(Level.SEVERE, null, ex);
+                      	Thread.sleep(threadDelay);
+                    } 
+                    
+                    catch (InterruptedException ex) {
+                        Logger.getLogger(MonitorApp.class.getName()).log(Level.SEVERE, null, ex);
                     }
             }
             return;
@@ -421,40 +430,48 @@ public class EventControl extends JPanel implements ActionListener, ChangeListen
         }
     	
     	if(isEvioFileOpen||isHipoFileOpen) {
+    		
     	    if(evReader.hasEvent()){
     	        
     	        DataEvent event = evReader.getNextEvent();
-    		    currentEvent    = evReader.getCurrentIndex();
-                if(isSingleEvent) {
-                    eventList.add(event,currentEvent);
-                    monitoringClass.analyze();    
-                }
+    	        currentEvent++;
+    	        
+//    		    currentEvent    = evReader.getCurrentIndex();
+            if(isSingleEvent) {
+                eventList.add(event,currentEvent);
+                monitoringClass.analyze();    
+            }
+            
     		    int nevents = evReader.getSize();  
-                if(currentEvent>100&&currentEvent%5000==0) monitoringClass.analyze();
+            if(currentEvent>100&&currentEvent%5000==0) monitoringClass.analyze();
     		    this.statusLabel.setText("   EVENTS IN FILE : " + nevents + "  CURRENT : " + currentEvent);
         
     		    try {
-                    Thread.sleep(threadDelay);
-                    monitoringClass.dataEventAction(event);
-    		    } catch (Exception ex) {
+                Thread.sleep(threadDelay);
+                monitoringClass.dataEventAction(event);
+    		    } 
+    		    
+    		    catch (Exception ex) {
     			    ex.printStackTrace();
     		    }
      
-            } else {
-                isRunning = false;
-                inProcess = 2;
+        } else {
+        	
+            isRunning = false;
+            inProcess = 2;
     	        killTimer();
     	        evReader.close();
-                isEvioFileOpen = false;
-                isHipoFileOpen = false;
-                buttonNextFFW.setEnabled(false);
-                buttonStop.setEnabled(false);
-                buttonNext.setEnabled(false);
-                buttonPrev.setEnabled(false);        
+            isEvioFileOpen = false;
+            isHipoFileOpen = false;
+            buttonNextFFW.setEnabled(false);
+            buttonStop.setEnabled(false);
+            buttonNext.setEnabled(false);
+            buttonPrev.setEnabled(false);        
     	        monitoringClass.analyze();
-    	        monitoringClass.close();
-                System.out.println("DONE PROCESSING FILE");
-            }
+            monitoringClass.close();
+            System.out.println("DONE PROCESSING FILE");
+            
+        }
     	}
 
     }  
