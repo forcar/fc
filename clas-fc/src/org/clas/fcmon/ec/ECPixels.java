@@ -33,6 +33,7 @@ import org.jlab.geom.detector.ec.ECDetector;
 import org.jlab.geom.detector.ec.ECFactory;
 import org.jlab.geom.detector.ec.ECLayer;
 import org.jlab.geom.prim.Path3D;
+import org.jlab.groot.base.GStyle;
 import org.jlab.groot.data.H1F;
 import org.jlab.groot.data.H2F;
 import org.jlab.groot.graphics.EmbeddedCanvas;
@@ -347,6 +348,9 @@ public class ECPixels {
         int nstr = ec_nstr[0]            ; double nend = nstr+1;  
         int npix = pixels.getNumPixels() ; double pend = npix+1;
         
+	    GStyle.getH1FAttributes().setLineWidth(1);
+	    GStyle.getH2FAttributes().setLineWidth(1);
+        
         for (int is=1; is<7 ; is++) {    
             
             // Strip based data  
@@ -381,8 +385,8 @@ public class ECPixels {
             }
             
                 id="s"+Integer.toString(is)+"_l"+Integer.toString(3)+"_c";
-                H2_t_Hist.add(is, 3, 3, new H2F("a_raw_"+id+3, 100, 600., 750., 6, 0., 6.)); // No phase correction
-                H2_t_Hist.add(is, 3, 4, new H2F("a_raw_"+id+4, 100, 600., 750., 6, 0., 6.)); // With phase correction
+                H2_t_Hist.add(is, 3, 3, new H2F("a_raw_"+id+3, 100, 450., 850., 6, 0., 6.)); // No phase correction
+                H2_t_Hist.add(is, 3, 4, new H2F("a_raw_"+id+4, 100, 450., 850., 6, 0., 6.)); // With phase correction
             
                 // Reconstructed data
                 id="s"+Integer.toString(is)+"_l"+Integer.toString(4)+"_c";

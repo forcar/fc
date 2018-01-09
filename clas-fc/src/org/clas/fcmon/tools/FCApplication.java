@@ -8,10 +8,13 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JPanel;
@@ -31,17 +34,25 @@ import java.awt.event.MouseMotionListener;
 import org.clas.fcmon.ftof.FTOFPixels;
 import org.clas.fcmon.htcc.HTCCPixels;
 import org.clas.fcmon.ctof.CTOFPixels;
+import org.jlab.coda.jevio.ByteDataTransformer;
+import org.jlab.coda.jevio.EvioNode;
 import org.jlab.detector.base.DetectorCollection;
 import org.jlab.detector.base.DetectorDescriptor;
 import org.jlab.detector.calib.tasks.CalibrationEngine;
 import org.jlab.detector.calib.tasks.CalibrationEngineView;
-
+import org.jlab.detector.decode.DetectorDataDgtz;
+import org.jlab.detector.decode.DetectorDataDgtz.VTPData;
 import org.jlab.groot.group.DataGroup;
+import org.jlab.io.base.DataBank;
 import org.jlab.io.base.DataEvent;
+import org.jlab.io.evio.EvioDataEvent;
+import org.jlab.io.evio.EvioTreeBranch;
 import org.jlab.io.hipo.HipoDataBank;
+import org.jlab.io.hipo.HipoDataEvent;
 import org.jlab.service.ec.ECEngine;
 import org.jlab.utils.groups.IndexedList;
 import org.jlab.groot.graphics.EmbeddedCanvas;
+import org.jlab.groot.base.GStyle;
 import org.jlab.groot.data.H1F;
 import org.jlab.groot.data.H2F;
 
@@ -49,7 +60,7 @@ public class FCApplication implements ActionListener  {
 	
     ColorPalette palette = new ColorPalette();
     
-    private IndexedList<DataGroup>               analysisData = new IndexedList<DataGroup>(1);    
+    private IndexedList<DataGroup>              detectorData  = new IndexedList<DataGroup>(3);
     private String                                    appName = null;
     private List<EmbeddedCanvas>                     canvases = new ArrayList<EmbeddedCanvas>();
     private JPanel                                  radioPane = null;
@@ -73,34 +84,49 @@ public class FCApplication implements ActionListener  {
 	public DetectorMonitor mon = null;
 	
     public TreeMap<String,JPanel>  rbPanes = new TreeMap<String,JPanel>();
-    public TreeMap<String,String>  bStore = new TreeMap<String,String>();
+    public TreeMap<String,String>   bStore = new TreeMap<String,String>();
 	
 	public int is,layer,ic;
 	public int panel,opt,io,of,lay,l1,l2,is1,is2,iis1,iis2;
 	
 	public int nsa,nsb,tet,pedref;
 
-    private String             buttonSelect;
+	private String             buttonSelect;
     private int                buttonIndex;
     private String             canvasSelect;
     private int                canvasIndex;
     
-    double    PCMon_zmin = 0;
-    double    PCMon_zmax = 0;        
+    public double    PCMon_zmin = 100;
+    public double    PCMon_zmax = 4000;        
     public int     ilmap = 0;
     
     public int sectorSelected, layerSelected, channelSelected;
     
+    public int     trigFD = 0;
+    public int     trigCD = 0;
+    
+    private int pixlength = 1;
+    
+    public boolean correctPhase  = false;
+    public boolean testTrigger   = false;
+    public boolean triggerBeam[] = new boolean[32];
+    public boolean linlog        = true;
+    
+    TriggerDataDgtz         trig = null;
+    
     public FCApplication(ECPixels[] ecPix) {
-        this.ecPix = ecPix;     
+        this.ecPix = ecPix;       
+        this.initCanvas();
     }
     
     public FCApplication(CCPixels ccPix) {
-        this.ccPix = ccPix;     
+        this.ccPix = ccPix;  
+        this.initCanvas();
     }
     
     public FCApplication(FTOFPixels[] ftofPix) {
-        this.ftofPix = ftofPix;     
+        this.ftofPix = ftofPix;   
+        this.initCanvas();
     }
     
     public FCApplication(String name) {
@@ -112,6 +138,7 @@ public class FCApplication implements ActionListener  {
         this.appName = name;
         this.ecPix = ecPix;   
         this.addCanvas(name);
+        this.pixlength = ecPix.length;
     }
     
     public FCApplication(String name, HTCCPixels[] htccPix) {
@@ -142,8 +169,79 @@ public class FCApplication implements ActionListener  {
         this.appName = name;
         this.cndPix = cndPix;   
         this.addCanvas(name);
-    } 
+    }
     
+    public void addEvent(DataEvent event) {
+    	
+    	// globals set here must go to app.* since this is called only in ReconstructionApp
+        
+        if(event instanceof EvioDataEvent){
+        	
+        	    app.decoder.initEvent(event);  
+        	    app.codadecoder = app.decoder.getCodaEventDecoder();
+            app.run         = app.codadecoder.getRunNumber();
+            app.evtno       = app.codadecoder.getEventNumber();
+            app.timestamp   = app.codadecoder.getTimeStamp();
+            app.triggerWord = app.codadecoder.getTriggerBits();  
+            if( app.isMC) this.updateSimulatedData(event);
+            if(!app.isMC) this.updateEvioData(event);            
+            
+        } else {
+
+            if(event.hasBank("RUN::config")){
+                DataBank bank = event.getBank("RUN::config");
+                app.run         = bank.getInt("run",0);
+                app.evtno       = bank.getInt("event",0);   
+                app.timestamp   = bank.getLong("timestamp",0);
+                app.triggerWord = bank.getLong("trigger",0);
+            }
+            
+            if( app.isMC) this.updateSimulatedData(event);
+            if(!app.isMC) this.updateHipoData(event);        
+        }
+             
+        app.phase = getPhase(app.timestamp);
+        app.phaseCorrection = getPhaseCorrection();
+//        app.bitsec = getElecTriggerSector();
+        app.bitsec = getECALTriggerSector();
+        
+        if (app.isSingleEvent()) {
+            findPixels();     // Process all pixels for SED
+            processSED();
+         } else {
+            for (int idet=0; idet<pixlength; idet++) processPixels(idet); // Process only single pixels 
+            processCalib();   // Quantities for display and calibration engine
+         }
+    }  
+    
+    public void updateEvioData(DataEvent de) {
+    	
+    }    
+    
+    public void updateSimulatedData(DataEvent de) {
+    	
+    }
+    
+    public void updateHipoData(DataEvent de) {
+    	
+    }  
+    
+    public void processSED() { 
+    	
+    }
+    
+    public void processCalib() {    	
+    	
+    }
+    
+    public void processPixels(int idet) {
+    	
+    }   
+    
+    public void findPixels() {
+    	
+    }
+
     public void setApplicationClass(MonitorApp app) {
         this.app = app;
         app.getDetectorView().addFCApplicationListeners(this);
@@ -162,7 +260,7 @@ public class FCApplication implements ActionListener  {
     }	
     
     public IndexedList<DataGroup>  getDataGroup(){
-        return analysisData;
+        return detectorData;
     }    
     
 	public void getDetIndices(DetectorDescriptor dd) {
@@ -205,8 +303,17 @@ public class FCApplication implements ActionListener  {
 	
 	public void updateCanvas(DetectorDescriptor dd, EmbeddedCanvas canvas) {		
 	}
-	
+    
+    public void initCanvas() {
+      	GStyle.getAxisAttributesX().setGrid(false);
+     	GStyle.getAxisAttributesY().setGrid(false);
+      	GStyle.getAxisAttributesX().setLineWidth(1);
+     	GStyle.getAxisAttributesY().setLineWidth(1);
+     	GStyle.getAxisAttributesZ().setLog(true);     	
+    }	
+    
     public final void addCanvas(String name) {
+        this.initCanvas();
         EmbeddedCanvas c = new EmbeddedCanvas();
         this.canvases.add(c);
         this.canvases.get(this.canvases.size()-1).setName(name);
@@ -381,16 +488,55 @@ public class FCApplication implements ActionListener  {
         if (xmin!=xmax) canvas.getPad(num).getAxisX().setRange(xmin,xmax);
         if (ymin!=ymax) canvas.getPad(num).getAxisY().setRange(ymin,ymax);
         if (ymin==ymax) canvas.getPad(num).getAxisY().setAutoScale(true);
-        canvas.getPad(num).getAxisFrame().getAxisZ().setLog(linlog);
-        double zmin =  100*app.displayControl.pixMin;      
-        double zmax = 4000*app.displayControl.pixMax;      
-        if (zmax<4000)  canvas.getPad(num).getAxisZ().setRange(zmin,zmax);
-        if (zmax==4000) canvas.getPad(num).getAxisZ().setAutoScale(true);            
+        canvas.getPad(num).getAxisFrame().getAxisZ().setLog(linlog==true?this.linlog:false);
+        double zmin = PCMon_zmin*app.displayControl.pixMin;      
+        double zmax = PCMon_zmax*app.displayControl.pixMax;      
+        if (zmax<PCMon_zmax)  canvas.getPad(num).getAxisZ().setRange(zmin,zmax);
+        if (zmax==PCMon_zmax) canvas.getPad(num).getAxisZ().setAutoScale(true);            
         return canvas;
     } 
     
-    public Boolean isGoodTrigger(int is) {return (app.isTB)? is==app.bitsec:true;}
-           
-    public Boolean isGoodSector(int is) {return is>=is1&&is<is2&&isGoodTrigger(is);}      
-     
+    public float getPhase(long timestamp) {
+        int phase_offset = 1;
+        return (float)((timestamp%6)+phase_offset)%6;    	
+    }
+    
+    public float getPhaseCorrection() {
+        return correctPhase ? app.phase:0;    	   	    
+    }
+ 
+    public void setTestTrigger(boolean test) {
+ 	   this.testTrigger = test;
+    } 
+    
+    public class TriggerUtils {
+    	
+    }
+    public Boolean isGoodSector(int is)      {return is>=is1&&is<is2&&isTriggeredSector(is);} 
+    public Boolean isTriggeredSector(int is) {return (app.isTB)? is==app.bitsec:true;}           
+    
+    public int     getFDTrigger()            {return (int)(app.triggerWord)&0x000000000ffffffff;}
+    public int     getCDTrigger()            {return (int)(app.triggerWord>>32)&0x00000000ffffffff;}
+    
+    public boolean isGoodFD()                {return  getFDTrigger()>0;}    
+    public boolean isGoodCD()                {return  getCDTrigger()>0;}   
+    
+    public boolean isTrigMaskSet(int mask)   {return (getFDTrigger()&mask)!=0;}
+    public boolean isTrigBitSet(int bit)     {int mask=0; mask |= 1<<bit; return isTrigMaskSet(mask);}
+    
+    public boolean isGoodECALTrigger(int is) {return (testTrigger)? is==getECALTriggerSector():true;}  
+    
+    public int        getElecTrigger()       {return getFDTrigger()&0x7f;}
+    public boolean isGoodElecTrigger()       {return getElecTrigger()>0;}
+    
+    public int     getElecTriggerSector()    {return (int) (isGoodElecTrigger() ? Math.log10(getElecTrigger()>>1)/0.301+1:0);} 
+    
+    public int     getECALTriggerSector()    {return (int) (isGoodFD() ? Math.log10(getFDTrigger()>>19)/0.301+1:0);}       
+    public int     getPCALTriggerSector()    {return (int) (isGoodFD() ? Math.log10(getFDTrigger()>>13)/0.301+1:0);}       
+    public int     getHTCCTriggerSector()    {return (int) (isGoodFD() ? Math.log10(getFDTrigger()>>7)/0.301+1:0);} 
+    
+    public int      getTriggerMask()      {return app.triggerMask;}
+    public boolean testTriggerMask()      {return app.triggerMask!=0 ? isTrigMaskSet(app.triggerMask):true;}
+    public boolean isGoodTrigger(int bit) {return triggerBeam[bit] ? isTrigBitSet(bit):true;}    
+    
 }

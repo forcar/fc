@@ -14,7 +14,6 @@ import org.jlab.io.evio.EvioDataEvent;
 import org.jlab.io.evio.EvioDataSync;
 import org.jlab.service.ec.*;
 
-
 import java.util.Arrays;
 import java.util.TreeMap;
 
@@ -37,7 +36,8 @@ public class ECMon extends DetectorMonitor {
     ECPixelsApp            ecPixels = null;
     ECGainsApp              ecGains = null;
     ECScalersApp          ecScalers = null;
-    ECHvApp                    ecHv = null;   
+    ECHvApp                    ecHv = null;  
+    ECTriggerApp             ecTrig = null;
     
     ECEngine               ecEngine = null;
     EvioDataSync             writer = null;
@@ -116,7 +116,7 @@ public class ECMon extends DetectorMonitor {
         ecDet.init();
     }
     
-    public void makeApps() {
+    public void makeApps()  {
         System.out.println("monitor.makeApps()");   
         
         ecEngine   = new ECEngine();
@@ -169,6 +169,10 @@ public class ECMon extends DetectorMonitor {
         ecScalers.setApplicationClass(app);    
         ecScalers.init();
         
+        ecTrig = new ECTriggerApp("Triggers",ecPix);
+        ecTrig.setMonitoringClass(this);
+        ecTrig.setApplicationClass(app);    
+        
         if(app.xMsgHost=="localhost") app.startEpics();
     }
     
@@ -183,7 +187,8 @@ public class ECMon extends DetectorMonitor {
         app.addFrame(ecCalib.getName(),             ecCalib.getPanel());
         app.addFrame(ecGains.getName(),             ecGains.getPanel());
         app.addFrame(ecHv.getName(),                   ecHv.getPanel());
-        app.addFrame(ecScalers.getName(),         ecScalers.getPanel());        
+        app.addFrame(ecScalers.getName(),         ecScalers.getPanel());     
+        app.addFrame(ecTrig.getName(),               ecTrig.getPanel());
     }
 	
     public void init( ) {	    
@@ -198,6 +203,7 @@ public class ECMon extends DetectorMonitor {
         for (int i=0; i<ecPix.length; i++)   ecPix[i].init();
         ecRecon.init();
         ecGains.init();
+        ecTrig.init();
         initEngine();
         for (int i=0; i<ecPix.length; i++)   ecPix[i].Lmap_a.add(0,0,0, ecRecon.toTreeMap(ecPix[i].ec_cmap));
         for (int i=0; i<ecPix.length; i++)   ecPix[i].Lmap_t.add(0,0,0, ecRecon.toTreeMap(ecPix[i].ec_cmap));
@@ -265,12 +271,14 @@ public class ECMon extends DetectorMonitor {
     public void reset() {
 		ecRecon.clearHistograms();
 		ecGains.clearHistograms();
+		ecTrig.clearHistograms();
     } 
 
     @Override
     public void dataEventAction(DataEvent de) { 
       
       ecRecon.addEvent(de);
+      ecTrig.addEvent(de);
       
       if(app.doEng) {
           ecEngine.singleEvent = app.isSingleEvent() ; 
@@ -323,7 +331,8 @@ public class ECMon extends DetectorMonitor {
         case "Gains":                       ecGains.updateCanvas(dd); break;
         case "ECEngine":                      ecEng.updateCanvas(dd); break;
         case "HV":                             ecHv.updateCanvas(dd); break;
-        case "Scalers":                   ecScalers.updateCanvas(dd);
+        case "Scalers":                   ecScalers.updateCanvas(dd); break; 
+        case "Triggers":                     ecTrig.updateCanvas(dd);
         }				
     }
     

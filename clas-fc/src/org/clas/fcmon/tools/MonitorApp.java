@@ -20,10 +20,13 @@ import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComboBox;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
@@ -100,7 +103,7 @@ public class MonitorApp extends JFrame implements ActionListener {
     public int   currentEvent = 0;
     public int  detectorIndex = 0;
     public int      viewIndex = 1;
-    public int         bitsec = 0;
+   
     public boolean    doEpics = false;
     public String     appName = null;
     public String   variation = "default";
@@ -129,6 +132,15 @@ public class MonitorApp extends JFrame implements ActionListener {
     public int               omap = 0;
     public int           localRun = 0;
     
+    public int        triggerMask = 0; // Set in FCMenuBar
+    public long       triggerWord = 0;    
+    public int                run = 0;
+    public int              evtno = 0;
+    public int             bitsec = 0;
+    public long         timestamp = 0;
+    public float            phase = 0;
+    public float  phaseCorrection = 0;
+
     public int tet,nsa,nsb,pedref;
     
     public FTHashCollection rtt = null;
@@ -207,7 +219,7 @@ public class MonitorApp extends JFrame implements ActionListener {
         if (ostype!=null&&ostype.equals("darwin")) {
             System.out.println("monitor.getEnv(): Running on "+ostype);
             doEpics = false;
-            setIsMC(true);
+            setIsMC(false);
             rootPath  = "/Users/colesmith/"+appName;
             xMsgHost = "localhost";
         }
@@ -220,7 +232,7 @@ public class MonitorApp extends JFrame implements ActionListener {
     }    
     
     public void makeGUI(){
-
+    	
 // Setup containers        
         
         this.setLayout(new BorderLayout());   
@@ -263,6 +275,7 @@ public class MonitorApp extends JFrame implements ActionListener {
         mcBtn.setSelected(false);        
         buttonPane.add(mcBtn);
         
+/*
         mcbBtn = new JCheckBox("MCB");
         mcbBtn.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
@@ -275,7 +288,7 @@ public class MonitorApp extends JFrame implements ActionListener {
         });         
         mcbBtn.setSelected(false);        
         buttonPane.add(mcbBtn);  
-        
+*/        
         epicsBtn = new JCheckBox("EPICS");
         epicsBtn.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
@@ -378,7 +391,9 @@ public class MonitorApp extends JFrame implements ActionListener {
         
 // Menu Bar  
         
-        this.setJMenuBar(new FCMenuBar(eventControl));		
+        FCMenuBar menuBar = new FCMenuBar();
+        menuBar.setApplicationClass(this);
+        this.setJMenuBar(menuBar);	
         		
 // GUI layout
         
@@ -621,6 +636,8 @@ public class MonitorApp extends JFrame implements ActionListener {
             Thread.currentThread().interrupt();
         }
     }
+    public void   setTriggerMask(int bit) {this.triggerMask|=(1<<bit);}  
+    public void clearTriggerMask(int bit) {this.triggerMask&=~(1<<bit);}  
     
     @Override
     public void actionPerformed(ActionEvent e) {

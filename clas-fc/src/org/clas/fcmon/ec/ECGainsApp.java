@@ -140,188 +140,187 @@ public class ECGainsApp extends FCApplication implements ActionListener {
         
        System.out.println("ECGainsApp:createHistos();");
         
-       DataGroup dg_mip = new DataGroup(1,184);
+       DataGroup dg_mip = new DataGroup(1,1);
                
         H2F h2 = new H2F();
         
         int n = 0;
-        //17*6 = 102
         
         for (int is=1; is<7; is++) {
             h2 = new H2F("hi_pcal_uc_"+is,"hi_pcal_uc_"+is,50, 0., 100., 68, 1., 69.);
             h2.setTitleX("Sector "+is+" PCAL (MeV)");
             h2.setTitleY("coordU");    
-            dg_mip.addDataSet(h2, n); n++;
+            dg_mip.addDataSet(h2, 1); 
             h2 = new H2F("hi_pcal_vc_"+is,"hi_pcal_vc_"+is,50, 0., 100., 62, 1., 63.);
             h2.setTitleX("Sector "+is+" PCAL (MeV)");
             h2.setTitleY("coordV");        
-            dg_mip.addDataSet(h2, n); n++;           
+            dg_mip.addDataSet(h2, 1);         
             h2 = new H2F("hi_pcal_wc_"+is,"hi_pcal_wc_"+is,50, 0., 100., 62, 1., 63.);
             h2.setTitleX("Sector "+is+" PCAL (MeV)");
             h2.setTitleY("coordW");  
-            dg_mip.addDataSet(h2, n); n++;
+            dg_mip.addDataSet(h2, 1); 
             
             h2 = new H2F("hi_ecin_uc_"+is,"hi_ecin_uc_"+is,50, 0., 100., 36, 1., 37.);
             h2.setTitleX("Sector "+is+" ECin (MeV)");
             h2.setTitleY("coordU");        
-            dg_mip.addDataSet(h2, n); n++;
+            dg_mip.addDataSet(h2, 1); 
             h2 = new H2F("hi_ecin_vc_"+is,"hi_ecin_vc_"+is,50, 0., 100., 36, 1., 37.);
             h2.setTitleX("Sector "+is+" ECin (MeV)");
             h2.setTitleY("coordV");        
-            dg_mip.addDataSet(h2, n); n++;
+            dg_mip.addDataSet(h2, 1);  
             h2 = new H2F("hi_ecin_wc_"+is,"hi_ecin_wc_"+is,50, 0., 100., 36, 1., 37.);
             h2.setTitleX("Sector "+is+" ECin (MeV)");
             h2.setTitleY("coordW");  
-            dg_mip.addDataSet(h2, n); n++;
+            dg_mip.addDataSet(h2, 1);  
             
             h2 = new H2F("hi_ecou_uc_"+is,"hi_ecou_uc_"+is,50, 0., 100., 36, 1., 37.);
             h2.setTitleX("Sector "+is+" ECou (MeV)");
             h2.setTitleY("coordU");        
-            dg_mip.addDataSet(h2, n); n++;
+            dg_mip.addDataSet(h2, 1);  
             h2 = new H2F("hi_ecou_vc_"+is,"hi_ecou_vc_"+is,50, 0., 100., 36, 1., 37.);
             h2.setTitleX("Sector "+is+" ECou (MeV)");
             h2.setTitleY("coordV");        
-            dg_mip.addDataSet(h2, n); n++;
+            dg_mip.addDataSet(h2, 1); 
             h2 = new H2F("hi_ecou_wc_"+is,"hi_ecou_wc_"+is,50, 0., 100., 36, 1., 37.);
             h2.setTitleX("Sector "+is+" ECou (MeV)");
             h2.setTitleY("coordW");
-            dg_mip.addDataSet(h2, n); n++;
+            dg_mip.addDataSet(h2, 1); 
             h2 = new H2F("hi_pcal_ectot_"+is,"hi_pcal_ectot_"+is,50,0.,100.,50,0.,200.);
             h2.setTitleX("Sector "+is+" PCAL (MeV)");
             h2.setTitleY("ECTOT (MeV)");
-            dg_mip.addDataSet(h2, n); n++;
+            dg_mip.addDataSet(h2, 1);  
             h2 = new H2F("hi_pcal_ectot_max_"+is,"hi_pcal_ectot_max_"+is,100,0.,200.,100,0.,300.);
             h2.setTitleX("Sector "+is+" PCAL (MeV)");
             h2.setTitleY("ECTOT (MeV)");
-            dg_mip.addDataSet(h2, n); n++;
+            dg_mip.addDataSet(h2, 1);  
             h2 = new H2F("hi_pcal_path1_"+is,"hi_pcal_path1_"+is,50,0.,100.,118,31.,90.);
             h2.setTitleX("Sector "+is+" PCAL (MeV)");
             h2.setTitleY("Path12 (cm)");
-            dg_mip.addDataSet(h2, n); n++;
+            dg_mip.addDataSet(h2, 1);  
             h2 = new H2F("hi_pcal_path2_"+is,"hi_pcal_path2_"+is,50,0.,100.,70,50.,120.);
             h2.setTitleX("Sector "+is+" PCAL (MeV)");
             h2.setTitleY("Path13 (cm)");
-            dg_mip.addDataSet(h2, n); n++;
+            dg_mip.addDataSet(h2, 1);  
             h2 = new H2F("hi_ecin_path1_"+is,"hi_ecin_path1_"+is,50,0.,100.,70,50.,120.);
             h2.setTitleX("Sector "+is+" ECin (MeV)");
             h2.setTitleY("Path13 (cm)");
-            dg_mip.addDataSet(h2, n); n++;
+            dg_mip.addDataSet(h2, 1);  
             h2 = new H2F("hi_ecin_path2_"+is,"hi_ecin_path2_"+is,50,0.,100.,66,17.,50.);
             h2.setTitleX("Sector "+is+" ECin (MeV)");
             h2.setTitleY("Path23 (cm)");
-            dg_mip.addDataSet(h2, n); n++;
+            dg_mip.addDataSet(h2, 1);  
             h2 = new H2F("hi_ecou_path1_"+is,"hi_ecou_path1_"+is,50,0.,100.,70,50.,120.);
             h2.setTitleX("Sector "+is+" ECou (MeV)");
             h2.setTitleY("Path13 (cm)");
-            dg_mip.addDataSet(h2, n); n++;
+            dg_mip.addDataSet(h2, 1);  
             h2 = new H2F("hi_ecou_path2_"+is,"hi_ecou_path2_"+is,50,0.,100.,66,17.,50.);
             h2.setTitleX("Sector "+is+" ECou (MeV)");
             h2.setTitleY("Path23 (cm)");
-            dg_mip.addDataSet(h2, n); n++;
+            dg_mip.addDataSet(h2, 1);  
         }   
-        //9*6=54
+        
         for (int is=1; is<7; is++) {
             h2 = new H2F("hi_pcal_up_"+is,"hi_pcal_up_"+is,25, 0., 40., 68, 1., 69.);
             h2.setTitleX("Sector "+is+" PCAL (MeV)");
             h2.setTitleY("coordU");    
-            dg_mip.addDataSet(h2, n); n++;
+            dg_mip.addDataSet(h2, 1);  
             h2 = new H2F("hi_pcal_vp_"+is,"hi_pcal_vp_"+is,25, 0., 40., 62, 1., 63.);
             h2.setTitleX("Sector "+is+" PCAL (MeV)");
             h2.setTitleY("coordV");        
-            dg_mip.addDataSet(h2, n); n++;           
+            dg_mip.addDataSet(h2, 1);            
             h2 = new H2F("hi_pcal_wp_"+is,"hi_pcal_wp_"+is,25, 0., 40., 62, 1., 63.);
             h2.setTitleX("Sector "+is+" PCAL (MeV)");
             h2.setTitleY("coordW");  
-            dg_mip.addDataSet(h2, n); n++;
+            dg_mip.addDataSet(h2, 1);  
             
             h2 = new H2F("hi_ecin_up_"+is,"hi_ecin_up_"+is,25, 0., 40., 36, 1., 37.);
             h2.setTitleX("Sector "+is+" ECin (MeV)");
             h2.setTitleY("coordU");        
-            dg_mip.addDataSet(h2, n); n++;
+            dg_mip.addDataSet(h2, 1);  
             h2 = new H2F("hi_ecin_vp_"+is,"hi_ecin_vp_"+is,25, 0., 40., 36, 1., 37.);
             h2.setTitleX("Sector "+is+" ECin (MeV)");
             h2.setTitleY("coordV");        
-            dg_mip.addDataSet(h2, n); n++;
+            dg_mip.addDataSet(h2, 1); 
             h2 = new H2F("hi_ecin_wp_"+is,"hi_ecin_wp_"+is,25, 0., 40., 36, 1., 37.);
             h2.setTitleX("Sector "+is+" ECin (MeV)");
             h2.setTitleY("coordW");  
-            dg_mip.addDataSet(h2, n); n++;
+            dg_mip.addDataSet(h2, 1);  
            
             h2 = new H2F("hi_ecou_up_"+is,"hi_ecou_up_"+is,25, 0., 40., 36, 1., 37.);
             h2.setTitleX("Sector "+is+" ECou (MeV)");
             h2.setTitleY("coordU");        
-            dg_mip.addDataSet(h2, n); n++;
+            dg_mip.addDataSet(h2, 1);  
             h2 = new H2F("hi_ecou_vp_"+is,"hi_ecou_vp_"+is,25, 0., 40., 36, 1., 37.);
             h2.setTitleX("Sector "+is+" ECou (MeV)");
             h2.setTitleY("coordV");        
-            dg_mip.addDataSet(h2, n); n++;
+            dg_mip.addDataSet(h2, 1);  
             h2 = new H2F("hi_ecou_wp_"+is,"hi_ecou_wp_"+is,25, 0., 40., 36, 1., 37.);
             h2.setTitleX("Sector "+is+" ECou (MeV)");
             h2.setTitleY("coordW");
-            dg_mip.addDataSet(h2, n); n++;
+            dg_mip.addDataSet(h2, 1); 
         } 
-        //102+54+24=162
+        
         h2 = new H2F("hi_pcal_xyc_e","hi_pcal_xyc_e",100, -500., 500., 100, -500.,500);
-        dg_mip.addDataSet(h2, n); n++;
+        dg_mip.addDataSet(h2, 1);  
         h2 = new H2F("hi_pcal_xyc_w","hi_pcal_xyc_w",100, -500., 500., 100, -500.,500);
-        dg_mip.addDataSet(h2, n); n++;
+        dg_mip.addDataSet(h2, 1); 
         h2 = new H2F("hi_ecin_xyc_e","hi_ecin_xyc_e",100, -500., 500., 100, -500.,500);
-        dg_mip.addDataSet(h2, n); n++;
+        dg_mip.addDataSet(h2, 1);  
         h2 = new H2F("hi_ecin_xyc_w","hi_ecin_xyc_w",100, -500., 500., 100, -500.,500);
-        dg_mip.addDataSet(h2, n); n++;
+        dg_mip.addDataSet(h2, 1); 
         h2 = new H2F("hi_ecou_xyc_e","hi_ecou_xyc_e",100, -500., 500., 100, -500.,500);
-        dg_mip.addDataSet(h2, n); n++;
+        dg_mip.addDataSet(h2, 1);  
         h2 = new H2F("hi_ecou_xyc_w","hi_ecou_xyc_w",100, -500., 500., 100, -500.,500);
-        dg_mip.addDataSet(h2, n); n++;
+        dg_mip.addDataSet(h2, 1);  
         
         h2 = new H2F("hi_pcal_xyp_ue","hi_pcal_xyp_ue",100, -500., 500., 100, -500.,500);
-        dg_mip.addDataSet(h2, n); n++;
+        dg_mip.addDataSet(h2, 1);  
         h2 = new H2F("hi_pcal_xyp_uw","hi_pcal_xyp_uw",100, -500., 500., 100, -500.,500);
-        dg_mip.addDataSet(h2, n); n++;
+        dg_mip.addDataSet(h2, 1); 
         h2 = new H2F("hi_pcal_xyp_ve","hi_pcal_xyp_ve",100, -500., 500., 100, -500.,500);
-        dg_mip.addDataSet(h2, n); n++;
+        dg_mip.addDataSet(h2, 1);  
         h2 = new H2F("hi_pcal_xyp_vw","hi_pcal_xyp_vw",100, -500., 500., 100, -500.,500);
-        dg_mip.addDataSet(h2, n); n++;
+        dg_mip.addDataSet(h2, 1);  
         h2 = new H2F("hi_pcal_xyp_we","hi_pcal_xyp_we",100, -500., 500., 100, -500.,500);
-        dg_mip.addDataSet(h2, n); n++;
+        dg_mip.addDataSet(h2, 1);  
         h2 = new H2F("hi_pcal_xyp_ww","hi_pcal_xyp_ww",100, -500., 500., 100, -500.,500);
-        dg_mip.addDataSet(h2, n); n++;
+        dg_mip.addDataSet(h2, 1);  
         h2 = new H2F("hi_ecin_xyp_ue","hi_ecin_xyp_ue",100, -500., 500., 100, -500.,500);
-        dg_mip.addDataSet(h2, n); n++;
+        dg_mip.addDataSet(h2, 1);  
         h2 = new H2F("hi_ecin_xyp_uw","hi_ecin_xyp_uw",100, -500., 500., 100, -500.,500);
-        dg_mip.addDataSet(h2, n); n++;
+        dg_mip.addDataSet(h2, 1);  
         h2 = new H2F("hi_ecin_xyp_ve","hi_ecin_xyp_ve",100, -500., 500., 100, -500.,500);
-        dg_mip.addDataSet(h2, n); n++;
+        dg_mip.addDataSet(h2, 1);  
         h2 = new H2F("hi_ecin_xyp_vw","hi_ecin_xyp_vw",100, -500., 500., 100, -500.,500);
-        dg_mip.addDataSet(h2, n); n++;
+        dg_mip.addDataSet(h2, 1);  
         h2 = new H2F("hi_ecin_xyp_we","hi_ecin_xyp_we",100, -500., 500., 100, -500.,500);
-        dg_mip.addDataSet(h2, n); n++;
+        dg_mip.addDataSet(h2, 1);  
         h2 = new H2F("hi_ecin_xyp_ww","hi_ecin_xyp_ww",100, -500., 500., 100, -500.,500);
-        dg_mip.addDataSet(h2, n); n++;
+        dg_mip.addDataSet(h2, 1);  
         h2 = new H2F("hi_ecou_xyp_ue","hi_ecou_xyp_ue",100, -500., 500., 100, -500.,500);
-        dg_mip.addDataSet(h2, n); n++;
+        dg_mip.addDataSet(h2, 1);  
         h2 = new H2F("hi_ecou_xyp_uw","hi_ecou_xyp_uw",100, -500., 500., 100, -500.,500);
-        dg_mip.addDataSet(h2, n); n++;
+        dg_mip.addDataSet(h2, 1);  
         h2 = new H2F("hi_ecou_xyp_ve","hi_ecou_xyp_ve",100, -500., 500., 100, -500.,500);
-        dg_mip.addDataSet(h2, n); n++;
+        dg_mip.addDataSet(h2, 1);  
         h2 = new H2F("hi_ecou_xyp_vw","hi_ecou_xyp_vw",100, -500., 500., 100, -500.,500);
-        dg_mip.addDataSet(h2, n); n++;
+        dg_mip.addDataSet(h2, 1);  
         h2 = new H2F("hi_ecou_xyp_we","hi_ecou_xyp_we",100, -500., 500., 100, -500.,500);
-        dg_mip.addDataSet(h2, n); n++;
+        dg_mip.addDataSet(h2, 1);  
         h2 = new H2F("hi_ecou_xyp_ww","hi_ecou_xyp_ww",100, -500., 500., 100, -500.,500);
-        dg_mip.addDataSet(h2, n); n++;
+        dg_mip.addDataSet(h2, 1);  
         
         h2 = new H2F("hi_pcal_1","hi_pcal_1",60, 0., 100., 60, 0., 3.);
-        dg_mip.addDataSet(h2, n); n++;
+        dg_mip.addDataSet(h2, 1);  
         h2 = new H2F("hi_ecali_1","hi_ecali_1",60, 0., 100., 60, 0., 3.);
-        dg_mip.addDataSet(h2, n); n++;
+        dg_mip.addDataSet(h2, 1);  
         h2 = new H2F("hi_ecalo_1","hi_ecalo_1",60, 0., 100., 60, 0., 3.);
-        dg_mip.addDataSet(h2, n); n++;
+        dg_mip.addDataSet(h2, 1);  
         h2 = new H2F("hi_etot_1","hi_etot_1",50, 0., 5., 70, 0.05, 0.45);
-        dg_mip.addDataSet(h2, n); n++;
+        dg_mip.addDataSet(h2, 1); 
         
         this.getDataGroup().clear();
-        this.getDataGroup().add(dg_mip,4);        
+        this.getDataGroup().add(dg_mip,4,0,0);        
     }   
     
     public void clearHistograms() {
@@ -473,77 +472,79 @@ public class ECGainsApp extends FCApplication implements ActionListener {
                 float v13mag = (float) v3.mag();
                 float v23mag = (float) v23.mag();
                     
+                DataGroup dg4 = this.getDataGroup().getItem(4,0,0);
+                
                 double ectot = e4c[is][0]+e7c[is][0] ; double etot = e1c[is][0]+ectot ;
-                this.getDataGroup().getItem(4).getH2F("hi_pcal_ectot_"+iis).fill(e1c[is][0],ectot);
-                this.getDataGroup().getItem(4).getH2F("hi_pcal_ectot_max_"+iis).fill(e1c[is][0],ectot);
+                dg4.getH2F("hi_pcal_ectot_"+iis).fill(e1c[is][0],ectot);
+                dg4.getH2F("hi_pcal_ectot_max_"+iis).fill(e1c[is][0],ectot);
                 
                 if (iis==2&&!pmap.isEmpty()) {                
                 for (float p: pmap) {
-                    this.getDataGroup().getItem(4).getH2F("hi_pcal_1").fill(e1c[is][0],p);
-                    this.getDataGroup().getItem(4).getH2F("hi_ecali_1").fill(e4c[is][0],p);
-                    this.getDataGroup().getItem(4).getH2F("hi_ecalo_1").fill(e7c[is][0],p);
-                    this.getDataGroup().getItem(4).getH2F("hi_etot_1").fill(p,etot*1e-3/p);  
+                    dg4.getH2F("hi_pcal_1").fill(e1c[is][0],p);
+                    dg4.getH2F("hi_ecali_1").fill(e4c[is][0],p);
+                    dg4.getH2F("hi_ecalo_1").fill(e7c[is][0],p);
+                    dg4.getH2F("hi_etot_1").fill(p,etot*1e-3/p);  
                 }
                 }
                 
-                this.getDataGroup().getItem(4).getH2F("hi_pcal_path1_"+iis).fill(e1c[is][0],v12mag);
-                this.getDataGroup().getItem(4).getH2F("hi_pcal_path2_"+iis).fill(e1c[is][0],v13mag);
-                this.getDataGroup().getItem(4).getH2F("hi_ecin_path1_"+iis).fill(e4c[is][0],v13mag);
-                this.getDataGroup().getItem(4).getH2F("hi_ecin_path2_"+iis).fill(e4c[is][0],v23mag);
-                this.getDataGroup().getItem(4).getH2F("hi_ecou_path1_"+iis).fill(e7c[is][0],v13mag);
-                this.getDataGroup().getItem(4).getH2F("hi_ecou_path2_"+iis).fill(e7c[is][0],v23mag);
+                dg4.getH2F("hi_pcal_path1_"+iis).fill(e1c[is][0],v12mag);
+                dg4.getH2F("hi_pcal_path2_"+iis).fill(e1c[is][0],v13mag);
+                dg4.getH2F("hi_ecin_path1_"+iis).fill(e4c[is][0],v13mag);
+                dg4.getH2F("hi_ecin_path2_"+iis).fill(e4c[is][0],v23mag);
+                dg4.getH2F("hi_ecou_path1_"+iis).fill(e7c[is][0],v13mag);
+                dg4.getH2F("hi_ecou_path2_"+iis).fill(e7c[is][0],v23mag);
                 
                 if(v12mag<34) {
                 for(int n=0; n<n1[is]; n++) {
-                this.getDataGroup().getItem(4).getH2F("hi_pcal_uc_"+iis).fill(e1c[is][n],cU[is][0][n]);
-                this.getDataGroup().getItem(4).getH2F("hi_pcal_vc_"+iis).fill(e1c[is][n],cV[is][0][n]);
-                this.getDataGroup().getItem(4).getH2F("hi_pcal_wc_"+iis).fill(e1c[is][n],cW[is][0][n]);
-                this.getDataGroup().getItem(4).getH2F("hi_pcal_up_"+iis).fill(e1p[is][0][n],cU[is][0][n]);
-                this.getDataGroup().getItem(4).getH2F("hi_pcal_vp_"+iis).fill(e1p[is][1][n],cV[is][0][n]);
-                this.getDataGroup().getItem(4).getH2F("hi_pcal_wp_"+iis).fill(e1p[is][2][n],cW[is][0][n]);
-                this.getDataGroup().getItem(4).getH2F("hi_pcal_xyc_e").fill(-rl.getItem(iis,0).x(),rl.getItem(iis,0).y(),mipc[0]);
-                this.getDataGroup().getItem(4).getH2F("hi_pcal_xyc_w").fill(-rl.getItem(iis,0).x(),rl.getItem(iis,0).y(),e1c[is][n]);
-                this.getDataGroup().getItem(4).getH2F("hi_pcal_xyp_ue").fill(-rl.getItem(iis,0).x(),rl.getItem(iis,0).y(),mipp[0]);
-                this.getDataGroup().getItem(4).getH2F("hi_pcal_xyp_uw").fill(-rl.getItem(iis,0).x(),rl.getItem(iis,0).y(),e1p[is][0][n]);
-                this.getDataGroup().getItem(4).getH2F("hi_pcal_xyp_ve").fill(-rl.getItem(iis,0).x(),rl.getItem(iis,0).y(),mipp[0]);
-                this.getDataGroup().getItem(4).getH2F("hi_pcal_xyp_vw").fill(-rl.getItem(iis,0).x(),rl.getItem(iis,0).y(),e1p[is][1][n]);
-                this.getDataGroup().getItem(4).getH2F("hi_pcal_xyp_we").fill(-rl.getItem(iis,0).x(),rl.getItem(iis,0).y(),mipp[0]);
-                this.getDataGroup().getItem(4).getH2F("hi_pcal_xyp_ww").fill(-rl.getItem(iis,0).x(),rl.getItem(iis,0).y(),e1p[is][2][n]);
+                		dg4.getH2F("hi_pcal_uc_"+iis).fill(e1c[is][n],cU[is][0][n]);
+                		dg4.getH2F("hi_pcal_vc_"+iis).fill(e1c[is][n],cV[is][0][n]);
+                		dg4.getH2F("hi_pcal_wc_"+iis).fill(e1c[is][n],cW[is][0][n]);
+                		dg4.getH2F("hi_pcal_up_"+iis).fill(e1p[is][0][n],cU[is][0][n]);
+                		dg4.getH2F("hi_pcal_vp_"+iis).fill(e1p[is][1][n],cV[is][0][n]);
+                		dg4.getH2F("hi_pcal_wp_"+iis).fill(e1p[is][2][n],cW[is][0][n]);
+                		dg4.getH2F("hi_pcal_xyc_e").fill(-rl.getItem(iis,0).x(),rl.getItem(iis,0).y(),mipc[0]);
+                		dg4.getH2F("hi_pcal_xyc_w").fill(-rl.getItem(iis,0).x(),rl.getItem(iis,0).y(),e1c[is][n]);
+                		dg4.getH2F("hi_pcal_xyp_ue").fill(-rl.getItem(iis,0).x(),rl.getItem(iis,0).y(),mipp[0]);
+                		dg4.getH2F("hi_pcal_xyp_uw").fill(-rl.getItem(iis,0).x(),rl.getItem(iis,0).y(),e1p[is][0][n]);
+                		dg4.getH2F("hi_pcal_xyp_ve").fill(-rl.getItem(iis,0).x(),rl.getItem(iis,0).y(),mipp[0]);
+                		dg4.getH2F("hi_pcal_xyp_vw").fill(-rl.getItem(iis,0).x(),rl.getItem(iis,0).y(),e1p[is][1][n]);
+                		dg4.getH2F("hi_pcal_xyp_we").fill(-rl.getItem(iis,0).x(),rl.getItem(iis,0).y(),mipp[0]);
+                		dg4.getH2F("hi_pcal_xyp_ww").fill(-rl.getItem(iis,0).x(),rl.getItem(iis,0).y(),e1p[is][2][n]);
                 }
                 }
                 
                 if(v23mag<20) {
                 for(int n=0; n<n4[is]; n++) {
-                this.getDataGroup().getItem(4).getH2F("hi_ecin_uc_"+iis).fill(e4c[is][n],cU[is][1][n]);
-                this.getDataGroup().getItem(4).getH2F("hi_ecin_vc_"+iis).fill(e4c[is][n],cV[is][1][n]);
-                this.getDataGroup().getItem(4).getH2F("hi_ecin_wc_"+iis).fill(e4c[is][n],cW[is][1][n]);
-                this.getDataGroup().getItem(4).getH2F("hi_ecin_up_"+iis).fill(e4p[is][0][n],cU[is][1][n]);
-                this.getDataGroup().getItem(4).getH2F("hi_ecin_vp_"+iis).fill(e4p[is][1][n],cV[is][1][n]);
-                this.getDataGroup().getItem(4).getH2F("hi_ecin_wp_"+iis).fill(e4p[is][2][n],cW[is][1][n]);
-                this.getDataGroup().getItem(4).getH2F("hi_ecin_xyc_e").fill(-rl.getItem(iis,1).x(),rl.getItem(iis,1).y(),mipc[1]);
-                this.getDataGroup().getItem(4).getH2F("hi_ecin_xyc_w").fill(-rl.getItem(iis,1).x(),rl.getItem(iis,1).y(),e4c[is][n]);
-                this.getDataGroup().getItem(4).getH2F("hi_ecin_xyp_ue").fill(-rl.getItem(iis,1).x(),rl.getItem(iis,1).y(),mipp[1]);
-                this.getDataGroup().getItem(4).getH2F("hi_ecin_xyp_uw").fill(-rl.getItem(iis,1).x(),rl.getItem(iis,1).y(),e4p[is][0][n]);
-                this.getDataGroup().getItem(4).getH2F("hi_ecin_xyp_ve").fill(-rl.getItem(iis,1).x(),rl.getItem(iis,1).y(),mipp[1]);
-                this.getDataGroup().getItem(4).getH2F("hi_ecin_xyp_vw").fill(-rl.getItem(iis,1).x(),rl.getItem(iis,1).y(),e4p[is][1][n]);
-                this.getDataGroup().getItem(4).getH2F("hi_ecin_xyp_we").fill(-rl.getItem(iis,1).x(),rl.getItem(iis,1).y(),mipp[1]);
-                this.getDataGroup().getItem(4).getH2F("hi_ecin_xyp_ww").fill(-rl.getItem(iis,1).x(),rl.getItem(iis,1).y(),e4p[is][2][n]);
+                		dg4.getH2F("hi_ecin_uc_"+iis).fill(e4c[is][n],cU[is][1][n]);
+                		dg4.getH2F("hi_ecin_vc_"+iis).fill(e4c[is][n],cV[is][1][n]);
+                		dg4.getH2F("hi_ecin_wc_"+iis).fill(e4c[is][n],cW[is][1][n]);
+                		dg4.getH2F("hi_ecin_up_"+iis).fill(e4p[is][0][n],cU[is][1][n]);
+                		dg4.getH2F("hi_ecin_vp_"+iis).fill(e4p[is][1][n],cV[is][1][n]);
+                		dg4.getH2F("hi_ecin_wp_"+iis).fill(e4p[is][2][n],cW[is][1][n]);
+                		dg4.getH2F("hi_ecin_xyc_e").fill(-rl.getItem(iis,1).x(),rl.getItem(iis,1).y(),mipc[1]);
+                		dg4.getH2F("hi_ecin_xyc_w").fill(-rl.getItem(iis,1).x(),rl.getItem(iis,1).y(),e4c[is][n]);
+                		dg4.getH2F("hi_ecin_xyp_ue").fill(-rl.getItem(iis,1).x(),rl.getItem(iis,1).y(),mipp[1]);
+                		dg4.getH2F("hi_ecin_xyp_uw").fill(-rl.getItem(iis,1).x(),rl.getItem(iis,1).y(),e4p[is][0][n]);
+                		dg4.getH2F("hi_ecin_xyp_ve").fill(-rl.getItem(iis,1).x(),rl.getItem(iis,1).y(),mipp[1]);
+                		dg4.getH2F("hi_ecin_xyp_vw").fill(-rl.getItem(iis,1).x(),rl.getItem(iis,1).y(),e4p[is][1][n]);
+                		dg4.getH2F("hi_ecin_xyp_we").fill(-rl.getItem(iis,1).x(),rl.getItem(iis,1).y(),mipp[1]);
+                		dg4.getH2F("hi_ecin_xyp_ww").fill(-rl.getItem(iis,1).x(),rl.getItem(iis,1).y(),e4p[is][2][n]);
                 }
                 for(int n=0; n<n7[is]; n++) {
-                this.getDataGroup().getItem(4).getH2F("hi_ecou_uc_"+iis).fill(e7c[is][n],cU[is][2][n]);
-                this.getDataGroup().getItem(4).getH2F("hi_ecou_vc_"+iis).fill(e7c[is][n],cV[is][2][n]);
-                this.getDataGroup().getItem(4).getH2F("hi_ecou_wc_"+iis).fill(e7c[is][n],cW[is][2][n]);
-                this.getDataGroup().getItem(4).getH2F("hi_ecou_up_"+iis).fill(e7p[is][0][n],cU[is][2][n]);
-                this.getDataGroup().getItem(4).getH2F("hi_ecou_vp_"+iis).fill(e7p[is][1][n],cV[is][2][n]);
-                this.getDataGroup().getItem(4).getH2F("hi_ecou_wp_"+iis).fill(e7p[is][2][n],cW[is][2][n]);
-                this.getDataGroup().getItem(4).getH2F("hi_ecou_xyc_e").fill(-rl.getItem(iis,2).x(),rl.getItem(iis,2).y(),mipc[2]);
-                this.getDataGroup().getItem(4).getH2F("hi_ecou_xyc_w").fill(-rl.getItem(iis,2).x(),rl.getItem(iis,2).y(),e7c[is][n]);
-                this.getDataGroup().getItem(4).getH2F("hi_ecou_xyp_ue").fill(-rl.getItem(iis,2).x(),rl.getItem(iis,2).y(),mipp[2]);
-                this.getDataGroup().getItem(4).getH2F("hi_ecou_xyp_uw").fill(-rl.getItem(iis,2).x(),rl.getItem(iis,2).y(),e7p[is][0][n]);
-                this.getDataGroup().getItem(4).getH2F("hi_ecou_xyp_ve").fill(-rl.getItem(iis,2).x(),rl.getItem(iis,2).y(),mipp[2]);
-                this.getDataGroup().getItem(4).getH2F("hi_ecou_xyp_vw").fill(-rl.getItem(iis,2).x(),rl.getItem(iis,2).y(),e7p[is][1][n]);
-                this.getDataGroup().getItem(4).getH2F("hi_ecou_xyp_we").fill(-rl.getItem(iis,2).x(),rl.getItem(iis,2).y(),mipp[2]);
-                this.getDataGroup().getItem(4).getH2F("hi_ecou_xyp_ww").fill(-rl.getItem(iis,2).x(),rl.getItem(iis,2).y(),e7p[is][2][n]);
+                		dg4.getH2F("hi_ecou_uc_"+iis).fill(e7c[is][n],cU[is][2][n]);
+                		dg4.getH2F("hi_ecou_vc_"+iis).fill(e7c[is][n],cV[is][2][n]);
+                		dg4.getH2F("hi_ecou_wc_"+iis).fill(e7c[is][n],cW[is][2][n]);
+                		dg4.getH2F("hi_ecou_up_"+iis).fill(e7p[is][0][n],cU[is][2][n]);
+                		dg4.getH2F("hi_ecou_vp_"+iis).fill(e7p[is][1][n],cV[is][2][n]);
+                		dg4.getH2F("hi_ecou_wp_"+iis).fill(e7p[is][2][n],cW[is][2][n]);
+                		dg4.getH2F("hi_ecou_xyc_e").fill(-rl.getItem(iis,2).x(),rl.getItem(iis,2).y(),mipc[2]);
+                		dg4.getH2F("hi_ecou_xyc_w").fill(-rl.getItem(iis,2).x(),rl.getItem(iis,2).y(),e7c[is][n]);
+                		dg4.getH2F("hi_ecou_xyp_ue").fill(-rl.getItem(iis,2).x(),rl.getItem(iis,2).y(),mipp[2]);
+                		dg4.getH2F("hi_ecou_xyp_uw").fill(-rl.getItem(iis,2).x(),rl.getItem(iis,2).y(),e7p[is][0][n]);
+                		dg4.getH2F("hi_ecou_xyp_ve").fill(-rl.getItem(iis,2).x(),rl.getItem(iis,2).y(),mipp[2]);
+                		dg4.getH2F("hi_ecou_xyp_vw").fill(-rl.getItem(iis,2).x(),rl.getItem(iis,2).y(),e7p[is][1][n]);
+                		dg4.getH2F("hi_ecou_xyp_we").fill(-rl.getItem(iis,2).x(),rl.getItem(iis,2).y(),mipp[2]);
+                		dg4.getH2F("hi_ecou_xyp_ww").fill(-rl.getItem(iis,2).x(),rl.getItem(iis,2).y(),e7p[is][2][n]);
                 }
                 }
                 }
@@ -647,6 +648,8 @@ public class ECGainsApp extends FCApplication implements ActionListener {
     
     private void updateMIP(EmbeddedCanvasTabbed c) {
         
+        DataGroup dg4 = this.getDataGroup().getItem(4,0,0);
+        
         EmbeddedCanvas cp = c.getCanvas(c.getName());
         EmbeddedCanvas cf = c.getCanvas("Fits");
         String d = c.getName().substring(0,1).toLowerCase();
@@ -664,7 +667,7 @@ public class ECGainsApp extends FCApplication implements ActionListener {
         
         for (int i=0; i<3; i++) {
             cp.cd(i); cp.getPad(i).getAxisZ().setLog(true);
-            cp.draw(this.getDataGroup().getItem(4).getH2F("hi_"+id+"_"+lay[i]+d+"_"+is));
+            cp.draw(dg4.getH2F("hi_"+id+"_"+lay[i]+d+"_"+is));
             cp.cd(i+3); cp.getPad(i+3).getAxisY().setLog(false); 
             cp.draw(MipFits.getItem(iis,activeDetector,i,0).getGraph());
         }
@@ -689,6 +692,8 @@ public class ECGainsApp extends FCApplication implements ActionListener {
     
     public void analyzeGraphs(int is1, int is2, int id1, int id2, int il1, int il2, String ro) {
         
+        DataGroup dg4 = this.getDataGroup().getItem(4,0,0);
+
         H2F h2=null;
         FitData fd = null;
         int off=0;
@@ -700,7 +705,7 @@ public class ECGainsApp extends FCApplication implements ActionListener {
                 if(ro.equals("p")) {min = fitLimp[id]; max = fitLimp[id+3]; off=2; mip=mipp[id];}  
                 int iis = is+10*off;
                 for (int il=0; il<3; il++) {
-                    h2 = this.getDataGroup().getItem(4).getH2F("hi_"+det[id]+"_"+lay[il]+ro+"_"+is);
+                    h2 =dg4.getH2F("hi_"+det[id]+"_"+lay[il]+ro+"_"+is);
                     fd = new FitData(h2.projectionX().getGraph(),min,max); fd.setInt((int)h2.projectionX().getIntegral()); 
                     fd.graph.getAttributes().setTitleX(h2.getTitleX()); 
                     fd.initFit(min,max); fd.fitGraph("Q"); MipFits.add(fd,iis,id,il,0);                    
@@ -710,7 +715,7 @@ public class ECGainsApp extends FCApplication implements ActionListener {
                     int np = npmt[id*3+il];
                     double[]  x = new double[np]; double[]  ymean = new double[np]; double[] yrms = new double[np];
                     double[] xe = new double[np]; double[] ymeane = new double[np]; double[]   ye = new double[np]; 
-                    h2 = this.getDataGroup().getItem(4).getH2F("hi_"+det[id]+"_"+lay[il]+ro+"_"+is);
+                    h2 =dg4.getH2F("hi_"+det[id]+"_"+lay[il]+ro+"_"+is);
                     for (int i=0; i<np; i++) {                     
                         System.out.println("sector "+is+" det "+id+" lay "+il+" pmt "+i);
                         fd = new FitData(h2.sliceY(i).getGraph(),min,max); fd.setInt((int)h2.sliceY(i).getIntegral()); 
@@ -734,6 +739,7 @@ public class ECGainsApp extends FCApplication implements ActionListener {
     
     public void plotMIPSummary(EmbeddedCanvasTabbed ct) {
         
+        DataGroup dg4 = this.getDataGroup().getItem(4,0,0);
         EmbeddedCanvas c = ct.getCanvas("Mean/Mip"); c.divide(3, 6);
         String        ro = ct.getName().substring(0,1).toLowerCase();
         int          off = (ro.equals("c")) ? 0:2;        
@@ -776,12 +782,12 @@ public class ECGainsApp extends FCApplication implements ActionListener {
         c = ct.getCanvas("Maps"); c.cd(0) ; 
         c.getPad(0).getAxisZ().setLog(false); c.getPad(0).getAxisZ().setRange(0., 2.);  
         if(off==0) {       
-            H2F h1 = this.getDataGroup().getItem(4).getH2F("hi_"+det[id].toLowerCase()+"_"+"xyc_e");
-            H2F h2 = this.getDataGroup().getItem(4).getH2F("hi_"+det[id].toLowerCase()+"_"+"xyc_w");
+            H2F h1 =dg4.getH2F("hi_"+det[id].toLowerCase()+"_"+"xyc_e");
+            H2F h2 =dg4.getH2F("hi_"+det[id].toLowerCase()+"_"+"xyc_w");
             H2F h3 = h2.divide(h2, h1); c.draw(h3);
         } else {
-            H2F h1 = this.getDataGroup().getItem(4).getH2F("hi_"+det[id].toLowerCase()+"_"+"xyp_"+lay[iil]+"e");
-            H2F h2 = this.getDataGroup().getItem(4).getH2F("hi_"+det[id].toLowerCase()+"_"+"xyp_"+lay[iil]+"w");            
+            H2F h1 =dg4.getH2F("hi_"+det[id].toLowerCase()+"_"+"xyp_"+lay[iil]+"e");
+            H2F h2 =dg4.getH2F("hi_"+det[id].toLowerCase()+"_"+"xyp_"+lay[iil]+"w");            
             H2F h3 = h2.divide(h2, h1); c.draw(h3);
         }
         
@@ -791,18 +797,19 @@ public class ECGainsApp extends FCApplication implements ActionListener {
     
     private void updateSummary() {
         
+        DataGroup dg4 = this.getDataGroup().getItem(4,0,0);
         H2F h2;
         EmbeddedCanvas c = null;
         String id = det[activeDetector];        
         c = this.summary.getCanvas("PCAL/ECTOT");
         c.divide(3,4);
         for (int is=1; is<7; is++) {
-            h2 = this.getDataGroup().getItem(4).getH2F("hi_"+id+"_path1_"+is);   
+            h2 =dg4.getH2F("hi_"+id+"_path1_"+is);   
             c.cd(is-1); c.getPad(is-1).getAxisZ().setLog(true);       
             c.draw(h2);   
         }
         for (int is=1; is<7; is++) {
-            h2 = this.getDataGroup().getItem(4).getH2F("hi_"+id+"_path2_"+is);   
+            h2 =dg4.getH2F("hi_"+id+"_path2_"+is);   
             c.cd(is-1+6); c.getPad(is-1+6).getAxisZ().setLog(true);       
             c.draw(h2);   
         }
@@ -812,17 +819,18 @@ public class ECGainsApp extends FCApplication implements ActionListener {
     
     private void updatePvsE() {
         
+        DataGroup dg4 = this.getDataGroup().getItem(4,0,0);
         H2F h2;
         EmbeddedCanvas c = null; 
         c = this.summary.getCanvas("PvsE");
         c.divide(2,2);
-        h2 = this.getDataGroup().getItem(4).getH2F("hi_pcal_1");   
+        h2 =dg4.getH2F("hi_pcal_1");   
         c.cd(0); c.getPad(0).getAxisZ().setLog(true); c.draw(h2);
-        h2 = this.getDataGroup().getItem(4).getH2F("hi_ecali_1");   
+        h2 =dg4.getH2F("hi_ecali_1");   
         c.cd(1); c.getPad(1).getAxisZ().setLog(true); c.draw(h2);
-        h2 = this.getDataGroup().getItem(4).getH2F("hi_ecalo_1");   
+        h2 =dg4.getH2F("hi_ecalo_1");   
         c.cd(2); c.getPad(2).getAxisZ().setLog(true); c.draw(h2);
-        h2 = this.getDataGroup().getItem(4).getH2F("hi_etot_1");   
+        h2 =dg4.getH2F("hi_etot_1");   
         c.cd(3); c.getPad(3).getAxisZ().setLog(true); c.draw(h2);
         
         c.repaint();

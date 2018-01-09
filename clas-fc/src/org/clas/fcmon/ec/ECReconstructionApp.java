@@ -1,9 +1,6 @@
  package org.clas.fcmon.ec;
 
-import static java.lang.System.out;
-
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.TreeMap;
 
@@ -11,33 +8,22 @@ import java.util.TreeMap;
 import org.clas.fcmon.tools.FADCFitter;
 import org.clas.fcmon.tools.FCApplication;
 import org.jlab.detector.base.DetectorCollection;
-import org.jlab.clas.physics.GenericKinematicFitter;
-import org.jlab.clas.physics.PhysicsEvent;
-import org.jlab.clas.detector.DetectorResponse;
+
 
 //groot
-//import org.jlab.groot.graphics.EmbeddedCanvas;
 import org.jlab.groot.data.H1F;
 import org.jlab.groot.data.H2F;
 import org.jlab.groot.math.StatNumber;
+
 //clas12rec
-import org.jlab.detector.decode.CodaEventDecoder;
 import org.jlab.detector.decode.DetectorDataDgtz;
-import org.jlab.detector.decode.DetectorEventDecoder;
 import org.jlab.detector.base.DetectorType;
-import org.jlab.geom.prim.Line3D;
-import org.jlab.geom.prim.Point3D;
-import org.jlab.io.evio.EvioDataEvent;
-import org.jlab.io.hipo.HipoDataEvent;
-import org.jlab.io.hipo.HipoDataSync;
-import org.jlab.service.eb.EventBuilder;
+
 import org.jlab.service.ec.ECPart;
 import org.jlab.utils.groups.IndexedList;
 import org.jlab.io.base.DataBank;
 import org.jlab.io.base.DataEvent;
-import org.jlab.io.evio.EvioDataBank;
-import org.clas.fcmon.detector.view.DetectorShape2D;
-//import org.clas.fcmon.jroot.*;
+
 
 public class ECReconstructionApp extends FCApplication {
     
@@ -52,8 +38,6 @@ public class ECReconstructionApp extends FCApplication {
    Boolean printit = false;
    Boolean stop = true;
    
-   CodaEventDecoder           codaDecoder = new CodaEventDecoder();
-   DetectorEventDecoder   detectorDecoder = new DetectorEventDecoder();
    List<DetectorDataDgtz>        dataList = new ArrayList<DetectorDataDgtz>();    
    IndexedList<List<Float>>          tdcs = new IndexedList<List<Float>>(3);
   
@@ -105,33 +89,12 @@ public class ECReconstructionApp extends FCApplication {
    }   
    
    public void getMode7(int cr, int sl, int ch) {    
-	      app.mode7Emulation.configMode7(cr,sl,ch);
-	      this.nsa    = app.mode7Emulation.nsa;
-	      this.nsb    = app.mode7Emulation.nsb;
-	      this.tet    = app.mode7Emulation.tet;
-	      this.pedref = app.mode7Emulation.pedref;  
+       app.mode7Emulation.configMode7(cr,sl,ch);
+       this.nsa    = app.mode7Emulation.nsa;
+       this.nsb    = app.mode7Emulation.nsb;
+       this.tet    = app.mode7Emulation.tet;
+       this.pedref = app.mode7Emulation.pedref;  
    }   
-   
-   
-   public void addEvent(DataEvent event) {
-       
-      if(app.getDataSource()=="ET") this.updateEvioData(event);
-      
-      if(app.getDataSource()=="EVIO") {
-          if(app.isMC==true)  this.updateSimulatedData(event);
-          if(app.isMC==false) this.updateEvioData(event); 
-      }
-      
-      if(app.getDataSource()=="XHIPO"||app.getDataSource()=="HIPO") this.updateHipoData(event);
-      
-      if (app.isSingleEvent()) {
-//         for (int idet=0; idet<ecPix.length; idet++) findPixels(idet);  // Process all pixels for SED
-          processSED();
-      } else {
-         for (int idet=0; idet<ecPix.length; idet++) processPixels(idet); // Process only single pixels 
- //         processCalib();  // Process only single pixels 
-      }
-   }
    
    public int getDet(int layer) {
        int[] il = {0,0,0,1,1,1,2,2,2}; // layer 1-3: PCAL 4-6: ECinner 7-9: ECouter  
@@ -147,33 +110,17 @@ public class ECReconstructionApp extends FCApplication {
 
        int       ilay =  0;
        int       idet = -1;
-       int       evno =  0;
-       int    trigger =  0;
        double     sca =  1;
        float      tps =  (float) 0.02345;
-       float     tdcf =  0;
        float     tdcd =  0;
        float   tdcmax =  0;
        float   offset =  0;
-       long     phase =  0;
-       long timestamp =  0;
-       
+              
        clear(0); clear(1); clear(2); tdcs.clear();
        
        if (app.isMC)  {tdcmax=2000000; offset=600;}
-       if (app.isMCB) {app.isMC=true; tdcmax=2000000; offset=600-(float) 124.25;}
        
        sca = (app.isCRT) ? 6.6:1; // For pre-installation PCAL CRT runs
-       
-       if(!app.isMC&&event.hasBank("RUN::config")){
-           DataBank bank = event.getBank("RUN::config");
-           timestamp = bank.getLong("timestamp",0);
-           trigger   = bank.getInt("trigger",0);
-           evno      = bank.getInt("event",0);         
-           int phase_offset = 1;
-           phase = ((timestamp%6)+phase_offset)%6;
-           app.bitsec = (int) (Math.log10(trigger>>24)/0.301+1);
-       }
        
        if(event.hasBank("ECAL::tdc")==true){
            DataBank  bank = event.getBank("ECAL::tdc");
@@ -182,11 +129,11 @@ public class ECReconstructionApp extends FCApplication {
                int  is = bank.getByte("sector",i);
                int  il = bank.getByte("layer",i);
                int  ip = bank.getShort("component",i);               
-               tdcd = bank.getInt("TDC",i)*tps;
-               if(tdcd>0) {
+               tdcd    = bank.getInt("TDC",i)*tps;
+               if(isGoodSector(is)&&tdcd>0) {
                    if(app.isMC&&tdcd<tdcmax) tdcmax=tdcd; //Find and save longest hit time for MC events            
                    if(!tdcs.hasItem(is,il,ip)) tdcs.add(new ArrayList<Float>(),is,il,ip);
-                   tdcs.getItem(is,il,ip).add(tdcd);       
+                       tdcs.getItem(is,il,ip).add(tdcd);       
                }
            }
        }
@@ -196,6 +143,7 @@ public class ECReconstructionApp extends FCApplication {
            int rows = bank.rows();
            for(int i = 0; i < rows; i++){
                int  is = bank.getByte("sector",i);
+               if (isGoodSector(is)) {
                int  il = bank.getByte("layer",i);
                int  ip = bank.getShort("component",i);
                int adc = Math.abs(bank.getInt("ADC",i));
@@ -208,7 +156,7 @@ public class ECReconstructionApp extends FCApplication {
                    List<Float> list = new ArrayList<Float>();
                    list = tdcs.getItem(is,il,ip); tdcc=new Float[list.size()]; list.toArray(tdcc);
                    tdc  = new float[list.size()];
-                   for (int ii=0; ii<tdcc.length; ii++) tdc[ii] = tdcc[ii]-tdcmax+offset-phase*4;  
+                   for (int ii=0; ii<tdcc.length; ii++) tdc[ii] = tdcc[ii]-tdcmax+offset-app.phaseCorrection*4;  
                } else {
                    tdc = new float[1];
                }
@@ -220,7 +168,7 @@ public class ECReconstructionApp extends FCApplication {
                if(app.isMC&&app.variation=="clas6") sca = 1;
                float sadc = (float) (adc / sca);
                
-               /*
+               
                for (int ii=0 ; ii< 100 ; ii++) {
                    double wgt1=0; double wgt2=0;
                    if (ii==(int)(t/4)) {wgt1=sadc; wgt2=1.0;}                  
@@ -230,10 +178,10 @@ public class ECReconstructionApp extends FCApplication {
                        ecPix[idet].strips.hmap2.get("H2_Mode1_Sevd").get(is,ilay,0).fill(ii,ip,wgt1);
                    }
                }   
-               */
+               
                if(il==6&&idet==1) {
-                  ecPix[idet].strips.hmap2.get("H2_t_Hist").get(is,3,3).fill((double) tdc[0]+phase*4,(double) phase);
-                  ecPix[idet].strips.hmap2.get("H2_t_Hist").get(is,3,4).fill(tdc[0],phase);
+                  ecPix[idet].strips.hmap2.get("H2_t_Hist").get(is,3,3).fill((double) tdc[0]+app.phaseCorrection*4,(double) app.phase);
+                  ecPix[idet].strips.hmap2.get("H2_t_Hist").get(is,3,4).fill(tdc[0],app.phase);
                }
                
                if (app.rtt.hasItem(is,il,ip,0)) {
@@ -242,29 +190,24 @@ public class ECReconstructionApp extends FCApplication {
                }
                
                if (ped>0) ecPix[idet].strips.hmap2.get("H2_Peds_Hist").get(is,ilay,0).fill(this.pedref-ped, ip);
+                            
+               fill(idet, is, ilay, ip, sadc, tdc, t, sadc);  
+               fillSED(idet, is, ilay, ip, (int) sadc, tdc);
                
-               
-               if(isGoodSector(is)) {
-                      fill(idet, is, ilay, ip, sadc, tdc, t, sadc);  
-                   fillSED(idet, is, ilay, ip, (int) sadc, tdc);
-               }
+               } //isGoodSector ?
            }
        }
    }
    
    public void updateEvioData(DataEvent event) {
        
+       float      tps =  (float) 0.02345;
+       float     tdcd = 0;
+       
        clear(0); clear(1); clear(2); tdcs.clear();
        DetectorDataDgtz ddd;
               
        app.decoder.initEvent(event);
-       
-       app.bitsec = app.decoder.getBitsec();
-       long phase = app.decoder.getPhase();
-       app.localRun = app.decoder.getRun();
-       
-//       System.out.println(app.decoder.getFCTrigger()+" "+app.decoder.getCDTrigger());
-//       System.out.println(" ");
        
        List<DetectorDataDgtz> adcDGTZ = app.decoder.getEntriesADC(DetectorType.ECAL);
        List<DetectorDataDgtz> tdcDGTZ = app.decoder.getEntriesTDC(DetectorType.ECAL);
@@ -274,8 +217,11 @@ public class ECReconstructionApp extends FCApplication {
            int is = ddd.getDescriptor().getSector();
            int il = ddd.getDescriptor().getLayer();
            int ip = ddd.getDescriptor().getComponent();
-           if(!tdcs.hasItem(is,il,ip)) tdcs.add(new ArrayList<Float>(),is,il,ip);
-               tdcs.getItem(is,il,ip).add((float) ddd.getTDCData(0).getTime()*24/1000);              
+           tdcd = ddd.getTDCData(0).getTime()*tps;
+           if (isGoodSector(is)&&tdcd>0) {
+               if(!tdcs.hasItem(is,il,ip)) tdcs.add(new ArrayList<Float>(),is,il,ip);
+                   tdcs.getItem(is,il,ip).add(tdcd);  
+           }
        }
        
        for (int i=0; i < adcDGTZ.size(); i++) {
@@ -300,18 +246,17 @@ public class ECReconstructionApp extends FCApplication {
                List<Float> list = new ArrayList<Float>();
                list = tdcs.getItem(is,il,ip); tdcc=new Float[list.size()]; list.toArray(tdcc);
                tdc  = new float[list.size()];
-               for (int ii=0; ii<tdcc.length; ii++) tdc[ii] = tdcc[ii]-phase*4;  
+               for (int ii=0; ii<tdcc.length; ii++) tdc[ii] = tdcc[ii]-app.phaseCorrection*4;  
            } else {
                tdc = new float[1];
            }
            
            int idet = getDet(il); 
            int ilay = getLay(il);
-           
-           
+                      
            if(il==6&&idet==1) {
-               ecPix[idet].strips.hmap2.get("H2_t_Hist").get(is,3,3).fill((double) tdc[0]+phase*4,(double) phase);
-               ecPix[idet].strips.hmap2.get("H2_t_Hist").get(is,3,4).fill(tdc[0],phase);
+               ecPix[idet].strips.hmap2.get("H2_t_Hist").get(is,3,3).fill((double) tdc[0]+app.phaseCorrection*4,(double) app.phase);
+               ecPix[idet].strips.hmap2.get("H2_t_Hist").get(is,3,4).fill(tdc[0],app.phase);
             }
            
            getMode7(cr,sl,ch);            
@@ -330,13 +275,14 @@ public class ECReconstructionApp extends FCApplication {
            
            float sca = (float) ((is==5)?ecc.SCALE5[il-1]:ecc.SCALE[il-1]);
            float sadc = ad / sca;
+           
            fill(idet, is, ilay, ip, sadc, tdc, tf, ph);                     
            fillSED(idet, is, ilay, ip, (int) sadc, tdc);
            
-           }    // Good sector        
+           }    // isGoodSector?     
        }
        
-       if (app.decoder.isHipoFileOpen) writeHipoOutput();
+       if (app.isHipoFileOpen) writeHipoOutput();
        
    }
    
@@ -423,7 +369,7 @@ public class ECReconstructionApp extends FCApplication {
        DataEvent  decodedEvent = app.decoder.getDataEvent();
        DataBank   header = app.decoder.createHeaderBank(decodedEvent,0,0,0,0);
        decodedEvent.appendBanks(header);
-       app.decoder.writer.writeEvent(decodedEvent);
+       app.writer.writeEvent(decodedEvent);
               
    }
    
