@@ -56,17 +56,15 @@ public class FCTrigger {
 	public class FitData {
 		
 		Iterator<Integer> it;	
-		int data;
+		public int data;
 		
 		public FitData(Iterator<Integer> it) {
 			this.it = it;
 			data = it.next();
-//			System.out.printf("0x%02X%n",data); 
 		}
 		
 		public int range(int bit1, int bit2) {
 		    int b12 = bit1-bit2+1; int mask=(int)(Math.pow(2,b12)-1);
-//		    System.out.println("range "+bit1+" "+bit2+" "+mask+" ");
 		    return (data>>bit2)&mask;
 		}
 		
@@ -86,8 +84,6 @@ public class FCTrigger {
 		fECVTP_tag = a_adcECvtp_tag;
 		fSector = EC_vtp_sector.getItem(fECVTP_tag);
 		fDet    = EC_vtp_detector.getItem(fECVTP_tag);
-		
-//		System.out.println("Sector "+fSector+" Det "+fDet);
 		
 		while (it.hasNext()) {
 			fit_data = new FitData(it);
@@ -151,9 +147,7 @@ public class FCTrigger {
 	public int GetBlockNUmber()      {return has_BlockHeader ? fblock_number: UNDEF; }
 	public int GetBlockLevel()       {return has_BlockHeader ? fblock_level: UNDEF; }
 	public int GetNAllPeaks()        {return fnAllPeaks;}
-	public int GetNPeaks()           {return 0;}              // Instance (0=in, 1 = out), view (0=U,1=V,2=W)
 	public int GetNAllClust()        {return fnAllClusters;}
-	public int GetNClust()           {return 0;}
 	public int GetNHTCCMasks()       {return fnHTCC_Masks;}   // Return number of THTCC_Hits objects
 	public int GetNFTOFMasks()       {return fnFTOF_Masks;}   // Return number of THTCC_Hits objects
 	
@@ -175,15 +169,15 @@ public class FCTrigger {
 	int fECVTP_tag;
 	int fDet;       // The detector, 0 = global trigger, 1 = EC, 2 = PCal
 	int fSector;    // sector
-	int fslotid;    // slotid
+	int fslotid;    
 	int fnwords;
 	int fev_number;
 	int fblock_number;
 	int fblock_level;	
 	
-	// TEC_Peak 1: 0=EC_in, 1=EC_out 2: 0=U, 1=V, 2=W
-	IndexedList<List<TEC_Peak>>      fv_ECAllPeaks    = new IndexedList<List<TEC_Peak>>(2); 
-	IndexedList<List<TEC_Cluster>>   fv_ECAllClusters = new IndexedList<List<TEC_Cluster>>(1); 
+	// TEC_Peak 1: 0=PCAL, 1=ECAL 2: 0=U, 1=V, 2=W
+	public IndexedList<List<TEC_Peak>>      fv_ECAllPeaks    = new IndexedList<List<TEC_Peak>>(2); 
+	public IndexedList<List<TEC_Cluster>>   fv_ECAllClusters = new IndexedList<List<TEC_Cluster>>(1); 
 	
 	List<THTCC_mask> fv_HTCCMasks = new ArrayList<THTCC_mask>();
 	List<TFTOF_mask> fv_FTOFMasks = new ArrayList<TFTOF_mask>();
@@ -193,7 +187,8 @@ public class FCTrigger {
    	int[][] fnPeaks = new int[n_inst][n_view];
    	int fnAllClusters;
    	int[] fnClusters = new int[n_inst];
-   	int fnTrigWords;      // Number of triggers in the current event readout 
+   	
+   	int fnTrigWords;  
    	
     int fnHTCC_Masks;
     int fnFTOF_Masks;
@@ -218,7 +213,6 @@ public class FCTrigger {
     void ReadEventHeader() {
     	    has_EventHeader = true;
     	    fev_number = fit_data.range(26, 0);
-//    	    System.out.println("fev_number "+fev_number);
     }
     
     void ReadTriggerTime() {
@@ -235,15 +229,15 @@ public class FCTrigger {
     void ReadECTriggerPeak() {
     	
         has_TrigPeak = true;
+        
         cur_peak = new TEC_Peak();        
         cur_peak.inst = fit_data.range(26, 26);
         cur_peak.view = fit_data.range(25, 24);
         cur_peak.time = fit_data.range(23, 16);
-//        System.out.println("cur_peak.inst,view,time "+cur_peak.inst+" "+cur_peak.view+" "+cur_peak.time);
         fit_data.next(); 
         cur_peak.coord = fit_data.range(25, 16);
         cur_peak.energy = fit_data.range(15, 0);
-//        System.out.println("cur_peak.coord,energy "+cur_peak.coord+" "+cur_peak.energy);
+
         if(!fv_ECAllPeaks.hasItem(cur_peak.inst,cur_peak.view)) {
         	    fv_ECAllPeaks.add(new ArrayList<TEC_Peak>(),cur_peak.inst,cur_peak.view);
         }
@@ -253,6 +247,7 @@ public class FCTrigger {
     void ReadECTriggerCluster() {
     	
         has_TrigClust = true;
+        
         cur_clust = new TEC_Cluster();
         cur_clust.inst = fit_data.range(26, 26);
 
@@ -262,9 +257,7 @@ public class FCTrigger {
 
         cur_clust.time   = fit_data.range(23, 16);
         cur_clust.energy = fit_data.range(15, 0);
-//        System.out.println("cur_clust.inst,time,energy "+cur_clust.inst+" "+cur_clust.time+" "+cur_clust.energy);
-
-        // Go to the next word
+        
         fit_data.next();
 
         // This should be data continuation word,
@@ -345,26 +338,25 @@ public class FCTrigger {
         fnTrigWords = fnTrigWords + 1;
     }    
     
-    public TEC_Peak GetECPeak(int ainst, int aview, int aind) {
-    	
-        if (fv_ECAllPeaks.hasItem(ainst,aview)) return fv_ECAllPeaks.getItem(ainst,aview).get(aind);
-        return null;
-    }  
-    
     public Trig_word getTrigWord(int aind) {    	
     	    if (aind < fnTrigWords) return fv_TrigWords.get(aind);
     	    return null;
     }
-    
+     
     public int GetNPeaks(int ainst, int aview) {
         if (ainst >= 0 && ainst < n_inst && aview >= 0 && aview < n_view) {
             return fnPeaks[ainst][aview];
-        }else {
+        } else {
         	    System.out.println("GetNPeaks: Request for out of range element");
         	    return -1;
         }
     }
     
+    public TEC_Peak GetECPeak(int ainst, int aview, int aind) {    	
+        if (fv_ECAllPeaks.hasItem(ainst,aview)) return fv_ECAllPeaks.getItem(ainst,aview).get(aind);
+        return null;
+    }  
+
     public int GetNClust(int ainst) {
         if (ainst >= 0 && ainst < n_inst) {
             return fnClusters[ainst];
@@ -389,6 +381,7 @@ public class FCTrigger {
     	    	    System.out.println("Cluster V = "+fv_ECAllClusters.getItem(ainst).get(aind).Vstrip);
     	    	    System.out.println("Cluster W = "+fv_ECAllClusters.getItem(ainst).get(aind).Wstrip);
     	    	    System.out.println("Cluster E = "+fv_ECAllClusters.getItem(ainst).get(aind).energy);
+    	    	    System.out.println("Cluster T = "+fv_ECAllClusters.getItem(ainst).get(aind).time);
     	    } else {
     	    	    System.out.println("PrintECCluster: Request for out of range element");
     	    }
