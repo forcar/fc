@@ -18,6 +18,7 @@ import org.jlab.detector.decode.DetectorDataDgtz;
 import org.jlab.io.evio.EvioDataEvent;
 import org.jlab.io.evio.EvioSource;
 import org.jlab.io.evio.EvioTreeBranch;
+import org.jlab.detector.decode.DetectorDataDgtz.VTPData;
 import org.jlab.coda.jevio.ByteDataTransformer;
 import org.jlab.coda.jevio.CompositeData;
 import org.jlab.coda.jevio.DataType;
@@ -101,9 +102,35 @@ public class FCCLASDecoder {
       	this.triggerBits = 0;
     }
     
-    public void setTriggerbits(int word) {
+    public void setTriggerbits(long word) {
     	   this.triggerBits  = word;
     }
+    
+    public List<DetectorDataDgtz> getDataEntries_VTP(EvioDataEvent event){
+        
+        List<DetectorDataDgtz> vtpEntries = new ArrayList<DetectorDataDgtz>();        
+        List<EvioTreeBranch> branches = codaDecoder.getEventBranches(event);
+        
+        for(EvioTreeBranch branch : branches){
+            int  crate = branch.getTag();
+//            EvioTreeBranch cbranch = this.getEventBranch(branches, branch.getTag());
+            for(EvioNode node : branch.getNodes()){
+                if(node.getTag()==57634){
+                    int[] intData =  ByteDataTransformer.toIntArray(node.getStructureBuffer(true));
+                    for(int loop = 0; loop < intData.length; loop++){
+                        int  dataEntry = intData[loop];
+                        DetectorDataDgtz   entry = new DetectorDataDgtz(crate,0,0);
+                        entry.addVTP(new VTPData(dataEntry));
+//                        System.out.println(crate + " " + dataEntry + " " + entry.toString());
+                        vtpEntries.add(entry);
+//                        System.out.println(entry.toString());
+                    }
+                }
+            }
+        }
+//        System.out.println(vtpEntries.size());
+        return vtpEntries;
+    }  
     
     public List<DetectorDataDgtz>  getDataEntries_TI(EvioDataEvent event){
 
