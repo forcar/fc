@@ -21,7 +21,7 @@ public class FTOFMon extends DetectorMonitor {
     FTOFPixels              ftofPix[] = new FTOFPixels[3];
     ConstantsManager             ccdb = new ConstantsManager();
     FTHashCollection              rtt = null;      
-    FTOFDet              ftofDet = null;  
+    FTOFDet                   ftofDet = null;  
     
     FTOFReconstructionApp   ftofRecon = null;
     FTOFMode1App            ftofMode1 = null;

@@ -177,12 +177,13 @@ public class FCApplication implements ActionListener  {
         
         if(event instanceof EvioDataEvent){
         	
-        	    app.decoder.initEvent(event);  
-        	    app.codadecoder = app.decoder.getCodaEventDecoder();
-            app.run         = app.codadecoder.getRunNumber();
-            app.evtno       = app.codadecoder.getEventNumber();
-            app.timestamp   = app.codadecoder.getTimeStamp();
-            app.triggerWord = app.codadecoder.getTriggerBits();  
+        	    app.decoder.initEvent(event);
+        	    
+            app.run         = app.decoder.codaDecoder.getRunNumber();
+            app.evtno       = app.decoder.codaDecoder.getEventNumber();
+            app.timestamp   = app.decoder.codaDecoder.getTimeStamp();
+            app.triggerWord = app.decoder.codaDecoder.getTriggerBits();  
+            
             if( app.isMC) this.updateSimulatedData(event);
             if(!app.isMC) this.updateEvioData(event);            
             

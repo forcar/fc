@@ -12,18 +12,7 @@ import org.jlab.io.hipo.HipoDataEvent;
 import org.jlab.io.hipo.HipoDataSync;
 import org.jlab.detector.decode.CodaEventDecoder;
 //import org.jlab.detector.decode.DetectorEventDecoder;
-import org.jlab.groot.data.H1F;
 import org.jlab.detector.decode.DetectorDataDgtz;
-
-import org.jlab.io.evio.EvioDataEvent;
-import org.jlab.io.evio.EvioSource;
-import org.jlab.io.evio.EvioTreeBranch;
-import org.jlab.detector.decode.DetectorDataDgtz.VTPData;
-import org.jlab.coda.jevio.ByteDataTransformer;
-import org.jlab.coda.jevio.CompositeData;
-import org.jlab.coda.jevio.DataType;
-import org.jlab.coda.jevio.EvioException;
-import org.jlab.coda.jevio.EvioNode;
 
 public class FCCLASDecoder {
        
@@ -73,11 +62,6 @@ public class FCCLASDecoder {
         if(event instanceof EvioDataEvent){
             try {
                 dataList    = codaDecoder.getDataEntries( (EvioDataEvent) event);
-                runno       = codaDecoder.getRunNumber();
-                evtno       = codaDecoder.getEventNumber();
-                timeStamp   = codaDecoder.getTimeStamp();
-                triggerBits = codaDecoder.getTriggerBits();
-//                List<DetectorDataDgtz> junk = getDataEntries_TI((EvioDataEvent) event);
                 if(this.decoderDebugMode>0){
                     System.out.println("\n>>>>>>>>> RAW decoded data");
                     for(DetectorDataDgtz data : dataList){
@@ -96,114 +80,7 @@ public class FCCLASDecoder {
                 e.printStackTrace();
             }
         }
-    } 
-    
-    public void clearTriggerbits() {
-      	this.triggerBits = 0;
-    }
-    
-    public void setTriggerbits(long word) {
-    	   this.triggerBits  = word;
-    }
-    
-    public List<DetectorDataDgtz> getDataEntries_VTP(EvioDataEvent event){
-        
-        List<DetectorDataDgtz> vtpEntries = new ArrayList<DetectorDataDgtz>();        
-        List<EvioTreeBranch> branches = codaDecoder.getEventBranches(event);
-        
-        for(EvioTreeBranch branch : branches){
-            int  crate = branch.getTag();
-//            EvioTreeBranch cbranch = this.getEventBranch(branches, branch.getTag());
-            for(EvioNode node : branch.getNodes()){
-                if(node.getTag()==57634){
-                    int[] intData =  ByteDataTransformer.toIntArray(node.getStructureBuffer(true));
-                    for(int loop = 0; loop < intData.length; loop++){
-                        int  dataEntry = intData[loop];
-                        DetectorDataDgtz   entry = new DetectorDataDgtz(crate,0,0);
-                        entry.addVTP(new VTPData(dataEntry));
-//                        System.out.println(crate + " " + dataEntry + " " + entry.toString());
-                        vtpEntries.add(entry);
-//                        System.out.println(entry.toString());
-                    }
-                }
-            }
-        }
-//        System.out.println(vtpEntries.size());
-        return vtpEntries;
-    }  
-    
-    public List<DetectorDataDgtz>  getDataEntries_TI(EvioDataEvent event){
-
-    	    clearTriggerbits();
-    	    
-        List<DetectorDataDgtz> tiEntries = new ArrayList<>();
-        List<EvioTreeBranch> branches = codaDecoder.getEventBranches(event);
-
-        for(EvioTreeBranch branch : branches){
-            int  crate = branch.getTag();
-            EvioTreeBranch cbranch = codaDecoder.getEventBranch(branches, branch.getTag());
-            for(EvioNode node : cbranch.getNodes()){
-                if(node.getTag()==57610){
-                    long[] longData = ByteDataTransformer.toLongArray(node.getStructureBuffer(false));
-                    int[]  intData  = ByteDataTransformer.toIntArray(node.getStructureBuffer(false));
-                    DetectorDataDgtz entry = new DetectorDataDgtz(crate,0,0);
-                    long tStamp = longData[2]&0x00000000ffffffff;
-                    entry.setTimeStamp(tStamp);
-                    if(node.getDataLength()==4) tiEntries.add(entry);
-                    else if(node.getDataLength()==5) { // data before run 1700
-                      this.setTriggerbits(intData[5]);
-                    }
-                    else if(node.getDataLength()==6) { // data after run 1700
-//                      System.out.println("6 words "+intData[6]+" "+intData[7]);
-                      this.setTriggerbits(intData[6]<<16|intData[7]);
-                    }
-                    else if(node.getDataLength()==7) { // data after run 1787
-//                      System.out.println("7 words "+intData[6]+" "+intData[7]);
-                      this.setTriggerbits(intData[6]|intData[7]<<32);
-                    }
-                }
-            }
-        }
-        return tiEntries;
     }   
-    
-    public void setPhaseOffset(int offset) {
-    	this.phase_offset = offset;
-    }
-    
-    public int getRun() {
-        return this.runno;    	
-    }
-    
-    public int getEvent() {
-        return this.evtno;    	
-    }
-    
-    public long getTimestamp() {
-    	    return this.timeStamp;
-    }
-   
-    public int getFCTrigger() {    	    
-    	    return (int)(getTriggerbits())&0x00000000ffffffff;
-    }
-    
-    public int getCDTrigger() {
-    	    return (int)(getTriggerbits()>>32)&0x00000000ffffffff;
-    }
-    
-    public long getTriggerbits() {
-    	    return this.triggerBits;    	
-    }
-    
-    public long getPhase() {
-    	    return ((this.timeStamp%6)+this.phase_offset)%6;
-    }
-    
-    public int getBitsec() {    
-    	int trig = getFCTrigger();
-        if (trig>0) return (int) (Math.log10(trig>>8)/0.301+1);
-        return 0;
-    }
     
     public List<DetectorDataDgtz>  getEntriesADC(DetectorType type){
         return this.getEntriesADC(type, dataList);        
@@ -238,6 +115,29 @@ public class FCCLASDecoder {
         }
         return tdc;
     }    
+    
+    public List<DetectorDataDgtz>  getEntriesVTP(DetectorType type){
+        return getEntriesVTP(type,dataList);    
+    }
+    /**
+     * returns VTP entries from decoded data for given detector type
+     * @param type detector type
+     * @param entries digitized data list
+     * @return list of VTP's for detector type
+     */
+    public List<DetectorDataDgtz>  getEntriesVTP(DetectorType type, 
+            List<DetectorDataDgtz> entries){
+        List<DetectorDataDgtz>  vtp = new ArrayList<DetectorDataDgtz>();
+        for(DetectorDataDgtz entry : entries){
+            if(entry.getDescriptor().getType()==type){
+                if(entry.getVTPSize()>0){
+                    vtp.add(entry);
+                }
+            }
+        }
+        return vtp;
+    }
+    
     public DataBank getDataBankADC(String name, DetectorType type){
         
         List<DetectorDataDgtz> adcDGTZ = this.getEntriesADC(type);
@@ -253,7 +153,7 @@ public class FCCLASDecoder {
             adcBANK.setFloat("time", i, (float) adcDGTZ.get(i).getADCData(0).getTime());
             adcBANK.setShort("ped", i, (short) adcDGTZ.get(i).getADCData(0).getPedestal());            
             if(name == "BST::adc") adcBANK.setLong("timestamp", i, adcDGTZ.get(i).getADCData(0).getTimeStamp()); // 1234 = dummy placeholder value
-            if(name.equals("BMT::adc")||name.equals("FMT::adc")){
+            if(name.equals("BMT::adc")||name.equals("FMT::adc")|| name.equals("FTTRK::adc")){
             	adcBANK.setInt("ADC", i, adcDGTZ.get(i).getADCData(0).getHeight());
             	adcBANK.setInt("integral", i, adcDGTZ.get(i).getADCData(0).getIntegral());
             	adcBANK.setLong("timestamp", i, adcDGTZ.get(i).getADCData(0).getTimeStamp());
@@ -310,15 +210,31 @@ public class FCCLASDecoder {
         return tdcBANK;
     }
     
+    public DataBank getDataBankUndecodedVTP(String name, DetectorType type){
+        
+        List<DetectorDataDgtz> vtpDGTZ = this.getEntriesVTP(type);
+        
+        DataBank vtpBANK = hipoEvent.createBank(name, vtpDGTZ.size());
+        if(vtpBANK==null) return null;
+        
+        for(int i = 0; i < vtpDGTZ.size(); i++){
+            vtpBANK.setByte("crate", i,     (byte) vtpDGTZ.get(i).getDescriptor().getCrate());
+            vtpBANK.setByte("slot", i,      (byte) vtpDGTZ.get(i).getDescriptor().getSlot());
+            vtpBANK.setShort("channel", i, (short) vtpDGTZ.get(i).getDescriptor().getChannel());
+            vtpBANK.setInt("word", i,              vtpDGTZ.get(i).getVTPData(0).getWord());
+        }
+        return vtpBANK;
+    }   
+    
     public DataEvent getDataEvent(){
         
         HipoDataEvent event = (HipoDataEvent) writer.createEvent();
         
-        String[]        adcBankNames = new String[]{"FTOF::adc","ECAL::adc","CTOF::adc","CND::adc","LTCC::adc"};
-        DetectorType[]  adcBankTypes = new DetectorType[]{DetectorType.FTOF,DetectorType.ECAL,DetectorType.CTOF,DetectorType.CND,DetectorType.LTCC};
+        String[]        adcBankNames = new String[]{"FTOF::adc","ECAL::adc","CTOF::adc","CND::adc","LTCC::adc","HTCC::adc"};
+        DetectorType[]  adcBankTypes = new DetectorType[]{DetectorType.FTOF,DetectorType.ECAL,DetectorType.CTOF,DetectorType.CND,DetectorType.LTCC,DetectorType.HTCC};
         
-        String[]        tdcBankNames = new String[]{"FTOF::tdc","ECAL::tdc","CTOF::tdc","CND::tdc","LTCC::tdc"};
-        DetectorType[]  tdcBankTypes = new DetectorType[]{DetectorType.FTOF,DetectorType.ECAL,DetectorType.CTOF,DetectorType.CND,DetectorType.LTCC};
+        String[]        tdcBankNames = new String[]{"FTOF::tdc","ECAL::tdc","CTOF::tdc","CND::tdc","LTCC::tdc","HTCC::adc"};
+        DetectorType[]  tdcBankTypes = new DetectorType[]{DetectorType.FTOF,DetectorType.ECAL,DetectorType.CTOF,DetectorType.CND,DetectorType.LTCC,DetectorType.HTCC};
         
         for(int i = 0; i < adcBankTypes.length; i++){
             DataBank adcBank = getDataBankADC(adcBankNames[i],adcBankTypes[i]);
@@ -337,9 +253,7 @@ public class FCCLASDecoder {
                 }
             }
         }        
-        /**
-         * Adding un-decoded banks to the event
-         */
+
         try {
             DataBank adcBankUD = this.getDataBankUndecodedADC("RAW::adc", DetectorType.UNDEFINED);
             if(adcBankUD!=null){
@@ -350,36 +264,40 @@ public class FCCLASDecoder {
         } catch(Exception e) {
             e.printStackTrace();
         }
-/*        
+        
         try {
-            DataBank tdcBankUD = this.getDataBankUndecodedTDC("RAW::tdc", DetectorType.UNDEFINED);
-            if(tdcBankUD!=null){
-                if(tdcBankUD.rows()>0){
-                    event.appendBanks(tdcBankUD);
+            DataBank vtpBankUD = this.getDataBankUndecodedVTP("RAW::vtp", DetectorType.UNDEFINED);
+            if(vtpBankUD!=null){
+                if(vtpBankUD.rows()>0){
+                    event.appendBanks(vtpBankUD);
                 }
             } else {
                 
             }
         } catch(Exception e) {
             e.printStackTrace();
-        }
-*/        
+        }    
+        
         return event;
     }
+    
     public HipoDataBank createHeaderBank(DataEvent event, int nrun, int nevent, float torus, float solenoid){
         HipoDataBank bank = (HipoDataBank) event.createBank("RUN::config", 1);
         
-        int    localRun  = this.codaDecoder.getRunNumber();
-        int  localEvent  = this.codaDecoder.getEventNumber();
-        long  timeStamp  = this.codaDecoder.getTimeStamp();
+        int    localRun = this.codaDecoder.getRunNumber();
+        int  localEvent = this.codaDecoder.getEventNumber();
+        int   localTime = this.codaDecoder.getUnixTime();
+        long  timeStamp = this.codaDecoder.getTimeStamp();
         long triggerBits = this.codaDecoder.getTriggerBits();
         
         if(nrun>0){
             localRun = nrun;
             localEvent = nevent;
         }
+        
         bank.setInt("run",        0, localRun);
         bank.setInt("event",      0, localEvent);
+        bank.setInt("unixtime",   0, localTime);
         bank.setLong("trigger",   0, triggerBits);        
         bank.setFloat("torus",    0, torus);
         bank.setFloat("solenoid", 0, solenoid);        
@@ -388,4 +306,15 @@ public class FCCLASDecoder {
         
         return bank;
     }
+    
+    public HipoDataBank createTriggerBank(DataEvent event){
+        HipoDataBank bank = (HipoDataBank) event.createBank("RUN::trigger", this.codaDecoder.getTriggerWords().size());
+        
+        for(int i=0; i<this.codaDecoder.getTriggerWords().size(); i++) {
+            bank.setInt("id",      i, i+1);
+            bank.setInt("trigger", i, this.codaDecoder.getTriggerWords().get(i));
+        }
+        return bank;
+    }
+
 }

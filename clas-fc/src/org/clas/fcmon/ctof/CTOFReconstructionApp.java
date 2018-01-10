@@ -218,7 +218,7 @@ public class CTOFReconstructionApp extends FCApplication {
        
        app.decoder.initEvent(event);
       
-       long phase = app.decoder.getPhase();
+       float phase = app.phase;
               
        List<DetectorDataDgtz> adcDGTZ = app.decoder.getEntriesADC(DetectorType.CTOF);
        List<DetectorDataDgtz> tdcDGTZ = app.decoder.getEntriesTDC(DetectorType.CTOF);
@@ -300,11 +300,10 @@ public class CTOFReconstructionApp extends FCApplication {
    }
    
    public void writeHipoOutput() {    
-	   System.out.println(" I am here");
        DataEvent  decodedEvent = app.decoder.getDataEvent();
        DataBank   header = app.decoder.createHeaderBank(decodedEvent,0,0,0,0);
        decodedEvent.appendBanks(header);
-       app.decoder.writer.writeEvent(decodedEvent);                    
+       app.writer.writeEvent(decodedEvent);                    
    } 
    
    public void updateSimulatedData(DataEvent event) {

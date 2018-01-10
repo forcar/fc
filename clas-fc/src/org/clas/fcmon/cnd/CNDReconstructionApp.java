@@ -215,8 +215,7 @@ public class CNDReconstructionApp extends FCApplication {
        
        app.decoder.initEvent(event);
        
-       long   phase = app.decoder.getPhase();
-       app.localRun = app.decoder.getRun();
+       float phase = app.phase;
        
        if (app.isSingleEvent()) {
     	 System.out.println(" ");       
@@ -304,7 +303,7 @@ public class CNDReconstructionApp extends FCApplication {
        DataEvent  decodedEvent = app.decoder.getDataEvent();
        DataBank   header = app.decoder.createHeaderBank(decodedEvent,0,0,0,0);
        decodedEvent.appendBanks(header);
-       app.decoder.writer.writeEvent(decodedEvent);
+       app.writer.writeEvent(decodedEvent);
               
    } 
    

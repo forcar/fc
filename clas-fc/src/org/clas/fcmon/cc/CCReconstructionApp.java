@@ -205,8 +205,7 @@ public class CCReconstructionApp extends FCApplication {
       
       app.decoder.initEvent(event);
       
-      long   phase = app.decoder.getPhase();
-      app.localRun = app.decoder.getRun();
+      float phase = app.phase;
       
       if (app.isSingleEvent()) {
         System.out.println(" ");       

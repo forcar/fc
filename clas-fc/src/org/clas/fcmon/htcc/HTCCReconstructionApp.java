@@ -120,10 +120,11 @@ public class HTCCReconstructionApp extends FCApplication {
    public void updateHipoData(DataEvent event) {
        
        int evno;
-       long phase = 0;
        int trigger = 0;
        long timestamp = 0;
        float offset = 0;
+       
+       float phase = app.phase;
        
        clear(0); tdcs.clear(); adcs.clear(); lapmt.clear(); ltpmt.clear();
        
@@ -220,7 +221,7 @@ public class HTCCReconstructionApp extends FCApplication {
        
        app.decoder.initEvent(event);
       
-       long phase = app.decoder.getPhase();
+       float phase = app.phase;
               
        List<DetectorDataDgtz> adcDGTZ = app.decoder.getEntriesADC(DetectorType.HTCC);
        List<DetectorDataDgtz> tdcDGTZ = app.decoder.getEntriesTDC(DetectorType.HTCC);
@@ -297,7 +298,7 @@ public class HTCCReconstructionApp extends FCApplication {
            }           
        }
        
-       if (app.decoder.isHipoFileOpen&&isGoodEvent()) writeHipoOutput();
+       if (app.isHipoFileOpen&&isGoodEvent()) writeHipoOutput();
        
    }
    
@@ -305,7 +306,7 @@ public class HTCCReconstructionApp extends FCApplication {
        DataEvent  decodedEvent = app.decoder.getDataEvent();
        DataBank   header = app.decoder.createHeaderBank(decodedEvent,0,0,0,0);
        decodedEvent.appendBanks(header);
-       app.decoder.writer.writeEvent(decodedEvent);                    
+       app.writer.writeEvent(decodedEvent);                    
    } 
    
    public void updateSimulatedData(DataEvent event) {

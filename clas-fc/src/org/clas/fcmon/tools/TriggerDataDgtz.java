@@ -16,38 +16,36 @@ import org.jlab.io.base.DataBank;
 import org.jlab.io.base.DataEvent;
 import org.jlab.io.evio.EvioDataEvent;
 import org.jlab.io.evio.EvioTreeBranch;
-import org.jlab.io.hipo.HipoDataEvent;
-import org.jlab.io.hipo.HipoDataSync;
 import org.jlab.utils.groups.IndexedList;
 import org.jlab.utils.groups.IndexedList.IndexGenerator;
 
 public class TriggerDataDgtz {
 	
-	FCTrigger trig = null;
-	CodaEventDecoder codadecoder = new CodaEventDecoder();
+    FCTrigger trig = null;
+    CodaEventDecoder codadecoder = new CodaEventDecoder();
 	
     public IndexedList<List<TEC_Peak>>         peaks = new IndexedList<List<TEC_Peak>>(3);
     public IndexedList<List<TEC_Cluster>>   clusters = new IndexedList<List<TEC_Cluster>>(2);
     public int npeaks;
     public int nclusters;
     
-	void TriggerDataDgtz() {
-	}
+    public void TriggerDataDgtz() {
+    }
 	
-	void init() {
-		this.peaks.clear();
-		this.clusters.clear();
-		this.npeaks=0;
-		this.nclusters=0;
-	}
+    void init() {
+	    this.peaks.clear();
+	    this.clusters.clear();
+	    this.npeaks=0;
+	    this.nclusters=0;
+    }
 	
-	public IndexedList<List<TEC_Peak>> getPeaks() {
-		return this.peaks;
-	}	
+    public IndexedList<List<TEC_Peak>> getPeaks() {
+	    return this.peaks;
+    }	
 	
-	public IndexedList<List<TEC_Cluster>> getClusters() {
-		return this.clusters;
-	}
+    public IndexedList<List<TEC_Cluster>> getClusters() {
+	    return this.clusters;
+    }
 	      
     public void getTriggerBank(DataEvent event) {
    	 
@@ -56,8 +54,10 @@ public class TriggerDataDgtz {
         init();
         
         IndexedList<List<Integer>> crates = new IndexedList<List<Integer>>(1);
+        
         DataBank  bank = event.getBank("RAW::vtp");
         int rows = bank.rows();
+        
         for(int i = 0; i < rows; i++){            
             int  ic = bank.getByte("crate",i);
             int  iw = bank.getInt("word",i);
@@ -98,14 +98,6 @@ public class TriggerDataDgtz {
             }
         }            
     }  
-    
-    public void makeTriggerBank() {
-   	 
-       HipoDataSync writer = new HipoDataSync();
-       HipoDataEvent hipoEvent = (HipoDataEvent) writer.createEvent();
-       DataBank tdcBANK = hipoEvent.createBank("TRIGGER::peaks", npeaks);
-       	 
-     }
 
     public void fillVTPStructure() {
     	
@@ -116,7 +108,7 @@ public class TriggerDataDgtz {
          	int n_ECpeaks = trig.GetNPeaks(0, i_view);
          	for (int i_peak=0; i_peak < n_ECpeaks; i_peak++) {
          		if(!peaks.hasItem(sector, detector, i_view)) {
-         			peaks.add(new ArrayList<TEC_Peak>(), sector, detector, i_view);}
+                    peaks.add(new ArrayList<TEC_Peak>(), sector, detector, i_view);}
          		    peaks.getItem(sector, detector, i_view).add(trig.GetECPeak(0, i_view, i_peak));
          		    npeaks++;
          	}
@@ -125,13 +117,10 @@ public class TriggerDataDgtz {
         int n_ECclust = trig.GetNClust(0);
         for (int i_clust=0; i_clust < n_ECclust; i_clust++) {
          	if(!clusters.hasItem(sector,detector)) {
-         		clusters.add(new ArrayList<TEC_Cluster>(), sector, detector);}
+                clusters.add(new ArrayList<TEC_Cluster>(), sector, detector);}
          	    clusters.getItem(sector, detector).add(trig.GetECCluster(0, i_clust));
          	    nclusters++;
         }     	
     } 
-//        System.out.println("Sector: "+sector+" Detector: "+detector);
-//        System.out.println("NPEAKS: "+npeaks+" NCLUSTERS: "+nclusters);
-         
 
 }

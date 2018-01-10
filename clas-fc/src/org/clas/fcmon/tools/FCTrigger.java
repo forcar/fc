@@ -133,7 +133,7 @@ public class FCTrigger {
 	public int GetDetector()         {return fDet;}   // 0 = Global Trigger, 1 = EC, 2 = PCal
 	public int GetSector()           {return fSector;}
 	
-    public boolean HasBlockHeader()  {return has_BlockHeader;}
+	public boolean HasBlockHeader()  {return has_BlockHeader;}
 	public boolean HasBlockTrailer() {return has_BlockTrailer;}
 	public boolean HasEventHeader()  {return has_EventHeader;}
 	public boolean HasTrigTime()     {return has_TrigTime;}
@@ -190,8 +190,8 @@ public class FCTrigger {
    	
    	int fnTrigWords;  
    	
-    int fnHTCC_Masks;
-    int fnFTOF_Masks;
+   	int fnHTCC_Masks;
+   	int fnFTOF_Masks;
 
    	int ftrig_inst;
    	int ftrig_lane;
@@ -237,9 +237,9 @@ public class FCTrigger {
         fit_data.next(); 
         cur_peak.coord = fit_data.range(25, 16);
         cur_peak.energy = fit_data.range(15, 0);
-
+//        System.out.println("Sect:"+(GetSector()+1)+" Det:"+GetDetector()+" Inst:"+cur_peak.inst+" View: "+cur_peak.view+" Coord:"+cur_peak.coord);
         if(!fv_ECAllPeaks.hasItem(cur_peak.inst,cur_peak.view)) {
-        	    fv_ECAllPeaks.add(new ArrayList<TEC_Peak>(),cur_peak.inst,cur_peak.view);
+            fv_ECAllPeaks.add(new ArrayList<TEC_Peak>(),cur_peak.inst,cur_peak.view);
         }
             fv_ECAllPeaks.getItem(cur_peak.inst,cur_peak.view).add(cur_peak);
     }           

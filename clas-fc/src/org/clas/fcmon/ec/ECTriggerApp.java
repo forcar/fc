@@ -29,6 +29,7 @@ import org.clas.fcmon.tools.TriggerDataDgtz;
 import org.jlab.coda.jevio.ByteDataTransformer;
 import org.jlab.coda.jevio.EvioNode;
 import org.jlab.detector.base.DetectorDescriptor;
+import org.jlab.detector.decode.CodaEventDecoder;
 import org.jlab.detector.decode.DetectorDataDgtz;
 import org.jlab.groot.base.GStyle;
 import org.jlab.groot.data.H1F;
@@ -114,16 +115,16 @@ public class ECTriggerApp extends FCApplication{
 
      public void createHistosOld( ) {
     	 
-        DataGroup dgTrig = new DataGroup(4,3);
+        DataGroup dgTrig = new DataGroup();
         
 	    GStyle.getH1FAttributes().setLineWidth(1);
  	    
-        H1F trig = new H1F(tbit, tbit, 32,-0.5,31.5);
-        trig.setFillColor(4);      
-        trig.setTitleX("Trigger Bits");
-        trig.setTitleY("Counts");
+        H1F trigbit = new H1F(tbit, tbit, 32,-0.5,31.5);
+        trigbit.setFillColor(4);      
+        trigbit.setTitleX("Trigger Bits");
+        trigbit.setTitleY("Counts");
         
-        dgTrig.addDataSet(trig, 1);
+        dgTrig.addDataSet(trigbit, 1);
 //    	    dgTrig.addDataSet(new H1F("h_tr_bit_distr", "", 33, -0.5, 32.5),1); 
     	    
         String tit=null;
@@ -263,16 +264,14 @@ public class ECTriggerApp extends FCApplication{
          
  	     GStyle.getH1FAttributes().setLineWidth(1);
   	    
-         H1F trig = new H1F(tbit, tbit, 32,-0.5,31.5);
-         trig.setFillColor(4);      
-         trig.setTitleX("Trigger Bits");
-         trig.setTitleY("Counts");
+         H1F trigbit = new H1F(tbit, tbit, 32,-0.5,31.5);
+         trigbit.setFillColor(4);      
+         trigbit.setTitleX("Trigger Bits");
+         trigbit.setTitleY("Counts");
          
-         dg.addDataSet(trig, 0);
+         dg.addDataSet(trigbit, 0);
          this.getDataGroup().add(dg,  0,0,0);        
 
-         String tit=null;
-         
          dg = new DataGroup();
          
          GStyle.getH2FAttributes().setTitleY("Sector");
@@ -383,22 +382,39 @@ public class ECTriggerApp extends FCApplication{
      
      public void clearHistograms() {
          System.out.println("ECTriggerApp:clearHistograms():");        
-         this.getDataGroup().clear();
          createHistos();
      }
      
      public void addEvent(DataEvent event) {
-         if (!testTriggerMask()) return;
-        
+    	     System.out.println(" ");
+         if (!testTriggerMask()) return;        
+         linlog = true; if(app.isSingleEvent()) {linlog = false; clearHistograms();}
          if(event instanceof EvioDataEvent) trig.getTriggerBank((EvioDataEvent) event);             
-         if(event instanceof HipoDataEvent) trig.getTriggerBank(event);      
-//         if(event instanceof EvioDataEvent) trig.getTriggerBank((EvioDataEvent) event);             
+         if(event instanceof HipoDataEvent) trig.getTriggerBank(event);                   
 //         if(event instanceof HipoDataEvent) getTriggerBank(event);      
+//         linlog = true; if(app.isSingleEvent()) {linlog = false; clearHistograms();}
          fillVTPHistos();
-//       linlog = true; if(app.isSingleEvent()) {linlog = false; clearHistograms();}
     	     fillTriggerBitHistos();
      }
-/*     
+/* 
+    public void getTriggerBank(EvioDataEvent event){
+    	
+        List<EvioTreeBranch> branches = app.decoder.codaDecoder.getEventBranches(event);
+            
+        for(EvioTreeBranch branch : branches){
+            int  crate = branch.getTag();
+            for(EvioNode node : branch.getNodes()){
+                if(node.getTag()==57634){
+                    int[] intData = ByteDataTransformer.toIntArray(node.getStructureBuffer(true));
+                    List<Integer> list  = Arrays.stream( intData ).boxed().collect( Collectors.toList() );    
+                    Iterator<Integer> it = list.iterator();
+                    trig = new FCTrigger(); trig.resetAll(); trig.getTriggerWords(it,crate);
+                    fillVTPHistosOld();
+                }
+            }
+        }            
+    }  
+       
      public void getTriggerBank(DataEvent event) {
        	 
          if(!event.hasBank("RAW::vtp")==true) return;
@@ -428,7 +444,7 @@ public class ECTriggerApp extends FCApplication{
          }
          
      }  
-*/         
+*/        
      public void fillTriggerBitHistos() {
          if (app.isSingleEvent()) this.getDataGroup().getItem(0,0,0).getH1F(tbit).reset();
          for (int i=0; i<32; i++) if(isTrigBitSet(i)) this.getDataGroup().getItem(0,0,0).getH1F(tbit).fill(i);    	 
@@ -436,7 +452,7 @@ public class ECTriggerApp extends FCApplication{
      
      public void fillVTPHistos() {
     	 
-    	     int trigtime = 7;
+    	     int trigtime = 10;
     	     DataGroup dg = new DataGroup();
          
     	     IndexGenerator ig = new IndexGenerator();
@@ -579,7 +595,7 @@ public class ECTriggerApp extends FCApplication{
     	 
      }
      
- /*    
+/*    
      public void fillVTPHistosOld()  {
     	 
     	     int detector  = trig.GetDetector();
