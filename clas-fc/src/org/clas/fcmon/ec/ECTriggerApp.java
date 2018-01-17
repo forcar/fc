@@ -69,7 +69,7 @@ public class ECTriggerApp extends FCApplication{
 
     double ADC2GeV = 1. / 10000.;
 
-    double E_bin_width = 0.3;
+    double E_bin_width = 0.02;
     int n_E_bins = 5;
 
     int ftrig_crate_ID = 37;
@@ -104,6 +104,7 @@ public class ECTriggerApp extends FCApplication{
          trigger.addCanvas("PC Clusters");
          trigger.addCanvas("XvsY");
          trigger.addCanvas("Thresholds");
+         trigger.addCanvas("Elastic");
          engineView.add(trigger);
          return engineView;       
 	 }  
@@ -386,7 +387,6 @@ public class ECTriggerApp extends FCApplication{
      }
      
      public void addEvent(DataEvent event) {
-    	     System.out.println(" ");
          if (!testTriggerMask()) return;        
          linlog = true; if(app.isSingleEvent()) {linlog = false; clearHistograms();}
          if(event instanceof EvioDataEvent) trig.getTriggerBank((EvioDataEvent) event);             
@@ -452,7 +452,7 @@ public class ECTriggerApp extends FCApplication{
      
      public void fillVTPHistos() {
     	 
-    	     int trigtime = 10;
+    	     int trigtime = 7;
     	     DataGroup dg = new DataGroup();
          
     	     IndexGenerator ig = new IndexGenerator();
@@ -517,14 +517,14 @@ public class ECTriggerApp extends FCApplication{
                      cl_Dalitz =  ec_geom.GetDalitz();
                  }
 
-                 int E_bin = (int) Math.min((int)(cl_E / E_bin_width), n_E_bins - 1); // for not being out of range
-
+                 int E_bin = (int) Math.min((int)((cl_E-0.4) / E_bin_width), n_E_bins - 1); // for not being out of range
+                 
                  double phi_cl = Math.atan2(hall_y_cl, hall_x_cl) * r2d + 30.;             
                  if (phi_cl < 0.) phi_cl = phi_cl + 360.;             
                  double th_cl = Math.atan(Math.sqrt(hall_x_cl * hall_x_cl + hall_y_cl * hall_y_cl) / hall_z_cl) * r2d;
 
                  dg.getH2F("h_th_phi_cl1").fill(phi_cl, th_cl);
-                 dg.getH2F("h_th_phi_cl_"+E_bin).fill(phi_cl, th_cl);
+                 if (E_bin>=0) dg.getH2F("h_th_phi_cl_"+E_bin).fill(phi_cl, th_cl);
                  
                  dg.getH2F("h_yxc1").fill(hall_x_cl, hall_y_cl);
                  dg.getH2F("h_Dalitz_Clust1").fill(cl_Dalitz, is);
@@ -918,7 +918,8 @@ public class ECTriggerApp extends FCApplication{
          case  "EC Clusters": updateECClusters(); break; 
          case  "PC Clusters": updatePCClusters(); break;
          case         "XvsY": updateXvsY(); break;
-         case   "Thresholds": updateThresholds();
+         case   "Thresholds": updateThresholds(); break;
+         case     "Elastic" : updateElastic();
          }   	         	     
      }
      
@@ -1056,5 +1057,16 @@ public class ECTriggerApp extends FCApplication{
 	     c.update();
      }
      
+     public void updateElastic() {
+	     DataGroup dg2 = this.getDataGroup().getItem(2,0,0);
+	     c = trigger.getCanvas("Elastic");   
+	     c.divide(3, 2);
+	     for (int i=0; i<5; i++) {
+	         canvasConfig(c,i+0,0,0,0,0,true).draw(dg2.getH2F("h_th_phi_cl_"+i));
+	     }
+         canvasConfig(c,5,0,0,0,0,true).draw(dg2.getH2F("h_th_phi_cl1"));
+	     
+	     c.update();
+     }     
 
 }
