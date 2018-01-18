@@ -22,7 +22,7 @@ public class CTOFPixels {
     
     public    int     ctof_nstr[] = {48};
     public double           amax[]= {8000.};
-    public double           tlim[]= {200.,500.};
+    public double           tlim[]= {0.,1000.};
     
     int        nha[][] = new    int[6][4];
     int        nht[][] = new    int[6][4];
