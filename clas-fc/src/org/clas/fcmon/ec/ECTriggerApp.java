@@ -29,6 +29,7 @@ import org.clas.fcmon.tools.TriggerDataDgtz;
 import org.jlab.coda.jevio.ByteDataTransformer;
 import org.jlab.coda.jevio.EvioNode;
 import org.jlab.detector.base.DetectorDescriptor;
+import org.jlab.detector.base.DetectorType;
 import org.jlab.detector.decode.CodaEventDecoder;
 import org.jlab.detector.decode.DetectorDataDgtz;
 import org.jlab.groot.base.GStyle;
@@ -51,6 +52,13 @@ public class ECTriggerApp extends FCApplication{
     EmbeddedCanvasTabbed   trigger = new EmbeddedCanvasTabbed("TriggerBits");   
     EmbeddedCanvas               c = this.getCanvas(this.getName());
     TriggerDataDgtz           trig = new TriggerDataDgtz();
+    
+    //CTOF
+    IndexedList<List<Float>>          tdcs = new IndexedList<List<Float>>(2);
+    IndexedList<List<Float>>          adcs = new IndexedList<List<Float>>(2);
+    IndexedList<List<Integer>>       lapmt = new IndexedList<List<Integer>>(1);
+    IndexedList<List<Integer>>       ltpmt = new IndexedList<List<Integer>>(1);
+    
     
     String tbit = "Trigger Bits: ECAL.PCAL.HTCC(0)    ECAL.PCAL.HTCC(1-6)    HTCC(7-12)    PCAL(13-18)    ECAL(19-24)   HT.PC(25)   HT.EC(26) "
                   + "  PC.EC(27)   FTOF.PC(28)    1K Pulser(31)";
@@ -386,15 +394,94 @@ public class ECTriggerApp extends FCApplication{
          createHistos();
      }
      
+     public void getCTOF(DataEvent event) {
+         
+         tdcs.clear(); adcs.clear(); lapmt.clear(); ltpmt.clear();
+         
+         float phase = app.phase;
+                
+         List<DetectorDataDgtz> adcDGTZ = app.decoder.getEntriesADC(DetectorType.CTOF);
+         List<DetectorDataDgtz> tdcDGTZ = app.decoder.getEntriesTDC(DetectorType.CTOF);
+
+         for (int i=0; i < tdcDGTZ.size(); i++) {
+             DetectorDataDgtz ddd=tdcDGTZ.get(i);
+             int is = ddd.getDescriptor().getSector();
+             int il = ddd.getDescriptor().getLayer();
+             int lr = ddd.getDescriptor().getOrder();
+             int ip = ddd.getDescriptor().getComponent();
+             
+             if (!tdcs.hasItem(lr-2,ip)) tdcs.add(new ArrayList<Float>(),lr-2,ip);
+                  tdcs.getItem(lr-2,ip).add((float) ddd.getTDCData(0).getTime()*24/1000);              
+             if (!ltpmt.hasItem(ip)) {
+          	    ltpmt.add(new ArrayList<Integer>(),ip);
+                  ltpmt.getItem(ip).add(ip);
+             }
+         }
+        
+         for (int i=0; i < adcDGTZ.size(); i++) {
+             DetectorDataDgtz ddd=adcDGTZ.get(i);
+             int is = ddd.getDescriptor().getSector();
+//             if (isGoodSector(is)) {
+             int cr = ddd.getDescriptor().getCrate();
+             int sl = ddd.getDescriptor().getSlot();
+             int ch = ddd.getDescriptor().getChannel();
+             int il = ddd.getDescriptor().getLayer();
+             int lr = ddd.getDescriptor().getOrder();
+             int ip = ddd.getDescriptor().getComponent();
+             int ad = ddd.getADCData(0).getADC();
+             int pd = ddd.getADCData(0).getPedestal();
+             int t0 = ddd.getADCData(0).getTimeCourse();  
+             float tf = (float) ddd.getADCData(0).getTime();
+             float ph = (float) ddd.getADCData(0).getHeight()-pd;
+             short[]    pulse = ddd.getADCData(0).getPulseArray();
+             if (!adcs.hasItem(lr,ip)) adcs.add(new ArrayList<Float>(),lr,ip);
+                  adcs.getItem(lr,ip).add((float)ad);            
+             if (!lapmt.hasItem(ip)) {
+                  lapmt.add(new ArrayList<Integer>(),ip);
+                  lapmt.getItem(ip).add(ip);
+             }
+                  
+             Float[] tdcc; float[] tdc;
+             
+             if (tdcs.hasItem(lr,ip)) {
+                 List<Float> list = new ArrayList<Float>();
+                 list = tdcs.getItem(lr,ip); tdcc=new Float[list.size()]; list.toArray(tdcc);
+                 tdc  = new float[list.size()];
+                 for (int ii=0; ii<tdcc.length; ii++) tdc[ii] = tdcc[ii]-phase*4;  
+             } else {
+                 tdc = new float[1];
+             }  
+             
+//             }           
+         }
+         
+//         if (app.decoder.isHipoFileOpen&&isGoodMIP(isSingleTrack())) writeHipoOutput();
+        
+         
+     }     
+     public void processMIP() {
+  	   
+         IndexGenerator ig = new IndexGenerator();
+         for (Map.Entry<Long,List<Integer>>  entry : lapmt.getMap().entrySet()){
+             int ip = ig.getIndex(entry.getKey(), 0);
+          	   if(adcs.hasItem(0,ip)&&adcs.hasItem(1,ip)) {
+                     float gm = (float) Math.sqrt(adcs.getItem(0,ip).get(0)*
+                                                  adcs.getItem(1,ip).get(0));
+//          	          System.out.println("CTOF ip,gm = "+ip+" "+gm);
+          	   }
+         } 
+     }
+     
      public void addEvent(DataEvent event) {
          if (!testTriggerMask()) return;        
+//         getCTOF(event); processMIP();
          linlog = true; if(app.isSingleEvent()) {linlog = false; clearHistograms();}
          if(event instanceof EvioDataEvent) trig.getTriggerBank((EvioDataEvent) event);             
          if(event instanceof HipoDataEvent) trig.getTriggerBank(event);                   
 //         if(event instanceof HipoDataEvent) getTriggerBank(event);      
 //         linlog = true; if(app.isSingleEvent()) {linlog = false; clearHistograms();}
          fillVTPHistos();
-    	     fillTriggerBitHistos();
+    	 fillTriggerBitHistos();
      }
 /* 
     public void getTriggerBank(EvioDataEvent event){

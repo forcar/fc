@@ -205,10 +205,6 @@ public class ECReconstructionApp extends FCApplication {
        float     tdcd = 0;
        
        clear(0); clear(1); clear(2); tdcs.clear();
-
-       app.decoder.detectorDecoder.setTET(app.mode7Emulation.tet);
-       app.decoder.detectorDecoder.setNSA(app.mode7Emulation.nsa);
-       app.decoder.detectorDecoder.setNSB(app.mode7Emulation.nsb); 
        
        DetectorDataDgtz ddd;
               
