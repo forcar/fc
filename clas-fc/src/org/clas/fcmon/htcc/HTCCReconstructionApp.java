@@ -120,11 +120,10 @@ public class HTCCReconstructionApp extends FCApplication {
    public void updateHipoData(DataEvent event) {
        
        int evno;
+       long phase = 0;
        int trigger = 0;
        long timestamp = 0;
        float offset = 0;
-       
-       float phase = app.phase;
        
        clear(0); tdcs.clear(); adcs.clear(); lapmt.clear(); ltpmt.clear();
        
