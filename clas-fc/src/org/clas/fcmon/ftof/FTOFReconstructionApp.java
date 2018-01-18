@@ -234,10 +234,6 @@ public class FTOFReconstructionApp extends FCApplication {
        
        clear(0); clear(1); clear(2); adcs.clear(); tdcs.clear(); ltpmt.clear() ; lapmt.clear();
        
-       app.decoder.detectorDecoder.setTET(app.mode7Emulation.tet);
-       app.decoder.detectorDecoder.setNSA(app.mode7Emulation.nsa);
-       app.decoder.detectorDecoder.setNSB(app.mode7Emulation.nsb);    
-       
        List<DetectorDataDgtz> adcDGTZ = app.decoder.getEntriesADC(DetectorType.FTOF);
        List<DetectorDataDgtz> tdcDGTZ = app.decoder.getEntriesTDC(DetectorType.FTOF);
 
