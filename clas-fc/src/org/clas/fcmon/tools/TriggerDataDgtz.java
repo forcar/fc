@@ -73,8 +73,8 @@ public class TriggerDataDgtz {
             int crate = ig.getIndex(hash, 0);              
             List<Integer> list = crates.getItem(crate); 
             Iterator<Integer> it = list.iterator();
-            trig = new FCTrigger(); trig.resetAll(); trig.getTriggerWords(it,crate);
-            fillVTPStructure();
+            trig = new FCTrigger(); trig.resetAll(); 
+            if (trig.getTriggerWords(it,crate)) fillVTPStructure();
         }
         
     }
@@ -92,8 +92,8 @@ public class TriggerDataDgtz {
                     int[] intData = ByteDataTransformer.toIntArray(node.getStructureBuffer(true));
                     List<Integer> list  = Arrays.stream( intData ).boxed().collect( Collectors.toList() );    
                     Iterator<Integer> it = list.iterator();
-                    trig = new FCTrigger(); trig.resetAll(); trig.getTriggerWords(it,crate);
-                    fillVTPStructure();
+                    trig = new FCTrigger(); trig.resetAll(); 
+                    if (trig.getTriggerWords(it,crate)) fillVTPStructure();
                 }
             }
         }            

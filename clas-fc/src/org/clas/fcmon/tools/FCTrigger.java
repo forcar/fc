@@ -79,10 +79,12 @@ public class FCTrigger {
 		makeMaps();		
 	}
 	
-	public void getTriggerWords(Iterator<Integer> it, int a_adcECvtp_tag) {
+	public boolean getTriggerWords(Iterator<Integer> it, int a_adcECvtp_tag) {
 		
-		fECVTP_tag = a_adcECvtp_tag;
+		fECVTP_tag = a_adcECvtp_tag;		
+		if(!EC_vtp_sector.hasItem(fECVTP_tag)) return false;
 		fSector = EC_vtp_sector.getItem(fECVTP_tag);
+		if(!EC_vtp_detector.hasItem(fECVTP_tag)) return false;
 		fDet    = EC_vtp_detector.getItem(fECVTP_tag);
 		
 		while (it.hasNext()) {
@@ -127,7 +129,9 @@ public class FCTrigger {
         }
         
         fnHTCC_Masks = fv_HTCCMasks.size();
-        fnFTOF_Masks = fv_FTOFMasks.size();		
+        fnFTOF_Masks = fv_FTOFMasks.size();	
+        
+        return true;
 	}	
 	
 	public int GetDetector()         {return fDet;}   // 0 = Global Trigger, 1 = EC, 2 = PCal
