@@ -51,7 +51,7 @@ public class FCMenuBar extends JMenuBar  {
         JMenuItem           s6 = new JMenuItem("Sector 6");
         JMenuItem         ctof = new JMenuItem("CTOF");
         JMenuItem          cnd = new JMenuItem("CND");
-        JMenuItem          sd5 = new JMenuItem("clondaq5");
+        JMenuItem          sd5 = new JMenuItem("clondaq3");
         JMenuItem          sd6 = new JMenuItem("clondaq6");
         JMenuItem           x0 = new JMenuItem("EVIO");
         JMenuItem           x1 = new JMenuItem("HIPO");
@@ -111,9 +111,9 @@ public class FCMenuBar extends JMenuBar  {
     	        if(e.getActionCommand().compareTo("Sector 4")==0) {ethost="adcecal4";etfile="/tmp/et_sys_clasprod";}
     	        if(e.getActionCommand().compareTo("Sector 5")==0) {ethost="adcecal5";etfile="/tmp/et_sys_clasprod";}
             if(e.getActionCommand().compareTo("Sector 6")==0) {ethost="adcecal6";etfile="/tmp/et_sys_clasprod";}      
-            if(e.getActionCommand().compareTo("CTOF")==0)     {ethost="adcctof1";etfile="/tmp/et_sys_clasprod";}      
+            if(e.getActionCommand().compareTo("CTOF")==0)     {ethost="adcctof1";etfile="/tmp/et_sys_clasltcc";}      
             if(e.getActionCommand().compareTo("CND")==0)      {ethost="adccnd1" ;etfile="/tmp/et_sys_cndtest";}      
-            if(e.getActionCommand().compareTo("clondaq5")==0) {ethost="clondaq5";etfile="/tmp/et_sys_clasprod";}       
+            if(e.getActionCommand().compareTo("clondaq3")==0) {ethost="clondaq3";etfile="/tmp/et_sys_clasprod";}       
             if(e.getActionCommand().compareTo("clondaq6")==0) {ethost="clondaq6";etfile="/tmp/et_sys_clasprod";}       
     	        if(ethost!=null) app.eventControl.openEtFile(ethost,etfile);    	
             if(e.getActionCommand().compareTo("Load EVIO or HIPO File")==0) this.chooseEvioFile();
