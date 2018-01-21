@@ -478,6 +478,8 @@ public class FCTrigger {
         ftrig_inst = UNDEF;
         ftrig_lane = UNDEF;
         ftrg_time = UNDEF;
+        
+        fDet = UNDEF;
        
         for (int i = 0; i < n_inst; i++) {
             fnClusters[i] = 0;
