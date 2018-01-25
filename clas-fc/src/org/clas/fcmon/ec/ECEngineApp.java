@@ -469,8 +469,8 @@ public class ECEngineApp extends FCApplication implements ActionListener {
           }
 
           if (app.config=="pi0"&&part.mip[is-1]!=1) {
+        	  
               double invmass = Math.sqrt(part.getTwoPhotonInvMass(is));
-//              double invmass = Math.sqrt(part.getTwoPhotonInvMass(ecClusters,is));
               
               if(part.iis[0]>0&&part.iis[1]>0) {
                                 
