@@ -277,8 +277,8 @@ public class ECMon extends DetectorMonitor {
     @Override
     public void dataEventAction(DataEvent de) { 
       
-      ecRecon.addEvent(de);
-      ecTrig.addEvent(de);
+        ecRecon.addEvent(de);
+        ecTrig.addEvent(de);
       
       if(app.doEng) {
           ecEngine.singleEvent = app.isSingleEvent() ; 

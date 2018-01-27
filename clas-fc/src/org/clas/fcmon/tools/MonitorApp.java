@@ -43,7 +43,7 @@ import org.jlab.detector.base.DetectorCollection;
 import org.jlab.detector.base.DetectorDescriptor;
 import org.jlab.detector.calib.utils.ConstantsManager;
 //import org.jlab.detector.decode.CLASDecoder;
-import org.jlab.detector.decode.CodaEventDecoder;
+//import org.jlab.detector.decode.CodaEventDecoder;
 import org.jlab.groot.graphics.EmbeddedCanvas;
 import org.jlab.io.base.DataEvent;
 import org.jlab.io.hipo.HipoDataBank;
@@ -88,7 +88,7 @@ public class MonitorApp extends JFrame implements ActionListener {
 	
     EventControl              eventControl = null;    
     
-//    public CodaEventDecoder    codadecoder = new CodaEventDecoder();
+    public CodaEventDecoder    codadecoder = new CodaEventDecoder();
     public FCCLASDecoder           decoder = new FCCLASDecoder();
     public DisplayControl   displayControl = null;	
     public Mode7Emulation   mode7Emulation = null;

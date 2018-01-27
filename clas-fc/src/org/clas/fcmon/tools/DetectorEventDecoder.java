@@ -1,12 +1,12 @@
 package org.clas.fcmon.tools;
 
 import java.util.Arrays;
-import java.util.Collections;
+
 import java.util.List;
+
 import org.jlab.detector.base.DetectorType;
 import org.jlab.detector.calib.utils.ConstantsManager;
 import org.jlab.detector.decode.DetectorDataDgtz.ADCData;
-import org.jlab.utils.groups.IndexedList;
 import org.jlab.utils.groups.IndexedTable;
 
 //lcs

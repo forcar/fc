@@ -481,7 +481,7 @@ public class ECTriggerApp extends FCApplication{
 //         if(event instanceof HipoDataEvent) getTriggerBank(event);      
 //         linlog = true; if(app.isSingleEvent()) {linlog = false; clearHistograms();}
          fillVTPHistos();
-    	 fillTriggerBitHistos();
+      	 fillTriggerBitHistos();
      }
 /* 
     public void getTriggerBank(EvioDataEvent event){
