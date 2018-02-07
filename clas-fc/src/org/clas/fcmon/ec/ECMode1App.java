@@ -174,11 +174,11 @@ public class ECMode1App extends FCApplication  {
        
        for (int is=1; is<7; is++) {
            h2 = dc2a.get(is,3,3) ;  h2.setTitleY("PHASE") ; h2.setTitleX("Sector "+is+" W Inner Raw TDC (ns)");   
-           canvasConfig(c,is-1,450.,850.,0.,6.,true).draw(h2);
+           canvasConfig(c,is-1,500.,700.,0.,6.,true).draw(h2);
        }
        for (int is=1; is<7; is++) {
            h2 = dc2a.get(is,3,4) ;  h2.setTitleY("PHASE") ; h2.setTitleX("Sector "+is+" W Inner Corrected TDC (ns)");   
-           canvasConfig(c,is-1+6,450.,850.,0.,6.,true).draw(h2);
+           canvasConfig(c,is-1+6,500.,700.,0.,6.,true).draw(h2);
        }
        
        c.repaint();   
