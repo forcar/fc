@@ -49,12 +49,12 @@ public class CodaEventDecoder {
         List<EvioTreeBranch> branches = this.getEventBranches(event);
        
         for(EvioTreeBranch branch : branches){
-        	 if (branch.getTag()<34) {
+//        	 if (branch.getTag()<34) {
             List<DetectorDataDgtz>  list = this.getDataEntries(event,branch.getTag());
             if(list != null){
                 rawEntries.addAll(list);
             }
-        	 }
+//        	 }
         }
         
         List<DetectorDataDgtz>  tdcEntries = this.getDataEntries_TDC(event);
@@ -703,7 +703,7 @@ public class CodaEventDecoder {
             int  crate = branch.getTag();
 //            EvioTreeBranch cbranch = this.getEventBranch(branches, branch.getTag());
             for(EvioNode node : branch.getNodes()){
-                if(node.getTag()==57637){
+                if(node.getTag()==57637 || node.getTag()==57621){
 //                    System.out.println("TRIGGER BANK FOUND ");
                     int num = node.getNum();
                     int[] intData =  ByteDataTransformer.toIntArray(node.getStructureBuffer(true));
@@ -715,11 +715,12 @@ public class CodaEventDecoder {
                         int quartet  = DataUtils.getInteger(dataEntry, 30, 30);
                         int interval = DataUtils.getInteger(dataEntry, 29, 29);
                         int id       = DataUtils.getInteger(dataEntry, 24, 28);
-                        DetectorDataDgtz   entry = new DetectorDataDgtz(crate,num,id+32*(1-interval));
-                        if(id == 0 || id ==1) {
+                        int value    = DataUtils.getInteger(dataEntry,  0, 23);
+                        DetectorDataDgtz   entry = new DetectorDataDgtz(crate,num,id+32*interval);
+                        if(node.getTag()==57637 && id < 3) {
                             scaler.setHelicity((byte) helicity);
                             scaler.setQuartet((byte) quartet);
-                            scaler.setValue(DataUtils.getInteger(dataEntry, 0, 23));                            
+                            scaler.setValue(value);                            
                             entry.addSCALER(scaler);
                             scalerEntries.add(entry);
 //                            System.out.println(entry.toString());
@@ -839,7 +840,7 @@ public class CodaEventDecoder {
 
     public static void main(String[] args){
         EvioSource reader = new EvioSource();
-        reader.open("/Users/devita/clas_002350.evio.0");
+        reader.open("/Users/devita/clas_003038.evio.2");
         CodaEventDecoder decoder = new CodaEventDecoder();
         DetectorEventDecoder detectorDecoder = new DetectorEventDecoder();
 
