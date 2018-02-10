@@ -21,7 +21,7 @@ public class CTOFPixels {
     double ctof_ypix[][][] = new double[4][124][7];
     
     public    int     ctof_nstr[] = {48};
-    public double           amax[]= {25000.};
+    public double           amax[]= {15000.,25000.};
     public double           tlim[]= {0.,1000.};
     
     int        nha[][] = new    int[6][4];
@@ -130,14 +130,17 @@ public class CTOFPixels {
         
         for (int is=1; is<2 ; is++) {
             int ill=0; iid="s"+Integer.toString(is)+"_l"+Integer.toString(ill)+"_c";
-            H2_a_Hist.add(is, 0, 0, new H2F("a_gmean_"+iid+0, 100,   0., amax[id],nstr, 1., nend));
+            H2_a_Hist.add(is, 0, 0, new H2F("a_gmean_"+iid+0, 100,   0., amax[0],nstr, 1., nend));
             H2_t_Hist.add(is, 0, 0, new H2F("a_tdif_"+iid+0,  100, -35.,      35.,nstr, 1., nend));
             H2_t_Hist.add(is, 0, 1, new H2F("b_tdif_"+iid+1,   50, -20.,      20.,48,1.,49.));
+            for (int ip=1; ip<49; ip++) {
+                H2_t_Hist.add(is, ip, 2, new H2F("c_tdif_"+iid+1+ip,   50, -32., -15.,50,-0.6, 0.6));
+            }
            for (int il=1 ; il<3 ; il++){
                 iid="s"+Integer.toString(is)+"_l"+Integer.toString(il)+"_c";
-                H2_a_Hist.add(is, il, 0, new H2F("a_raw_"+iid+0,      100,   0., amax[id],nstr, 1., nend));
+                H2_a_Hist.add(is, il, 0, new H2F("a_raw_"+iid+0,      100,     0., amax[0],nstr, 1., nend));
                 H2_t_Hist.add(is, il, 0, new H2F("a_raw_"+iid+0,      100, tlim[0], tlim[1],nstr, 1., nend));
-                H2_a_Hist.add(is, il, 1, new H2F("a_raw_"+iid+1,      100,   0., amax[id], 100, tlim[0], tlim[1]));
+                H2_a_Hist.add(is, il, 1, new H2F("a_raw_"+iid+1,      100,    0.,  amax[1], 100, tlim[0], tlim[1]));
                 H2_a_Hist.add(is, il, 3, new H2F("a_ped_"+iid+3,       40, -20.,  20., nstr, 1., nend)); 
                 H2_a_Hist.add(is, il, 5, new H2F("a_fadc_"+iid+5,     100,   0., 100., nstr, 1., nend));
                 H1_a_Sevd.add(is, il, 0, new H1F("a_sed_"+iid+0,                       nstr, 1., nend));

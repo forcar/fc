@@ -38,6 +38,7 @@ public class CTOFMode1App extends FCApplication {
         engineView.setLayout(new BorderLayout());
         mode1.addCanvas("Sum");
         mode1.addCanvas("AvsT");
+        mode1.addCanvas("LOGRAT");
         mode1.addCanvas("SYNC");  
         engineView.add(mode1);
         return engineView;
@@ -55,10 +56,11 @@ public class CTOFMode1App extends FCApplication {
         this.nstr = ctofPix[idet].nstr;    
         
         switch (mode1.selectedCanvas) {
-        case "Event": updateEvent(); break;
-        case   "Sum": updateSum();   break;
-        case  "AvsT": updateAvsT();  break;
-        case  "SYNC": updateSync();
+        case  "Event": updateEvent(); break;
+        case    "Sum": updateSum();   break;
+        case   "AvsT": updateAvsT();  break;
+        case "LOGRAT": updateLOGRAT();break;
+        case   "SYNC": updateSync();
         }
         
      } 
@@ -151,7 +153,7 @@ public class CTOFMode1App extends FCApplication {
        
         for (int il=1; il<3; il++) {
             h2=dc2a.get(is,il,1); h2.setTitleY("Sector "+is+otab[il-1]+" TDC") ; h2.setTitleX("Sector "+is+otab[il-1]+" FADC");
-            canvasConfig(c,il-1,0.,ctofPix[0].amax[0],tlo,thi,true).draw(h2);            
+            canvasConfig(c,il-1,0.,ctofPix[0].amax[1],tlo,thi,true).draw(h2);            
         }
         
 //        h2=dc2t.get(is, 0, 1); h2.setTitleX("Paddle Pair Time Difference (ns)") ; h2.setTitleY("Paddle Separation");        
@@ -160,6 +162,26 @@ public class CTOFMode1App extends FCApplication {
         c.repaint();
         
     }
+    
+    public void updateLOGRAT() {
+        
+        DetectorCollection<H2F> dc2a = ctofPix[idet].strips.hmap2.get("H2_t_Hist");       
+           
+        H2F h2;
+        int min=0,max=24;
+                
+        c = mode1.getCanvas("LOGRAT");  c.clear();    
+        c.divide(6,4); max=24 ; if (ic>23) {min=24; max=48;}; 
+        
+        for(int iip=min;iip<max;iip++) {
+            h2=dc2a.get(is,iip+1,2); h2.setTitleX(" PMT "+(iip+1)+" TUP-TDOWN (ns)") ;
+            canvasConfig(c,iip-min,-32.,-15.,-0.6,0.6,true).draw(h2);            
+        }
+        
+        c.repaint();
+        
+    }
+    
     public void updateSync() {
         
         DetectorCollection<H2F> dc2a = ctofPix[idet].strips.hmap2.get("H2_t_Hist"); 
