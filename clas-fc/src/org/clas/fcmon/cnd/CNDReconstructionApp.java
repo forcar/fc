@@ -89,31 +89,6 @@ public class CNDReconstructionApp extends FCApplication {
       this.pedref = app.mode7Emulation.pedref;
    }
    
-   public void addEvent(DataEvent event) {
-      
-       if(app.getDataSource()=="ET") this.updateRawData(event);
-       
-       if(app.getDataSource()=="EVIO") {    	   
-    	   if(app.isMC==true)  this.updateSimulatedData(event);
-           if(app.isMC==false) this.updateRawData(event); 
-       }
-       
-       if(app.getDataSource()=="XHIPO"||app.getDataSource()=="HIPO") this.updateHipoData(event);;
-       
-       if (app.isSingleEvent()) {
-           findPixels();     // Process all pixels for SED
-           processSED();
-           processCalib();
-        } else {
-           processPixels();  // Process only single pixels 
-           processCalib();   // Quantities for display and calibration engine
-        }
-    }
-   
-//   public String detID(int layer) {
-//       return "FTOF";
-//   }
-   
    public void updateHipoData(DataEvent event) {
        
        int evno;
@@ -205,26 +180,24 @@ public class CNDReconstructionApp extends FCApplication {
        
    }  
    
-   public void updateRawData(DataEvent event) {
+   public void updateEvioData(DataEvent event) {
        
        clear(0); tdcs.clear(); adcs.clear(); lapmt.clear(); ltpmt.clear();
        
-       app.decoder.detectorDecoder.setTET(app.mode7Emulation.tet);
-       app.decoder.detectorDecoder.setNSA(app.mode7Emulation.nsa);
-       app.decoder.detectorDecoder.setNSB(app.mode7Emulation.nsb);
-       
-       app.decoder.initEvent(event);
+//       app.decoder.detectorDecoder.setTET(app.mode7Emulation.tet);
+//       app.decoder.detectorDecoder.setNSA(app.mode7Emulation.nsa);
+//       app.decoder.detectorDecoder.setNSB(app.mode7Emulation.nsb);
        
        float phase = app.phase;
        
        if (app.isSingleEvent()) {
-    	 System.out.println(" ");       
+    	     System.out.println(" ");       
          System.out.println("Event Number "+app.getEventNumber());
        }
        
        List<DetectorDataDgtz> adcDGTZ = app.decoder.getEntriesADC(DetectorType.CND);
        List<DetectorDataDgtz> tdcDGTZ = app.decoder.getEntriesTDC(DetectorType.CND);
-     
+       
        for (int i=0; i < tdcDGTZ.size(); i++) {
            DetectorDataDgtz ddd=tdcDGTZ.get(i);
            int is = ddd.getDescriptor().getSector();
