@@ -197,7 +197,7 @@ public class HTCCMon extends DetectorMonitor {
 	
     @Override
     public void dataEventAction(DataEvent de) {
-        htccRecon.addEvent(de);	
+       htccRecon.addEvent(de);	
     }
 
     @Override

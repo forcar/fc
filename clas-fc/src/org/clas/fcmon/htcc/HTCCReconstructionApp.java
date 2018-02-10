@@ -93,30 +93,6 @@ public class HTCCReconstructionApp extends FCApplication {
       this.pedref = app.mode7Emulation.pedref;
    }
    
-   public void addEvent(DataEvent event) {
-       
-       if(app.getDataSource()=="ET") this.updateRawData(event);
-       
-       if(app.getDataSource()=="EVIO") {
-           if(app.isMC==true)  this.updateSimulatedData(event);
-           if(app.isMC==false) this.updateRawData(event); 
-       }
-       
-       if(app.getDataSource()=="XHIPO"||app.getDataSource()=="HIPO") this.updateHipoData(event);;
-       
-       if (app.isSingleEvent()) {
-           findPixels();     // Process all pixels for SED
-           processSED();
-        } else {
-           processPixels();  // Process only single pixels 
-//           processCalib();   // Quantities for display and calibration engine
-        }
-    }
-   
-//   public String detID(int layer) {
-//       return "FTOF";
-//   }
-   
    public void updateHipoData(DataEvent event) {
        
        int evno;
@@ -210,15 +186,13 @@ public class HTCCReconstructionApp extends FCApplication {
        
    }  
    
-   public void updateRawData(DataEvent event) {
+   public void updateEvioData(DataEvent event) {
        
        clear(0); tdcs.clear(); adcs.clear(); lapmt.clear(); ltpmt.clear();
        
-       app.decoder.detectorDecoder.setTET(app.mode7Emulation.tet);
-       app.decoder.detectorDecoder.setNSA(app.mode7Emulation.nsa);
-       app.decoder.detectorDecoder.setNSB(app.mode7Emulation.nsb);
-       
-       app.decoder.initEvent(event);
+//       app.decoder.detectorDecoder.setTET(app.mode7Emulation.tet);
+//       app.decoder.detectorDecoder.setNSA(app.mode7Emulation.nsa);
+//       app.decoder.detectorDecoder.setNSB(app.mode7Emulation.nsb);
       
        float phase = app.phase;
               
@@ -297,7 +271,7 @@ public class HTCCReconstructionApp extends FCApplication {
            }           
        }
        
-       if (app.isHipoFileOpen&&isGoodEvent()) writeHipoOutput();
+       if (app.isHipoFileOpen) writeHipoOutput();
        
    }
    
@@ -411,50 +385,8 @@ public class HTCCReconstructionApp extends FCApplication {
              } 
    }
    
-   public boolean isGoodEvent() {
-	   
-	   int[] ip = new int[2];
-	   
-       if(lapmt.getMap().size()==2) {
-           int n = 0;
-           IndexGenerator ig = new IndexGenerator();
-           for (Map.Entry<Long,List<Integer>>  entry : lapmt.getMap().entrySet()){              
-               ip[n] = ig.getIndex(entry.getKey(), 0);n++;
-           }
-       }
-       int pdif  = Math.abs(ip[0]-ip[1]);      
-       return ip[0]>0&&ip[1]>0&&pdif>21&&pdif<25;
-	 
-   }
-   
    public void processCalib() {
-       
-//	   if (!isGoodMIP()) return;
 	   
-       IndexGenerator ig = new IndexGenerator();
-       
-       for (Map.Entry<Long,List<Integer>>  entry : lapmt.getMap().entrySet()){
-           long hash = entry.getKey();
-           int iis = ig.getIndex(hash, 0);
-           int  ip = ig.getIndex(hash, 1);
-           
-        	   if(adcs.hasItem(iis,1,ip)&&adcs.hasItem(iis,2,ip)) {
-               float sum = (float) adcs.getItem(iis,1,ip).get(0)+
-                                   adcs.getItem(iis,2,ip).get(0);
-        	       htccPix[0].strips.hmap2.get("H2_a_Hist").get(is, 0, 0).fill(sum,ip,1.0);  
-        	   }
-       }
-       
-       for (Map.Entry<Long,List<Integer>>  entry : ltpmt.getMap().entrySet()){
-           long hash = entry.getKey();
-           int iis = ig.getIndex(hash, 0);
-           int  ip = ig.getIndex(hash, 1);
-        	   if(tdcs.hasItem(iis,1,ip)&&tdcs.hasItem(iis,2,ip)) {
-               float td = tdcs.getItem(iis,1,ip).get(0) -
-            		          tdcs.getItem(iis,2,ip).get(0);               
-        	       htccPix[0].strips.hmap2.get("H2_t_Hist").get(is, 0, 0).fill(td,ip,1.0);  
-        	   }
-       }      
    }
    
    public void processSED() {
