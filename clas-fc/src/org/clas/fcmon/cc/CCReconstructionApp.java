@@ -83,27 +83,6 @@ public class CCReconstructionApp extends FCApplication {
       this.pedref = app.mode7Emulation.pedref;
    }
    
-   public void addEvent(DataEvent event) {
-      
-       if(app.getDataSource()=="ET") this.updateRawData(event);
-       
-       if(app.getDataSource()=="EVIO") {    	   
-    	   if(app.isMC==true)  this.updateSimulatedData(event);
-           if(app.isMC==false) this.updateRawData(event); 
-       }
-       
-       if(app.getDataSource()=="XHIPO"||app.getDataSource()=="HIPO") this.updateHipoData(event);;
-       
-       if (app.isSingleEvent()) {
-           findPixels();     // Process all pixels for SED
-           processSED();
-//           processCalib();
-        } else {
-           processPixels();  // Process only single pixels 
-//           processCalib();   // Quantities for display and calibration engine
-        }
-       
-   }
    public void updateHipoData(DataEvent event) {
        
        int evno;
@@ -195,16 +174,14 @@ public class CCReconstructionApp extends FCApplication {
        
    }  
    
-   public void updateRawData(DataEvent event){
+   public void updateEvioData(DataEvent event){
 
       clear(); tdcs.clear(); adcs.clear(); lapmt.clear(); ltpmt.clear();
       
-      app.decoder.detectorDecoder.setTET(app.mode7Emulation.tet);
-      app.decoder.detectorDecoder.setNSA(app.mode7Emulation.nsa);
-      app.decoder.detectorDecoder.setNSB(app.mode7Emulation.nsb);
-      
-      app.decoder.initEvent(event);
-      
+//      app.decoder.detectorDecoder.setTET(app.mode7Emulation.tet);
+//      app.decoder.detectorDecoder.setNSA(app.mode7Emulation.nsa);
+//      app.decoder.detectorDecoder.setNSB(app.mode7Emulation.nsb);
+
       float phase = app.phase;
       
       if (app.isSingleEvent()) {
