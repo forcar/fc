@@ -197,8 +197,7 @@ public class FCApplication implements ActionListener  {
                 app.triggerWord = bank.getLong("trigger",0);
             }
             
-            if( app.isMC) this.updateSimulatedData(event);
-            if(!app.isMC) this.updateHipoData(event);        
+            this.updateHipoData(event);        
         }
              
         app.phase = getPhase(app.timestamp);
@@ -209,10 +208,10 @@ public class FCApplication implements ActionListener  {
         if (app.isSingleEvent()) {
             findPixels();     // Process all pixels for SED
             processSED();
-         } else {
+        } else {
             for (int idet=0; idet<pixlength; idet++) processPixels(idet); // Process only single pixels 
             processCalib();   // Quantities for display and calibration engine
-         }
+        }
     }  
     
     public void updateEvioData(DataEvent de) {
