@@ -213,7 +213,8 @@ public class ECMon extends DetectorMonitor {
     
     public void initEngine() {
         System.out.println("monitor.initEngine():Initializing ecEngine");
-        System.out.println("Configuration: "+app.config);   
+        System.out.println("Configuration: "+app.config); 
+        System.out.println("Variation: "+app.variation);
         
         if(saveFile) {
             writer = new EvioDataSync();
@@ -221,6 +222,7 @@ public class ECMon extends DetectorMonitor {
         }
 
         ecEngine.init();
+        ecEngine.isMC = app.isMC;
         ecEngine.setVariation(app.variation);
        
         ecEngine.setStripThresholds(ecPix[0].getStripThr(app.config, 1),

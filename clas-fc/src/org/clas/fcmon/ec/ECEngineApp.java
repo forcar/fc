@@ -447,7 +447,7 @@ public class ECEngineApp extends FCApplication implements ActionListener {
           if (paddleList!=null) {
           for (TOFPaddle paddle : paddleList){           
               int toflay = paddle.getDescriptor().getLayer();            
-              int   isec = paddle.getDescriptor().getSector();  
+              int   isec = paddle.getDescriptor().getSector();
               part.mip[isec-1] = (paddle.geometricMean()>thresh[toflay-1]) ? 1:0;
           }
           }          
@@ -468,7 +468,8 @@ public class ECEngineApp extends FCApplication implements ActionListener {
 
           }
 
-          if (app.config=="pi0"&&part.mip[is-1]!=1) {
+          if (app.config=="pi0"&&part.mip[is-1]!=1) {  // No FTOF MIP in sector
+//            if (app.config=="pi0") {  // No FTOF MIP in sector
         	  
               double invmass = Math.sqrt(part.getTwoPhotonInvMass(is));
               

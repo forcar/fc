@@ -85,13 +85,13 @@ public class ECPart {
             ppy1 = bank.getFloat("py",0);
             ppz1 = bank.getFloat("pz",0);
             pid1 = bank.getInt("pid",0);  
-           
+            n2mc++;
+            
             if (pid1==22&&bank.rows()==2) {  // FX two-photon runs
                 ppx2 = bank.getFloat("px",1);
                 ppy2 = bank.getFloat("py",1);
                 ppz2 = bank.getFloat("pz",1);
-                pid2 = bank.getInt("pid",1);    
-                n2mc++; 
+                pid2 = bank.getInt("pid",1);                   
             }
         }
         
@@ -339,10 +339,11 @@ public class ECPart {
          
         // Require 2 photons in PCAL and ECinner
         
-//        if((DetectorResponse.getListByLayer(p1.getDetectorResponses(),DetectorType.ECAL, 1).size()!=0  &&
-//            DetectorResponse.getListByLayer(p2.getDetectorResponses(),DetectorType.ECAL, 1).size()!=0)) {
-//            n2hit++; h6.fill(refE);        	
-//        }
+        if((DetectorResponse.getListByLayer(p1.getDetectorResponses(),DetectorType.ECAL, 1).size()!=0  &&
+            DetectorResponse.getListByLayer(p2.getDetectorResponses(),DetectorType.ECAL, 1).size()!=0)) {
+            n2hit++; 
+            //h6.fill(refE);        	
+        }
         
         if((DetectorResponse.getListByLayer(p1.getDetectorResponses(),DetectorType.ECAL, 1).size()!=0  &&
             DetectorResponse.getListByLayer(p1.getDetectorResponses(),DetectorType.ECAL, 4).size()!=0) &&
@@ -352,7 +353,8 @@ public class ECPart {
            tpi2 = 2*mpi0*mpi0/(1-cth)/(1-X*X);
            cpi0 = (e1c*cth1+e2c*cth2)/Math.sqrt(e1c*e1c+e2c*e2c+2*e1c*e2c*cth);
            g1.combine(g2, +1);
-//           n2rec++; h7.fill(refE);
+           n2rec++; 
+           //h7.fill(refE);
            return g1.mass2();
         }
         
@@ -515,7 +517,7 @@ public class ECPart {
         H2F h2a,h2b,h2c,h2d;
         
         String evioPath = "/Users/colesmith/clas12/sim/pizero/hipo/";
-        String evioFile = "fc-pizero-10k-s2-newgeom.hipo"; int sec=2;
+        String evioFile = "fc-pizero-100k-s2-newgeom-0.35-2.35.hipo"; int sec=2;
 //        evioFile = "pi0_hi.hipo";
         
         // GEMC file: 10k 2.0 GeV pizeros thrown at 25 deg into Sector 2 using GEMC 2.4 geometry
@@ -530,7 +532,7 @@ public class ECPart {
                 
         engine.init();
         engine.isMC = true;
-        engine.setVariation("default");
+        engine.setVariation("default"); // Use clas6 variation for legacy simulation 10k-s2-newgeom 
         engine.setCalRun(2);
         
         part.setThresholds("Pizero",engine);
@@ -609,8 +611,8 @@ public class ECPart {
   	 
     public static void main(String[] args){
     	   ECPart part = new ECPart();
-//    	   part.pizeroDemo(args);
-         part.electronDemo(args);
+    	   part.pizeroDemo(args);
+//         part.electronDemo(args);
     }
     
 }

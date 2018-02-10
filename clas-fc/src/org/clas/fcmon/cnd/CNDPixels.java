@@ -23,6 +23,7 @@ public class CNDPixels {
     public    int     cnd_nsec[] = {24};
     public    int     cnd_nstr[] = {3};
     public    int     cnd_nlay[] = {1};
+
     public double         amax[] = {5000.};
     public double         tlim[] = {0.,600.};
     

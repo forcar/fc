@@ -33,7 +33,7 @@ public class MyEvioHipoEvent extends EvioHipoEvent {
         
         if(evioEvent.hasBank("PCAL::true")==true){
             EvioDataBank evioBank = (EvioDataBank) evioEvent.getBank("PCAL::true");
-            HipoDataBank hipoBank = (HipoDataBank) hipoEvent.createBank("ECAL::true", evioBank.rows());
+            HipoDataBank hipoBank = (HipoDataBank) hipoEvent.createBank("MC::True", evioBank.rows());
             for(int i = 0; i < evioBank.rows(); i++){
                 hipoBank.setFloat("avgX", i, (float) (evioBank.getDouble("avgX", i)) );
                 hipoBank.setFloat("avgY", i, (float) (evioBank.getDouble("avgY", i)) );

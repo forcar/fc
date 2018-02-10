@@ -78,6 +78,7 @@ public class HipoDST {
             reader.open(files.get(i));
             if(i==0){
                 SchemaFactory factory = reader.getSchemaFactory();
+                
                 System.out.println(" OPENING FIRST FILE : " + files.get(i));
                 System.out.println(" Scanning Schema FACTORY");
                 List<Schema> list = factory.getSchemaList();
@@ -104,7 +105,7 @@ public class HipoDST {
             int nEvents = reader.getEventCount();
             for(int nev = 0; nev < nEvents; nev++){
 //              HipoEvent    event = reader.readHipoEvent(nev);
-                HipoEvent    event = reader.readEvent(nev);
+                HipoEvent    event = reader.readEvent(nev); 
                 HipoEvent outEvent = writerFactory.getFilteredEvent(event);                
 //              byte[] array = reader.readEvent(nev);
                 HipoEvent array = reader.readEvent(nev);
@@ -375,8 +376,10 @@ public class HipoDST {
         String keepBanks="ECAL:MIP" ; int compression=2; int debug=0; int filter=2;
 //        String  inputFile="/Users/colesmith/kpp/hipo/clas_000809-0-21.hipo";
 //        String outputFile="/Users/colesmith/kpp/hipo/test.hipo";
-        String  inputFile="/Users/colesmith/kpp/cooked/pass5/out_clas12_000809_a00010.hipo";
-        String outputFile="/Users/colesmith/kpp/cooked/pass5/test.hipo";
+//      String  inputFile="/Users/colesmith/kpp/cooked/pass5/out_clas12_000809_a00010.hipo";
+//      String outputFile="/Users/colesmith/kpp/cooked/pass5/test.hipo";
+        String  inputFile="/Users/colesmith/ER/cooked/out_clas_002793.hipo.12";
+        String outputFile="/Users/colesmith/ER/cooked/test.hipo";
 
         if(args.length==0) {   
             //dst.writeDST();

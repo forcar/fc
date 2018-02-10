@@ -108,7 +108,9 @@ public class ECReconstructionApp extends FCApplication {
    
    public void updateHipoData(DataEvent event) {
 
-       int       ilay =  0;
+	   if (!testTriggerMask()) return;        
+	   
+	   int       ilay =  0;
        int       idet = -1;
        double     sca =  1;
        float      tps =  (float) 0.02345;
@@ -205,16 +207,13 @@ public class ECReconstructionApp extends FCApplication {
        float     tdcd = 0;
        
        clear(0); clear(1); clear(2); tdcs.clear();
-
-//      
+      
 //       app.decoder.detectorDecoder.setTET(app.mode7Emulation.tet);
 //       app.decoder.detectorDecoder.setNSA(app.mode7Emulation.nsa);
 //       app.decoder.detectorDecoder.setNSB(app.mode7Emulation.nsb); 
        
        DetectorDataDgtz ddd;
         
-       app.decoder.initEvent(event);
-       
        List<DetectorDataDgtz> adcDGTZ = app.decoder.getEntriesADC(DetectorType.ECAL);
        List<DetectorDataDgtz> tdcDGTZ = app.decoder.getEntriesTDC(DetectorType.ECAL);
 

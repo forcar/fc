@@ -233,7 +233,7 @@ public class FTOFReconstructionApp extends FCApplication {
        float     tdcd = 0;
        
        clear(0); clear(1); clear(2); adcs.clear(); tdcs.clear(); ltpmt.clear() ; lapmt.clear();
-       
+
        List<DetectorDataDgtz> adcDGTZ = app.decoder.getEntriesADC(DetectorType.FTOF);
        List<DetectorDataDgtz> tdcDGTZ = app.decoder.getEntriesTDC(DetectorType.FTOF);
 

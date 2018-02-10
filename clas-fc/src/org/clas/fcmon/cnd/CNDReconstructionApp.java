@@ -189,6 +189,7 @@ public class CNDReconstructionApp extends FCApplication {
 //       app.decoder.detectorDecoder.setNSB(app.mode7Emulation.nsb);
        
        float phase = app.phase;
+       phase = 0;
        
        if (app.isSingleEvent()) {
     	     System.out.println(" ");       
@@ -217,7 +218,7 @@ public class CNDReconstructionApp extends FCApplication {
     	   
            DetectorDataDgtz ddd=adcDGTZ.get(i);
            int is = ddd.getDescriptor().getSector();
-           if (isGoodSector(is)) {
+//           if (isGoodSector(is)) {
            int cr = ddd.getDescriptor().getCrate();
            int sl = ddd.getDescriptor().getSlot();
            int ch = ddd.getDescriptor().getChannel();  
@@ -230,7 +231,7 @@ public class CNDReconstructionApp extends FCApplication {
            float tf = (float) ddd.getADCData(0).getTime();
            float ph = (float) ddd.getADCData(0).getHeight()-pd;
            short[]    pulse = ddd.getADCData(0).getPulseArray();          
-           
+          
           if (!adcs.hasItem(is,lr,il)) adcs.add(new ArrayList<Float>(),is,lr,il);
                adcs.getItem(is,lr,il).add((float)ad);                
           if (!lapmt.hasItem(is)) {
@@ -265,7 +266,7 @@ public class CNDReconstructionApp extends FCApplication {
            fill(0, is, lr+1, il, ad, tdc, tf, ph);   
            
            }           
-       }
+//       }
        
        if (app.decoder.isHipoFileOpen&&isGoodMIP()) writeHipoOutput();
        
