@@ -93,30 +93,6 @@ public class CTOFReconstructionApp extends FCApplication {
       this.pedref = app.mode7Emulation.pedref;
    }
    
-   public void addEvent(DataEvent event) {
-       
-       if(app.getDataSource()=="ET") this.updateRawData(event);
-       
-       if(app.getDataSource()=="EVIO") {
-           if(app.isMC==true)  this.updateSimulatedData(event);
-           if(app.isMC==false) this.updateRawData(event); 
-       }
-       
-       if(app.getDataSource()=="XHIPO"||app.getDataSource()=="HIPO") this.updateHipoData(event);;
-       
-       if (app.isSingleEvent()) {
-           findPixels();     // Process all pixels for SED
-           processSED();
-        } else {
-           processPixels();  // Process only single pixels 
-           processCalib();   // Quantities for display and calibration engine
-        }
-    }
-   
-//   public String detID(int layer) {
-//       return "FTOF";
-//   }
-   
    public void updateHipoData(DataEvent event) {
        
        int evno;
@@ -208,7 +184,7 @@ public class CTOFReconstructionApp extends FCApplication {
        if (app.decoder.isHipoFileOpen&&isGoodMIP(isSingleTrack())) app.decoder.writer.writeEvent(event);       
    }  
    
-   public void updateRawData(DataEvent event) {
+   public void updateEvioData(DataEvent event) {
        
        clear(0); tdcs.clear(); adcs.clear(); lapmt.clear(); ltpmt.clear();
               
@@ -216,8 +192,6 @@ public class CTOFReconstructionApp extends FCApplication {
 //       app.decoder.detectorDecoder.setNSA(app.mode7Emulation.nsa);
 //       app.decoder.detectorDecoder.setNSB(app.mode7Emulation.nsb);
        
-       app.decoder.initEvent(event);
-      
        float phase = app.phase;
               
        List<DetectorDataDgtz> adcDGTZ = app.decoder.getEntriesADC(DetectorType.CTOF);
