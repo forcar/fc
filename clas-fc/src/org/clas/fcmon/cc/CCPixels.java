@@ -31,7 +31,7 @@ public class CCPixels {
     public IndexedList<double[]>                     Lmap_a_z = new IndexedList<double[]>(2);
     public IndexedList<double[]>                     Lmap_t_z = new IndexedList<double[]>(2);	
 
-    public double amax=4000;
+    public double amax=2000;
     
     int id;
   
