@@ -158,7 +158,7 @@ public class ECMode1App extends FCApplication  {
       
        for (int il=1; il<4; il++) {
            h2=dc2a.get(is,il,4); h2.setTitleY("Sector "+is+otab[idet][il-1]+" TDC") ; h2.setTitleX("Sector "+is+otab[idet][il-1]+" FADC");
-           canvasConfig(c,il-1,0.,200.,300.,1200.,true).draw(h2);            
+           canvasConfig(c,il-1,0.,200.,0.,600.,true).draw(h2);            
        }
        
        c.repaint();

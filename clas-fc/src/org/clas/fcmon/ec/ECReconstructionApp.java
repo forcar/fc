@@ -108,8 +108,6 @@ public class ECReconstructionApp extends FCApplication {
    
    public void updateHipoData(DataEvent event) {
 
-	   if (!testTriggerMask()) return;        
-	   
 	   int       ilay =  0;
        int       idet = -1;
        double     sca =  1;
@@ -441,7 +439,7 @@ public class ECReconstructionApp extends FCApplication {
 	   
        for (int ii=0; ii<tdc.length; ii++) {
            
-       if(tdc[ii]>450&&tdc[ii]<850){
+       if(tdc[ii]>0&&tdc[ii]<600){
            ecPix[idet].uvwt[is-1]=ecPix[idet].uvwt[is-1]+ecPix[idet].uvw_dalitz(idet,il,ip); //Dalitz tdc 
            ecPix[idet].nht[is-1][il-1]++; int inh = ecPix[idet].nht[is-1][il-1];
            if (inh>nstr) inh=nstr;
