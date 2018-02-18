@@ -174,18 +174,17 @@ public class FCApplication implements ActionListener  {
     public void addEvent(DataEvent event) {
     	
     	// globals set here must go to app.* since this is called only in ReconstructionApp
-        
+    	        
         if(event instanceof EvioDataEvent){
         	
-        	    app.decoder.initEvent(event);
+        	app.decoder.initEvent(event);
         	    
             app.run         = app.decoder.codaDecoder.getRunNumber();
             app.evtno       = app.decoder.codaDecoder.getEventNumber();
             app.timestamp   = app.decoder.codaDecoder.getTimeStamp();
-            app.triggerWord = app.decoder.codaDecoder.getTriggerBits();  
-            
+            app.triggerWord = app.decoder.codaDecoder.getTriggerBits();             
             if( app.isMC) this.updateSimulatedData(event);
-            if(!app.isMC) this.updateEvioData(event);            
+            if((!app.isMC)&&testTriggerMask()) this.updateEvioData(event);            
             
         } else {
 
@@ -196,14 +195,14 @@ public class FCApplication implements ActionListener  {
                 app.timestamp   = bank.getLong("timestamp",0);
                 app.triggerWord = bank.getLong("trigger",0);
             }
-            
-            this.updateHipoData(event);        
+            if(testTriggerMask()) this.updateHipoData(event);        
         }
              
         app.phase = getPhase(app.timestamp);
         app.phaseCorrection = getPhaseCorrection();
-//        app.bitsec = getElecTriggerSector();
         app.bitsec = getECALTriggerSector();
+        
+        if (!testTriggerMask()) return;
         
         if (app.isSingleEvent()) {
             findPixels();     // Process all pixels for SED
