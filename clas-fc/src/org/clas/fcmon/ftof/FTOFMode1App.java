@@ -142,7 +142,7 @@ public class FTOFMode1App extends FCApplication {
        
         for (int il=1; il<3; il++) {
             h2=dc2a.get(is,il,1); h2.setTitleY("Sector "+is+otab[il-1]+" TDC") ; h2.setTitleX("Sector "+is+otab[il-1]+" FADC");
-            canvasConfig(c,il-1,0.,ftofPix[0].amax[idet],300.,1200.,true).draw(h2);            
+            canvasConfig(c,il-1,0.,ftofPix[0].amax[idet],0.,600.,true).draw(h2);            
         }
         
         c.repaint();

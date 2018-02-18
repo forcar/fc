@@ -400,7 +400,7 @@ public class FTOFReconstructionApp extends FCApplication {
 
        for (int ii=0; ii<tdc.length; ii++) {
            
-       if(tdc[ii]>450&&tdc[ii]<850){
+       if(tdc[ii]>0&&tdc[ii]<600){
              ftofPix[idet].nht[is-1][il-1]++; int inh = ftofPix[idet].nht[is-1][il-1];
              if (inh>nstr) inh=nstr;
              ftofPix[idet].ph[is-1][il-1][inh-1] = adph;
@@ -425,7 +425,7 @@ public class FTOFReconstructionApp extends FCApplication {
    }
 
    public void processCalib() {
-       
+	   
        IndexGenerator ig = new IndexGenerator();
        
        for (Map.Entry<Long,List<Integer>>  entry : lapmt.getMap().entrySet()){
@@ -433,7 +433,7 @@ public class FTOFReconstructionApp extends FCApplication {
            int is = ig.getIndex(hash, 0);
            int il = ig.getIndex(hash, 1);
            int ip = ig.getIndex(hash, 2);
-            	   
+                  
         	   if(adcs.hasItem(is,il,0,ip)&&adcs.hasItem(is,il,1,ip)) {
                float gm = (float) Math.sqrt(adcs.getItem(is,il,0,ip).get(0)*
                                             adcs.getItem(is,il,1,ip).get(0));
