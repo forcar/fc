@@ -19,6 +19,7 @@ import org.jlab.groot.data.H1F;
 import org.jlab.groot.data.H2F;
 import org.jlab.groot.fitter.ParallelSliceFitter;
 import org.jlab.groot.graphics.EmbeddedCanvas;
+import org.jlab.groot.group.DataGroup;
 import org.jlab.io.base.DataBank;
 import org.jlab.io.base.DataEvent;
 import org.jlab.io.evio.EvioDataBank;
@@ -35,6 +36,8 @@ public class ECPart {
     List<List<DetectorResponse>>     unmatchedResponses = new ArrayList<List<DetectorResponse>>(); 
     IndexedList<List<DetectorResponse>>  singleNeutrals = new IndexedList<List<DetectorResponse>>(1);
     IndexedList<List<DetectorResponse>>      singleMIPs = new IndexedList<List<DetectorResponse>>(1);
+    DetectorParticle p1 = new DetectorParticle();
+    DetectorParticle p2 = new DetectorParticle();
     
     public double distance11,distance12,distance21,distance22;
     public double e1,e2,e1c,e2c,cth,cth1,cth2;
@@ -58,8 +61,7 @@ public class ECPart {
     public H1F h5,h6,h7,h8;
   
     public int n2mc=0;
-    public int n2hit=0;
-    public int n2rec=0;
+
     public int[] mip = {0,0,0,0,1,0};
     
     public void readMC(DataEvent event) {
@@ -306,8 +308,8 @@ public class ECPart {
         
         if (particles.size()==0) return 0.0;
         
-        DetectorParticle p1 = particles.get(0);  //Photon 1
-        DetectorParticle p2 = particles.get(1);  //Photon 2
+        p1 = particles.get(0);  //Photon 1
+        p2 = particles.get(1);  //Photon 2
         
         Vector3 n1 = p1.vector(); n1.unit();
         Vector3 n2 = p2.vector(); n2.unit();
@@ -316,54 +318,24 @@ public class ECPart {
         e2 = p2.getEnergy(DetectorType.ECAL);
 
         SF1 = getSF(geom,e1); e1c = e1/SF1;
-        Particle g1 = new Particle(22,
-                n1.x()*e1c,
-                n1.y()*e1c,
-                n1.z()*e1c
-        );
+        Particle g1 = new Particle(22,n1.x()*e1c,n1.y()*e1c,n1.z()*e1c);
         
         SF2 = getSF(geom,e2); e2c = e2/SF2;
-        Particle g2 = new Particle(22,
-                n2.x()*e2c,
-                n2.y()*e2c,
-                n2.z()*e2c
-        );
+        Particle g2 = new Particle(22,n2.x()*e2c,n2.y()*e2c,n2.z()*e2c);
         
-        X    =  1e3;
-        tpi2 =  1e9;
-        cpi0 =  -1;
-        cth  =  -1;
         cth1 = Math.cos(g1.theta());
         cth2 = Math.cos(g2.theta());
-         cth = g1.cosTheta(g2);
-         
-        // Require 2 photons in PCAL and ECinner
+         cth = g1.cosTheta(g2);         
+           X = (e1c-e2c)/(e1c+e2c);
+        tpi2 = 2*mpi0*mpi0/(1-cth)/(1-X*X);
+        cpi0 = (e1c*cth1+e2c*cth2)/Math.sqrt(e1c*e1c+e2c*e2c+2*e1c*e2c*cth);
         
-        if((DetectorResponse.getListByLayer(p1.getDetectorResponses(),DetectorType.ECAL, 1).size()!=0  &&
-            DetectorResponse.getListByLayer(p2.getDetectorResponses(),DetectorType.ECAL, 1).size()!=0)) {
-            n2hit++; 
-            //h6.fill(refE);        	
-        }
+        g1.combine(g2, +1);
+                
+        boolean pc12 = DetectorResponse.getListByLayer(p1.getDetectorResponses(),DetectorType.ECAL, 1).size()!=0  &&
+                       DetectorResponse.getListByLayer(p2.getDetectorResponses(),DetectorType.ECAL, 1).size()!=0;
         
-        if((DetectorResponse.getListByLayer(p1.getDetectorResponses(),DetectorType.ECAL, 1).size()!=0  &&
-            DetectorResponse.getListByLayer(p1.getDetectorResponses(),DetectorType.ECAL, 4).size()!=0) &&
-           (DetectorResponse.getListByLayer(p2.getDetectorResponses(),DetectorType.ECAL, 1).size()!=0  &&
-            DetectorResponse.getListByLayer(p2.getDetectorResponses(),DetectorType.ECAL, 4).size()!=0))  {    
-              X = (e1c-e2c)/(e1c+e2c);
-           tpi2 = 2*mpi0*mpi0/(1-cth)/(1-X*X);
-           cpi0 = (e1c*cth1+e2c*cth2)/Math.sqrt(e1c*e1c+e2c*e2c+2*e1c*e2c*cth);
-           g1.combine(g2, +1);
-           n2rec++; 
-           //h7.fill(refE);
-           return g1.mass2();
-        }
-        
-        return  0.0;
-
-        //System.out.println("  ENERGIES = " + (e1/0.27) + "  " + (e2/0.27));
-        //System.out.println(particles.get(0));
-        //System.out.println(particles.get(1));
-        //System.out.println(gen);
+        return pc12 ? g1.mass2():0.0;
     }
     
     public void setGeom(String geom) {
@@ -511,10 +483,14 @@ public class ECPart {
     
     public void pizeroDemo(String[] args) {
     	
+        DataGroup      dg_pi0 = new DataGroup(1,1);
         HipoDataSource reader = new HipoDataSource();
         ECEngine       engine = new ECEngine();
         ECPart           part = new ECPart();
         H2F h2a,h2b,h2c,h2d;
+        int n2hit=0;
+        int n2rec1=0;
+        int n2rec2=0;
         
         String evioPath = "/Users/colesmith/clas12/sim/pizero/hipo/";
         String evioFile = "fc-pizero-100k-s2-newgeom-0.35-2.35.hipo"; int sec=2;
@@ -538,22 +514,24 @@ public class ECPart {
         part.setThresholds("Pizero",engine);
         part.setGeom("2.5");
         
-        h2a = new H2F("Invariant Mass",50,0.,10.5,50,100.,200);         
+        double emax = 2.5;
+        
+        h2a = new H2F("Invariant Mass",50,0.,emax,50,100.,200);         
         h2a.setTitleX("Pizero Energy (MeV)"); h2a.setTitleY("Two-Photon Invariant Mass (MeV)");
         
-        h2b = new H2F("Energy Asymmetry",50,0.,10.5,50,-1.0,1.0);      
+        h2b = new H2F("Energy Asymmetry",50,0.,emax,50,-1.0,1.0);      
         h2b.setTitleX("Pizero Energy (MeV)"); h2b.setTitleY("X:(E1-E2)/(E1+E2)");
        
-        h2c = new H2F("Pizero Energy Error",50,0.,10.5,50,-500.,500.); 
+        h2c = new H2F("Pizero Energy Error",50,0.,emax,50,-500.,500.); 
         h2c.setTitleX("Pizero Energy (MeV)"); h2c.setTitleY("Pizero Energy Error (MeV)");
        
-        h2d = new H2F("Pizero Theta Error",50,0.,10.5,50,-1.,1.);      
+        h2d = new H2F("Pizero Theta Error",50,0.,emax,50,-1.,1.);      
         h2d.setTitleX("Pizero Energy (MeV)") ; h2d.setTitleY("Pizero Theta Error (deg)");
         
-        part.h5 = new H1F("Thrown",50,0.,10.5); part.h5.setTitleX("MC Pizero E (MeV)");
-        part.h6 = new H1F("2Gamma",50,0.,10.5); part.h6.setTitleY("PCAL 2 Photon Eff"); 
-        part.h7 = new H1F("PC/EC",50,0.,10.5);  part.h7.setTitleY("ECIN 2 Photon Eff");
-        part.h8 = new H1F("Mcut",50,0.,10.5);   part.h8.setTitleY("ECIN 2 Photon Eff"); part.h8.setTitle("80<InvMass<200");
+        part.h5 = new H1F("Thrown",50,0.,emax); part.h5.setTitleX("MC Pizero E (MeV)");
+        part.h6 = new H1F("2Gamma",50,0.,emax);  
+        part.h7 = new H1F("PC/EC", 50,0.,emax); 
+        part.h8 = new H1F("Mcut",  50,0.,emax); part.h8.setTitleY("ECIN 2 Photon Eff"); part.h8.setTitle("80<InvMass<200");
         
         int nimcut = 0;
         
@@ -564,7 +542,21 @@ public class ECPart {
             part.getNeutralResponses(part.readEC(event));
             double invmass = 1e3*Math.sqrt(part.getTwoPhotonInvMass(sec));
             
-            if (invmass>80 && invmass<200) {
+            boolean goodmass = invmass>80 && invmass<200;
+            
+            // Require photon 1 be in PCAL and ECin
+            boolean pcec1 = DetectorResponse.getListByLayer(part.p1.getDetectorResponses(),DetectorType.ECAL, 1).size()!=0  &&
+                            DetectorResponse.getListByLayer(part.p1.getDetectorResponses(),DetectorType.ECAL, 4).size()!=0;
+            
+            // Require photon 2 be in PCAL and ECin
+            boolean pcec2 = DetectorResponse.getListByLayer(part.p2.getDetectorResponses(),DetectorType.ECAL, 1).size()!=0  &&
+                            DetectorResponse.getListByLayer(part.p2.getDetectorResponses(),DetectorType.ECAL, 4).size()!=0;
+            
+            if(invmass>0)    {n2hit++; part.h6.fill(part.refE);}       	            
+            if(pcec1||pcec2) {n2rec1++; part.h7.fill(part.refE);}
+            if(pcec1&&pcec2) {n2rec2++; part.h7.fill(part.refE);}
+          
+            if (goodmass&&(pcec1||pcec2)) {
                 h2a.fill(part.refE, invmass);                                    //Two-photon invariant mass                
                 h2b.fill(part.refE, part.X);                                     //Pizero energy asymmetry
                 h2c.fill(part.refE,(1e3*(Math.sqrt(part.tpi2)-part.refE)));      //Pizero total energy error
@@ -579,8 +571,8 @@ public class ECPart {
         H1F h4 = h2d.projectionY();  h4.setOptStat("1100") ; h4.setFillColor(4);
        
         System.out.println("THROWN TWOPHOTONS PCAL/ECIN MATCH  INVMASS CUT");
-        System.out.println(part.n2mc+"     "+part.n2hit+"         "+part.n2rec+"               "+nimcut);
-        System.out.println("Eff1= "+(float)part.n2hit/(float)part.n2mc+" Eff2= "+(float)part.n2rec/(float)part.n2hit+" Eff3= "+(float)nimcut/(float)part.n2hit);
+        System.out.println(part.n2mc+"     "+n2hit+"         "+n2rec1+"               "+nimcut);
+        System.out.println("Eff1= "+(float)n2hit/(float)part.n2mc+" Eff2= "+(float)n2rec1/(float)n2hit+" Eff3= "+(float)nimcut/(float)n2hit);
         
         JFrame frame = new JFrame("Pizero Reconstruction");
         frame.setSize(800,800);
@@ -588,19 +580,22 @@ public class ECPart {
         canvas.divide(4,3);
 		canvas.setAxisTitleSize(18);
 		canvas.setAxisLabelSize(18);
+		
         canvas.cd(0); canvas.draw(h2a);
         canvas.cd(1); canvas.draw(h2b);
         canvas.cd(2); canvas.draw(h2c);
         canvas.cd(3); canvas.draw(h2d);
+        
         canvas.cd(4); canvas.draw(h1);
         canvas.cd(5); canvas.draw(h2);
         canvas.cd(6); canvas.draw(h3);
         canvas.cd(7); canvas.draw(h4);
-        canvas.cd(8); canvas.draw(part.h5);
-        H1F hrat1 = H1F.divide(part.h6, part.h5); hrat1.setFillColor(2);
-        H1F hrat2 = H1F.divide(part.h7, part.h6); hrat2.setFillColor(2);
+        
+        canvas.cd(8); canvas.draw(part.h5); 
+        H1F hrat1 = H1F.divide(part.h6, part.h5); hrat1.setFillColor(2); hrat1.setTitleY("PC 2 Photon Eff");
+        H1F hrat2 = H1F.divide(part.h7, part.h6); hrat2.setFillColor(2); hrat2.setTitleY("PC*EC 1 Photon Eff");
         H1F hrat3 = H1F.divide(part.h8, part.h6); hrat3.setFillColor(2);
-        canvas.cd(9); canvas.draw(hrat1);
+        canvas.cd(9);  canvas.draw(hrat1);
         canvas.cd(10); canvas.draw(hrat2);
         canvas.cd(11); canvas.draw(hrat3);
         
