@@ -21,7 +21,7 @@ public class CTOFPixels {
     double ctof_ypix[][][] = new double[4][124][7];
     
     public    int     ctof_nstr[] = {48};
-    public double           amax[]= {15000.,25000.};
+    public double           amax[]= {10000.,25000.};
     public double           tlim[]= {0.,600.};
     
     int        nha[][] = new    int[6][4];

@@ -181,7 +181,7 @@ public class CTOFReconstructionApp extends FCApplication {
                if(isGoodSector(is)) fill(il-1, is, lr+1, ip, adc, tdc, t, (float) adc);    
            }
        }
-       if (app.decoder.isHipoFileOpen&&isGoodMIP(isSingleTrack())) app.decoder.writer.writeEvent(event);       
+       if (app.isHipoFileOpen&&isGoodMIP(isSingleTrack())) app.writer.writeEvent(event);       
    }  
    
    public void updateEvioData(DataEvent event) {
@@ -269,7 +269,7 @@ public class CTOFReconstructionApp extends FCApplication {
            }           
        }
        
-       if (app.decoder.isHipoFileOpen&&isGoodMIP(isSingleTrack())) writeHipoOutput();
+       if (app.isHipoFileOpen&&isGoodMIP(isSingleTrack())) writeHipoOutput();
        
    }
    
@@ -402,8 +402,8 @@ public class CTOFReconstructionApp extends FCApplication {
    }
    
    public Boolean isGoodMIP(int pdif) {
-	   return true;
-//	   return pdif>21&&pdif<25;
+//	   return true;
+	   return pdif>21&&pdif<25;
    }
    
    public void processCalib() {
