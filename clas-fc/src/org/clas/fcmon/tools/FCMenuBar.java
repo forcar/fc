@@ -51,7 +51,9 @@ public class FCMenuBar extends JMenuBar  {
         JMenuItem           s6 = new JMenuItem("Sector 6");
         JMenuItem         ctof = new JMenuItem("CTOF");
         JMenuItem          cnd = new JMenuItem("CND");
-        JMenuItem          sd5 = new JMenuItem("clondaq3");
+        JMenuItem          sd3 = new JMenuItem("clondaq3");
+        JMenuItem          sd4 = new JMenuItem("clondaq4");
+        JMenuItem          sd5 = new JMenuItem("clondaq5");
         JMenuItem          sd6 = new JMenuItem("clondaq6");
         JMenuItem           x0 = new JMenuItem("EVIO");
         JMenuItem           x1 = new JMenuItem("HIPO");
@@ -80,6 +82,8 @@ public class FCMenuBar extends JMenuBar  {
             ET_open.add(s6);
             ET_open.add(ctof);
             ET_open.add(cnd);
+            ET_open.add(sd3);
+            ET_open.add(sd4);
             ET_open.add(sd5);
             ET_open.add(sd6);
      
@@ -96,6 +100,8 @@ public class FCMenuBar extends JMenuBar  {
             s6.addActionListener(this);   
           ctof.addActionListener(this);
            cnd.addActionListener(this);
+           sd3.addActionListener(this);     
+           sd4.addActionListener(this);     
            sd5.addActionListener(this);     
            sd6.addActionListener(this);     
             x0.addActionListener(this);      
@@ -114,6 +120,8 @@ public class FCMenuBar extends JMenuBar  {
             if(e.getActionCommand().compareTo("CTOF")==0)     {ethost="adcctof1";etfile="/tmp/et_sys_clasprod";}      
             if(e.getActionCommand().compareTo("CND")==0)      {ethost="adccnd1" ;etfile="/tmp/et_sys_clasprod";}      
             if(e.getActionCommand().compareTo("clondaq3")==0) {ethost="clondaq3";etfile="/tmp/et_sys_clasprod";}       
+            if(e.getActionCommand().compareTo("clondaq4")==0) {ethost="clondaq4";etfile="/tmp/et_sys_clasprod";}       
+            if(e.getActionCommand().compareTo("clondaq5")==0) {ethost="clondaq5";etfile="/tmp/et_sys_clasprod";}       
             if(e.getActionCommand().compareTo("clondaq6")==0) {ethost="clondaq6";etfile="/tmp/et_sys_clasprod";}       
     	        if(ethost!=null) app.eventControl.openEtFile(ethost,etfile);    	
             if(e.getActionCommand().compareTo("Load EVIO or HIPO File")==0) this.chooseEvioFile();
@@ -159,12 +167,10 @@ public class FCMenuBar extends JMenuBar  {
 		
         String TriggerDef[] = { "Electron",
 		        "Electron S1","Electron S2","Electron S3","Electron S4","Electron S5","Electron S6",
-		        "HTCC(>1pe)","HTCCxPCAL(>300MeV)","FTOFxPCAL^3","FTOFxPCALxECAL^3",
-		        "FTOFxPCALxCTOF","FTOFxPCALxCND","FTOFxPCALxCNDxCTOF","FTOFxPCAL^2",
-		        "FTOFxPCALxECAL^2","FTOFxPCAL(1-4)","FTOFxPCAL(2-5)","FTOFxPCAL(3-6)",
-		        "FTOFxPCALxECAL(1-4)","FTOFxPCALxECAL(2-5)","FTOFxPCALxECAL(3-6)",
-		        "FTxFTOFxPCALxCTOF","FTxFTOFxPCALxCND","FTxFTOFxPCALxCTOFxCND",
-		        "FTx(FTOFxPCAL)^2","FTx(FTOFxPCAL)^3","FT(>300)xHODO","FT(>500)xHODO","FT>300","FT>500",
+		        "ElectronOR noDC>300","PCALxECAL>10","","","","","","","","","","",
+		        "FTOFxPCALxECAL(1-4)","FTOFxPCALxECAL(2-5)","FTOFxPCALxECAL(3-6)","","",
+		        "FTxHDxFTOFxPCALxCTOF",
+		        "FTxHDx(FTOFxPCAL)^2","FTxHD>100","FT>100","","","",
 		        "1K Pulser"};
         
         public JMenu getMenu() {
