@@ -97,7 +97,7 @@ public class CTOFReconstructionApp extends FCApplication {
        
        int evno;
        long phase = 0;
-       int trigger = 0;
+       long trigger = 0;
        long timestamp = 0;
        float offset = 0;
        
@@ -106,7 +106,7 @@ public class CTOFReconstructionApp extends FCApplication {
        if(!app.isMC&&event.hasBank("RUN::config")){
            DataBank bank = event.getBank("RUN::config");
            timestamp = bank.getLong("timestamp",0);
-           trigger   = bank.getInt("trigger",0);
+           trigger   = bank.getLong("trigger",0);
            evno      = bank.getInt("event",0);         
            int phase_offset = 1;
            phase = ((timestamp%6)+phase_offset)%6;
