@@ -517,16 +517,16 @@ public class ECPart {
         double emax = 2.5;
         
         h2a = new H2F("Invariant Mass",50,0.,emax,50,100.,200);         
-        h2a.setTitleX("Pizero Energy (MeV)"); h2a.setTitleY("Two-Photon Invariant Mass (MeV)");
+        h2a.setTitleX("Pizero Energy (GeV)"); h2a.setTitleY("Two-Photon Invariant Mass (MeV)");
         
         h2b = new H2F("Energy Asymmetry",50,0.,emax,50,-1.0,1.0);      
-        h2b.setTitleX("Pizero Energy (MeV)"); h2b.setTitleY("X:(E1-E2)/(E1+E2)");
+        h2b.setTitleX("Pizero Energy (GeV)"); h2b.setTitleY("X:(E1-E2)/(E1+E2)");
        
         h2c = new H2F("Pizero Energy Error",50,0.,emax,50,-500.,500.); 
-        h2c.setTitleX("Pizero Energy (MeV)"); h2c.setTitleY("Pizero Energy Error (MeV)");
+        h2c.setTitleX("Pizero Energy (GeV)"); h2c.setTitleY("Pizero Energy Error (MeV)");
        
         h2d = new H2F("Pizero Theta Error",50,0.,emax,50,-1.,1.);      
-        h2d.setTitleX("Pizero Energy (MeV)") ; h2d.setTitleY("Pizero Theta Error (deg)");
+        h2d.setTitleX("Pizero Energy (GeV)") ; h2d.setTitleY("Pizero Theta Error (deg)");
         
         part.h5 = new H1F("Thrown",50,0.,emax); part.h5.setTitleX("MC Pizero E (MeV)");
         part.h6 = new H1F("2Gamma",50,0.,emax);  
