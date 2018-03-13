@@ -51,7 +51,7 @@ public class CTOFReconstructionApp extends FCApplication {
    TreeMap<Integer,Object> map7=null,map8=null; 
    
    int nstr = ctofPix[0].nstr;
-       
+      
    int nsa,nsb,tet,pedref;     
    int     thrcc = 20;
    short[] pulse = new short[100]; 
@@ -385,6 +385,8 @@ public class CTOFReconstructionApp extends FCApplication {
    
    public int isSingleTrack() {
 	   
+	   if(!app.isFilter) return -1;
+	   
 	   int[] ip = new int[2];
 	   int pdif = 0;
 	   
@@ -402,8 +404,7 @@ public class CTOFReconstructionApp extends FCApplication {
    }
    
    public Boolean isGoodMIP(int pdif) {
-//	   return true;
-	   return pdif>21&&pdif<25;
+	   return app.isFilter?(pdif>21&&pdif<25):true;
    }
    
    public void processCalib() {

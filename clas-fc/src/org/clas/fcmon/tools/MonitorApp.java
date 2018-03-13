@@ -65,7 +65,7 @@ public class MonitorApp extends JFrame implements ActionListener {
     JSplitPane             vSplitPane; 
     JSplitPane	           hSplitPane;
     JScrollPane            scrollPane;
-	
+
     JPanel    detectorPane = null;
     JPanel        infoPane = null;
     JLabel     statusLabel = null;
@@ -78,7 +78,7 @@ public class MonitorApp extends JFrame implements ActionListener {
     JTextField       runno = new JTextField(4);
     JCheckBox        mcBtn = null;
     JCheckBox       mcbBtn = null;
-    JCheckBox        tbBtn = null;
+    JCheckBox    filterBtn = null;
     JCheckBox       ipcBtn = null;
     JCheckBox     epicsBtn = null;    
     JButton       openBtn  = null;
@@ -118,7 +118,7 @@ public class MonitorApp extends JFrame implements ActionListener {
     public boolean      debug = false;
     public boolean       isMC = false;
     public boolean      isMCB = false;
-    public boolean       isTB = false;
+    public boolean   isFilter = false;
     public boolean      isIPC = false;
     public boolean      isCRT = false;
     public boolean      doEng = false;
@@ -304,19 +304,19 @@ public class MonitorApp extends JFrame implements ActionListener {
         epicsBtn.setSelected(false);         
         buttonPane.add(epicsBtn);
 
-        tbBtn = new JCheckBox("TrigBit");
-        tbBtn.addItemListener(new ItemListener() {
+        filterBtn = new JCheckBox("Filter");
+        filterBtn.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
                 if(e.getStateChange() == ItemEvent.SELECTED) {
-                    isTB = true;
+                    isFilter = true;
                 } else {
-                    isTB = false;
+                    isFilter = false;
                 };
             }
         });  
         
-        tbBtn.setSelected(false);              
-        buttonPane.add(tbBtn);
+        filterBtn.setSelected(false);              
+        buttonPane.add(filterBtn);
 /*        
         ipcBtn = new JCheckBox("IPC");
         ipcBtn.addItemListener(new ItemListener() {

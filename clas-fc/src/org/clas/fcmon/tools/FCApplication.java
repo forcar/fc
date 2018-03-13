@@ -85,7 +85,7 @@ public class FCApplication implements ActionListener  {
 	
     public TreeMap<String,JPanel>  rbPanes = new TreeMap<String,JPanel>();
     public TreeMap<String,String>   bStore = new TreeMap<String,String>();
-	
+
 	public int is,layer,ic;
 	public int panel,opt,io,of,lay,l1,l2,is1,is2,iis1,iis2;
 	
@@ -512,7 +512,7 @@ public class FCApplication implements ActionListener  {
     	
     }
     public Boolean isGoodSector(int is)      {return is>=is1&&is<is2&&isTriggeredSector(is);} 
-    public Boolean isTriggeredSector(int is) {return (app.isTB)? is==app.bitsec:true;}           
+    public Boolean isTriggeredSector(int is) {return (app.isFilter)? is==app.bitsec:true;}           
     
     public int     getFDTrigger()            {return (int)(app.triggerWord)&0x000000000ffffffff;}
     public int     getCDTrigger()            {return (int)(app.triggerWord>>32)&0x00000000ffffffff;}

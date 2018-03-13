@@ -14,7 +14,7 @@ import org.jlab.io.base.DataEvent;
 public class CTOFMon extends DetectorMonitor {
 	
     static MonitorApp             app = new MonitorApp("CTOFMon",1800,950);	
-    
+   
     CTOFPixels              ctofPix[] = new CTOFPixels[1];
     ConstantsManager             ccdb = new ConstantsManager();
     FTHashCollection              rtt = null;      
@@ -37,7 +37,7 @@ public class CTOFMon extends DetectorMonitor {
     int      nsa,nsb,tet,p1,p2,pedref = 0;
     double                 PCMon_zmin = 0;
     double                 PCMon_zmax = 0;
-    
+   
     String mondet                     = "CTOF";
     static String             appname = "CTOFMON";
 	
