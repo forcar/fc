@@ -177,7 +177,7 @@ public class FCApplication implements ActionListener  {
     	        
         if(event instanceof EvioDataEvent){
         	
-        	app.decoder.initEvent(event);
+            app.decoder.initEvent(event);
         	    
             app.run         = app.decoder.codaDecoder.getRunNumber();
             app.evtno       = app.decoder.codaDecoder.getEventNumber();
@@ -512,7 +512,7 @@ public class FCApplication implements ActionListener  {
     	
     }
     public Boolean isGoodSector(int is)      {return is>=is1&&is<is2&&isTriggeredSector(is);} 
-    public Boolean isTriggeredSector(int is) {return (app.isTB)? is==app.bitsec:true;}           
+    public Boolean isTriggeredSector(int is) {return (app.isFilter)? is==app.bitsec:true;}           
     
     public int     getFDTrigger()            {return (int)(app.triggerWord)&0x000000000ffffffff;}
     public int     getCDTrigger()            {return (int)(app.triggerWord>>32)&0x00000000ffffffff;}

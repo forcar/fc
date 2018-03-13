@@ -178,7 +178,7 @@ public class CTOFReconstructionApp extends FCApplication {
                
                if (ped>0) ctofPix[il-1].strips.hmap2.get("H2_a_Hist").get(is,lr+1,3).fill(this.pedref-ped, ip);
 
-               if(isGoodSector(is)) fill(il-1, is, lr+1, ip, adc, tdc, t, (float) adc);    
+               fill(il-1, is, lr+1, ip, adc, tdc, t, (float) adc);    
            }
        }
        if (app.isHipoFileOpen&&isGoodMIP(isSingleTrack())) app.writer.writeEvent(event);       
@@ -215,7 +215,6 @@ public class CTOFReconstructionApp extends FCApplication {
        for (int i=0; i < adcDGTZ.size(); i++) {
            DetectorDataDgtz ddd=adcDGTZ.get(i);
            int is = ddd.getDescriptor().getSector();
-           if (isGoodSector(is)) {
            int cr = ddd.getDescriptor().getCrate();
            int sl = ddd.getDescriptor().getSlot();
            int ch = ddd.getDescriptor().getChannel();
@@ -265,8 +264,7 @@ public class CTOFReconstructionApp extends FCApplication {
            if (pd>0) ctofPix[il-1].strips.hmap2.get("H2_a_Hist").get(is,lr+1,3).fill(this.pedref-pd, ip);
            
            fill(il-1, is, lr+1, ip, ad, tdc, tf, ph);   
-           
-           }           
+                   
        }
        
        if (app.isHipoFileOpen&&isGoodMIP(isSingleTrack())) writeHipoOutput();
