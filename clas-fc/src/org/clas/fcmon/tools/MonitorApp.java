@@ -118,6 +118,7 @@ public class MonitorApp extends JFrame implements ActionListener {
     public boolean      debug = false;
     public boolean       isMC = false;
     public boolean      isMCB = false;
+    public boolean       isTB = false;
     public boolean   isFilter = false;
     public boolean      isIPC = false;
     public boolean      isCRT = false;

@@ -512,7 +512,7 @@ public class FCApplication implements ActionListener  {
     	
     }
     public Boolean isGoodSector(int is)      {return is>=is1&&is<is2&&isTriggeredSector(is);} 
-    public Boolean isTriggeredSector(int is) {return (app.isFilter)? is==app.bitsec:true;}           
+    public Boolean isTriggeredSector(int is) {return (app.isTB)? is==app.bitsec:true;}           
     
     public int     getFDTrigger()            {return (int)(app.triggerWord)&0x000000000ffffffff;}
     public int     getCDTrigger()            {return (int)(app.triggerWord>>32)&0x00000000ffffffff;}
