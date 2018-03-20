@@ -37,10 +37,8 @@ import org.jlab.groot.graphics.EmbeddedCanvas;
 import org.jlab.groot.math.F1D;
 import org.jlab.io.base.DataBank;
 import org.jlab.io.base.DataEvent;
+import org.jlab.myservice.ec.ECPart;
 import org.jlab.service.eb.EventBuilder;
-import org.jlab.service.ec.ECPart;
-//import org.jlab.service.htcc.HTCCReconstructionService;
-
 import org.jlab.groot.data.H1F;
 import org.jlab.groot.data.H2F; 
 

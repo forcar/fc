@@ -167,18 +167,19 @@ public class ECMode1App extends FCApplication  {
    
    public void updateSync() {
        
-       DetectorCollection<H2F> dc2a = ecPix[1].strips.hmap2.get("H2_t_Hist"); 
+       DetectorCollection<H2F> dc2t = ecPix[1].strips.hmap2.get("H2_t_Hist"); 
+       
        H2F h2;
        
        c = mode1.getCanvas("SYNC");  c.clear(); c.divide(3,4); 
        
        for (int is=1; is<7; is++) {
-           h2 = dc2a.get(is,3,3) ;  h2.setTitleY("PHASE") ; h2.setTitleX("Sector "+is+" W Inner Raw TDC (ns)");   
-           canvasConfig(c,is-1,500.,700.,0.,6.,true).draw(h2);
+           h2 = dc2t.get(is,3,3) ;  h2.setTitleY("PHASE") ; h2.setTitleX("Sector "+is+" W Inner FADC-TDC (ns)");   
+           canvasConfig(c,is-1,-40.,40.,0.,6.,true).draw(h2);
        }
        for (int is=1; is<7; is++) {
-           h2 = dc2a.get(is,3,4) ;  h2.setTitleY("PHASE") ; h2.setTitleX("Sector "+is+" W Inner Corrected TDC (ns)");   
-           canvasConfig(c,is-1+6,500.,700.,0.,6.,true).draw(h2);
+           h2 = dc2t.get(is,3,4) ;  h2.setTitleY("PHASE") ; h2.setTitleX("Sector "+is+" W Inner TDC (ns)");   
+           canvasConfig(c,is-1+6,0.,600.,0.,6.,true).draw(h2);
        }
        
        c.repaint();   

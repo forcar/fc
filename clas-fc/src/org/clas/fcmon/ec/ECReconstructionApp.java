@@ -18,11 +18,10 @@ import org.jlab.groot.math.StatNumber;
 //clas12rec
 import org.jlab.detector.decode.DetectorDataDgtz;
 import org.jlab.detector.base.DetectorType;
-
-import org.jlab.service.ec.ECPart;
 import org.jlab.utils.groups.IndexedList;
 import org.jlab.io.base.DataBank;
 import org.jlab.io.base.DataEvent;
+import org.jlab.myservice.ec.ECPart;
 
 
 public class ECReconstructionApp extends FCApplication {
@@ -84,6 +83,8 @@ public class ECReconstructionApp extends FCApplication {
                    ecPix[idet].strips.hmap2.get("H2_Mode1_Hist").get(is,il,0).reset();
                    ecPix[idet].strips.hmap2.get("H2_Mode1_Hist").get(is,il,1).reset();
                }
+               ecPix[idet].strips.hmap2.get("H2_t_Hist").get(is,3,3).reset();
+               ecPix[idet].strips.hmap2.get("H2_t_Hist").get(is,3,4).reset();
            }       
        } 
    }   
@@ -180,8 +181,8 @@ public class ECReconstructionApp extends FCApplication {
                }   
                
                if(il==6&&idet==1) {
-                  ecPix[idet].strips.hmap2.get("H2_t_Hist").get(is,3,3).fill((double) tdc[0]+app.phaseCorrection*4,(double) app.phase);
-                  ecPix[idet].strips.hmap2.get("H2_t_Hist").get(is,3,4).fill(tdc[0],app.phase);
+                  ecPix[idet].strips.hmap2.get("H2_t_Hist").get(is,3,3).fill((double)(tdc[0]-ECConstants.TOFFSET)-t,(double) app.phase+0.5);
+                  ecPix[idet].strips.hmap2.get("H2_t_Hist").get(is,3,4).fill(tdc[0],app.phase+0.5);
                }
                
                if (app.rtt.hasItem(is,il,ip,0)) {
@@ -258,8 +259,8 @@ public class ECReconstructionApp extends FCApplication {
            int ilay = getLay(il);
                       
            if(il==6&&idet==1) {
-               ecPix[idet].strips.hmap2.get("H2_t_Hist").get(is,3,3).fill((double) tdc[0]+app.phaseCorrection*4,(double) app.phase);
-               ecPix[idet].strips.hmap2.get("H2_t_Hist").get(is,3,4).fill(tdc[0],app.phase);
+               ecPix[idet].strips.hmap2.get("H2_t_Hist").get(is,3,3).fill((double) tdc[0]+app.phaseCorrection*4,(double) app.phase+0.5);
+               ecPix[idet].strips.hmap2.get("H2_t_Hist").get(is,3,4).fill(tdc[0],app.phase+0.5);
             }
            
            getMode7(cr,sl,ch);            
@@ -481,7 +482,8 @@ public class ECReconstructionApp extends FCApplication {
                     if(!app.isMC||(app.isMC&&app.variation=="default")) sca  = ecc.AtoE[idil];
                     int ip =          ecPix[idet].strra[is][il][n]; 
                   float ad = (float) (ecPix[idet].adcr[is][il][n]/sca);
-                  ecPix[idet].strips.hmap1.get("H1_Stra_Sevd").get(is+1,il+1,0).fill(ip,ad);
+                  float ipp = (float) (ip+0.5);  //Because of stupid GROOT bug
+                  ecPix[idet].strips.hmap1.get("H1_Stra_Sevd").get(is+1,il+1,0).fill(ipp,ad);
                   ecPix[idet].strips.putpixels(il+1,ip,ad,sed7);
               }
               for (int n=0 ; n<ecPix[idet].nht[is][il] ; n++) {
@@ -489,8 +491,9 @@ public class ECReconstructionApp extends FCApplication {
                   float td = (float) ecPix[idet].tdcr[is][il][n];
                   double tdc = 0.25*(td-ECConstants.TOFFSET);
                   float  wgt = (float) ecPix[idet].ph[is][il][n];
+                  float ipp = (float) (ip+0.5);  //Because of stupid GROOT bug
                   wgt = (wgt > 0) ? wgt:1000;
-                  ecPix[idet].strips.hmap2.get("H2_Mode1_Sevd").get(is+1,il+1,2).fill((float)tdc,ip,wgt);
+                  ecPix[idet].strips.hmap2.get("H2_Mode1_Sevd").get(is+1,il+1,2).fill((float)tdc,ipp,wgt);
               }
           }
           for (int i=0; i<sed7.length; i++) {
