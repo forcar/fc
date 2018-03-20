@@ -49,7 +49,7 @@ import org.jlab.io.evio.EvioDataEvent;
 import org.jlab.io.evio.EvioTreeBranch;
 import org.jlab.io.hipo.HipoDataBank;
 import org.jlab.io.hipo.HipoDataEvent;
-import org.jlab.service.ec.ECEngine;
+import org.jlab.myservice.ec.ECEngine;
 import org.jlab.utils.groups.IndexedList;
 import org.jlab.groot.graphics.EmbeddedCanvas;
 import org.jlab.groot.base.GStyle;
@@ -107,7 +107,7 @@ public class FCApplication implements ActionListener  {
     
     private int pixlength = 1;
     
-    public boolean correctPhase  = false;
+    public boolean correctPhase  = true;
     public boolean testTrigger   = false;
     public boolean triggerBeam[] = new boolean[32];
     public boolean linlog        = true;
@@ -183,6 +183,10 @@ public class FCApplication implements ActionListener  {
             app.evtno       = app.decoder.codaDecoder.getEventNumber();
             app.timestamp   = app.decoder.codaDecoder.getTimeStamp();
             app.triggerWord = app.decoder.codaDecoder.getTriggerBits();             
+            app.phase = getTriggerPhase();
+            app.phaseCorrection = getPhaseCorrection();
+            app.bitsec = getECALTriggerSector();
+            if (!testTriggerMask()) return;
             if( app.isMC) this.updateSimulatedData(event);
             if((!app.isMC)&&testTriggerMask()) this.updateEvioData(event);            
             
@@ -194,16 +198,14 @@ public class FCApplication implements ActionListener  {
                 app.evtno       = bank.getInt("event",0);   
                 app.timestamp   = bank.getLong("timestamp",0);
                 app.triggerWord = bank.getLong("trigger",0);
+                app.phase = getTriggerPhase();
+                app.phaseCorrection = getPhaseCorrection();
+                app.bitsec = getECALTriggerSector();
             }
+            if (!testTriggerMask()) return;
             if(testTriggerMask()) this.updateHipoData(event);        
         }
-             
-        app.phase = getPhase(app.timestamp);
-        app.phaseCorrection = getPhaseCorrection();
-        app.bitsec = getECALTriggerSector();
-        
-        if (!testTriggerMask()) return;
-        
+         
         if (app.isSingleEvent()) {
             findPixels();     // Process all pixels for SED
             processSED();
@@ -495,9 +497,9 @@ public class FCApplication implements ActionListener  {
         return canvas;
     } 
     
-    public float getPhase(long timestamp) {
+    public float getTriggerPhase() {
         int phase_offset = 1;
-        return (float)((timestamp%6)+phase_offset)%6;    	
+        return ((app.timestamp%6)+phase_offset)%6;    	
     }
     
     public float getPhaseCorrection() {
