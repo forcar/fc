@@ -23,6 +23,7 @@ public class FCCLASDecoder {
     public HipoDataEvent               hipoEvent = null;
     public String                   HipoFileName = null;
     public Boolean                isHipoFileOpen = false;  
+    private boolean             isRunNumberFixed = false;
     private int                 decoderDebugMode = 0;
     
     public int runno;
@@ -40,6 +41,31 @@ public class FCCLASDecoder {
         detectorDecoder = new DetectorEventDecoder();
         writer = new HipoDataSync();
         hipoEvent = (HipoDataEvent) writer.createEvent();
+    }
+    
+    public static FCCLASDecoder createDecoder(){
+        FCCLASDecoder decoder = new FCCLASDecoder();
+        return decoder;
+    }
+        
+    public void setDebugMode(int mode){
+        this.decoderDebugMode = mode;
+    }
+    
+    public void setRunNumber(int run){
+        if(this.isRunNumberFixed==false){
+            this.detectorDecoder.setRunNumber(run);
+        }
+    }
+
+    public void setRunNumber(int run, boolean fixed){        
+        this.isRunNumberFixed = fixed;
+        this.detectorDecoder.setRunNumber(run);
+        System.out.println(" SETTING RUN NUMBER TO " + run + " FIXED = " + this.isRunNumberFixed);
+    }
+    
+    public CodaEventDecoder getCodaEventDecoder() {
+	return codaDecoder;
     }
     
     public void openHipoFile(String path) {               
@@ -68,6 +94,9 @@ public class FCCLASDecoder {
                         System.out.println(data);
                     }
                 }
+                int runNumberCoda = codaDecoder.getRunNumber();
+                this.setRunNumber(runNumberCoda);
+                
                 detectorDecoder.translate(dataList);
                 detectorDecoder.fitPulses(dataList);
                 if(this.decoderDebugMode>0){
@@ -338,6 +367,12 @@ public class FCCLASDecoder {
         
         return event;
     }
+
+    public long getTriggerPhase() {    	
+        long timestamp    = this.codaDecoder.getTimeStamp();
+        int  phase_offset = 1;
+        return ((timestamp%6)+phase_offset)%6; // TI derived phase correction due to TDC and FADC clock differences 
+    }  
     
     public HipoDataBank createHeaderBank(DataEvent event, int nrun, int nevent, float torus, float solenoid){
         HipoDataBank bank = (HipoDataBank) event.createBank("RUN::config", 1);
