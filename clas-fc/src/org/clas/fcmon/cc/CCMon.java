@@ -44,6 +44,7 @@ public class CCMon extends DetectorMonitor {
     int    nsa,nsb,tet,p1,p2,pedref = 0;
     double               PCMon_zmin = 0;
     double               PCMon_zmax = 0;
+    boolean              firstevent = true;
     
     String                   mondet = "LTCC";
     static String           appname = "LTCCMON";
@@ -74,7 +75,7 @@ public class CCMon extends DetectorMonitor {
         app.makeGUI();
         app.getEnv();
         monitor.initConstants();
-        monitor.initCCDB();
+        monitor.initCCDB(10);
         monitor.initGlob();
         monitor.makeApps();
         monitor.addCanvas();
@@ -90,15 +91,15 @@ public class CCMon extends DetectorMonitor {
         CCConstants.setSectors(is1,is2);
     }
 
-    public void initCCDB() {
+    public void initCCDB(int runno) {
         ccdb.init(Arrays.asList(new String[]{
                 "/daq/fadc/ltcc",
                 "/daq/tt/ltcc",
                 "/calibration/ltcc/gain",
                 "/calibration/ltcc/timing_offset",
                 "/calibration/ltcc/status"}));
-        app.getReverseTT(ccdb,"/daq/tt/ltcc");
-        app.mode7Emulation.init(ccdb, calRun, "/daq/fadc/ltcc", 1,18,12);        
+        app.getReverseTT(ccdb,runno,"/daq/tt/ltcc");
+        app.mode7Emulation.init(ccdb, runno, "/daq/fadc/ltcc", 1,18,12);        
     }
     
     public void initDetector() {
@@ -166,6 +167,7 @@ public class CCMon extends DetectorMonitor {
     
     public void init( ) {       
         System.out.println("monitor.init()");   
+        firstevent = true;
         app.setInProcess(0); 
         initApps();
         ccPix.initHistograms(" ");
@@ -208,6 +210,10 @@ public class CCMon extends DetectorMonitor {
 	
     @Override
     public void dataEventAction(DataEvent de) {
+        if (firstevent && app.getEventNumber()>2) {
+   	        initCCDB(app.decoder.runno);
+   	        firstevent=false;
+        }  
         ccRecon.addEvent(de);	
     }
 	

@@ -52,6 +52,7 @@ public class ECMon extends DetectorMonitor {
     int    nsa,nsb,tet,p1,p2,pedref = 0;
     double               PCMon_zmin = 0;
     double               PCMon_zmax = 0;
+    boolean              firstevent = true;
    
     String                   mondet = "EC";
     static String           appname = "ECMON";
@@ -81,7 +82,7 @@ public class ECMon extends DetectorMonitor {
         app.makeGUI();
         app.getEnv();
         monitor.initConstants();
-        monitor.initCCDB();
+        monitor.initCCDB(10);
         monitor.initGlob();
         monitor.makeApps();
         monitor.addCanvas();
@@ -97,7 +98,7 @@ public class ECMon extends DetectorMonitor {
         ECConstants.setSectorRange(is1,is2);
     }
     
-    public void initCCDB() {
+    public void initCCDB(int runno) {
         System.out.println("monitor.initCCDB()"); 
         ccdb.init(Arrays.asList(new String[]{
                 "/daq/fadc/ec",
@@ -105,8 +106,8 @@ public class ECMon extends DetectorMonitor {
                 "/calibration/ec/attenuation",
                 "/calibration/ec/gain",
                 "/calibration/ec/status"}));
-        app.getReverseTT(ccdb,"/daq/tt/ec");
-        app.mode7Emulation.init(ccdb,calRun,"/daq/fadc/ec", 3,3,1);        
+        app.getReverseTT(ccdb,runno,"/daq/tt/ec");
+        app.mode7Emulation.init(ccdb,runno,"/daq/fadc/ec", 3,3,1);        
     }	
     
     public void initDetector() {
@@ -194,6 +195,7 @@ public class ECMon extends DetectorMonitor {
 	
     public void init( ) {	    
         System.out.println("monitor.init()");	
+        firstevent = true;
         app.setInProcess(0);  
         initApps();
         for (int i=0; i<ecPix.length; i++) ecPix[i].initHistograms(" ");
@@ -280,6 +282,11 @@ public class ECMon extends DetectorMonitor {
     @Override
     public void dataEventAction(DataEvent de) { 
       
+        if (firstevent && app.getEventNumber()>2) {
+   	        initCCDB(app.decoder.runno);
+   	        firstevent=false;
+        }  
+        
         ecTrig.addEvent(de);
        ecRecon.addEvent(de);
       

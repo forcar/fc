@@ -40,6 +40,7 @@ public class FTOFMon extends DetectorMonitor {
     int      nsa,nsb,tet,p1,p2,pedref = 0;
     double                 PCMon_zmin = 0;
     double                 PCMon_zmax = 0;
+    boolean                firstevent = true;
     
     String mondet                     = "FTOF";
     static String             appname = "FTOFMON";
@@ -66,7 +67,7 @@ public class FTOFMon extends DetectorMonitor {
         app.makeGUI();
         app.getEnv();
         monitor.initConstants();
-        monitor.initCCDB();
+        monitor.initCCDB(10);
         monitor.initGlob();
         monitor.makeApps();
         monitor.addCanvas();
@@ -82,7 +83,7 @@ public class FTOFMon extends DetectorMonitor {
         FTOFConstants.setSectorRange(is1,is2);
     }   
     
-    public void initCCDB() {
+    public void initCCDB(int runno) {
         System.out.println("monitor.initCCDB()"); 
         ccdb.init(Arrays.asList(new String[]{
                 "/daq/fadc/ftof",
@@ -90,8 +91,8 @@ public class FTOFMon extends DetectorMonitor {
                 "/calibration/ftof/attenuation",
                 "/calibration/ftof/gain_balance",
                 "/calibration/ftof/status"}));
-        app.getReverseTT(ccdb,"/daq/tt/ftof"); 
-        app.mode7Emulation.init(ccdb,calRun,"/daq/fadc/ftof", 3,3,1);        
+        app.getReverseTT(ccdb,runno,"/daq/tt/ftof"); 
+        app.mode7Emulation.init(ccdb,runno,"/daq/fadc/ftof", 3,3,1);        
     } 
     
     public void initDetector() {
@@ -167,6 +168,7 @@ public class FTOFMon extends DetectorMonitor {
 
     public void initApps() {
         System.out.println("monitor.initApps()");
+        firstevent = true;
         for (int i=0; i<ftofPix.length; i++)   ftofPix[i].init();
         ftofRecon.init();
     }
@@ -202,6 +204,10 @@ public class FTOFMon extends DetectorMonitor {
 	
     @Override
     public void dataEventAction(DataEvent de) {
+        if (firstevent&&app.getEventNumber()>2) {
+   	        initCCDB(app.decoder.runno);
+   	        firstevent=false;
+         }
         ftofRecon.addEvent(de);	
     }
 

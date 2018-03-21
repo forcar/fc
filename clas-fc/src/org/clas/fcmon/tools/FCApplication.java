@@ -178,7 +178,7 @@ public class FCApplication implements ActionListener  {
         if(event instanceof EvioDataEvent){
         	
             app.decoder.initEvent(event);
-        	    
+
             app.run         = app.decoder.codaDecoder.getRunNumber();
             app.evtno       = app.decoder.codaDecoder.getEventNumber();
             app.timestamp   = app.decoder.codaDecoder.getTimeStamp();

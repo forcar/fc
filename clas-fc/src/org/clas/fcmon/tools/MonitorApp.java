@@ -131,11 +131,9 @@ public class MonitorApp extends JFrame implements ActionListener {
     public String          config = "muon";
     public int            trigger = 1;        //0=cluster 1=pixel
     public int               omap = 0;
-    public int           localRun = 0;
-    
+    public int                run = 0;
     public int        triggerMask = 0; // Set in FCMenuBar
     public long       triggerWord = 0;    
-    public int                run = 0;
     public int              evtno = 0;
     public int             bitsec = 0;
     public long         timestamp = 0;
@@ -182,9 +180,9 @@ public class MonitorApp extends JFrame implements ActionListener {
         this.variation = variation;
     }
     
-    public void getReverseTT(ConstantsManager ccdb, String table) {
+    public void getReverseTT(ConstantsManager ccdb, int run, String table) {
         System.out.println("monitor.getReverseTT()"); 
-        IndexedTable tt = ccdb.getConstants(3615, table);
+        IndexedTable tt = ccdb.getConstants(run, table);
         rtt = new FTHashCollection<int[]>(4);
         for(int ic=1; ic<74; ic++) {
             for (int sl=3; sl<21; sl++) {

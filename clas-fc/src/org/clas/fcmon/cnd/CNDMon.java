@@ -38,6 +38,7 @@ public class CNDMon extends DetectorMonitor {
     double                 PCMon_zmin = 0;
     double                 PCMon_zmax = 0;
     boolean                firstevent = true;
+    
     String mondet                     = "CND";
     static String             appname = "CNDMON";
 	
@@ -82,7 +83,7 @@ public class CNDMon extends DetectorMonitor {
         ccdb.init(Arrays.asList(new String[]{
                 "/daq/fadc/cnd",
                 "/daq/tt/cnd"}));
-        app.getReverseTT(ccdb,"/daq/tt/cnd"); 
+        app.getReverseTT(ccdb,runno,"/daq/tt/cnd"); 
         app.mode7Emulation.init(ccdb,runno,"/daq/fadc/cnd", 73,3,1);        
     } 
     
@@ -196,8 +197,8 @@ public class CNDMon extends DetectorMonitor {
     @Override
     public void dataEventAction(DataEvent de) {    	  
           if (firstevent&&app.getEventNumber()>2) {
-        	  initCCDB(app.decoder.runno);
-        	  firstevent=false;
+        	     initCCDB(app.decoder.runno);
+        	     firstevent=false;
           }
     	  cndRecon.addEvent(de);	
     }

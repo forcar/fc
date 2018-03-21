@@ -3,7 +3,6 @@
 	<name>clas-fc</name>
 	<comment></comment>
 	<projects>
-		<project>clas12</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
@@ -16,15 +15,9 @@
 			<arguments>
 			</arguments>
 		</buildCommand>
-		<buildCommand>
-			<name>com.github.spotbugs.plugin.eclipse.findbugsBuilder</name>
-			<arguments>
-			</arguments>
-		</buildCommand>
 	</buildSpec>
 	<natures>
-		<nature>org.eclipse.m2e.core.maven2Nature</nature>
 		<nature>org.eclipse.jdt.core.javanature</nature>
-		<nature>com.github.spotbugs.plugin.eclipse.findbugsNature</nature>
+		<nature>org.eclipse.m2e.core.maven2Nature</nature>
 	</natures>
 </projectDescription>

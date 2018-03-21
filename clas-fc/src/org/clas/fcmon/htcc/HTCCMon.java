@@ -37,6 +37,7 @@ public class HTCCMon extends DetectorMonitor {
     int      nsa,nsb,tet,p1,p2,pedref = 0;
     double                 PCMon_zmin = 0;
     double                 PCMon_zmax = 0;
+    boolean                firstevent = true;
     
     String mondet                     = "HTCC";
     static String             appname = "HTCCMON";
@@ -61,7 +62,7 @@ public class HTCCMon extends DetectorMonitor {
         app.makeGUI();
         app.getEnv();
         monitor.initConstants();
-        monitor.initCCDB();
+        monitor.initCCDB(10);
         monitor.initGlob();
         monitor.makeApps();
         monitor.addCanvas();
@@ -77,7 +78,7 @@ public class HTCCMon extends DetectorMonitor {
         HTCCConstants.setSectorRange(is1,is2);
     }   
     
-    public void initCCDB() {
+    public void initCCDB(int runno) {
         System.out.println("monitor.initCCDB()"); 
         ccdb.init(Arrays.asList(new String[]{
                 "/daq/fadc/htcc",
@@ -85,8 +86,8 @@ public class HTCCMon extends DetectorMonitor {
                 "/calibration/ctof/attenuation",
                 "/calibration/ctof/gain_balance",
                 "/calibration/ctof/status"}));
-        app.getReverseTT(ccdb,"/daq/tt/htcc"); 
-        app.mode7Emulation.init(ccdb,calRun,"/daq/fadc/htcc", 59,13,1);        
+        app.getReverseTT(ccdb,runno,"/daq/tt/htcc"); 
+        app.mode7Emulation.init(ccdb,runno,"/daq/fadc/htcc", 59,13,1);        
     } 
     
     public void initDetector() {
@@ -154,7 +155,8 @@ public class HTCCMon extends DetectorMonitor {
     }
     
     public void init( ) {       
-        System.out.println("monitor.init()");   
+        System.out.println("monitor.init()");  
+        firstevent = true;
         app.setInProcess(0);
         initApps();
         for (int i=0; i<htccPix.length; i++) htccPix[i].initHistograms(" "); 
@@ -197,7 +199,11 @@ public class HTCCMon extends DetectorMonitor {
 	
     @Override
     public void dataEventAction(DataEvent de) {
-       htccRecon.addEvent(de);	
+        if (firstevent&&app.getEventNumber()>2) {
+   	        initCCDB(app.decoder.runno);
+   	        firstevent=false;
+        }       
+        htccRecon.addEvent(de);	
     }
 
     @Override
