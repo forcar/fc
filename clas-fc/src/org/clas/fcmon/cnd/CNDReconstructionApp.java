@@ -195,7 +195,7 @@ public class CNDReconstructionApp extends FCApplication {
     	     System.out.println(" ");       
          System.out.println("Event Number "+app.getEventNumber());
        }
-       
+              
        List<DetectorDataDgtz> adcDGTZ = app.decoder.getEntriesADC(DetectorType.CND);
        List<DetectorDataDgtz> tdcDGTZ = app.decoder.getEntriesTDC(DetectorType.CND);
        

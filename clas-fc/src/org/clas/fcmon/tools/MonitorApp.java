@@ -184,7 +184,7 @@ public class MonitorApp extends JFrame implements ActionListener {
     
     public void getReverseTT(ConstantsManager ccdb, String table) {
         System.out.println("monitor.getReverseTT()"); 
-        IndexedTable tt = ccdb.getConstants(10, table);
+        IndexedTable tt = ccdb.getConstants(3615, table);
         rtt = new FTHashCollection<int[]>(4);
         for(int ic=1; ic<74; ic++) {
             for (int sl=3; sl<21; sl++) {

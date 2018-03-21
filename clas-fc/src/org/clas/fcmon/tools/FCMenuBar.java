@@ -117,12 +117,12 @@ public class FCMenuBar extends JMenuBar  {
     	        if(e.getActionCommand().compareTo("Sector 4")==0) {ethost="adcecal4";etfile="/tmp/et_sys_clasprod";}
     	        if(e.getActionCommand().compareTo("Sector 5")==0) {ethost="adcecal5";etfile="/tmp/et_sys_clasprod";}
             if(e.getActionCommand().compareTo("Sector 6")==0) {ethost="adcecal6";etfile="/tmp/et_sys_clasprod";}      
-            if(e.getActionCommand().compareTo("CTOF")==0)     {ethost="adcctof1";etfile="/tmp/et_sys_clasprod";}      
-            if(e.getActionCommand().compareTo("CND")==0)      {ethost="adccnd1" ;etfile="/tmp/et_sys_clasprod";}      
+            if(e.getActionCommand().compareTo("CTOF")==0)     {ethost="svt1";etfile="/tmp/et_sys_clasprod";}      
+            if(e.getActionCommand().compareTo("CND")==0)      {ethost="svt1";etfile="/tmp/et_sys_clasprod";}      
             if(e.getActionCommand().compareTo("clondaq3")==0) {ethost="clondaq3";etfile="/tmp/et_sys_clasprod";}       
             if(e.getActionCommand().compareTo("clondaq4")==0) {ethost="clondaq4";etfile="/tmp/et_sys_clasprod";}       
-            if(e.getActionCommand().compareTo("clondaq5")==0) {ethost="clondaq5";etfile="/tmp/et_sys_clasprod";}       
-            if(e.getActionCommand().compareTo("clondaq6")==0) {ethost="clondaq6";etfile="/tmp/et_sys_clasprod";}       
+            if(e.getActionCommand().compareTo("clondaq5")==0) {ethost="clondaq5";etfile="/et/clasprod";}       
+            if(e.getActionCommand().compareTo("clondaq6")==0) {ethost="clondaq6";etfile="/et/clasprod";}       
     	        if(ethost!=null) app.eventControl.openEtFile(ethost,etfile);    	
             if(e.getActionCommand().compareTo("Load EVIO or HIPO File")==0) this.chooseEvioFile();
             if(e.getActionCommand().compareTo("EVIO")==0) app.eventControl.openXEvioRing();

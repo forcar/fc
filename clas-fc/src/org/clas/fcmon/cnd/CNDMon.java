@@ -30,14 +30,14 @@ public class CNDMon extends DetectorMonitor {
     CNDScalersApp        cndScalers = null;
     CNDHvApp                  cndHv = null;
        
-    public int                 calRun = 12;
+    public int                 calRun = 10;
     int                         detID = 0;
     int                           is1 = 1;    
     int                           is2 = 25; 
     int      nsa,nsb,tet,p1,p2,pedref = 0;
     double                 PCMon_zmin = 0;
     double                 PCMon_zmax = 0;
-    
+    boolean                firstevent = true;
     String mondet                     = "CND";
     static String             appname = "CNDMON";
 	
@@ -61,7 +61,7 @@ public class CNDMon extends DetectorMonitor {
         app.makeGUI();
         app.getEnv();
         monitor.initConstants();
-        monitor.initCCDB();
+        monitor.initCCDB(10);
         monitor.initGlob();
         monitor.makeApps();
         monitor.addCanvas();
@@ -77,13 +77,13 @@ public class CNDMon extends DetectorMonitor {
         CNDConstants.setSectorRange(is1,is2);
     }   
     
-    public void initCCDB() {
-        System.out.println("monitor.initCCDB()"); 
+    public void initCCDB(int runno) {
+        System.out.println("monitor.initCCDB(): Run "+runno); 
         ccdb.init(Arrays.asList(new String[]{
                 "/daq/fadc/cnd",
                 "/daq/tt/cnd"}));
         app.getReverseTT(ccdb,"/daq/tt/cnd"); 
-        app.mode7Emulation.init(ccdb,calRun,"/daq/fadc/cnd", 73,3,1);        
+        app.mode7Emulation.init(ccdb,runno,"/daq/fadc/cnd", 73,3,1);        
     } 
     
     public void initDetector() {
@@ -151,7 +151,8 @@ public class CNDMon extends DetectorMonitor {
     }
     
     public void init( ) {       
-        System.out.println("monitor.init()");   
+        System.out.println("monitor.init()");  
+        firstevent = true;
         app.setInProcess(0);
         initApps();
         for (int i=0; i<cndPix.length; i++) cndPix[i].initHistograms(" "); 
@@ -194,6 +195,10 @@ public class CNDMon extends DetectorMonitor {
 	
     @Override
     public void dataEventAction(DataEvent de) {    	  
+          if (firstevent&&app.getEventNumber()>2) {
+        	  initCCDB(app.decoder.runno);
+        	  firstevent=false;
+          }
     	  cndRecon.addEvent(de);	
     }
 

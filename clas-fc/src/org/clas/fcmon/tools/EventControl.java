@@ -72,7 +72,7 @@ public class EventControl extends JPanel implements ActionListener, ChangeListen
     public int           stopFPS = 0;
     int                nEtEvents = 0;
     int              threadDelay = 0;
-    int             currentEvent = 0;
+    public int      currentEvent = 0;
     
     private java.util.Timer    processTimer  = null;	
 	
@@ -150,8 +150,8 @@ public class EventControl extends JPanel implements ActionListener, ChangeListen
     			isRemote	   = true;
     			isSingleEvent  = false;
     			isEtFileOpen   = true;
-            isEvioFileOpen = false;
-            isHipoFileOpen = false;
+                isEvioFileOpen = false;
+                isHipoFileOpen = false;
     			etReader.close();
     			etReader.loadEvents();
     			buttonNext.setEnabled(true);
@@ -349,6 +349,7 @@ public class EventControl extends JPanel implements ActionListener, ChangeListen
             if(etReader.hasEvent()==false){
                 int maxTries = 20;
                 int trycount = 0;
+    	        currentEvent++;
                 etReader.clearEvents();
                 while(trycount<maxTries&&etReader.getSize()<=0){                    
 //                    System.out.println("[Et-Ring::Thread] ---> reloading the data....");

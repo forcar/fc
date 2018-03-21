@@ -53,6 +53,7 @@ public class FCCLASDecoder {
     }
     
     public void setRunNumber(int run){
+    	this.runno = run;
         if(this.isRunNumberFixed==false){
             this.detectorDecoder.setRunNumber(run);
         }
@@ -99,6 +100,7 @@ public class FCCLASDecoder {
                 
                 detectorDecoder.translate(dataList);
                 detectorDecoder.fitPulses(dataList);
+                
                 if(this.decoderDebugMode>0){
                     System.out.println("\n>>>>>>>>> TRANSLATED data");
                     for(DetectorDataDgtz data : dataList){

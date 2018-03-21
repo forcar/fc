@@ -39,6 +39,7 @@ public class Mode7Emulation extends JPanel implements ActionListener,ItemListene
    public int CCDB_nsa=0;
    public int CCDB_nsb=0;	    
    public int useCCDB = 1;
+   public int runno;
 	
    public void setPluginClass(DetectorPane2D detectorView) {    		 
       this.detectorView = detectorView;
@@ -75,7 +76,8 @@ public class Mode7Emulation extends JPanel implements ActionListener,ItemListene
    }
 	   
    public void init(ConstantsManager ccdb, int run, String table, int cr, int sl, int ch) {  
-	  System.out.println("Mode7Emulation.init()");
+	  System.out.println("Mode7Emulation.init(): Run "+run);
+	  this.runno = run;
       this.fadc = ccdb.getConstants(run, table);
       configMode7(cr,sl,ch);
       updateGUI();
