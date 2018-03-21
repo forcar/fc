@@ -12,7 +12,8 @@ import org.jlab.geom.detector.ec.ECFactory;
 import org.jlab.io.base.DataEvent;
 import org.jlab.io.evio.EvioDataEvent;
 import org.jlab.io.evio.EvioDataSync;
-import org.jlab.service.ec.*;
+import org.jlab.myservice.ec.*;
+import org.jlab.myservice.ec.ECEngine;
 
 import java.util.Arrays;
 import java.util.TreeMap;

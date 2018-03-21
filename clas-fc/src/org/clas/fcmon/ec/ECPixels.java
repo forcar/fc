@@ -385,8 +385,8 @@ public class ECPixels {
             }
             
                 id="s"+Integer.toString(is)+"_l"+Integer.toString(3)+"_c";
-                H2_t_Hist.add(is, 3, 3, new H2F("a_raw_"+id+3, 100, 500., 700., 6, 0., 6.)); // No phase correction
-                H2_t_Hist.add(is, 3, 4, new H2F("a_raw_"+id+4, 100, 500., 700., 6, 0., 6.)); // With phase correction
+                H2_t_Hist.add(is, 3, 3, new H2F("a_raw_"+id+3,  41, -40.,  40., 6, 0., 6.)); // No phase correction
+                H2_t_Hist.add(is, 3, 4, new H2F("a_raw_"+id+4, 100,   0., 600., 6, 0., 6.)); // With phase correction
             
                 // Reconstructed data
                 id="s"+Integer.toString(is)+"_l"+Integer.toString(4)+"_c";
