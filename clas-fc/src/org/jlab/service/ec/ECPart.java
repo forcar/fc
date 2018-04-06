@@ -25,7 +25,7 @@ import org.jlab.io.base.DataEvent;
 import org.jlab.io.evio.EvioDataBank;
 import org.jlab.io.evio.EvioDataEvent;
 import org.jlab.io.hipo.HipoDataSource;
-import org.jlab.service.eb.EBConstants;
+//import org.jlab.service.eb.EBConstants;
 import org.jlab.service.eb.EBEngine;
 import org.jlab.service.eb.EventBuilder;
 import org.jlab.utils.groups.IndexedList;
