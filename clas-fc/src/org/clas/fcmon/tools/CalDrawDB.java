@@ -28,6 +28,7 @@ public class CalDrawDB{
 	//                                        [sector][u,v,w][strip number][vertex number]
 	private static double[][][][] xPoint = new double [6][3][68][4];
 	private static double[][][][] yPoint = new double [6][3][68][4];
+	private static double[][][][] zPoint = new double [6][3][68][4];
 
 	public CalDrawDB(String detector, ECDetector ecdet) {
 		     if(detector.contains("PCAL"))  unit = 0;
@@ -976,7 +977,10 @@ public class CalDrawDB{
 		else
 			System.err.println("Error in calling getStripVerticies");
         
-        return(new Object[]{numpoints, xPoint[sector][l][paddle1], yPoint[sector][l][paddle1]});
+        return(new Object[]{numpoints, 
+        		               xPoint[sector][l][paddle1], 
+        		               yPoint[sector][l][paddle1],
+        		               zPoint[sector][l][paddle1]});
 	}
 	
 	//estimates the shape center by calculating average x, y, z
@@ -1360,6 +1364,7 @@ public class CalDrawDB{
 		    			point1.translateXYZ(333.1042, 0.0, 0.0);
 		    			xPoint[sector][l][n][j] =  point1.x();
 		    			yPoint[sector][l][n][j] = -point1.y(); // why minus sign?
+		    			zPoint[sector][l][n][j] =  point1.z();
 		    		}
 	    			n++;
 		    	}
@@ -1642,6 +1647,7 @@ public class CalDrawDB{
 		            	//save points
 		            	xPoint[sector][l][i][j] = point1.x();
 		            	yPoint[sector][l][i][j] = point1.y();
+		            	zPoint[sector][l][i][j] = point1.z();
 	        		}
 	            }
 	        }
