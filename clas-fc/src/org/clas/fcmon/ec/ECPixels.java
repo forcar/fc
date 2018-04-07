@@ -544,7 +544,7 @@ public class ECPixels {
 	    	        for (int istr=0; istr<ec_nstr[lay]; istr++) {
 	    	            for (int k=0;k<4;k++){
 	    	                ec_xstr[k][istr][lay][is]= -(ec_xstr[k][istr][lay][6]*ct+ec_ystr[k][istr][lay][6]*st);
-	    	                ec_ystr[k][istr][lay][is]=  -ec_xstr[k][istr][lay][6]*st+ec_ystr[k][istr][lay][6]*ct;    
+	    	                ec_ystr[k][istr][lay][is]=  -ec_xstr[k][istr][lay][6]*st+ec_ystr[k][istr][lay][6]*ct; 
 	    	            }    
 	    	        }    
 	    	    }
@@ -553,8 +553,8 @@ public class ECPixels {
 	    	        ec_cmap[ipix] = 255*ipix/pixels.getNumPixels();
 	    	        for (int k=0;k<ec_nvrt[ipix];k++) {
 	    	            ec_xpix[k][ipix][is]= -(ec_xpix[k][ipix][6]*ct+ec_ypix[k][ipix][6]*st); 
-                        ec_ypix[k][ipix][is]=  -ec_xpix[k][ipix][6]*st+ec_ypix[k][ipix][6]*ct;    
-                        ec_zpix[k][ipix][is]=   ec_zpix[k][ipix][6];    
+                    ec_ypix[k][ipix][is]=  -ec_xpix[k][ipix][6]*st+ec_ypix[k][ipix][6]*ct;    
+                    ec_zpix[k][ipix][is]=   ec_zpix[k][ipix][6];    
 	    	        }    
 	    	    }	    
 	    	}	    	    	
