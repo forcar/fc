@@ -88,10 +88,10 @@ public class CTOFPixels {
         
         ccdb.loadTable(table+"/ctof");  
        
-        cc.RADIUS = ccdb.getDouble(table+"/ctof/radius",0);
-        cc.LENGTH = ccdb.getDouble(table+"/ctof/length",0);
-        cc.THICK  = ccdb.getDouble(table+"/ctof/thick",0);
-        cc.WIDTH  = ccdb.getDouble(table+"/ctof/width",0);
+//        cc.RADIUS = ccdb.getDouble(table+"/ctof/radius",0);
+//        cc.LENGTH = ccdb.getDouble(table+"/ctof/length",0);
+//        cc.THICK  = ccdb.getDouble(table+"/ctof/thick",0);
+//        cc.WIDTH  = ccdb.getDouble(table+"/ctof/width",0);
         cc.setGeometry();
 
 	}
