@@ -188,7 +188,9 @@ public class FCApplication implements ActionListener  {
             app.bitsec = getECALTriggerSector();
             if (!testTriggerMask()) return;
             if( app.isMC) this.updateSimulatedData(event);
-            if((!app.isMC)&&testTriggerMask()) this.updateEvioData(event);            
+            boolean goodEvent = !app.isMC&&testTriggerMask();
+            if(!app.decoder.codaDecoder.isMode7()) this.updateEvioData(event);            
+            if( app.decoder.codaDecoder.isMode7()) this.updateHipoData(app.decoder.getDataEvent());            
             
         } else {
 
