@@ -84,7 +84,7 @@ public class FTOFMon extends DetectorMonitor {
     }   
     
     public void initCCDB(int runno) {
-        System.out.println("monitor.initCCDB()"); 
+        System.out.println(appname+".initCCDB()"); 
         ccdb.init(Arrays.asList(new String[]{
                 "/daq/fadc/ftof",
                 "/daq/tt/ftof",
@@ -96,7 +96,7 @@ public class FTOFMon extends DetectorMonitor {
     } 
     
     public void initDetector() {
-        System.out.println("monitor.initDetector()"); 
+        System.out.println(appname=".initDetector()"); 
         ftofDet = new FTOFDet("FTOFDet",ftofPix);
         ftofDet.setMonitoringClass(this);
         ftofDet.setApplicationClass(app);
@@ -104,7 +104,7 @@ public class FTOFMon extends DetectorMonitor {
     }
 	
     public void makeApps() {
-        System.out.println("monitor.makeApps()"); 
+        System.out.println(appname+".makeApps()"); 
         ftofRecon = new FTOFReconstructionApp("FTOFREC",ftofPix);        
         ftofRecon.setMonitoringClass(this);
         ftofRecon.setApplicationClass(app);	
@@ -148,7 +148,7 @@ public class FTOFMon extends DetectorMonitor {
     }
 	
     public void addCanvas() {
-        System.out.println("monitor.addCanvas()"); 
+        System.out.println(appname+".addCanvas()"); 
         app.addFrame(ftofMode1.getName(),          ftofMode1.getPanel());
         app.addCanvas(ftofAdc.getName(),             ftofAdc.getCanvas());          
         app.addCanvas(ftofTdc.getName(),             ftofTdc.getCanvas());          
@@ -160,21 +160,21 @@ public class FTOFMon extends DetectorMonitor {
     }
     
     public void init( ) {       
-        System.out.println("monitor.init()");   
+        System.out.println(appname+".init()");   
         app.setInProcess(0);
         initApps();
         for (int i=0; i<ftofPix.length; i++) ftofPix[i].initHistograms(" "); 
     }
 
     public void initApps() {
-        System.out.println("monitor.initApps()");
+        System.out.println(appname+".initApps()");
         firstevent = true;
         for (int i=0; i<ftofPix.length; i++)   ftofPix[i].init();
         ftofRecon.init();
     }
     
     public void initGlob() {
-        System.out.println("monitor.initGlob()");
+        System.out.println(appname+".initGlob()");
         putGlob("detID", detID);
         putGlob("nsa", nsa);
         putGlob("nsb", nsb);
@@ -205,7 +205,8 @@ public class FTOFMon extends DetectorMonitor {
     @Override
     public void dataEventAction(DataEvent de) {
         if (firstevent&&app.getEventNumber()>2) {
-   	        initCCDB(app.decoder.runno);
+    	        System.out.println(appname+".dataEventAction: First Event");
+   	        initCCDB(app.run);
    	        firstevent=false;
          }
         ftofRecon.addEvent(de);	
@@ -266,7 +267,7 @@ public class FTOFMon extends DetectorMonitor {
     
     @Override
     public void readHipoFile() {        
-        System.out.println("monitor.readHipoFile()");
+        System.out.println(appname+".readHipoFile()");
         for (int idet=0; idet<3; idet++) {
           String hipoFileName = app.hipoPath+mondet+idet+"_"+app.runNumber+".hipo";
           System.out.println("Reading Histograms from "+hipoFileName);
@@ -277,7 +278,7 @@ public class FTOFMon extends DetectorMonitor {
     
     @Override
     public void writeHipoFile() {
-        System.out.println("monitor.writeHipoFile()");
+        System.out.println(appname+".writeHipoFile()");
         for (int idet=0; idet<3; idet++) {
           String hipoFileName = app.hipoPath+mondet+idet+"_"+app.runNumber+".hipo";
           System.out.println("Writing Histograms to "+hipoFileName);
@@ -290,7 +291,7 @@ public class FTOFMon extends DetectorMonitor {
     
     @Override
     public void close() {
-        System.out.println("monitor.close()");
+        System.out.println(appname+".close()");
         app.displayControl.setFPS(1);
     }
     

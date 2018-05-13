@@ -174,7 +174,11 @@ public class FCApplication implements ActionListener  {
     public void addEvent(DataEvent event) {
     	
     	// globals set here must go to app.* since this is called only in ReconstructionApp
-    	        
+    	
+        app.decoder.detectorDecoder.setTET(app.mode7Emulation.tet);
+        app.decoder.detectorDecoder.setNSA(app.mode7Emulation.nsa);
+        app.decoder.detectorDecoder.setNSB(app.mode7Emulation.nsb);   
+    	
         if(event instanceof EvioDataEvent){
         	
             app.decoder.initEvent(event);
@@ -189,6 +193,7 @@ public class FCApplication implements ActionListener  {
             if (!testTriggerMask()) return;
             if( app.isMC) this.updateSimulatedData(event);
             boolean goodEvent = !app.isMC&&testTriggerMask();
+            System.out.println("MODE 7?"+app.decoder.codaDecoder.isMode7());
             if(!app.decoder.codaDecoder.isMode7()) this.updateEvioData(event);            
             if( app.decoder.codaDecoder.isMode7()) this.updateHipoData(app.decoder.getDataEvent());            
             

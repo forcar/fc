@@ -103,7 +103,7 @@ public class CCMon extends DetectorMonitor {
     }
     
     public void initDetector() {
-        System.out.println("monitor.initDetector()"); 
+        System.out.println(appname+".initDetector()"); 
         ccDet = new CCDet("CCDet",ccPix);
         ccDet.setMonitoringClass(this);
         ccDet.setApplicationClass(app);
@@ -112,7 +112,7 @@ public class CCMon extends DetectorMonitor {
 	
     public void makeApps() {
         
-        System.out.println("monitor.makeApps()");  
+        System.out.println(appname+".makeApps()");  
         
         ccRecon = new CCReconstructionApp("LTCCREC",ccPix);        
         ccRecon.setMonitoringClass(this);
@@ -155,7 +155,7 @@ public class CCMon extends DetectorMonitor {
     }
 	
     public void addCanvas() {
-        System.out.println("monitor.addCanvas()"); 
+        System.out.println(appname+".addCanvas()"); 
         app.addFrame(ccMode1.getName(),         ccMode1.getPanel());
         app.addCanvas(ccOccupancy.getName(), ccOccupancy.getCanvas());          
         app.addCanvas(ccPedestal.getName(),   ccPedestal.getCanvas());
@@ -166,7 +166,7 @@ public class CCMon extends DetectorMonitor {
     }
     
     public void init( ) {       
-        System.out.println("monitor.init()");   
+        System.out.println(appname+".init()");   
         firstevent = true;
         app.setInProcess(0); 
         initApps();
@@ -174,13 +174,13 @@ public class CCMon extends DetectorMonitor {
     }
 
     public void initApps() {
-        System.out.println("monitor.initApps()");
+        System.out.println(appname+".initApps()");
         ccPix.init();
         ccRecon.init();
     }
     
     public void initGlob() {
-        System.out.println("monitor.initGlob()");
+        System.out.println(appname+".initGlob()");
         putGlob("detID", detID);
         putGlob("nsa", nsa);
         putGlob("nsb", nsb);
@@ -211,7 +211,8 @@ public class CCMon extends DetectorMonitor {
     @Override
     public void dataEventAction(DataEvent de) {
         if (firstevent && app.getEventNumber()>2) {
-   	        initCCDB(app.decoder.runno);
+	        System.out.println(appname+".dataEventAction: First Event");
+   	        initCCDB(app.run);
    	        firstevent=false;
         }  
         ccRecon.addEvent(de);	
@@ -266,7 +267,7 @@ public class CCMon extends DetectorMonitor {
     
     @Override
     public void readHipoFile() {        
-        System.out.println("monitor.readHipoFile()");
+        System.out.println(appname+".readHipoFile()");
         String hipoFileName = app.hipoPath+mondet+"_"+app.runNumber+".hipo";
         System.out.println("Reading Histograms from "+hipoFileName);
         ccPix.initHistograms(hipoFileName);
@@ -276,7 +277,7 @@ public class CCMon extends DetectorMonitor {
     
     @Override
     public void writeHipoFile() {
-        System.out.println("monitor.writeHipoFile()");
+        System.out.println(appname+".writeHipoFile()");
         String hipoFileName = app.hipoPath+mondet+"_"+app.runNumber+".hipo";
         System.out.println("Writing Histograms to "+hipoFileName);
         HipoFile histofile = new HipoFile(hipoFileName);
@@ -311,7 +312,7 @@ public class CCMon extends DetectorMonitor {
 	@Override
 	public void initEpics(Boolean doEpics) {
 		// TODO Auto-generated method stub
-        System.out.println("monitor.initEpics():Initializing EPICS Channel Access");
+        System.out.println(appname+".initEpics():Initializing EPICS Channel Access");
         if (app.xMsgHost=="localhost") {ccHv.online=false ; ccScalers.online=false;}
         if ( doEpics) {ccHv.startEPICS(); ccScalers.startEPICS();}
         if (!doEpics) {ccHv.stopEPICS();  ccScalers.stopEPICS();}		

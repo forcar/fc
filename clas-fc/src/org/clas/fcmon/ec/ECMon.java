@@ -99,7 +99,7 @@ public class ECMon extends DetectorMonitor {
     }
     
     public void initCCDB(int runno) {
-        System.out.println("monitor.initCCDB()"); 
+        System.out.println(appname+".initCCDB() for run "+runno); 
         ccdb.init(Arrays.asList(new String[]{
                 "/daq/fadc/ec",
                 "/daq/tt/ec",
@@ -111,7 +111,7 @@ public class ECMon extends DetectorMonitor {
     }	
     
     public void initDetector() {
-        System.out.println("monitor.initDetector()"); 
+        System.out.println(appname+".initDetector()"); 
         ecDet = new ECDet("ECDet",ecPix);
         ecDet.setMonitoringClass(this);
         ecDet.setApplicationClass(app);
@@ -119,7 +119,7 @@ public class ECMon extends DetectorMonitor {
     }
     
     public void makeApps()  {
-        System.out.println("monitor.makeApps()");   
+        System.out.println(appname+".makeApps()");   
         
         ecEngine   = new ECEngine();
         
@@ -179,7 +179,7 @@ public class ECMon extends DetectorMonitor {
     }
     
     public void addCanvas() {
-        System.out.println("monitor.addCanvas()"); 
+        System.out.println(appname+".addCanvas()"); 
         app.addFrame(ecMode1.getName(),             ecMode1.getPanel());
         app.addFrame(ecEng.getName(),                 ecEng.getPanel());
         app.addCanvas(ecAdc.getName(),                ecAdc.getCanvas());          
@@ -194,7 +194,7 @@ public class ECMon extends DetectorMonitor {
     }
 	
     public void init( ) {	    
-        System.out.println("monitor.init()");	
+        System.out.println(appname+".init()");	
         firstevent = true;
         app.setInProcess(0);  
         initApps();
@@ -202,7 +202,7 @@ public class ECMon extends DetectorMonitor {
     }
 
     public void initApps() {
-        System.out.println("monitor.initApps()");
+        System.out.println(appname+".initApps()");
         for (int i=0; i<ecPix.length; i++)   ecPix[i].init();
         ecRecon.init();
         ecGains.init();
@@ -215,7 +215,7 @@ public class ECMon extends DetectorMonitor {
     }
     
     public void initEngine() {
-        System.out.println("monitor.initEngine():Initializing ecEngine");
+        System.out.println(appname+".initEngine():Initializing ecEngine");
         System.out.println("Configuration: "+app.config); 
         System.out.println("Variation: "+app.variation);
         
@@ -242,14 +242,14 @@ public class ECMon extends DetectorMonitor {
     }
     
     public void initEpics(Boolean doEpics) {
-        System.out.println("monitor.initScalers():Initializing EPICS Channel Access");
+        System.out.println(appname+".initScalers():Initializing EPICS Channel Access");
         if (app.xMsgHost=="localhost") {ecHv.online=false ; ecScalers.online=false;}
         if ( doEpics) {ecHv.startEPICS(); ecScalers.startEPICS();}
         if (!doEpics) {ecHv.stopEPICS();  ecScalers.stopEPICS();}
     }
 	
     public void initGlob() {
-        System.out.println("monitor.initGlob()");
+        System.out.println(appname+".initGlob()");
         putGlob("detID", detID);
         putGlob("nsa", nsa);
         putGlob("nsb", nsb);
@@ -283,7 +283,8 @@ public class ECMon extends DetectorMonitor {
     public void dataEventAction(DataEvent de) { 
       
         if (firstevent && app.getEventNumber()>2) {
-   	        initCCDB(app.decoder.runno);
+        	    System.out.println(appname+".dataEventAction: First Event");
+   	        initCCDB(app.run);
    	        firstevent=false;
         }  
         
@@ -362,7 +363,7 @@ public class ECMon extends DetectorMonitor {
     
     @Override
     public void readHipoFile() {        
-        System.out.println("monitor.readHipoFile()");
+        System.out.println(appname+".readHipoFile()");
         for (int idet=0; idet<3; idet++) {
             String hipoFileName = app.hipoPath+mondet+idet+"_"+app.runNumber+".hipo";
             System.out.println("Reading Histograms from "+hipoFileName);
@@ -373,7 +374,7 @@ public class ECMon extends DetectorMonitor {
     
     @Override
     public void writeHipoFile() {
-        System.out.println("monitor.writeHipoFile()");
+        System.out.println(appname+".writeHipoFile()");
         for (int idet=0; idet<3; idet++) {
             String hipoFileName = app.hipoPath+mondet+idet+"_"+app.runNumber+".hipo";
             System.out.println("Writing Histograms to "+hipoFileName);
@@ -398,7 +399,7 @@ public class ECMon extends DetectorMonitor {
     
     @Override
     public void close() {
-        System.out.println("monitor.close()");
+        System.out.println(appname+".close()");
         app.displayControl.setFPS(1);
         if(saveFile) writer.close();
     }

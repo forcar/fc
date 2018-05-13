@@ -210,6 +210,7 @@ public class DetectorEventDecoder {
     } 
     */   
         public void fitPulses(List<DetectorDataDgtz>  detectorData){
+        	
         for(DetectorDataDgtz data : detectorData){            
             int crate    = data.getDescriptor().getCrate();
             int slot     = data.getDescriptor().getSlot();
@@ -233,6 +234,7 @@ public class DetectorEventDecoder {
                         adc.setTimeStamp(mvtFitter.timestamp);
                     }
                 } else {
+
                     IndexedTable  daq = fitterManager.getConstants(runNumber, table);
                     DetectorType  type = DetectorType.getType(table);
                     if(daq.hasEntry(crate,slot,channel)==true){                    
@@ -268,10 +270,9 @@ public class DetectorEventDecoder {
                                 }
                             }
                         }
-                        //System.out.println(" apply nsa nsb " + nsa + " " + nsb);
                         if(data.getADCSize()>0){
                             for(int i = 0; i < data.getADCSize(); i++){
-                                    data.getADCData(i).setADC(nsa, nsb);
+                                data.getADCData(i).setADC(nsa, nsb);
                             }
                         }
                     }

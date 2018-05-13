@@ -139,14 +139,9 @@ public class FTOFReconstructionApp extends FCApplication {
    public void updateHipoData(DataEvent event) {
        
        float      tps =  (float) 0.02345;
-       float     tdcf = 0;
        float     tdcd = 0;
-       float   tdcmax = 0;
-       float   offset = 0;
        
        clear(0); clear(1); clear(2); adcs.clear(); tdcs.clear(); ltpmt.clear() ; lapmt.clear();
-       
-       if (app.isMC)  offset=600;
        
        if(event.hasBank("FTOF::tdc")){
            DataBank  bank = event.getBank("FTOF::tdc");
@@ -198,7 +193,7 @@ public class FTOFReconstructionApp extends FCApplication {
                    List<Float> list = new ArrayList<Float>();
                    list = tdcs.getItem(is,il,lr,ip); tdcc=new Float[list.size()]; list.toArray(tdcc);
                    tdc = new float[list.size()];
-                   for (int ii=0; ii<tdcc.length; ii++) tdc[ii] = tdcc[ii]-tdcmax+offset-app.phaseCorrection*4;  
+                   for (int ii=0; ii<tdcc.length; ii++) tdc[ii] = tdcc[ii]-app.phaseCorrection*4;  
                } else {
                    tdc = new float[1];
                }

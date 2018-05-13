@@ -79,7 +79,7 @@ public class HTCCMon extends DetectorMonitor {
     }   
     
     public void initCCDB(int runno) {
-        System.out.println("monitor.initCCDB()"); 
+        System.out.println(appname+".initCCDB()"); 
         ccdb.init(Arrays.asList(new String[]{
                 "/daq/fadc/htcc",
                 "/daq/tt/htcc",
@@ -91,7 +91,7 @@ public class HTCCMon extends DetectorMonitor {
     } 
     
     public void initDetector() {
-        System.out.println("monitor.initDetector()"); 
+        System.out.println(appname+".initDetector()"); 
         htccDet = new HTCCDet("HTCCDet",htccPix);
         htccDet.setMonitoringClass(this);
         htccDet.setApplicationClass(app);
@@ -99,7 +99,7 @@ public class HTCCMon extends DetectorMonitor {
     }
 	
     public void makeApps() {
-        System.out.println("monitor.makeApps()"); 
+        System.out.println(appname+".makeApps()"); 
         htccRecon = new HTCCReconstructionApp("HTCCREC",htccPix);        
         htccRecon.setMonitoringClass(this);
         htccRecon.setApplicationClass(app);	
@@ -143,7 +143,7 @@ public class HTCCMon extends DetectorMonitor {
     }
 	
     public void addCanvas() {
-        System.out.println("monitor.addCanvas()"); 
+        System.out.println(appname+".addCanvas()"); 
         app.addFrame(htccMode1.getName(),          htccMode1.getPanel());
         app.addCanvas(htccAdc.getName(),             htccAdc.getCanvas());          
         app.addCanvas(htccTdc.getName(),             htccTdc.getCanvas());          
@@ -155,7 +155,7 @@ public class HTCCMon extends DetectorMonitor {
     }
     
     public void init( ) {       
-        System.out.println("monitor.init()");  
+        System.out.println(appname+".init()");  
         firstevent = true;
         app.setInProcess(0);
         initApps();
@@ -163,13 +163,13 @@ public class HTCCMon extends DetectorMonitor {
     }
 
     public void initApps() {
-        System.out.println("monitor.initApps()");
+        System.out.println(appname+".initApps()");
         for (int i=0; i<htccPix.length; i++) htccPix[i].init();
         htccRecon.init();
     }
     
     public void initGlob() {
-        System.out.println("monitor.initGlob()");
+        System.out.println(appname+".initGlob()");
         putGlob("detID", detID);
         putGlob("nsa", nsa);
         putGlob("nsb", nsb);
@@ -200,7 +200,8 @@ public class HTCCMon extends DetectorMonitor {
     @Override
     public void dataEventAction(DataEvent de) {
         if (firstevent&&app.getEventNumber()>2) {
-   	        initCCDB(app.decoder.runno);
+	        System.out.println(appname+".dataEventAction: First Event");
+   	        initCCDB(app.run);
    	        firstevent=false;
         }       
         htccRecon.addEvent(de);	
@@ -260,7 +261,7 @@ public class HTCCMon extends DetectorMonitor {
     
     @Override
     public void readHipoFile() {        
-        System.out.println("monitor.readHipoFile()");
+        System.out.println(appname+".readHipoFile()");
         for (int idet=0; idet<htccPix.length; idet++) {
           String hipoFileName = app.hipoPath+mondet+idet+"_"+app.runNumber+".hipo";
           System.out.println("Reading Histograms from "+hipoFileName);
@@ -271,7 +272,7 @@ public class HTCCMon extends DetectorMonitor {
     
     @Override
     public void writeHipoFile() {
-        System.out.println("monitor.writeHipoFile()");
+        System.out.println(appname+".writeHipoFile()");
         for (int idet=0; idet<htccPix.length; idet++) {
           String hipoFileName = app.hipoPath+mondet+idet+"_"+app.runNumber+".hipo";
           System.out.println("Writing Histograms to "+hipoFileName);
@@ -284,7 +285,7 @@ public class HTCCMon extends DetectorMonitor {
     
     @Override
     public void close() {
-        System.out.println("monitor.close()");
+        System.out.println(appname+".close()");
         app.displayControl.setFPS(1);
     }
     

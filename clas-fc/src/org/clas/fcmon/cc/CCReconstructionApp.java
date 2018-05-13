@@ -85,23 +85,11 @@ public class CCReconstructionApp extends FCApplication {
    
    public void updateHipoData(DataEvent event) {
        
-       int evno;
-       long phase = 0;
-       long trigger = 0;
-       long timestamp = 0;
+       float    tps =  (float) 0.02345;
        float offset = 0;
+       float   tdcd = 0;
        
        clear(); tdcs.clear(); adcs.clear(); ltpmt.clear(); lapmt.clear();
-       
-       if(!app.isMC&&event.hasBank("RUN::config")){
-           DataBank bank = event.getBank("RUN::config");
-           timestamp = bank.getLong("timestamp",0);
-           trigger   = bank.getLong("trigger",0);
-           evno      = bank.getInt("event",0);         
-           int phase_offset = 1;
-           phase = ((timestamp%6)+phase_offset)%6;
-           if (trigger>0) app.bitsec = (int) (Math.log10(trigger>>24)/0.301+1);
-       }
        
        if (app.isMCB) offset=(float)124.25;
        
@@ -114,9 +102,10 @@ public class CCReconstructionApp extends FCApplication {
                int  il = bank.getByte("layer",i);
                int  lr = bank.getByte("order",i);                       
                int  ip = bank.getShort("component",i);
+               tdcd = bank.getInt("TDC",i)*tps; 
                
                if (!tdcs.hasItem(is,lr-2,ip)) tdcs.add(new ArrayList<Float>(),is,lr-2,ip);
-                    tdcs.getItem(is,lr-2,ip).add((float) bank.getInt("TDC",i)*24/1000+offset-phase*4  );              
+                    tdcs.getItem(is,lr-2,ip).add(tdcd);              
                if (!ltpmt.hasItem(is)) {
        	            ltpmt.add(new ArrayList<Integer>(),is);
                     ltpmt.getItem(is).add(is);
@@ -149,7 +138,7 @@ public class CCReconstructionApp extends FCApplication {
                    List<Float> list = new ArrayList<Float>();
                    list = tdcs.getItem(is,lr,ip); tdcc=new Float[list.size()]; list.toArray(tdcc);
                    tdc  = new float[list.size()];
-                   for (int ii=0; ii<tdcc.length; ii++) tdc[ii] = tdcc[ii];  
+                   for (int ii=0; ii<tdcc.length; ii++) tdc[ii] = tdcc[ii]-app.phaseCorrection*4;  
                } else {
                    tdc = new float[1];
                }

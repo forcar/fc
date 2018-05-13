@@ -79,7 +79,7 @@ public class HTCCPixels {
     
     public void pixdef() {
         
-        System.out.println("CNDPixels.pixdef(): "+this.detName); 
+        System.out.println("HTCCPixels.pixdef(): "+this.detName); 
                    
         cc.RADIUS = 50;
         cc.THICK  = 100;

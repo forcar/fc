@@ -79,7 +79,7 @@ public class CNDMon extends DetectorMonitor {
     }   
     
     public void initCCDB(int runno) {
-        System.out.println("monitor.initCCDB(): Run "+runno); 
+        System.out.println(appname+".initCCDB(): Run "+runno); 
         ccdb.init(Arrays.asList(new String[]{
                 "/daq/fadc/cnd",
                 "/daq/tt/cnd"}));
@@ -88,7 +88,7 @@ public class CNDMon extends DetectorMonitor {
     } 
     
     public void initDetector() {
-        System.out.println("monitor.initDetector()"); 
+        System.out.println(appname+".initDetector()"); 
         cndDet = new CNDDet("CNDDet",cndPix);
         cndDet.setMonitoringClass(this);
         cndDet.setApplicationClass(app);
@@ -96,7 +96,7 @@ public class CNDMon extends DetectorMonitor {
     }
 	
     public void makeApps() {
-        System.out.println("monitor.makeApps()"); 
+        System.out.println(appname+".makeApps()"); 
         cndRecon = new CNDReconstructionApp("CNDREC",cndPix);        
         cndRecon.setMonitoringClass(this);
         cndRecon.setApplicationClass(app);	
@@ -140,7 +140,7 @@ public class CNDMon extends DetectorMonitor {
     }
 	
     public void addCanvas() {
-        System.out.println("monitor.addCanvas()"); 
+        System.out.println(appname+".addCanvas()"); 
         app.addFrame(cndMode1.getName(),          cndMode1.getPanel());
         app.addCanvas(cndAdc.getName(),             cndAdc.getCanvas());          
         app.addCanvas(cndTdc.getName(),             cndTdc.getCanvas());          
@@ -152,7 +152,7 @@ public class CNDMon extends DetectorMonitor {
     }
     
     public void init( ) {       
-        System.out.println("monitor.init()");  
+        System.out.println(appname+".init()");  
         firstevent = true;
         app.setInProcess(0);
         initApps();
@@ -160,13 +160,13 @@ public class CNDMon extends DetectorMonitor {
     }
 
     public void initApps() {
-        System.out.println("monitor.initApps()");
+        System.out.println(appname+".initApps()");
         for (int i=0; i<cndPix.length; i++) cndPix[i].init();
         cndRecon.init();
     }
     
     public void initGlob() {
-        System.out.println("monitor.initGlob()");
+        System.out.println(appname+".initGlob()");
         putGlob("detID", detID);
         putGlob("nsa", nsa);
         putGlob("nsb", nsb);
@@ -197,7 +197,8 @@ public class CNDMon extends DetectorMonitor {
     @Override
     public void dataEventAction(DataEvent de) {    	  
           if (firstevent&&app.getEventNumber()>2) {
-        	     initCCDB(app.decoder.runno);
+  	         System.out.println(appname+".dataEventAction: First Event");
+        	     initCCDB(app.run);
         	     firstevent=false;
           }
     	  cndRecon.addEvent(de);	
@@ -257,7 +258,7 @@ public class CNDMon extends DetectorMonitor {
     
     @Override
     public void readHipoFile() {        
-        System.out.println("monitor.readHipoFile()");
+        System.out.println(appname+".readHipoFile()");
         for (int idet=0; idet<cndPix.length; idet++) {
           String hipoFileName = app.hipoPath+mondet+idet+"_"+app.runNumber+".hipo";
           System.out.println("Reading Histograms from "+hipoFileName);
@@ -268,7 +269,7 @@ public class CNDMon extends DetectorMonitor {
     
     @Override
     public void writeHipoFile() {
-        System.out.println("monitor.writeHipoFile()");
+        System.out.println(appname+".writeHipoFile()");
         for (int idet=0; idet<cndPix.length; idet++) {
           String hipoFileName = app.hipoPath+mondet+idet+"_"+app.runNumber+".hipo";
           System.out.println("Writing Histograms to "+hipoFileName);
@@ -281,7 +282,7 @@ public class CNDMon extends DetectorMonitor {
     
     @Override
     public void close() {
-        System.out.println("monitor.close()");
+        System.out.println(appname+".close()");
         app.displayControl.setFPS(1);
     }
     

@@ -57,7 +57,7 @@ public class CNDReconstructionApp extends FCApplication {
    }
    
    public void init() {
-       System.out.println("CTOFReconstruction.init()");
+       System.out.println("CNDReconstruction.init()");
        mondet = (String) mon.getGlob().get("mondet");
        is1 = CNDConstants.IS1;
        is2 = CNDConstants.IS2;
@@ -90,39 +90,25 @@ public class CNDReconstructionApp extends FCApplication {
    }
    
    public void updateHipoData(DataEvent event) {
-       
-       int evno;
-       long phase = 0;
-       int trigger = 0;
-       long timestamp = 0;
+
+       float    tps =  (float) 0.02345;
        float offset = 0;
+       float   tdcd = 0;
        
        clear(0); tdcs.clear(); adcs.clear(); ltpmt.clear(); lapmt.clear();
        
-       if(!app.isMC&&event.hasBank("RUN::config")){
-           DataBank bank = event.getBank("RUN::config");
-           timestamp = bank.getLong("timestamp",0);
-           trigger   = bank.getInt("trigger",0);
-           evno      = bank.getInt("event",0);         
-           int phase_offset = 1;
-           phase = ((timestamp%6)+phase_offset)%6;
-           if (trigger>0) app.bitsec = (int) (Math.log10(trigger>>24)/0.301+1);
-       }
-       
-       if (app.isMCB) offset=(float)124.25;
-       
        if(event.hasBank("CND::tdc")){
            DataBank  bank = event.getBank("CND::tdc");
-           int rows = bank.rows();
-           
+           int rows = bank.rows();           
            for(int i = 0; i < rows; i++){
                int  is = bank.getByte("sector",i);
                int  il = bank.getByte("layer",i);
                int  lr = bank.getByte("order",i);                       
                int  ip = bank.getShort("component",i);
-               
+               tdcd = bank.getInt("TDC",i)*tps;  
+              
                if (!tdcs.hasItem(is,lr-2,il)) tdcs.add(new ArrayList<Float>(),is,lr-2,il);
-                    tdcs.getItem(is,lr-2,il).add((float) bank.getInt("TDC",i)*24/1000+offset-phase*4  );              
+                    tdcs.getItem(is,lr-2,il).add(tdcd);              
                if (!ltpmt.hasItem(is)) {
        	            ltpmt.add(new ArrayList<Integer>(),is);
                     ltpmt.getItem(is).add(il);
@@ -155,7 +141,7 @@ public class CNDReconstructionApp extends FCApplication {
                    List<Float> list = new ArrayList<Float>();
                    list = tdcs.getItem(is,lr,il); tdcc=new Float[list.size()]; list.toArray(tdcc);
                    tdc  = new float[list.size()];
-                   for (int ii=0; ii<tdcc.length; ii++) tdc[ii] = tdcc[ii];  
+                   for (int ii=0; ii<tdcc.length; ii++) tdc[ii] = tdcc[ii]-app.phaseCorrection*4;  
                } else {
                    tdc = new float[1];
                }
