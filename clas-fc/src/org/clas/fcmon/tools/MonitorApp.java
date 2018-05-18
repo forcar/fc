@@ -141,7 +141,7 @@ public class MonitorApp extends JFrame implements ActionListener {
     public float  phaseCorrection = 0;
 
     public int tet,nsa,nsb,pedref;
-    public int maxEvents;
+    public int maxEvents=100000000;
     
     public FTHashCollection rtt = null;
     
