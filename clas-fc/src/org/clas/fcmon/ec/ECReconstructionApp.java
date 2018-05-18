@@ -21,8 +21,6 @@ import org.jlab.detector.base.DetectorType;
 import org.jlab.utils.groups.IndexedList;
 import org.jlab.io.base.DataBank;
 import org.jlab.io.base.DataEvent;
-import org.jlab.myservice.ec.ECPart;
-
 
 public class ECReconstructionApp extends FCApplication {
     

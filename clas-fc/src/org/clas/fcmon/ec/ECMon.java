@@ -12,8 +12,7 @@ import org.jlab.geom.detector.ec.ECFactory;
 import org.jlab.io.base.DataEvent;
 import org.jlab.io.evio.EvioDataEvent;
 import org.jlab.io.evio.EvioDataSync;
-import org.jlab.myservice.ec.*;
-import org.jlab.myservice.ec.ECEngine;
+import org.jlab.service.ec.ECEngine;
 
 import java.util.Arrays;
 import java.util.TreeMap;
@@ -288,13 +287,19 @@ public class ECMon extends DetectorMonitor {
    	        firstevent=false;
         }  
         
-        ecTrig.addEvent(de);
        ecRecon.addEvent(de);
+       ecTrig.addEvent(de);
       
       if(app.doEng) {
           ecEngine.singleEvent = app.isSingleEvent() ; 
           ecEngine.debug       = app.debug; 
-          ecEngine.isMC        = app.isMC;
+          ecEngine.isMC        = app.isMC;       
+          if(de.hasBank("ECAL::hits")) {
+        	     de.removeBank("ECAL::hits");
+        	     de.removeBank("ECAL::peaks");
+        	     de.removeBank("ECAL::clusters");
+        	     de.removeBank("ECAL::calib");  
+          }
           ecEngine.processDataEvent(de);     
           ecEng.addEvent(de);
           if(app.doGain) ecGains.addEvent(de);

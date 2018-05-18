@@ -37,7 +37,8 @@ import org.jlab.groot.graphics.EmbeddedCanvas;
 import org.jlab.groot.math.F1D;
 import org.jlab.io.base.DataBank;
 import org.jlab.io.base.DataEvent;
-import org.jlab.myservice.ec.ECPart;
+import org.jlab.rec.eb.EBCCDBConstants;
+import org.jlab.service.eb.EBEngine;
 import org.jlab.service.eb.EventBuilder;
 import org.jlab.groot.data.H1F;
 import org.jlab.groot.data.H2F; 
@@ -65,6 +66,11 @@ public class ECEngineApp extends FCApplication implements ActionListener {
     ButtonGroup                bG1 = null;
     List<TOFPaddle>     paddleList = null;
     
+//    EBEngine                       ebe = new EBEngine("ECMON");
+//    EventBuilder                    eb = null;
+    ECPart                        part = new ECPart();      
+    List<List<DetectorResponse>>   res = new ArrayList<List<DetectorResponse>>();    
+    
     DetectorType[] detNames = {DetectorType.ECAL, DetectorType.ECIN, DetectorType.ECOUT};
     double pcx,pcy,pcz;
     double refE=0,refP=0,refTH=25;
@@ -75,6 +81,8 @@ public class ECEngineApp extends FCApplication implements ActionListener {
       createPopupMenu();
       is1 = ECConstants.IS1;
       is2 = ECConstants.IS2;
+//	  ebe.init();
+//      eb = new EventBuilder(new EBCCDBConstants(10,ebe.getConstantsManager()));    	
 //      engineHTCC.init();
    }
    
@@ -345,12 +353,12 @@ public class ECEngineApp extends FCApplication implements ActionListener {
       } 
       
       // Monitor EC cluster data
-                
-      EventBuilder               eb = new EventBuilder();
-      ECPart                    part = new ECPart();      
-      List<List<DetectorResponse>>   res = new ArrayList<List<DetectorResponse>>();      
-      part.setGeom(app.geom);  part.setConfig(app.config);      
-      List<DetectorResponse>       ecClusters = part.readEC(event);  
+
+      res.clear();
+      part.setGeom(app.geom);  
+      part.setConfig(app.config);    
+      
+      List<DetectorResponse> ecClusters = part.readEC(event);  
       
       if (ecClusters.size()>0) {
        
@@ -361,7 +369,7 @@ public class ECEngineApp extends FCApplication implements ActionListener {
       ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,9,0).fill(refTH-mcThet,1.);  //refTH-mcThet
           
       for (int idet=0; idet<3; idet++) {
-          res.add(eb.getUnmatchedResponses(ecClusters, DetectorType.ECAL,iidet[idet]));
+          res.add(part.eb.getUnmatchedResponses(ecClusters, DetectorType.ECAL,iidet[idet]));
           for(int i = 0; i < res.get(idet).size(); i++){
               int        is = res.get(idet).get(i).getDescriptor().getSector();
               double energy = res.get(idet).get(i).getEnergy();
@@ -439,9 +447,7 @@ public class ECEngineApp extends FCApplication implements ActionListener {
       } else {
           paddleList = DataProvider.getPaddleList(event);          
           double[] thresh = {500,1000,1000}; 
-          for (int i=0; i<6; i++) {
-              part.mip[i]=0;
-          }
+          for (int i=0; i<6; i++) part.mip[i]=0;       
           if (paddleList!=null) {
           for (TOFPaddle paddle : paddleList){           
               int toflay = paddle.getDescriptor().getLayer();            
@@ -470,15 +476,15 @@ public class ECEngineApp extends FCApplication implements ActionListener {
 //            if (app.config=="pi0") {  // No FTOF MIP in sector
         	  
               double invmass = Math.sqrt(part.getTwoPhotonInvMass(is));
+              double     opa = Math.acos(part.cth)*180/3.14159;
               
-              if(part.iis[0]>0&&part.iis[1]>0) {
+              boolean badPizero = part.X>0.5 && opa<8;
+              if(part.iis[0]>0&&part.iis[1]>0&&!badPizero) {
                                 
               ecPix[0].strips.hmap1.get("H1_a_Hist").get(part.iis[0], 11, part.iis[1]).fill((float)invmass*1e3); // Two-photon invariant mass
               
               if(part.iis[0]==part.iis[1]) {
                   
-              double     opa = Math.acos(part.cth)*180/3.14159;
-              
               if(nesum[0][is-1]>1 && nesum[1][is-1]>0) {
                   ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,0).fill(esum[is-1],7,1.);          // Total Cluster Energy            
                   ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,2).fill(part.e1,part.SF1,1.);      // S.F. vs. meas. photon energy            

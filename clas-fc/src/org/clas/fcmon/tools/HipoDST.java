@@ -14,7 +14,7 @@ import org.jlab.jnp.hipo.io.HipoReader;
 import org.jlab.jnp.hipo.io.HipoWriter;
 import org.jlab.jnp.hipo.schema.Schema;
 import org.jlab.jnp.hipo.schema.SchemaFactory;
-import org.jlab.myservice.ec.ECEngine;
+import org.jlab.service.ec.ECEngine;
 import org.jlab.io.base.DataBank;
 import org.jlab.io.base.DataEvent;
 import org.jlab.io.hipo.HipoDataBank;

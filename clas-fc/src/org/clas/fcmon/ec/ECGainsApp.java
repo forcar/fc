@@ -28,7 +28,7 @@ import org.jlab.groot.group.DataGroup;
 import org.jlab.groot.math.F1D;
 import org.jlab.io.base.DataBank;
 import org.jlab.io.base.DataEvent;
-import org.jlab.myservice.ec.ECEngine;
+import org.jlab.service.ec.ECEngine;
 import org.jlab.utils.groups.IndexedList;
 
 public class ECGainsApp extends FCApplication implements ActionListener {
@@ -184,6 +184,7 @@ public class ECGainsApp extends FCApplication implements ActionListener {
             h2 = new H2F("hi_ecou_wc_"+is,"hi_ecou_wc_"+is,50, 0., 100., 36, 1., 37.);
             h2.setTitleX("Sector "+is+" ECou (MeV)");
             h2.setTitleY("coordW");
+            
             dg_mip.addDataSet(h2, 1); 
             h2 = new H2F("hi_pcal_ectot_"+is,"hi_pcal_ectot_"+is,50,0.,100.,50,0.,200.);
             h2.setTitleX("Sector "+is+" PCAL (MeV)");
@@ -192,6 +193,7 @@ public class ECGainsApp extends FCApplication implements ActionListener {
             h2 = new H2F("hi_pcal_ectot_max_"+is,"hi_pcal_ectot_max_"+is,100,0.,200.,100,0.,300.);
             h2.setTitleX("Sector "+is+" PCAL (MeV)");
             h2.setTitleY("ECTOT (MeV)");
+            
             dg_mip.addDataSet(h2, 1);  
             h2 = new H2F("hi_pcal_path1_"+is,"hi_pcal_path1_"+is,50,0.,100.,118,31.,90.);
             h2.setTitleX("Sector "+is+" PCAL (MeV)");
@@ -284,7 +286,8 @@ public class ECGainsApp extends FCApplication implements ActionListener {
         h2 = new H2F("hi_pcal_xyp_we","hi_pcal_xyp_we",100, -500., 500., 100, -500.,500);
         dg_mip.addDataSet(h2, 1);  
         h2 = new H2F("hi_pcal_xyp_ww","hi_pcal_xyp_ww",100, -500., 500., 100, -500.,500);
-        dg_mip.addDataSet(h2, 1);  
+        dg_mip.addDataSet(h2, 1); 
+        
         h2 = new H2F("hi_ecin_xyp_ue","hi_ecin_xyp_ue",100, -500., 500., 100, -500.,500);
         dg_mip.addDataSet(h2, 1);  
         h2 = new H2F("hi_ecin_xyp_uw","hi_ecin_xyp_uw",100, -500., 500., 100, -500.,500);
@@ -297,6 +300,7 @@ public class ECGainsApp extends FCApplication implements ActionListener {
         dg_mip.addDataSet(h2, 1);  
         h2 = new H2F("hi_ecin_xyp_ww","hi_ecin_xyp_ww",100, -500., 500., 100, -500.,500);
         dg_mip.addDataSet(h2, 1);  
+        
         h2 = new H2F("hi_ecou_xyp_ue","hi_ecou_xyp_ue",100, -500., 500., 100, -500.,500);
         dg_mip.addDataSet(h2, 1);  
         h2 = new H2F("hi_ecou_xyp_uw","hi_ecou_xyp_uw",100, -500., 500., 100, -500.,500);
