@@ -49,6 +49,7 @@ import org.jlab.io.evio.EvioDataEvent;
 import org.jlab.io.evio.EvioTreeBranch;
 import org.jlab.io.hipo.HipoDataBank;
 import org.jlab.io.hipo.HipoDataEvent;
+import org.jlab.myservice.ec.ECEngine;
 import org.jlab.utils.groups.IndexedList;
 import org.jlab.groot.graphics.EmbeddedCanvas;
 import org.jlab.groot.base.GStyle;
@@ -97,7 +98,7 @@ public class FCApplication implements ActionListener  {
     
     public double    PCMon_zmin = 100;
     public double    PCMon_zmax = 4000;        
-    public int     ilmap = 0;
+    public int            ilmap = 0;
     
     public int sectorSelected, layerSelected, channelSelected;
     
@@ -105,6 +106,8 @@ public class FCApplication implements ActionListener  {
     public int     trigCD = 0;
     
     private int pixlength = 1;
+    
+    private int nevents = 0;
     
     public boolean correctPhase  = true;
     public boolean testTrigger   = false;
@@ -177,7 +180,7 @@ public class FCApplication implements ActionListener  {
         app.decoder.detectorDecoder.setTET(app.mode7Emulation.tet);
         app.decoder.detectorDecoder.setNSA(app.mode7Emulation.nsa);
         app.decoder.detectorDecoder.setNSB(app.mode7Emulation.nsb);   
-    	
+    	    nevents++ ; if (nevents>app.maxEvents) {mon.reset(); nevents = 0;}
         if(event instanceof EvioDataEvent){
         	
             app.decoder.initEvent(event);
@@ -192,6 +195,7 @@ public class FCApplication implements ActionListener  {
             if (!testTriggerMask()) return;
             if( app.isMC) this.updateSimulatedData(event);
             boolean goodEvent = !app.isMC&&testTriggerMask();
+            System.out.println("MODE 7?"+app.decoder.codaDecoder.isMode7());
             if(!app.decoder.codaDecoder.isMode7()) this.updateEvioData(event);            
             if( app.decoder.codaDecoder.isMode7()) this.updateHipoData(app.decoder.getDataEvent());            
             
@@ -212,8 +216,6 @@ public class FCApplication implements ActionListener  {
         }
          
         if (app.isSingleEvent()) {
-            for (int i=0; i<32; i++) if(isTrigBitSet(i)) System.out.println(i);    	 
-        	    System.out.println("Event = "+app.evtno+" Trigger ="+app.triggerWord);
             findPixels();     // Process all pixels for SED
             processSED();
         } else {

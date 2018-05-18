@@ -12,6 +12,8 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 
+import javax.swing.JOptionPane;
+
 import org.clas.fcmon.tools.EventControl;
 
 @SuppressWarnings("serial")
@@ -21,11 +23,13 @@ public class FCMenuBar extends JMenuBar  {
     public MonitorApp      app = null; 
     
     MenuFile        menu1 = new MenuFile();
-    MenuTriggerBits menu2 = new MenuTriggerBits();
+    MenuSettings    menu2 = new MenuSettings();
+    MenuTriggerBits menu3 = new MenuTriggerBits();
     
 	public FCMenuBar() {		
 		this.add(menu1.menu);
 		this.add(menu2.menu);
+		this.add(menu3.menu);
 	}
 	
     public void setApplicationClass(MonitorApp app) {
@@ -41,7 +45,6 @@ public class FCMenuBar extends JMenuBar  {
         JMenu             menu = new JMenu("File");
         JMenu          ET_open = new JMenu("Attach to ET");
         JMenu          XM_open = new JMenu("xMsg Ring");
-    
         JMenuItem    file_open = new JMenuItem("Load EVIO or HIPO File");    
         JMenuItem           s1 = new JMenuItem("Sector 1");
         JMenuItem           s2 = new JMenuItem("Sector 2");
@@ -157,6 +160,59 @@ public class FCMenuBar extends JMenuBar  {
         
 	}
 	
+	public class MenuSettings extends JMenu implements ActionListener {
+		
+        public MenuSettings() {
+            createMenu();
+		}
+        
+        public JMenu getMenu() {
+    	        return menu;
+        } 
+        
+        JMenu menu = new JMenu("Settings");
+        
+        public void createMenu() {
+            JMenuItem menuItem = new JMenuItem("HISTO reset interval");
+            menuItem.addActionListener(this);
+            menu.add(menuItem);
+
+        }
+        
+        public void chooseUpdateInterval() {
+	        String s = (String)JOptionPane.showInputDialog(
+	                    null,
+	                    "HISTO reset interval (events)",
+	                    " ",
+	                    JOptionPane.PLAIN_MESSAGE,
+	                    null,
+	                    null,
+	                    "100000000");
+	        if(s!=null){
+	            int events = 100000000;
+	            try { 
+	                events= Integer.parseInt(s);
+	            } catch(NumberFormatException e) { 
+	                JOptionPane.showMessageDialog(null, "Value must be a positive integer!");
+	            }
+	            if(events>0) {
+	                app.setMaxEvents(events);
+	            }
+	            else {
+	                JOptionPane.showMessageDialog(null, "Value must be a positive integer!");
+	            }
+	        }
+	    }
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+	        if(e.getActionCommand() == "HISTO reset interval") {
+	            this.chooseUpdateInterval();
+	        } 			
+			
+		}	    
+	}
+	
 	public class MenuTriggerBits extends JMenu implements ActionListener {
         
         public MenuTriggerBits() {
@@ -164,6 +220,7 @@ public class FCMenuBar extends JMenuBar  {
 		}
 		
         JMenu menu = new JMenu("TriggerBits");
+        
 		
         String TriggerDef[] = { "Electron",
 		        "Electron S1","Electron S2","Electron S3","Electron S4","Electron S5","Electron S6",
