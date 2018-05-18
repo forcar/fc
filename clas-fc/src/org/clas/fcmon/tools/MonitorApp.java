@@ -141,6 +141,7 @@ public class MonitorApp extends JFrame implements ActionListener {
     public float  phaseCorrection = 0;
 
     public int tet,nsa,nsb,pedref;
+    public int maxEvents;
     
     public FTHashCollection rtt = null;
     
@@ -496,6 +497,10 @@ public class MonitorApp extends JFrame implements ActionListener {
     
     public void startEpics() {
         epicsBtn.doClick();
+    }
+    
+    public void setMaxEvents(int num) {
+    	    this.maxEvents = num;
     }
     
     public void setSelectedTab(int index) {
