@@ -37,6 +37,7 @@ public class CTOFMode1App extends FCApplication {
     public JPanel getPanel() {
         engineView.setLayout(new BorderLayout());
         mode1.addCanvas("Sum");
+        mode1.addCanvas("TDIF");
         mode1.addCanvas("AvsT");
         mode1.addCanvas("LOGRAT");
         mode1.addCanvas("SYNC");  
@@ -58,6 +59,7 @@ public class CTOFMode1App extends FCApplication {
         switch (mode1.selectedCanvas) {
         case  "Event": updateEvent(); break;
         case    "Sum": updateSum();   break;
+        case   "TDIF": updateTDIF();   break;
         case   "AvsT": updateAvsT();  break;
         case "LOGRAT": updateLOGRAT();break;
         case   "SYNC": updateSync();
@@ -142,6 +144,38 @@ public class CTOFMode1App extends FCApplication {
         
      } 
     
+     public void updateTDIF() {
+        
+        DetectorCollection<H2F> dc2a = ctofPix[idet].strips.hmap2.get("H2_a_Hist");        
+        
+        H1F h1; H2F h2;
+        
+        F1D f1 = new F1D("p0","[a]",-20.,20.); 
+        F1D f2 = new F1D("p0","[a]",-20.,20.); 
+        f1.setParameter(0,ic+1); f1.setLineWidth(1); f1.setLineColor(0);
+        f2.setParameter(0,ic+2); f2.setLineWidth(1); f2.setLineColor(0);
+               
+        c = mode1.getCanvas("TDIF");  c.clear(); c.divide(2,2);       
+            
+        for (int il=1; il<3 ; il++) {
+            h2 = dc2a.get(is,il,6); h2.setTitleY("Sector "+is+otab[il-1]) ; h2.setTitleX("TDC-FADC (NSEC)");
+            canvasConfig(c,il-1,-20.,20.,1.,nstr+1.,true).draw(h2);
+            if (lr==il) {c.draw(f1,"same"); c.draw(f2,"same");}
+            h1 = dc2a.get(is,il,6).sliceY(ic); h1.setOptStat(Integer.parseInt("10"));
+            h1.setTitleX("Sector "+is+otab[il-1]+(ic+1)+" (NSEC)"); h1.setFillColor(0);
+            c.cd(il+1); h1.setTitle(" "); c.draw(h1);
+            if (lr==il) {
+                h1=dc2a.get(is,il,6).sliceY(ic) ; h1.setFillColor(2);
+                h1.setTitleX("Sector "+is+otab[il-1]+(ic+1)+" (NSEC)"); c.draw(h1);
+            }            
+        }
+        
+        c.repaint();
+        
+        ics[idet][lr-1]=ic;
+        
+     }  
+    
     public void updateAvsT() {
         
         DetectorCollection<H2F> dc2a = ctofPix[idet].strips.hmap2.get("H2_a_Hist");       
@@ -161,7 +195,7 @@ public class CTOFMode1App extends FCApplication {
         
         c.repaint();
         
-    }
+    }  
     
     public void updateLOGRAT() {
         
@@ -170,8 +204,8 @@ public class CTOFMode1App extends FCApplication {
         H2F h2;
         int min=0,max=24;
                 
-        c = mode1.getCanvas("LOGRAT");  c.clear();    
-        c.divide(6,4); max=24 ; if (ic>23) {min=24; max=48;}; 
+        c = mode1.getCanvas("LOGRAT");  c.clear(); c.divide(6,4); 
+        max=24 ; if (ic>23) {min=24; max=48;}; 
         
         for(int iip=min;iip<max;iip++) {
             h2=dc2a.get(is,iip+1,2); h2.setTitleX(" PMT "+(iip+1)+" TUP-TDOWN (ns)") ;

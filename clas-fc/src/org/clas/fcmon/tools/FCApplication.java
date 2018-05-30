@@ -49,7 +49,6 @@ import org.jlab.io.evio.EvioDataEvent;
 import org.jlab.io.evio.EvioTreeBranch;
 import org.jlab.io.hipo.HipoDataBank;
 import org.jlab.io.hipo.HipoDataEvent;
-import org.jlab.myservice.ec.ECEngine;
 import org.jlab.utils.groups.IndexedList;
 import org.jlab.groot.graphics.EmbeddedCanvas;
 import org.jlab.groot.base.GStyle;
@@ -195,7 +194,6 @@ public class FCApplication implements ActionListener  {
             if (!testTriggerMask()) return;
             if( app.isMC) this.updateSimulatedData(event);
             boolean goodEvent = !app.isMC&&testTriggerMask();
-            System.out.println("MODE 7?"+app.decoder.codaDecoder.isMode7());
             if(!app.decoder.codaDecoder.isMode7()) this.updateEvioData(event);            
             if( app.decoder.codaDecoder.isMode7()) this.updateHipoData(app.decoder.getDataEvent());            
             
