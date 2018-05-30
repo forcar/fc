@@ -55,6 +55,7 @@ public class CTOFReconstructionApp extends FCApplication {
    int nsa,nsb,tet,pedref;     
    int     thrcc = 20;
    short[] pulse = new short[100]; 
+   float[] TOFFSET = {147,172};
     
    public CTOFReconstructionApp(String name, CTOFPixels[] ctofPix) {
        super(name,ctofPix);
@@ -102,10 +103,9 @@ public class CTOFReconstructionApp extends FCApplication {
        clear(0); tdcs.clear(); adcs.clear(); lapmt.clear(); ltpmt.clear();
        
        if(event.hasBank("CTOF::tdc")){
-           DataBank  bank = event.getBank("CTOF" + "::tdc");
-           int rows = bank.rows();
+           DataBank  bank = event.getBank("CTOF::tdc");
            
-           for(int i = 0; i < rows; i++){
+           for(int i = 0; i < bank.rows(); i++){
                int  is = bank.getByte("sector",i);
                int  il = bank.getByte("layer",i);
                int  lr = bank.getByte("order",i);                       
@@ -147,7 +147,11 @@ public class CTOFReconstructionApp extends FCApplication {
                    List<Float> list = new ArrayList<Float>();
                    list = tdcs.getItem(lr,ip); tdcc=new Float[list.size()]; list.toArray(tdcc);
                    tdc  = new float[list.size()];
-                   for (int ii=0; ii<tdcc.length; ii++) tdc[ii] = tdcc[ii]-app.phaseCorrection*4;  ;  
+                   for (int ii=0; ii<tdcc.length; ii++) {
+                	       tdc[ii] = tdcc[ii]-app.phaseCorrection*4;
+                	       float tdif = tdc[ii]-TOFFSET[lr]-t;
+                       ctofPix[il-1].strips.hmap2.get("H2_a_Hist").get(is,lr+1,6).fill(tdif,ip);
+                   }
                } else {
                    tdc = new float[1];
                }
@@ -228,8 +232,12 @@ public class CTOFReconstructionApp extends FCApplication {
            if (tdcs.hasItem(lr,ip)) {
                List<Float> list = new ArrayList<Float>();
                list = tdcs.getItem(lr,ip); tdcc=new Float[list.size()]; list.toArray(tdcc);
-               tdc  = new float[list.size()];
-               for (int ii=0; ii<tdcc.length; ii++) tdc[ii] = tdcc[ii]-phase*4;  
+               tdc  = new float[list.size()];                   
+               for (int ii=0; ii<tdcc.length; ii++) {
+        	           tdc[ii] = tdcc[ii]-phase*4;
+        	           float tdif = tdc[ii]-TOFFSET[lr]-tf;
+                   ctofPix[il-1].strips.hmap2.get("H2_a_Hist").get(is,lr+1,6).fill(tdif,ip);
+               }
            } else {
                tdc = new float[1];
            }
