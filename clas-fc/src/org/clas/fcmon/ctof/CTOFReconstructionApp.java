@@ -55,7 +55,6 @@ public class CTOFReconstructionApp extends FCApplication {
    int nsa,nsb,tet,pedref;     
    int     thrcc = 20;
    short[] pulse = new short[100]; 
-   float[] TOFFSET = {147,172};
     
    public CTOFReconstructionApp(String name, CTOFPixels[] ctofPix) {
        super(name,ctofPix);
@@ -149,7 +148,7 @@ public class CTOFReconstructionApp extends FCApplication {
                    tdc  = new float[list.size()];
                    for (int ii=0; ii<tdcc.length; ii++) {
                 	       tdc[ii] = tdcc[ii]-app.phaseCorrection*4;
-                	       float tdif = tdc[ii]-TOFFSET[lr]-t;
+                	       float tdif = tdc[ii]-CTOFConstants.TOFFSET[lr]-t;
                        ctofPix[il-1].strips.hmap2.get("H2_a_Hist").get(is,lr+1,6).fill(tdif,ip);
                    }
                } else {
@@ -235,7 +234,7 @@ public class CTOFReconstructionApp extends FCApplication {
                tdc  = new float[list.size()];                   
                for (int ii=0; ii<tdcc.length; ii++) {
         	           tdc[ii] = tdcc[ii]-phase*4;
-        	           float tdif = tdc[ii]-TOFFSET[lr]-tf;
+        	           float tdif = tdc[ii]-CTOFConstants.TOFFSET[lr]-tf;
                    ctofPix[il-1].strips.hmap2.get("H2_a_Hist").get(is,lr+1,6).fill(tdif,ip);
                }
            } else {
@@ -468,7 +467,7 @@ public class CTOFReconstructionApp extends FCApplication {
           }
           for (int n=0 ; n<ctofPix[idet].nht[is][il] ; n++) {
               int ip=ctofPix[idet].strrt[is][il][n]; float td=ctofPix[idet].tdcr[is][il][n];
-              double tdc = 0.25*(td-CTOFConstants.TOFFSET);
+              double tdc = 0.25*(td-CTOFConstants.TOFFSET[il]);
               float  wgt = ctofPix[idet].ph[is][il][n];
               wgt = (wgt > 0) ? wgt:1000;
               ctofPix[idet].strips.hmap2.get("H2_t_Sevd").get(is+1,il+1,0).fill((float)tdc,ip,wgt);
