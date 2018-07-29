@@ -583,7 +583,7 @@ public class ECReconstructionApp extends FCApplication {
                    ecPix[idet].pixels.hmap1.get("H1_a_Maps").get(is+1,7,3).fill(pixel,1.0/ecPix[idet].pixels.getNormalizedArea(pixel)); //Normalized to pixel area
                    
                    for (int il=1; il<4 ; il++){
-                       double adcc = ecPix[idet].adcr[is][il-1][0]/pixelLength[pixel-1];
+                       double adcc = ecPix[idet].adcr[is][il-1][0]/pixelLength[pixel-1]; //Normalize to pixel length (EC projective geometry)
                        if (good_pix[il-1]&&adcc<250) {
                          ecPix[idet].pixels.hmap1.get("H1_a_Maps").get(is+1,il,4).fill(pixel,1.0); // Events per pixel
                          ecPix[idet].strips.hmap2.get("H2_a_Hist").get(is+1,il,1).fill(adcc,ecPix[idet].strra[is][il-1][0],1.0) ;
