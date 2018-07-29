@@ -187,16 +187,14 @@ public class CTOFReconstructionApp extends FCApplication {
               
        List<DetectorDataDgtz> adcDGTZ = app.decoder.getEntriesADC(DetectorType.CTOF);
        List<DetectorDataDgtz> tdcDGTZ = app.decoder.getEntriesTDC(DetectorType.CTOF);
-
        for (int i=0; i < tdcDGTZ.size(); i++) {
            DetectorDataDgtz ddd=tdcDGTZ.get(i);
            int is = ddd.getDescriptor().getSector();
            int il = ddd.getDescriptor().getLayer();
            int lr = ddd.getDescriptor().getOrder();
            int ip = ddd.getDescriptor().getComponent();
-           
            if (!tdcs.hasItem(lr-2,ip)) tdcs.add(new ArrayList<Float>(),lr-2,ip);
-                tdcs.getItem(lr-2,ip).add((float) ddd.getTDCData(0).getTime()*24/1000);              
+                tdcs.getItem(lr-2,ip).add((float) ddd.getTDCData(0).getTime()*23.45f/1000);              
            if (!ltpmt.hasItem(ip)) {
         	    ltpmt.add(new ArrayList<Integer>(),ip);
                 ltpmt.getItem(ip).add(ip);
@@ -236,13 +234,12 @@ public class CTOFReconstructionApp extends FCApplication {
         	           tdc[ii] = tdcc[ii]-phase*4;
         	           float tdif = tdc[ii]-CTOFConstants.TOFFSET[lr]-tf;
                    ctofPix[il-1].strips.hmap2.get("H2_a_Hist").get(is,lr+1,6).fill(tdif,ip);
+                   ctofPix[il-1].strips.hmap2.get("H2_t_Hist").get(is,3,3).fill(tdc[ii]+phase*4,phase);
+                   ctofPix[il-1].strips.hmap2.get("H2_t_Hist").get(is,3,4).fill(tdc[ii],phase);
                }
            } else {
                tdc = new float[1];
            }
-           
-           ctofPix[il-1].strips.hmap2.get("H2_t_Hist").get(is,3,3).fill((double) tdc[0]+phase*4,(double) phase);
-           ctofPix[il-1].strips.hmap2.get("H2_t_Hist").get(is,3,4).fill(tdc[0],phase);
            
            getMode7(cr,sl,ch); 
            int ped = app.mode7Emulation.User_pedref==1 ? this.pedref:pd;

@@ -2,7 +2,7 @@ package org.clas.fcmon.ctof;
 
 public class CTOFConstants {
     
-    public static float[] TOFFSET = {147,172};  // FADC/TDC offset in ns
+    public static float[] TOFFSET = {5,30};  // FADC/TDC offset in ns
     public static int IS1 = 1 ;
     public static int IS2 = 2 ;
     public static int NPADDLES = 48;
