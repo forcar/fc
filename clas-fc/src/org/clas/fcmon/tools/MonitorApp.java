@@ -42,6 +42,7 @@ import org.clas.fcmon.detector.view.DetectorPane2D;
 import org.jlab.detector.base.DetectorCollection;
 import org.jlab.detector.base.DetectorDescriptor;
 import org.jlab.detector.calib.utils.ConstantsManager;
+import org.jlab.groot.base.GStyle;
 //import org.jlab.detector.decode.CLASDecoder;
 //import org.jlab.detector.decode.CodaEventDecoder;
 import org.jlab.groot.graphics.EmbeddedCanvas;
@@ -106,7 +107,6 @@ public class MonitorApp extends JFrame implements ActionListener {
    
     public boolean    doEpics = false;
     public String     appName = null;
-    public String   variation = "default";
     public String    rootPath = ".";
     public String    hipoPath = null;
     public String   calibPath = null;
@@ -127,6 +127,7 @@ public class MonitorApp extends JFrame implements ActionListener {
     
     public String    HipoFileName = null;
     public Boolean isHipoFileOpen = false;   
+    public String       variation = "default";
     public String            geom = "2.5";
     public String          config = "muon";
     public int            trigger = 1;        //0=cluster 1=pixel
@@ -169,8 +170,25 @@ public class MonitorApp extends JFrame implements ActionListener {
         this.setSelectedTab(2);
     }
     
+    public void initGraphics() {
+        GStyle.getAxisAttributesX().setTitleFontSize(14);
+        GStyle.getAxisAttributesX().setLabelFontSize(14);
+        GStyle.getAxisAttributesY().setTitleFontSize(14);
+        GStyle.getAxisAttributesY().setLabelFontSize(14);
+        GStyle.getAxisAttributesZ().setLabelFontSize(14); 
+        GStyle.getAxisAttributesX().setAxisGrid(false);
+        GStyle.getAxisAttributesY().setAxisGrid(false);
+        GStyle.getAxisAttributesX().setLabelFontName("Avenir");
+        GStyle.getAxisAttributesY().setLabelFontName("Avenir");
+        GStyle.getAxisAttributesZ().setLabelFontName("Avenir");
+        GStyle.getAxisAttributesX().setTitleFontName("Avenir");
+        GStyle.getAxisAttributesY().setTitleFontName("Avenir");
+        GStyle.getAxisAttributesZ().setTitleFontName("Avenir");
+    }
+    
     public void setPluginClass(DetectorMonitor mon) {
     	this.monitoringClass = mon;
+    	initGraphics();
     }
     
     public void setAppName(String name) {
