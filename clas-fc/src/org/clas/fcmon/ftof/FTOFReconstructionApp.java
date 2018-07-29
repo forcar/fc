@@ -395,7 +395,7 @@ public class FTOFReconstructionApp extends FCApplication {
 
        for (int ii=0; ii<tdc.length; ii++) {
            
-       if(tdc[ii]>0&&tdc[ii]<600){
+       if(tdc[ii]>0&&tdc[ii]<1000){
              ftofPix[idet].nht[is-1][il-1]++; int inh = ftofPix[idet].nht[is-1][il-1];
              if (inh>nstr) inh=nstr;
              ftofPix[idet].ph[is-1][il-1][inh-1] = adph;
