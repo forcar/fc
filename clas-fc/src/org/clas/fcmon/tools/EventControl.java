@@ -132,13 +132,13 @@ public class EventControl extends JPanel implements ActionListener, ChangeListen
       
     }
 
-    public void openEtFile(String ethost, String etfile) { 
+    public void openEtFile(String ethost, String etfile, int port) { 
       this.etfile=etfile;
       this.ethost=ethost;
       if(isEtFileOpen) etReader.close();
       if(etfile!=null){
     		try {
-    			etReader = new EvioETSource(ethost);
+    			etReader = new EvioETSource(ethost,port);
     			etReader.open(etfile);
     			this.fileLabel.setText("FILE: "+ethost+"::"+etfile);
     			nEtEvents=0;

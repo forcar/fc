@@ -54,6 +54,7 @@ public class FCMenuBar extends JMenuBar  {
         JMenuItem           s6 = new JMenuItem("Sector 6");
         JMenuItem         ctof = new JMenuItem("CTOF");
         JMenuItem          cnd = new JMenuItem("CND");
+        JMenuItem         htcc = new JMenuItem("HTCC");
         JMenuItem          sd3 = new JMenuItem("clondaq3");
         JMenuItem          sd4 = new JMenuItem("clondaq4");
         JMenuItem          sd5 = new JMenuItem("clondaq5");
@@ -85,6 +86,7 @@ public class FCMenuBar extends JMenuBar  {
             ET_open.add(s6);
             ET_open.add(ctof);
             ET_open.add(cnd);
+            ET_open.add(htcc);
             ET_open.add(sd3);
             ET_open.add(sd4);
             ET_open.add(sd5);
@@ -103,6 +105,7 @@ public class FCMenuBar extends JMenuBar  {
             s6.addActionListener(this);   
           ctof.addActionListener(this);
            cnd.addActionListener(this);
+          htcc.addActionListener(this);
            sd3.addActionListener(this);     
            sd4.addActionListener(this);     
            sd5.addActionListener(this);     
@@ -114,19 +117,21 @@ public class FCMenuBar extends JMenuBar  {
     
 	@Override
 	    public void actionPerformed(ActionEvent e) {
-    	        if(e.getActionCommand().compareTo("Sector 1")==0) {ethost="adcecal1";etfile="/tmp/et_sys_clasprod";}
-    	        if(e.getActionCommand().compareTo("Sector 2")==0) {ethost="adcecal2";etfile="/tmp/et_sys_clasprod";}
-    	        if(e.getActionCommand().compareTo("Sector 3")==0) {ethost="adcecal3";etfile="/tmp/et_sys_clasprod";}
-    	        if(e.getActionCommand().compareTo("Sector 4")==0) {ethost="adcecal4";etfile="/tmp/et_sys_clasprod";}
-    	        if(e.getActionCommand().compareTo("Sector 5")==0) {ethost="adcecal5";etfile="/tmp/et_sys_clasprod";}
+		    int port=11111;
+    	    if(e.getActionCommand().compareTo("Sector 1")==0) {ethost="adcecal1";etfile="/tmp/et_sys_clasprod";}
+    	    if(e.getActionCommand().compareTo("Sector 2")==0) {ethost="adcecal2";etfile="/tmp/et_sys_clasprod";}
+    	    if(e.getActionCommand().compareTo("Sector 3")==0) {ethost="adcecal3";etfile="/tmp/et_sys_clasprod";}
+    	    if(e.getActionCommand().compareTo("Sector 4")==0) {ethost="adcecal4";etfile="/tmp/et_sys_clasprod";}
+    	    if(e.getActionCommand().compareTo("Sector 5")==0) {ethost="adcecal5";etfile="/tmp/et_sys_clasprod";}
             if(e.getActionCommand().compareTo("Sector 6")==0) {ethost="adcecal6";etfile="/tmp/et_sys_clasprod";}      
-            if(e.getActionCommand().compareTo("CTOF")==0)     {ethost="svt1";etfile="/tmp/et_sys_clasprod";}      
-            if(e.getActionCommand().compareTo("CND")==0)      {ethost="svt1";etfile="/tmp/et_sys_clasprod";}      
+            if(e.getActionCommand().compareTo("HTCC")==0)     {ethost="adcctof1";etfile="/et/clasltcc";port=11112;}      
+            if(e.getActionCommand().compareTo("CTOF")==0)     {ethost="adcctof1";etfile="/et/clasltcc";port=11112;}      
+            if(e.getActionCommand().compareTo("CND")==0)      {ethost="adccnd1" ;etfile="/et/cndtest";port=11112;}      
             if(e.getActionCommand().compareTo("clondaq3")==0) {ethost="clondaq3";etfile="/tmp/et_sys_clasprod";}       
             if(e.getActionCommand().compareTo("clondaq4")==0) {ethost="clondaq4";etfile="/tmp/et_sys_clasprod";}       
             if(e.getActionCommand().compareTo("clondaq5")==0) {ethost="clondaq5";etfile="/et/clasprod";}       
             if(e.getActionCommand().compareTo("clondaq6")==0) {ethost="clondaq6";etfile="/et/clasprod";}       
-    	        if(ethost!=null) app.eventControl.openEtFile(ethost,etfile);    	
+    	        if(ethost!=null) app.eventControl.openEtFile(ethost,etfile,port);    	
             if(e.getActionCommand().compareTo("Load EVIO or HIPO File")==0) this.chooseEvioFile();
             if(e.getActionCommand().compareTo("EVIO")==0) app.eventControl.openXEvioRing();
             if(e.getActionCommand().compareTo("HIPO")==0) app.eventControl.openXHipoRing();
