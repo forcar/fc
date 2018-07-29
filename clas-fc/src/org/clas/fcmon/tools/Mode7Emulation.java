@@ -40,6 +40,7 @@ public class Mode7Emulation extends JPanel implements ActionListener,ItemListene
    public int CCDB_nsb=0;	    
    public int useCCDB = 1;
    public int runno;
+   public boolean mode = true;
 	
    public void setPluginClass(DetectorPane2D detectorView) {    		 
       this.detectorView = detectorView;
@@ -98,23 +99,23 @@ public class Mode7Emulation extends JPanel implements ActionListener,ItemListene
    public void actionPerformed(ActionEvent e) {			
       if(e.getActionCommand().compareTo("TET")==0) {
          this.useCCDB=0; bG3b.setSelected(true);
-         User_tet = Integer.parseInt(ttet.getText());
+         User_tet = Integer.parseInt(ttet.getText()); mode=false;
          detectorView.repaint();
       }		 
       if(e.getActionCommand().compareTo("NSA")==0) {
          this.useCCDB=0; bG3b.setSelected(true);
-         User_nsa = Integer.parseInt(tnsa.getText());
+         User_nsa = Integer.parseInt(tnsa.getText()); mode=false;
       }		 
       if(e.getActionCommand().compareTo("NSB")==0) {
          this.useCCDB=0; bG3b.setSelected(true);
-         User_nsb = Integer.parseInt(tnsb.getText());
+         User_nsb = Integer.parseInt(tnsb.getText()); mode=false;
       }		 
       if(e.getActionCommand().compareTo("CCDB")==0) {
          this.useCCDB=1;	bG3a.setSelected(true);
          ttet.setText(Integer.toString(CCDB_tet));
          tnsa.setText(Integer.toString(CCDB_nsa));
          tnsb.setText(Integer.toString(CCDB_nsb));
-         User_tet=0;User_nsa=0;User_nsb=0;
+         User_tet=0;User_nsa=0;User_nsb=0;mode=true;
          detectorView.repaint();
       }
    }

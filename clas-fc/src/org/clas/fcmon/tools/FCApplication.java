@@ -176,10 +176,10 @@ public class FCApplication implements ActionListener  {
     	
     	// globals set here must go to app.* since this is called only in ReconstructionApp
     	
-        app.decoder.detectorDecoder.setTET(app.mode7Emulation.tet);
-        app.decoder.detectorDecoder.setNSA(app.mode7Emulation.nsa);
-        app.decoder.detectorDecoder.setNSB(app.mode7Emulation.nsb);   
-    	    nevents++ ; if (nevents>app.maxEvents) {mon.reset(); nevents = 0;}
+        app.decoder.detectorDecoder.setTET(app.mode7Emulation.mode?0:app.mode7Emulation.tet);
+        app.decoder.detectorDecoder.setNSA(app.mode7Emulation.mode?0:app.mode7Emulation.nsa);
+        app.decoder.detectorDecoder.setNSB(app.mode7Emulation.mode?0:app.mode7Emulation.nsb);   
+        nevents++ ; if (nevents>app.maxEvents) {mon.reset(); nevents = 0;}
         if(event instanceof EvioDataEvent){
         	
             app.decoder.initEvent(event);
