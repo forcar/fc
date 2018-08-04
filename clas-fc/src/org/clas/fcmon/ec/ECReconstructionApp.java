@@ -284,8 +284,6 @@ public class ECReconstructionApp extends FCApplication {
            }    // isGoodSector?     
        }
        
-       if (app.isHipoFileOpen) writeHipoOutput();
-       
    }
    
    public void updateSimulatedData(DataEvent event) {
@@ -572,9 +570,8 @@ public class ECReconstructionApp extends FCApplication {
 
                               ecPix[idet].strips.hmap2.get("H2_PCa_Stat").get(is+1,0,3).fill(ecPix[idet].uvwa[is]-2.0,1.,1.);
                if (good_uvwa) ecPix[idet].strips.hmap2.get("H2_PCa_Stat").get(is+1,0,3).fill(ecPix[idet].uvwa[is]-2.0,2.,1.);
-               
                if (good_dalitz && good_pixel && good_uvwa) { //Dalitz condition AND valid pixel AND NU=NV=NW=1
-                   
+            	   app.goodFilterEvent = true;
                    double area = ecPix[idet].pixels.getZoneNormalizedArea(pixel);
                    int    zone = ecPix[idet].pixels.getZone(pixel);
                    

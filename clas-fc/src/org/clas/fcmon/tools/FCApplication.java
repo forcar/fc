@@ -217,10 +217,22 @@ public class FCApplication implements ActionListener  {
             findPixels();     // Process all pixels for SED
             processSED();
         } else {
+        	app.goodFilterEvent = false;
             for (int idet=0; idet<pixlength; idet++) processPixels(idet); // Process only single pixels 
+            if (app.isHipoFileOpen) {
+            	if(!app.isFilter||app.isFilter&&app.goodFilterEvent) writeHipoOutput();
+            };
             processCalib();   // Quantities for display and calibration engine
         }
     }  
+    
+    public void writeHipoOutput() {
+        DataEvent  decodedEvent = app.decoder.getDataEvent();
+        DataBank   header = app.decoder.createHeaderBank(decodedEvent,0,0,0,0);
+        decodedEvent.appendBanks(header);
+        app.writer.writeEvent(decodedEvent);
+               
+    }    
     
     public void updateEvioData(DataEvent de) {
     	
@@ -521,7 +533,7 @@ public class FCApplication implements ActionListener  {
     	
     }
     public Boolean isGoodSector(int is)      {return is>=is1&&is<is2&&isTriggeredSector(is);} 
-    public Boolean isTriggeredSector(int is) {return (app.isFilter)? is==app.bitsec:true;}           
+    public Boolean isTriggeredSector(int is) {return (app.isTrigger)? is==app.bitsec:true;}           
     
     public int     getFDTrigger()            {return (int)(app.triggerWord)&0x000000000ffffffff;}
     public int     getCDTrigger()            {return (int)(app.triggerWord>>32)&0x00000000ffffffff;}
