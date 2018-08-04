@@ -43,7 +43,7 @@ public class ECMon extends DetectorMonitor {
     EvioDataSync             writer = null;
     Boolean                saveFile = false;
    
-    public static int        calRun = 1586;
+    public static int        calRun = 4384;
     public static String  variation = "default";
     int                       detID = 0;
     int                         is1 = 1;

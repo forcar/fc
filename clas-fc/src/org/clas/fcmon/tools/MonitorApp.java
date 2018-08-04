@@ -120,13 +120,14 @@ public class MonitorApp extends JFrame implements ActionListener {
     public boolean      isMCB = false;
     public boolean       isTB = false;
     public boolean   isFilter = false;
+    public boolean  isTrigger = false;
     public boolean      isIPC = false;
     public boolean      isCRT = false;
     public boolean      doEng = false;
     public boolean     doGain = false;
     
     public String    HipoFileName = null;
-    public Boolean isHipoFileOpen = false;   
+    public boolean isHipoFileOpen = false;   
     public String       variation = "default";
     public String            geom = "2.5";
     public String          config = "muon";
@@ -144,6 +145,7 @@ public class MonitorApp extends JFrame implements ActionListener {
     public int tet,nsa,nsb,pedref;
     public int maxEvents=100000000;
     
+    public boolean goodFilterEvent = false;
     public FTHashCollection rtt = null;
     
     public DetectorCollection<LinkedList<Double>> fifo1 = new DetectorCollection<LinkedList<Double>>();
