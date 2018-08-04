@@ -68,6 +68,7 @@ public class ECEngineApp extends FCApplication implements ActionListener {
     
 //    EBEngine                       ebe = new EBEngine("ECMON");
 //    EventBuilder                    eb = null;
+    List<DetectorResponse> ecClusters  = null;
     ECPart                        part = new ECPart();      
     List<List<DetectorResponse>>   res = new ArrayList<List<DetectorResponse>>();    
     
@@ -356,13 +357,14 @@ public class ECEngineApp extends FCApplication implements ActionListener {
 
       res.clear();
       part.setGeom(app.geom);  
-      part.setConfig(app.config);    
+      part.setConfig(app.config);  
+      part.setGoodPhotons(1212);
       
-      List<DetectorResponse> ecClusters = part.readEC(event);  
+      ecClusters = part.readEC(event);  
       
       if (ecClusters.size()>0) {
        
-    	  double pcalE[] = new double[6];
+      double pcalE[] = new double[6];
     	  
       double    mcR = Math.sqrt(pcx*pcx+pcy*pcy+pcz*pcz);
       double mcThet = Math.asin(Math.sqrt(pcx*pcx+pcy*pcy)/mcR)*180/Math.PI;
@@ -441,10 +443,9 @@ public class ECEngineApp extends FCApplication implements ActionListener {
       
       if(event.hasBank("MIP::event")){          
           DataBank bank = event.getBank("MIP::event");
-          for(int i=0; i < bank.rows(); i++) {
-              part.mip[i]=bank.getByte("mip", i);
-          }
-      } else {
+          for(int i=0; i < bank.rows(); i++) part.mip[i]=bank.getByte("mip", i);
+          
+      } else if (event.hasBank("FTOF::adc")) {
           paddleList = DataProvider.getPaddleList(event);          
           double[] thresh = {500,1000,1000}; 
           for (int i=0; i<6; i++) part.mip[i]=0;       
@@ -454,7 +455,19 @@ public class ECEngineApp extends FCApplication implements ActionListener {
               int   isec = paddle.getDescriptor().getSector();
               part.mip[isec-1] = (paddle.geometricMean()>thresh[toflay-1]) ? 1:0;
           }
-          }          
+          }
+          
+      } else if (event.hasBank("REC::Scintillator")) {
+          double[] thresh = {7,8,8}; 
+          for (int i=0; i<6; i++) part.mip[i]=0;       
+    	  DataBank bank = event.getBank("REC::Scintillator");
+    	  for (int i=0; i<bank.rows(); i++) {
+    		  if (bank.getByte("detector", i)==12) {
+        		  int toflay = bank.getByte("layer", i);
+        		  int   isec = bank.getByte("sector", i);
+                  part.mip[isec-1] = (toflay<3&&bank.getFloat("energy",i)>thresh[toflay-1]) ? 1:0;
+    		  }
+    	  }      
       }  
       
       if (app.config=="pi0") part.getNeutralResponses(ecClusters);
@@ -499,7 +512,7 @@ public class ECEngineApp extends FCApplication implements ActionListener {
                   ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,9,4).fill(part.distance11,1,1.); // Pizero photon 1 PCAL-ECinner cluster error
                   ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,9,4).fill(part.distance12,2,1.); // Pizero photon 2 PCAL-ECinner cluster error
                   ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,9,4).fill(part.distance21,3,1.); // Pizero photon 1 PCAL-ECouter cluster error
-                  ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,9,4).fill(part.distance22,4,1.); // Pizero photon 2 PCAL-ECouter cluster erro    
+                  ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,9,4).fill(part.distance22,4,1.); // Pizero photon 2 PCAL-ECouter cluster error   
                   ecPix[0].strips.hmap2.get("H2_a_Hist").get(1,9,5).fill(-part.x1, part.y1,1.);
                   ecPix[0].strips.hmap2.get("H2_a_Hist").get(1,9,6).fill(-part.x1, part.y1,invmass/part.mpi0);
                   ecPix[0].strips.hmap2.get("H2_a_Hist").get(1,9,7).fill(-part.x2, part.y2,1.);
@@ -548,7 +561,8 @@ public class ECEngineApp extends FCApplication implements ActionListener {
 //             System.out.println("X,Y,Z,energy="+X+" "+Y+" "+Z+" "+energy);  
 //             System.out.println(" ");
           }
-      }            
+      }
+      
    }
    }
    

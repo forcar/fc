@@ -724,16 +724,30 @@ public class ECPixels {
             }
         }
         
+		PrintWriter writerdist = null;
+		try 
+		{
+			writerdist = new PrintWriter("ECpixdepthtotal.dat");
+		} 
+		catch (FileNotFoundException e) 
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        
         for(int uPaddle = 0; uPaddle < 36; uPaddle++) {
             for(int vPaddle = 0; vPaddle < 36; vPaddle++) {
                 for(int wPaddle = 0; wPaddle < 36; wPaddle++) {
                     if(pcaltestdist2.isValidPixel(0, uPaddle, vPaddle, wPaddle)) {
                     ec_dist[uPaddle][vPaddle][wPaddle]=ec_dist[uPaddle][vPaddle][wPaddle]/minDist;
+                    writerdist.println((uPaddle+1)  + "   " + (vPaddle+1) + "   " + (wPaddle+1) + "   "+ec_dist[uPaddle][vPaddle][wPaddle]);
                     }
                 }
             }    
         }
-
+		writerdist.close();		
+		
+		System.out.println("Done!");
     }
      
      public void writeFPGALookupTable(String filename, double atten, int opt) {

@@ -654,8 +654,6 @@ public class ECGainsApp extends FCApplication implements ActionListener {
         
         DataGroup dg4 = this.getDataGroup().getItem(4,0,0);
         
-        EmbeddedCanvas cp = c.getCanvas(c.getName());
-        EmbeddedCanvas cf = c.getCanvas("Fits");
         String d = c.getName().substring(0,1).toLowerCase();
         int off = (d.equals("c")) ? 0:2;
         int    is = activeSector; 
@@ -667,6 +665,7 @@ public class ECGainsApp extends FCApplication implements ActionListener {
         if(isAnalyzeDone==false||app.getInProcess()<2) return;        
 //        if(app.getInProcess()==1) analyzeGraphs(is,is+1,activeDetector,activeDetector+1,activeLayer,activeLayer+1,d);
         
+        EmbeddedCanvas cp = c.getCanvas(c.getName());
         cp.clear(); cp.divide(3, 2);
         
         for (int i=0; i<3; i++) {
@@ -676,6 +675,7 @@ public class ECGainsApp extends FCApplication implements ActionListener {
             cp.draw(MipFits.getItem(iis,activeDetector,i,0).getGraph());
         }
         
+        EmbeddedCanvas cf = c.getCanvas("Fits");
         cf.clear(); if (np==36) cf.divide(6,6); if (np>36)  cf.divide(8,9);
         
         for (int i=0; i<np ; i++) {

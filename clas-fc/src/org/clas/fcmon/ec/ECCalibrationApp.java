@@ -207,8 +207,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
             JOptionPane.showMessageDialog(new JPanel(),
                    "Restoring table " + engine.calib.getName() + " from "+outputFileName);
         }
-        if (e.getActionCommand().compareTo("LOADHV")==0) { 
-            
+        if (e.getActionCommand().compareTo("LOADHV")==0) {             
             int is1=sectorSelected;         int is2=is1+1;
             int il1=layerSelected+ilmap*3;  int il2=il1+1;
             mon.loadHV(is1,is2,il1,il2);
@@ -717,7 +716,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
                    currentRangeMax = slider.getUpperValue();
                    rangeSliderValue1.setText(String.valueOf("" + String.format("%4.1f", currentRangeMin)));
                    rangeSliderValue2.setText(String.valueOf("" + String.format("%4.1f", currentRangeMax)));
-                   int il =  lay; if (isPix) il=lay-10;
+                   int il = isPix ? lay-10:lay;
                    int ip1=1,ip2=1;
                    if (sliderMode=="Strip") {ip1=pixStrip; ip2=pixStrip+1;}
                    if (sliderMode=="View")  {ip1=1;        ip2=ecPix[ilmap].ec_nstr[il-1];}
@@ -726,8 +725,11 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
                       calib.setDoubleValue(currentRangeMax*0.01,"FitMax",is, 3*ilmap+il, ip);
                    }
                    
-                   calib.fireTableDataChanged();                   
-                   analyze(ilmap,is,is+1,il,il+1,ip1,ip2);                  
+                  
+                   calib.fireTableDataChanged();       
+                  
+                   analyze(ilmap,sectorSelected,sectorSelected+1,il,il+1,ip1,ip2); 
+                                   
                    drawPlots(sectorSelected,layerSelected,channelSelected);
                    
                }
@@ -958,7 +960,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
         }    
               
         @Override
-        public void drawPlots(int is, int layer, int ic) {
+        public void drawPlots(int iss, int layer, int ic) {
             
             DetectorCollection<H2F>            dc2a = ecPix[ilmap].strips.hmap2.get("H2_a_Hist");    
             EmbeddedCanvas                        c = new EmbeddedCanvas();    
@@ -983,33 +985,33 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
             GStyle.getGraphErrorsAttributes().setFillStyle(1);  
             
             if (isPix) {
-               float meanmap[] = (float[]) ecPix[ilmap].Lmap_a.get(is, layer, 0).get(1);
+               float meanmap[] = (float[]) ecPix[ilmap].Lmap_a.get(iss, layer, 0).get(1);
                il = layer-10;
                xpix[0] = ecPix[ilmap].pixels.getDist(il, ic+1);
                ypix[0] = meanmap[ic];
                xerr[0] = 0.;
                yerr[0] = 0.;
                pixStrip = ecPix[ilmap].pixels.getStrip(il,ic+1);
-                 pixADC = dc2a.get(is,il,2).sliceY(ic) ; pixADC.setFillColor(2);
-                 pixADC.setTitleX("Sector "+is+otab[ilmap][il-1]+pixStrip+" Pixel "+(ic+1)+" ADC");
+                 pixADC = dc2a.get(iss,il,2).sliceY(ic) ; pixADC.setFillColor(2);
+                 pixADC.setTitleX("Sector "+iss+otab[ilmap][il-1]+pixStrip+" Pixel "+(ic+1)+" ADC");
             }
             
             if (isStr) {
                 pixStrip = ic+1;
-                pixADC = dc2a.get(is,il,0).sliceY(ic) ; pixADC.setFillColor(2);                
-                pixADC.setTitleX("Sector "+is+otab[ilmap][il-1]+pixStrip+" Strip "+(ic+1)+" ADC");
+                pixADC = dc2a.get(iss,il,0).sliceY(ic) ; pixADC.setFillColor(2);                
+                pixADC.setTitleX("Sector "+iss+otab[ilmap][il-1]+pixStrip+" Strip "+(ic+1)+" ADC");
             }           
-                         
+                        
             if (isStr||isPix) {
                if (app.getInProcess()>0) {
                    
-                     pixATT = ecPix[ilmap].strips.getpixels(il, pixStrip, dc2a.get(is,il,2));
-                     pixATT.setTitleX("Sector "+is+otab[ilmap][il-1]+pixStrip+" Pixel No.");
+                     pixATT = ecPix[ilmap].strips.getpixels(il, pixStrip, dc2a.get(iss,il,2));
+                     pixATT.setTitleX("Sector "+iss+otab[ilmap][il-1]+pixStrip+" Pixel No.");
                      pixATT.setTitleY("ADC");                            
                      nstr = ecPix[ilmap].ec_nstr[il-1];
-                     if (app.getInProcess()==1&&app.getIsRunning())  {analyze(ilmap,is,is+1,il,il+1,1,69);}
+                     if (app.getInProcess()==1&&app.getIsRunning())  {analyze(ilmap,iss,iss+1,il,il+1,1,69);}
                      int sl = il+ilmap*3;  // Superlayer PCAL:1-3 ECinner: 4-6 ECouter: 7-9
-                     if (collection.hasEntry(is, sl, pixStrip)) {
+                     if (collection.hasEntry(iss, sl, pixStrip)) {
 //                     slider.setValue(     (int) (fit.get(is,il,pixStrip).fitLimits[0]*100));
 //                     slider.setUpperValue((int) (fit.get(is,il,pixStrip).fitLimits[1]*100));            
 
@@ -1019,26 +1021,26 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
                          xp[ip]    = ip+1;     
                          xpe[ip]   = 0.; 
                          
-                         parA[ip]  = collection.get(is,sl,ip+1).getFunc(0).parameter(0).value()/scale;
-                         parAe[ip] = collection.get(is,sl,ip+1).getFunc(0).parameter(0).error()/scale;
-                         parB[ip]  = collection.get(is,sl,ip+1).getFunc(0).parameter(1).value();
-                         parBe[ip] = collection.get(is,sl,ip+1).getFunc(0).parameter(1).error();
-                         parC[ip]  = collection.get(is,sl,ip+1).getFunc(0).parameter(2).value()/scale;
-                         parCe[ip] = collection.get(is,sl,ip+1).getFunc(0).parameter(2).error()/scale;
+                         parA[ip]  = collection.get(iss,sl,ip+1).getFunc(0).parameter(0).value()/scale;
+                         parAe[ip] = collection.get(iss,sl,ip+1).getFunc(0).parameter(0).error()/scale;
+                         parB[ip]  = collection.get(iss,sl,ip+1).getFunc(0).parameter(1).value();
+                         parBe[ip] = collection.get(iss,sl,ip+1).getFunc(0).parameter(1).error();
+                         parC[ip]  = collection.get(iss,sl,ip+1).getFunc(0).parameter(2).value()/scale;
+                         parCe[ip] = collection.get(iss,sl,ip+1).getFunc(0).parameter(2).error()/scale;
                          parAC[ip] = parA[ip]+parC[ip];
                          parACe[ip]= Math.sqrt(parAe[ip]*parAe[ip]+parCe[ip]*parCe[ip]);
-                         double chi2 = collection.get(is,sl,ip+1).getFunc(0).getChiSquare()/
-                                       collection.get(is,sl,ip+1).getFunc(0).getNDF();
+                         double chi2 = collection.get(iss,sl,ip+1).getFunc(0).getChiSquare()/
+                                       collection.get(iss,sl,ip+1).getFunc(0).getNDF();
                          vchi2[ip] = Math.min(4, chi2); 
                          vchi2e[ip]= 0.;                                                          
-                         ccdbA[ip] = atten.getDoubleValue("A",is,sl,ip+1);
-                         ccdbB[ip] = atten.getDoubleValue("B",is,sl,ip+1);
-                         ccdbC[ip] = atten.getDoubleValue("C",is,sl,ip+1);
+                         ccdbA[ip] = atten.getDoubleValue("A",iss,sl,ip+1);
+                         ccdbB[ip] = atten.getDoubleValue("B",iss,sl,ip+1);
+                         ccdbC[ip] = atten.getDoubleValue("C",iss,sl,ip+1);
                          int gsca = 1;
                          if (ilmap==0) gsca = 15;
-                         if (ilmap>0)  gsca = (is==5) ? 5:10;
-                         ccdbGAIN[ip]  = 1./(gain.getDoubleValue("gain",is,sl,ip+1)*gsca);
-                         ccdbGAINe[ip] = gain.getDoubleValue("gainErr",is,sl,ip+1)*gsca/(ccdbGAIN[ip]*ccdbGAIN[ip]);
+                         if (ilmap>0)  gsca = (iss==5) ? 5:10;
+                         ccdbGAIN[ip]  = 1./(gain.getDoubleValue("gain",iss,sl,ip+1)*gsca);
+                         ccdbGAINe[ip] = gain.getDoubleValue("gainErr",iss,sl,ip+1)*gsca/(ccdbGAIN[ip]*ccdbGAIN[ip]);
                          ccdbAC[ip]= ccdbA[ip]+ccdbC[ip];
                          ccdbAe[ip]  = 0.;
                          ccdbBe[ip]  = 0.;
@@ -1098,9 +1100,9 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
                      c = fitPix.getCanvas("Pixel Fits"); 
                      
                      c.getPad(0).getAxisX().setRange(0.,400.);c.getPad(0).getAxisY().setRange(0.,300.); 
-                     c.draw(collection.get(is,sl,pixStrip).getRawGraph(0));  
-                     if(collection.get(is,sl,pixStrip).getFitGraph(0).getDataSize(0)>0) {
-                         c.draw(collection.get(is,sl,pixStrip).getFitGraph(0),"same");                                                 
+                     c.draw(collection.get(iss,sl,pixStrip).getRawGraph(0));  
+                     if(collection.get(iss,sl,pixStrip).getFitGraph(0).getDataSize(0)>0) {
+                         c.draw(collection.get(iss,sl,pixStrip).getFitGraph(0),"same");                                                 
                      }
                      if (isPix) c.draw(pixGraph,"same");
                      c.repaint();
