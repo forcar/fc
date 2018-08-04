@@ -9,6 +9,7 @@ import org.jlab.detector.base.DetectorDescriptor;
 import org.jlab.detector.calib.utils.ConstantsManager;
 import org.jlab.geom.detector.ec.ECDetector;
 import org.jlab.geom.detector.ec.ECFactory;
+import org.jlab.groot.base.GStyle;
 import org.jlab.io.base.DataEvent;
 import org.jlab.io.evio.EvioDataEvent;
 import org.jlab.io.evio.EvioDataSync;
@@ -288,7 +289,7 @@ public class ECMon extends DetectorMonitor {
         }  
         
        ecRecon.addEvent(de);
-       ecTrig.addEvent(de);
+//       ecTrig.addEvent(de);
       
       if(app.doEng) {
           ecEngine.singleEvent = app.isSingleEvent() ; 
@@ -328,7 +329,7 @@ public class ECMon extends DetectorMonitor {
     public void update(DetectorShape2D shape) {
         //From DetectorView2D.DetectorViewLayer2D.drawLayer: Update color map of shape
         ecDet.update(shape); 
-        ecCalib.updateDetectorView(shape); //For status maps
+//        ecCalib.updateDetectorView(shape); //For status maps
     }	
     
     @Override
