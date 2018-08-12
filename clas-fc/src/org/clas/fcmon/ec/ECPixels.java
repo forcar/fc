@@ -368,6 +368,9 @@ public class ECPixels {
                 // Pedestal Noise  
                 H2_Peds_Hist.add(is, il, 0, new H2F("a_ped_"+id+0,  20, -10.,  10., nstr, 1., nend)); 
                 
+                // FADC - TDC  
+                H2_Tdif_Hist.add(is, il, 0, new H2F("a_tdif_"+id+0, 120, -30.,  30., nstr, 1., nend)); 
+                
                 // Mode1  
                 H2_Mode1_Hist.add(is, il, 0, new H2F("a_fadc_"+id+0, 100,   1., 101.,  nstr, 1., nend));
                 H2_Mode1_Hist.add(is, il, 1, new H2F("a_fadc_"+id+1, 100,   1., 101.,  nstr, 1., nend));

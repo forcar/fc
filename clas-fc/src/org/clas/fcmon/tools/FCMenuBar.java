@@ -34,7 +34,11 @@ public class FCMenuBar extends JMenuBar  {
 	
     public void setApplicationClass(MonitorApp app) {
         this.app = app;
-    }	
+    }
+    
+    public void initMenu() {
+    	menu2.initButtons();
+    }
     
 	public class MenuFile extends JMenu implements ActionListener {
 		
@@ -62,6 +66,8 @@ public class FCMenuBar extends JMenuBar  {
         JMenuItem           x0 = new JMenuItem("EVIO");
         JMenuItem           x1 = new JMenuItem("HIPO");
     
+        JMenuItem menuItem1, menuItem2, menuItem3, menuItem4;
+        
         String          ethost = null;
         String          etfile = null;
     
@@ -167,6 +173,8 @@ public class FCMenuBar extends JMenuBar  {
 	
 	public class MenuSettings extends JMenu implements ActionListener {
 		
+		JMenuItem item1,item2,item3,item4;
+		
         public MenuSettings() {
             createMenu();
 		}
@@ -177,11 +185,31 @@ public class FCMenuBar extends JMenuBar  {
         
         JMenu menu = new JMenu("Settings");
         
+        public void initButtons() {
+        }
+        
         public void createMenu() {
-            JMenuItem menuItem = new JMenuItem("HISTO reset interval");
-            menuItem.addActionListener(this);
-            menu.add(menuItem);
-
+            item1 = new JMenuItem("HISTO reset interval");
+            item1.addActionListener(this);
+            menu.add(item1);
+            item2 = new JMenuItem("TDC Offset");
+            item2.addActionListener(this);
+            menu.add(item2);
+            item3 = new JMenuItem("Phase Offset");
+            item3.addActionListener(this);
+            menu.add(item3);
+            JCheckBoxMenuItem item4 = new JCheckBoxMenuItem("Phase Correction");  
+            item4.setSelected(true);
+            item4.addItemListener(new ItemListener() {
+                public void itemStateChanged(ItemEvent e) {        	
+                    if(e.getStateChange() == ItemEvent.SELECTED) {
+             	          app.correctPhase = true;
+                    } else {
+             	          app.correctPhase = false;
+                    };
+                }
+                }); 
+            menu.add(item4);
         }
         
         public void chooseUpdateInterval() {
@@ -208,12 +236,45 @@ public class FCMenuBar extends JMenuBar  {
 	            }
 	        }
 	    }
+        
+        public void chooseTDCOffset() {
+	        String s = (String)JOptionPane.showInputDialog(
+	                    null,
+	                    "TDC Offset",
+	                    " ",
+	                    JOptionPane.PLAIN_MESSAGE,
+	                    null,
+	                    null,
+	                    Integer.toString(app.tdcOffset));
+	        if(s!=null) app.setTDCOffset(Integer.parseInt(s));
+	        
+	    }        
+
+        public void choosePhaseOffset() {
+	        String s = (String)JOptionPane.showInputDialog(
+	                    null,
+	                    "Phase Offset",
+	                    " ",
+	                    JOptionPane.PLAIN_MESSAGE,
+	                    null,
+	                    null,
+	                    Integer.toString(app.phaseOffset));
+	        if(s!=null) app.setPhaseOffset(Integer.parseInt(s));
+	        
+	    }        
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
 	        if(e.getActionCommand() == "HISTO reset interval") {
 	            this.chooseUpdateInterval();
 	        } 			
+	        if(e.getActionCommand() == "TDC Offset") {
+	            this.chooseTDCOffset();
+	        } 			
+	        if(e.getActionCommand() == "Phase Offset") {
+	            this.choosePhaseOffset();
+	        } 			
+			
 			
 		}	    
 	}

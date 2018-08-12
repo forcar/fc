@@ -89,6 +89,7 @@ public class MonitorApp extends JFrame implements ActionListener {
 	
     EventControl              eventControl = null;    
     
+    public FCMenuBar               menuBar = null;
     public CodaEventDecoder    codadecoder = new CodaEventDecoder();
     public FCCLASDecoder           decoder = new FCCLASDecoder();
     public DisplayControl   displayControl = null;	
@@ -141,9 +142,12 @@ public class MonitorApp extends JFrame implements ActionListener {
     public long         timestamp = 0;
     public float            phase = 0;
     public float  phaseCorrection = 0;
+    public boolean  correctPhase  = true;
 
     public int tet,nsa,nsb,pedref;
     public int maxEvents=100000000;
+    public int tdcOffset=0;
+    public int phaseOffset=1;
     
     public boolean goodFilterEvent = false;
     public FTHashCollection rtt = null;
@@ -186,6 +190,10 @@ public class MonitorApp extends JFrame implements ActionListener {
         GStyle.getAxisAttributesX().setTitleFontName("Avenir");
         GStyle.getAxisAttributesY().setTitleFontName("Avenir");
         GStyle.getAxisAttributesZ().setTitleFontName("Avenir");
+    }
+    
+    public void initFCMenu() {
+    	menuBar.initMenu();
     }
     
     public void setPluginClass(DetectorMonitor mon) {
@@ -411,7 +419,7 @@ public class MonitorApp extends JFrame implements ActionListener {
         
 // Menu Bar  
         
-        FCMenuBar menuBar = new FCMenuBar();
+        menuBar = new FCMenuBar();
         menuBar.setApplicationClass(this);
         this.setJMenuBar(menuBar);	
         		
@@ -522,6 +530,14 @@ public class MonitorApp extends JFrame implements ActionListener {
     public void setMaxEvents(int num) {
     	    this.maxEvents = num;
     }
+    
+    public void setTDCOffset(int num) {
+	    this.tdcOffset = num;
+    } 
+    
+    public void setPhaseOffset(int num) {
+	    this.phaseOffset = num;
+    } 
     
     public void setSelectedTab(int index) {
         this.canvasTabbedPane.setSelectedComponent(this.canvasTabbedPane.getComponent(index));

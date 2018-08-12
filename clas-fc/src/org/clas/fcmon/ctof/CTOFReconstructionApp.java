@@ -183,8 +183,6 @@ public class CTOFReconstructionApp extends FCApplication {
 //       app.decoder.detectorDecoder.setNSA(app.mode7Emulation.nsa);
 //       app.decoder.detectorDecoder.setNSB(app.mode7Emulation.nsb);
        
-       float phase = app.phase;
-              
        List<DetectorDataDgtz> adcDGTZ = app.decoder.getEntriesADC(DetectorType.CTOF);
        List<DetectorDataDgtz> tdcDGTZ = app.decoder.getEntriesTDC(DetectorType.CTOF);
        for (int i=0; i < tdcDGTZ.size(); i++) {
@@ -231,11 +229,11 @@ public class CTOFReconstructionApp extends FCApplication {
                list = tdcs.getItem(lr,ip); tdcc=new Float[list.size()]; list.toArray(tdcc);
                tdc  = new float[list.size()];                   
                for (int ii=0; ii<tdcc.length; ii++) {
-        	           tdc[ii] = tdcc[ii]-phase*4;
+        	           tdc[ii] = tdcc[ii]-app.phaseCorrection*4;
         	           float tdif = tdc[ii]-CTOFConstants.TOFFSET[lr]-tf;
                    ctofPix[il-1].strips.hmap2.get("H2_a_Hist").get(is,lr+1,6).fill(tdif,ip);
-                   ctofPix[il-1].strips.hmap2.get("H2_t_Hist").get(is,3,3).fill(tdc[ii]+phase*4,phase);
-                   ctofPix[il-1].strips.hmap2.get("H2_t_Hist").get(is,3,4).fill(tdc[ii],phase);
+                   ctofPix[il-1].strips.hmap2.get("H2_t_Hist").get(is,3,3).fill(tdif,app.phase);
+                   ctofPix[il-1].strips.hmap2.get("H2_t_Hist").get(is,3,4).fill(tdc[ii],app.phase);
                }
            } else {
                tdc = new float[1];

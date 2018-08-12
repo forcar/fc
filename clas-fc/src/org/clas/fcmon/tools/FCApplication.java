@@ -108,7 +108,6 @@ public class FCApplication implements ActionListener  {
     
     private int nevents = 0;
     
-    public boolean correctPhase  = true;
     public boolean testTrigger   = false;
     public boolean triggerBeam[] = new boolean[32];
     public boolean linlog        = true;
@@ -518,11 +517,11 @@ public class FCApplication implements ActionListener  {
     
     public float getTriggerPhase() {
         int phase_offset = 1;
-        return ((app.timestamp%6)+phase_offset)%6;    	
+        return ((app.timestamp%6)+app.phaseOffset)%6;    	
     }
     
     public float getPhaseCorrection() {
-        return correctPhase ? app.phase:0;    	   	    
+        return app.correctPhase ? app.phase:0;    	   	    
     }
  
     public void setTestTrigger(boolean test) {

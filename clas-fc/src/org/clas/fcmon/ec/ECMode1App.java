@@ -43,6 +43,7 @@ public class ECMode1App extends FCApplication  {
    
    public EmbeddedCanvasTabbed getCanvasPane() {
        mode1.addCanvas("UVW");
+       mode1.addCanvas("TDIF");
        mode1.addCanvas("AvsT");
        mode1.addCanvas("SYNC");  
        return mode1;
@@ -61,6 +62,7 @@ public class ECMode1App extends FCApplication  {
       
       switch (mode1.selectedCanvas) {
       case  "PMT": updateEvent(); break;
+      case "TDIF": updateTDIF(); break;
       case "AvsT": updateAvsT();  break;
       case  "UVW": updateUVW();   break;
       case "SYNC": updateSync();
@@ -147,7 +149,37 @@ public class ECMode1App extends FCApplication  {
 //      ics[idet][la-1]=ic;
       
    }
-   
+   public void updateTDIF() {
+       
+       DetectorCollection<H2F> dc2a = ecPix[idet].strips.hmap2.get("H2_Tdif_Hist");        
+       
+       H1F h1; H2F h2;
+       
+       F1D f1 = new F1D("p0","[a]",-30.,30.); 
+       F1D f2 = new F1D("p0","[a]",-30.,30.); 
+       f1.setParameter(0,ic+1); f1.setLineWidth(1); f1.setLineColor(0);
+       f2.setParameter(0,ic+2); f2.setLineWidth(1); f2.setLineColor(0);
+              
+       c = mode1.getCanvas("TDIF");  c.clear(); c.divide(3,2);       
+           
+       for (int il=1; il<4 ; il++) {
+           h2 = dc2a.get(is,il,0); h2.setTitleY("Sector "+is+otab[idet][il-1]) ; h2.setTitleX("TDC-FADC (NSEC)");
+           canvasConfig(c,il-1,-30.,30.,1.,nstr+1.,true).draw(h2);
+           if (la==il) {c.draw(f1,"same"); c.draw(f2,"same");}
+           h1 = dc2a.get(is,il,0).sliceY(ic); h1.setOptStat(Integer.parseInt("1000100"));
+           h1.setTitleX("Sector "+is+otab[idet][il-1]+(ic+1)+" (NSEC)"); h1.setFillColor(0);
+           c.cd(il+2); h1.setTitle(" "); c.draw(h1);
+           if (la==il) {
+               h1=dc2a.get(is,il,0).sliceY(ic) ; h1.setFillColor(2);h1.setOptStat(Integer.parseInt("1000100"));
+               h1.setTitleX("Sector "+is+otab[idet][il-1]+(ic+1)+" (NSEC)"); c.draw(h1);
+           }            
+       }
+       
+       c.repaint();
+       
+       ics[idet][la-1]=ic;
+       
+   }   
    public void updateAvsT() {
        
        DetectorCollection<H2F> dc2a = ecPix[idet].strips.hmap2.get("H2_a_Hist");       
@@ -174,7 +206,7 @@ public class ECMode1App extends FCApplication  {
        c = mode1.getCanvas("SYNC");  c.clear(); c.divide(3,4); 
        
        for (int is=1; is<7; is++) {
-           h2 = dc2t.get(is,3,3) ;  h2.setTitleY("PHASE") ; h2.setTitleX("Sector "+is+" W Inner FADC-TDC (ns)");   
+           h2 = dc2t.get(is,3,3) ;  h2.setTitleY("PHASE") ; h2.setTitleX("Sector "+is+" W Inner TDC-FADC (ns)");   
            canvasConfig(c,is-1,-40.,40.,0.,6.,true).draw(h2);
        }
        for (int is=1; is<7; is++) {

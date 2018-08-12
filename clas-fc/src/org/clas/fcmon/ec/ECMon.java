@@ -44,7 +44,7 @@ public class ECMon extends DetectorMonitor {
     EvioDataSync             writer = null;
     Boolean                saveFile = false;
    
-    public static int        calRun = 4384;
+    public static int        calRun = 4460;
     public static String  variation = "default";
     int                       detID = 0;
     int                         is1 = 1;
@@ -92,6 +92,7 @@ public class ECMon extends DetectorMonitor {
         app.getDetectorView().setFPS(10);
         app.setSelectedTab(2); 
         monitor.ecDet.initButtons();
+        app.initFCMenu();
     }
     
     public void initConstants() {

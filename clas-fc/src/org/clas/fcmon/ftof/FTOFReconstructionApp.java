@@ -151,7 +151,7 @@ public class FTOFReconstructionApp extends FCApplication {
                int  il = bank.getByte("layer",i);
                int  lr = bank.getByte("order",i);                       
                int  ip = bank.getShort("component",i);
-               tdcd = bank.getInt("TDC",i)*tps;  
+               tdcd = bank.getInt("TDC",i)*tps-app.tdcOffset;  
                
                if(isGoodSector(is)&&tdcd>0) {
                if(!tdcs.hasItem(is,il,lr-2,ip)) tdcs.add(new ArrayList<Float>(),is,il,lr-2,ip);
@@ -238,7 +238,7 @@ public class FTOFReconstructionApp extends FCApplication {
            int il = ddd.getDescriptor().getLayer();
            int lr = ddd.getDescriptor().getOrder();
            int ip = ddd.getDescriptor().getComponent();               
-           tdcd   = ddd.getTDCData(0).getTime()*tps;  
+           tdcd   = ddd.getTDCData(0).getTime()*tps-app.tdcOffset;  
            if(isGoodSector(is)&&tdcd>0) {
            if(!tdcs.hasItem(is,il,lr-2,ip)) tdcs.add(new ArrayList<Float>(),is,il,lr-2,ip);
                tdcs.getItem(is,il,lr-2,ip).add(tdcd);              
@@ -280,7 +280,11 @@ public class FTOFReconstructionApp extends FCApplication {
                List<Float> list = new ArrayList<Float>();
                list = tdcs.getItem(is,il,lr,ip); tdcc=new Float[list.size()]; list.toArray(tdcc);
                tdc  = new float[list.size()];
-               for (int ii=0; ii<tdcc.length; ii++) tdc[ii] = tdcc[ii]-app.phaseCorrection*4;  
+               for (int ii=0; ii<tdcc.length; ii++) {
+            	   tdc[ii] = tdcc[ii]-app.phaseCorrection*4;  
+    	           float tdif = tdc[ii]-FTOFConstants.TOFFSET[lr]-tf;
+                   ftofPix[il-1].strips.hmap2.get("H2_a_Hist").get(is,lr+1,6).fill(tdif,ip);
+               }
            } else {
                tdc = new float[1];
            }
@@ -460,7 +464,7 @@ public class FTOFReconstructionApp extends FCApplication {
           }
           for (int n=0 ; n<ftofPix[idet].nht[is][il] ; n++) {
               int ip=ftofPix[idet].strrt[is][il][n]; float td=ftofPix[idet].tdcr[is][il][n];
-              double tdc = 0.25*(td-FTOFConstants.TOFFSET);
+              double tdc = 0.25*(td-FTOFConstants.TOFFSET[il]);
               float  wgt = ftofPix[idet].ph[is][il][n];
               wgt = (wgt > 0) ? wgt:1000;
               ftofPix[idet].strips.hmap2.get("H2_t_Sevd").get(is+1,il+1,0).fill((float)tdc,ip,wgt);

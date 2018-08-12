@@ -1,4 +1,4 @@
- package org.clas.fcmon.ec;
+package org.clas.fcmon.ec;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -78,6 +78,7 @@ public class ECReconstructionApp extends FCApplication {
                    ecPix[idet].strips.hmap2.get("H2_t_Hist").get(is,il,1).reset();
                    ecPix[idet].strips.hmap2.get("H2_t_Hist").get(is,il,2).reset();
                    ecPix[idet].strips.hmap2.get("H2_Peds_Hist").get(is,il,0).reset();
+                   ecPix[idet].strips.hmap2.get("H2_Tdif_Hist").get(is,il,0).reset();
                    ecPix[idet].strips.hmap2.get("H2_Mode1_Hist").get(is,il,0).reset();
                    ecPix[idet].strips.hmap2.get("H2_Mode1_Hist").get(is,il,1).reset();
                }
@@ -128,7 +129,7 @@ public class ECReconstructionApp extends FCApplication {
                int  is = bank.getByte("sector",i);
                int  il = bank.getByte("layer",i);
                int  ip = bank.getShort("component",i);               
-               tdcd    = bank.getInt("TDC",i)*tps;
+               tdcd    = bank.getInt("TDC",i)*tps-app.tdcOffset;
                if(isGoodSector(is)&&tdcd>0) {
                    if(app.isMC&&tdcd<tdcmax) tdcmax=tdcd; //Find and save longest hit time for MC events            
                    if(!tdcs.hasItem(is,il,ip)) tdcs.add(new ArrayList<Float>(),is,il,ip);
@@ -219,7 +220,7 @@ public class ECReconstructionApp extends FCApplication {
            int is = ddd.getDescriptor().getSector();
            int il = ddd.getDescriptor().getLayer();
            int ip = ddd.getDescriptor().getComponent();
-           tdcd = ddd.getTDCData(0).getTime()*tps;
+           tdcd = ddd.getTDCData(0).getTime()*tps-app.tdcOffset;
            if (isGoodSector(is)&&tdcd>0) {
                if(!tdcs.hasItem(is,il,ip)) tdcs.add(new ArrayList<Float>(),is,il,ip);
                    tdcs.getItem(is,il,ip).add(tdcd);  
@@ -244,23 +245,27 @@ public class ECReconstructionApp extends FCApplication {
                       
            Float[] tdcc; float[] tdc;
            
+           int idet = getDet(il); 
+           int ilay = getLay(il);
+                      
+           
            if (tdcs.hasItem(is,il,ip)) {
                List<Float> list = new ArrayList<Float>();
                list = tdcs.getItem(is,il,ip); tdcc=new Float[list.size()]; list.toArray(tdcc);
                tdc  = new float[list.size()];
-               for (int ii=0; ii<tdcc.length; ii++) tdc[ii] = tdcc[ii]-app.phaseCorrection*4;  
+               for (int ii=0; ii<tdcc.length; ii++) {
+            	   tdc[ii] = tdcc[ii]-app.phaseCorrection*4;  
+    	           float tdif = tdc[ii]-ECConstants.TOFFSET-tf;
+                   ecPix[idet].strips.hmap2.get("H2_Tdif_Hist").get(is,ilay,0).fill(tdif,ip);
+                   if(il==6&&idet==1) {
+                       ecPix[idet].strips.hmap2.get("H2_t_Hist").get(is,3,3).fill(tdif,app.phase);
+                  	   ecPix[idet].strips.hmap2.get("H2_t_Hist").get(is,3,4).fill(tdc[ii],app.phase);
+                  	                   }
+               }
            } else {
                tdc = new float[1];
            }
-           
-           int idet = getDet(il); 
-           int ilay = getLay(il);
-                      
-           if(il==6&&idet==1) {
-               ecPix[idet].strips.hmap2.get("H2_t_Hist").get(is,3,3).fill((double) tdc[0]+app.phaseCorrection*4,(double) app.phase+0.5);
-               ecPix[idet].strips.hmap2.get("H2_t_Hist").get(is,3,4).fill(tdc[0],app.phase+0.5);
-            }
-           
+
            getMode7(cr,sl,ch);            
            int ped = app.mode7Emulation.User_pedref==1 ? this.pedref:pd;
            
