@@ -193,7 +193,11 @@ public class FTOFReconstructionApp extends FCApplication {
                    List<Float> list = new ArrayList<Float>();
                    list = tdcs.getItem(is,il,lr,ip); tdcc=new Float[list.size()]; list.toArray(tdcc);
                    tdc = new float[list.size()];
-                   for (int ii=0; ii<tdcc.length; ii++) tdc[ii] = tdcc[ii]-app.phaseCorrection*4;  
+                   for (int ii=0; ii<tdcc.length; ii++) {
+                	   tdc[ii] = tdcc[ii]-app.phaseCorrection*4;  
+        	           float tdif = tdc[ii]-FTOFConstants.TOFFSET[lr]-t;
+                       ftofPix[il-1].strips.hmap2.get("H2_a_Hist").get(is,lr+1,6).fill(tdif,ip);
+                   }
                } else {
                    tdc = new float[1];
                }
