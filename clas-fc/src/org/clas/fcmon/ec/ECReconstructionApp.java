@@ -268,17 +268,22 @@ public class ECReconstructionApp extends FCApplication {
 
            getMode7(cr,sl,ch);            
            int ped = app.mode7Emulation.User_pedref==1 ? this.pedref:pd;
+           int pedsum=0; double baseline=0; double noise=0 ; double rms=0;
            
            for (int ii=0 ; ii< pulse.length ; ii++) {
                ecPix[idet].strips.hmap2.get("H2_Mode1_Hist").get(is,ilay,0).fill(ii,ip,pulse[ii]-ped);
+               if (ii>1&&ii<16) {pedsum+=pulse[ii]; noise+=pulse[ii]*pulse[ii];}
                if (app.isSingleEvent()) {
                   ecPix[idet].strips.hmap2.get("H2_Mode1_Sevd").get(is,ilay,0).fill(ii,ip,pulse[ii]-ped);
                   int w1 = t0-this.nsb ; int w2 = t0+this.nsa;
                   if (ad>0&&ii>=w1&&ii<=w2) ecPix[idet].strips.hmap2.get("H2_Mode1_Sevd").get(is,ilay,1).fill(ii,ip,pulse[ii]-ped);                     
                }
             }
+           baseline=pedsum/14f;
+           rms = Math.sqrt(noise/14f - baseline * baseline); 
            
            if (pd>0) ecPix[idet].strips.hmap2.get("H2_Peds_Hist").get(is,ilay,0).fill(this.pedref-pd, ip);
+                     ecPix[idet].strips.hmap2.get("H2_Peds_Hist").get(is,ilay,1).fill(rms, ip);
            
            float sca = (float) ((is==5)?ecc.SCALE5[il-1]:ecc.SCALE[il-1]);
            float sadc = ad / sca;

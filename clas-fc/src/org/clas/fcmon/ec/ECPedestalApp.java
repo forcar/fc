@@ -53,16 +53,21 @@ public class ECPedestalApp extends FCApplication {
        f1.setParameter(0,ic+1); f1.setLineWidth(1); f1.setLineColor(2);
        f2.setParameter(0,ic+2); f2.setLineWidth(1); f2.setLineColor(2);       
        
-       H1F h1;  H2F h2;    
+       H1F h1;  H2F h2,h2b;    
 		      
-       c.divide(3,2);
+       c.divide(3,3);
        c.setAxisFontSize(14);
      
       for(int il=1;il<4;il++){
          h2 = dc2a.get(is,il,0); h2.setTitleY("Sector "+is+otab[ilm][il-1]); h2.setTitleX("PED (Ref-Measured)") ;       
          canvasConfig(c,il-1,-10.,10.,1.,ecPix[ilm].ec_nstr[il-1]+1.,true).draw(h2); 		
-         if(la==il) {c.draw(f1,"same"); c.draw(f2,"same");}         
-         c.cd(il+2); 
+         if(la==il) {c.draw(f1,"same"); c.draw(f2,"same");}     
+         if(dc2a.hasEntry(is, il, 1)) {
+            h2b = dc2a.get(is,il,1); h2b.setTitleY("Sector "+is+otab[ilm][il-1]); h2b.setTitleX("RMS") ;       
+            canvasConfig(c,il+2,0.,10.,1.,ecPix[ilm].ec_nstr[il-1]+1.,true).draw(h2b); 		
+            if(la==il) {c.draw(f1,"same"); c.draw(f2,"same");}  
+         }
+         c.cd(il+5); 
          h1=h2.sliceY(ics[il-1]); h1.setOptStat(Integer.parseInt("1001100")); h1.setFillColor(4); h1.setTitle("") ;
          h1.setTitleX("Sector "+is+otab[ilm][il-1]+(ics[il-1]+1)); c.draw(h1);
          if(la==il) {h1=h2.sliceY(ic); h1.setOptStat(Integer.parseInt("1001100")); h1.setFillColor(2); h1.setTitle("") ;
