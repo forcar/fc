@@ -404,6 +404,8 @@ public class ECpixelDepth {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+        double minDist = 1000;
+
 		for(int sector = 0; sector < 1; sector++)
     	{
 	    	for(int uPaddle = 0; uPaddle < 36; uPaddle++)
@@ -420,6 +422,7 @@ public class ECpixelDepth {
 		            		totalfinal[2] = total1[uPaddle][vPaddle][wPaddle][2] + (total2[uPaddle][vPaddle][wPaddle][2]-total1[uPaddle][vPaddle][wPaddle][2])*time;
 
 		            		totaldist = Math.sqrt(Math.pow(totalfinal[0]-total1[uPaddle][vPaddle][wPaddle][0],2) + Math.pow(totalfinal[1]-total1[uPaddle][vPaddle][wPaddle][1],2) + Math.pow(totalfinal[2]-total1[uPaddle][vPaddle][wPaddle][2],2));
+//                            if(totaldist<minDist) minDist=totaldist;
 		            		
 		            		num1 = uPaddle + 1;
 		            		num2 = vPaddle + 1;
