@@ -123,7 +123,7 @@ public class FCMenuBar extends JMenuBar  {
     
 	@Override
 	    public void actionPerformed(ActionEvent e) {
-		    int port=11111;
+		    int port=11112;
     	    if(e.getActionCommand().compareTo("Sector 1")==0) {ethost="adcecal1";etfile="/tmp/et_sys_clasprod";}
     	    if(e.getActionCommand().compareTo("Sector 2")==0) {ethost="adcecal2";etfile="/tmp/et_sys_clasprod";}
     	    if(e.getActionCommand().compareTo("Sector 3")==0) {ethost="adcecal3";etfile="/tmp/et_sys_clasprod";}
@@ -136,8 +136,8 @@ public class FCMenuBar extends JMenuBar  {
             if(e.getActionCommand().compareTo("clondaq3")==0) {ethost="clondaq3";etfile="/tmp/et_sys_clasprod";}       
             if(e.getActionCommand().compareTo("clondaq4")==0) {ethost="clondaq4";etfile="/tmp/et_sys_clasprod";}       
             if(e.getActionCommand().compareTo("clondaq5")==0) {ethost="clondaq5";etfile="/et/clasprod";}       
-            if(e.getActionCommand().compareTo("clondaq6")==0) {ethost="clondaq6";etfile="/et/clasprod";}       
-    	        if(ethost!=null) app.eventControl.openEtFile(ethost,etfile,port);    	
+            if(e.getActionCommand().compareTo("clondaq6")==0) {ethost="clondaq6";etfile="/et/clasprod";} 
+    	    if(ethost!=null) app.eventControl.openEtFile(ethost,etfile,port);    	
             if(e.getActionCommand().compareTo("Load EVIO or HIPO File")==0) this.chooseEvioFile();
             if(e.getActionCommand().compareTo("EVIO")==0) app.eventControl.openXEvioRing();
             if(e.getActionCommand().compareTo("HIPO")==0) app.eventControl.openXHipoRing();
