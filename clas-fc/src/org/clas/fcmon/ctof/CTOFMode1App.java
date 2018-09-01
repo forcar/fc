@@ -150,8 +150,8 @@ public class CTOFMode1App extends FCApplication {
         
         H1F h1; H2F h2;
         
-        F1D f1 = new F1D("p0","[a]",-20.,20.); 
-        F1D f2 = new F1D("p0","[a]",-20.,20.); 
+        F1D f1 = new F1D("p0","[a]",-30.,30.); 
+        F1D f2 = new F1D("p0","[a]",-30.,30.); 
         f1.setParameter(0,ic+1); f1.setLineWidth(1); f1.setLineColor(0);
         f2.setParameter(0,ic+2); f2.setLineWidth(1); f2.setLineColor(0);
                
@@ -159,7 +159,7 @@ public class CTOFMode1App extends FCApplication {
             
         for (int il=1; il<3 ; il++) {
             h2 = dc2a.get(is,il,6); h2.setTitleY("Sector "+is+otab[il-1]) ; h2.setTitleX("TDC-FADC (NSEC)");
-            canvasConfig(c,il-1,-20.,20.,1.,nstr+1.,true).draw(h2);
+            canvasConfig(c,il-1,-30.,30.,1.,nstr+1.,true).draw(h2);
             if (lr==il) {c.draw(f1,"same"); c.draw(f2,"same");}
             h1 = dc2a.get(is,il,6).sliceY(ic); h1.setOptStat(Integer.parseInt("10"));
             h1.setTitleX("Sector "+is+otab[il-1]+(ic+1)+" (NSEC)"); h1.setFillColor(0);
@@ -225,8 +225,8 @@ public class CTOFMode1App extends FCApplication {
         c = mode1.getCanvas("SYNC");  c.clear(); c.divide(1,2); 
         
  
-        h2 = dc2a.get(is,3,3) ;  h2.setTitleY("PHASE") ; h2.setTitleX("Sector "+is+" CTOF Raw TDC (ns)");   
-        canvasConfig(c,is-1,tlo,thi,0.,6.,true).draw(h2);
+        h2 = dc2a.get(is,3,3) ;  h2.setTitleY("PHASE") ; h2.setTitleX("Sector "+is+" TDC-FADC (ns)");   
+        canvasConfig(c,is-1,-30,30,0.,6.,true).draw(h2);
               
         h2 = dc2a.get(is,3,4) ;  h2.setTitleY("PHASE") ; h2.setTitleX("Sector "+is+" CTOF Corrected TDC (ns)");   
         canvasConfig(c,is,tlo,thi,0.,6.,true).draw(h2);
