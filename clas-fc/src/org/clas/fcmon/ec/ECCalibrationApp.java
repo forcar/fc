@@ -371,6 +371,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
         public final int    PARAM6 = 0;
         public final double[] GAIN = {0.2,0.2,0.2,0.5,0.5,0.5,0.5,0.5,0.5};
         public final int[]     DHV = {20,20,20,150,150,150,150,150,150};
+        public final float[] HVEXP = {12,11,11};
         IndexedTable        status = null; 
         Boolean         isUseTable = false;
         
@@ -457,7 +458,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
                         double hvold = calib.getDoubleValue("HVold", is,sl,ip);
                         calib.setDoubleValue(gain,"Gain", is, sl, ip);                        
                         if (gain<0.3||gain>12.0) gain=1.0;
-                        double ratio=Math.pow(gain, 1./11.);
+                        double ratio=Math.pow(gain, 1./HVEXP[idet]);
                         double hvnew = (ratio>0.5) ? hvold/ratio:hvold;
                         if((hvnew-hvold)>100) {gain=1.0; hvnew=hvold;}
                         calib.setDoubleValue(hvnew,"HVnew", is, sl, ip);                           
