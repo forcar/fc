@@ -32,6 +32,7 @@ import org.jlab.service.eb.EventBuilder;
 import org.jlab.utils.groups.IndexedList;
 import org.jlab.rec.eb.EBCCDBConstants;
 import org.jlab.rec.eb.EBCCDBEnum;
+import org.jlab.rec.eb.SamplingFractions;
 
 public class ECPart  {
 	
@@ -333,10 +334,14 @@ public class ECPart  {
         e1 = p1.getEnergy(DetectorType.ECAL);
         e2 = p2.getEnergy(DetectorType.ECAL);
 
+        double SF1db = SamplingFractions.getMean(22, p1, eb.ccdb);
         SF1 = getSF(geom,e1); e1c = e1/SF1;
+//        System.out.println(SF1+" "+SF1db);
         Particle g1 = new Particle(22,n1.x()*e1c,n1.y()*e1c,n1.z()*e1c);
         
+        double SF2db = SamplingFractions.getMean(22, p2, eb.ccdb);
         SF2 = getSF(geom,e2); e2c = e2/SF2;
+//        System.out.println(SF2+" "+SF2db);
         Particle g2 = new Particle(22,n2.x()*e2c,n2.y()*e2c,n2.z()*e2c);
         
         cth1 = Math.cos(g1.theta());
@@ -507,7 +512,7 @@ public class ECPart  {
         canvas.cd(0); canvas.draw(h1);        
         canvas.cd(1); canvas.draw(h2);
         canvas.cd(2); canvas.draw(h3);
-        canvas.cd(3); canvas.getPad(3).getAxisY().setRange(0.0,0.028) ; canvas.draw(sigGraph);
+        canvas.cd(3); canvas.getPad(3).getAxisY().setRange(0.0,0.028)  ; canvas.draw(sigGraph);
         canvas.cd(4); canvas.getPad(4).getAxisY().setRange(0.18,0.26)  ; canvas.draw(meanGraph);
         H1F hrat1 = H1F.divide(part.h6, part.h5); hrat1.setFillColor(2);
         hrat1.setTitleX("True Electron Energy (GeV))"); hrat1.setTitleY("Efficiency");
@@ -676,8 +681,8 @@ public class ECPart  {
   	 
     public static void main(String[] args){
         ECPart part = new ECPart();  
-     	part.pizeroDemo(args);
-//        part.electronDemo(args);
+//     	part.pizeroDemo(args);
+        part.electronDemo(args);
     }
     
 }
