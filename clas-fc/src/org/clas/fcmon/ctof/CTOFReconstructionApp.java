@@ -75,10 +75,13 @@ public class CTOFReconstructionApp extends FCApplication {
            for (int is=is1 ; is<is2 ; is++) {
                ctofPix[idet].strips.hmap2.get("H2_a_Hist").get(is,0,0).reset();
                ctofPix[idet].strips.hmap2.get("H2_t_Hist").get(is,0,0).reset();
+               ctofPix[idet].strips.hmap2.get("H2_t_Hist").get(is,3,3).reset();
+               ctofPix[idet].strips.hmap2.get("H2_t_Hist").get(is,3,4).reset();
                for (int il=1 ; il<3 ; il++) {
                    ctofPix[idet].strips.hmap2.get("H2_a_Hist").get(is,il,0).reset();
                    ctofPix[idet].strips.hmap2.get("H2_a_Hist").get(is,il,3).reset();
                    ctofPix[idet].strips.hmap2.get("H2_a_Hist").get(is,il,5).reset();
+                   ctofPix[idet].strips.hmap2.get("H2_a_Hist").get(is,il,6).reset();
                    ctofPix[idet].strips.hmap2.get("H2_t_Hist").get(is,il,0).reset();
                }
            }       
@@ -229,11 +232,11 @@ public class CTOFReconstructionApp extends FCApplication {
                list = tdcs.getItem(lr,ip); tdcc=new Float[list.size()]; list.toArray(tdcc);
                tdc  = new float[list.size()];                   
                for (int ii=0; ii<tdcc.length; ii++) {
-        	           tdc[ii] = tdcc[ii]-app.phaseCorrection*4;
-        	           float tdif = tdc[ii]-CTOFConstants.TOFFSET[lr]-tf;
-                   ctofPix[il-1].strips.hmap2.get("H2_a_Hist").get(is,lr+1,6).fill(tdif,ip);
-                   ctofPix[il-1].strips.hmap2.get("H2_t_Hist").get(is,3,3).fill(tdif,app.phase);
-                   ctofPix[il-1].strips.hmap2.get("H2_t_Hist").get(is,3,4).fill(tdc[ii],app.phase);
+        	        tdc[ii] = tdcc[ii]-app.phaseCorrection*4;
+        	        float tdif = tdc[ii]-CTOFConstants.TOFFSET[lr]-tf;
+                    ctofPix[il-1].strips.hmap2.get("H2_a_Hist").get(is,lr+1,6).fill(tdif,ip);
+                    ctofPix[il-1].strips.hmap2.get("H2_t_Hist").get(is,3,3).fill(tdif,app.phase);
+                    ctofPix[il-1].strips.hmap2.get("H2_t_Hist").get(is,3,4).fill(tdc[ii],app.phase);
                }
            } else {
                tdc = new float[1];
