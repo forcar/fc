@@ -252,9 +252,7 @@ public class CNDReconstructionApp extends FCApplication {
            fill(0, is, lr+1, il, ad, tdc, tf, ph);   
            
            }           
-//       }
-       
-       if (app.decoder.isHipoFileOpen&&isGoodMIP()) writeHipoOutput();
+//       }       
        
    }
    
@@ -439,7 +437,9 @@ public class CNDReconstructionApp extends FCApplication {
    public void findPixels() {      
    }
    
-   public void processPixels() {       
+   @Override
+   public void processPixels(int idet) {  
+	   app.goodFilterEvent = isGoodMIP();
    }
 
    public void makeMaps(int idet) {
