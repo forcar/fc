@@ -120,7 +120,21 @@ public class DetectorShape2D {
         }
     } 
     
-    public void createArc(double radiusInner, double radiusOutter,
+    public void createCirc(double x0, double y0, double radius) {
+    	this.shapePath.clear();
+    	int numberOfPoints = 36;
+    	double twopi = 2*3.1415926;
+        double step = twopi/numberOfPoints;
+        
+        for(double angle = 0; angle < twopi; angle+=step){
+            this.shapePath.addPoint(
+                    x0+radius*Math.cos(Math.toRadians(angle)),
+                    y0+radius*Math.sin(Math.toRadians(angle)),
+                    0.0);
+        } 
+    }
+    
+    public void createArc(double radiusInner, double radiusOuter,
             double angleStart, double angleEnd){
         
         this.shapePath.clear();
@@ -132,21 +146,21 @@ public class DetectorShape2D {
                 0.0);
         
         this.shapePath.addPoint(
-                radiusOutter*Math.cos(Math.toRadians(angleStart)),
-                radiusOutter*Math.sin(Math.toRadians(angleStart)),
+                radiusOuter*Math.cos(Math.toRadians(angleStart)),
+                radiusOuter*Math.sin(Math.toRadians(angleStart)),
                 0.0);
         
         double step = (angleEnd - angleStart)/numberOfPoints;
         for(double angle = angleStart; angle < angleEnd; angle+=step){
             this.shapePath.addPoint(
-                    radiusOutter*Math.cos(Math.toRadians(angle)),
-                    radiusOutter*Math.sin(Math.toRadians(angle)),
+                    radiusOuter*Math.cos(Math.toRadians(angle)),
+                    radiusOuter*Math.sin(Math.toRadians(angle)),
                     0.0);
         }
         
         this.shapePath.addPoint(
-                radiusOutter*Math.cos(Math.toRadians(angleEnd)),
-                radiusOutter*Math.sin(Math.toRadians(angleEnd)),
+                radiusOuter*Math.cos(Math.toRadians(angleEnd)),
+                radiusOuter*Math.sin(Math.toRadians(angleEnd)),
                 0.0);
         this.shapePath.addPoint(
                 radiusInner*Math.cos(Math.toRadians(angleEnd)),
