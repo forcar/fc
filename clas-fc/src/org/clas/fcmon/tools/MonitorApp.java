@@ -585,6 +585,7 @@ public class MonitorApp extends JFrame implements ActionListener {
         switch (appName) {
         case "ECMON":   return viewIndex+3*detectorIndex; 
         case "FTOFMON": return dd.getLayer();
+        case "BANDMON": return dd.getLayer();
         case "HTCCMON": return dd.getLayer();
         case "CTOFMON": return viewIndex+2*detectorIndex;
         case "LTCCMON": return dd.getLayer();
@@ -597,6 +598,7 @@ public class MonitorApp extends JFrame implements ActionListener {
         switch (appName) {
         case "ECMON":   return dd.getComponent()+1; 
         case "FTOFMON": return dd.getComponent()+1;  
+        case "BANDMON": return dd.getComponent()+1;  
         case "HTCCMON": return dd.getComponent()+1;  
         case "CTOFMON": return dd.getComponent()+1; 
         case "LTCCMON": return dd.getComponent()+1;
@@ -625,6 +627,8 @@ public class MonitorApp extends JFrame implements ActionListener {
         int sl = 0;
         int ch = 0;
         if (getSelectedTabName()=="TDC") or=or+2;
+        
+//        System.out.println(is+" "+sp+" "+ic+" "+or+" "+rtt.hasItem(is,sp,ic,or));
         
         if (rtt.hasItem(is,sp,ic,or)) {
             int[] dum = (int[]) rtt.getItem(is,sp,ic,or);

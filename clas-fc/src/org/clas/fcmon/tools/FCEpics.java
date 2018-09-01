@@ -73,6 +73,7 @@ public class FCEpics  {
         this.layMap.put("HTCC",htcc); this.nlayMap.put("HTCC", nhtcc);
         this.layMap.put("FTOF",ftof); this.nlayMap.put("FTOF", nftof);
         this.layMap.put("CTOF",ctof); this.nlayMap.put("CTOF", nctof);
+        this.layMap.put("BAND",ctof); this.nlayMap.put("BAND", nctof);
         this.layMap.put("CND",cnd);   this.nlayMap.put("CND",  ncnd);
         this.layMap.put("EC",ec);     this.nlayMap.put("EC",   nec);
 	}
@@ -259,6 +260,7 @@ public class FCEpics  {
 	    case "LTCC": return det;
 	    case "HTCC": return det;
 	    case "FTOF": return det;
+	    case "BAND": return det;
 	    case "CTOF": return det;
 	    case  "CND": return det;
 	    case   "EC": return (layer<4) ? "PCAL":"ECAL";

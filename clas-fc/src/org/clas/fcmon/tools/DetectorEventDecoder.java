@@ -109,21 +109,21 @@ public class DetectorEventDecoder {
     
     public final void initDecoder(){
         keysTrans = Arrays.asList(new String[]{
-		"FTCAL","FTHODO","FTTRK","LTCC","ECAL","FTOF","HTCC","DC","CTOF","CND","BST","RF","BMT","FMT","RICH","HEL"
+		"FTCAL","FTHODO","FTTRK","LTCC","ECAL","FTOF","HTCC","DC","CTOF","CND","BST","RF","BMT","FMT","RICH","HEL","BAND"
         });
         
         tablesTrans = Arrays.asList(new String[]{
             "/daq/tt/ftcal","/daq/tt/fthodo","/daq/tt/fttrk","/daq/tt/ltcc",
             "/daq/tt/ec","/daq/tt/ftof","/daq/tt/htcc","/daq/tt/dc","/daq/tt/ctof","/daq/tt/cnd","/daq/tt/svt",
-            "/daq/tt/rf","/daq/tt/bmt","/daq/tt/fmt","/daq/tt/clasdev/richcosmic","/daq/tt/hel"
+            "/daq/tt/rf","/daq/tt/bmt","/daq/tt/fmt","/daq/tt/clasdev/richcosmic","/daq/tt/hel","/daq/tt/band"
         });
         
         translationManager.init(keysTrans,tablesTrans);
         
-        keysFitter   = Arrays.asList(new String[]{"FTCAL","FTOF","FTTRK","LTCC","ECAL","HTCC","CTOF","CND","BMT","FMT","HEL","RF"});
+        keysFitter   = Arrays.asList(new String[]{"FTCAL","FTOF","FTTRK","LTCC","ECAL","HTCC","CTOF","CND","BMT","FMT","HEL","RF","BAND"});
         tablesFitter = Arrays.asList(new String[]{
             "/daq/fadc/ftcal","/daq/fadc/ftof","/daq/config/fttrk","/daq/fadc/ltcc","/daq/fadc/ec",
-            "/daq/fadc/htcc","/daq/fadc/ctof","/daq/fadc/cnd","/daq/config/bmt","/daq/config/fmt","/daq/fadc/hel","/daq/fadc/rf"
+            "/daq/fadc/htcc","/daq/fadc/ctof","/daq/fadc/cnd","/daq/config/bmt","/daq/config/fmt","/daq/fadc/hel","/daq/fadc/rf","/daq/fadc/band"
         });
         fitterManager.init(keysFitter, tablesFitter);
     }
@@ -238,10 +238,6 @@ public class DetectorEventDecoder {
                     IndexedTable  daq = fitterManager.getConstants(runNumber, table);
                     DetectorType  type = DetectorType.getType(table);
                     if(daq.hasEntry(crate,slot,channel)==true){                    
-                        //basicFitter.setPulse(0, 4).setPedestal(35, 70);
-                        //for(int i = 0; i < data.getADCSize(); i++){
-                        //    basicFitter.fit(data.getADCData(i));
-                        //}
             	           int tet = (this.tet>0) ? this.tet:daq.getIntValue("tet", crate,slot,channel); //lcs
             	           int nsa = (this.nsa>0) ? this.nsa:daq.getIntValue("nsa", crate,slot,channel); //lcs
             	           int nsb = (this.nsb>0) ? this.nsb:daq.getIntValue("nsb", crate,slot,channel); //lcs
@@ -251,23 +247,18 @@ public class DetectorEventDecoder {
                             for(int i = 0; i < data.getADCSize(); i++){
                                 ADCData adc = data.getADCData(i);
                                 if(adc.getPulseSize()>0){
-                                    //System.out.println("-----");
-                                    //System.out.println(" FITTING PULSE " + 
-                                    //        crate + " / " + slot + " / " + channel);
                                     try {
                                         extendedFitter.fit(nsa, nsb, tet, ped, adc.getPulseArray());
                                     } catch (Exception e) {
                                         System.out.println(">>>> error : fitting pulse "
                                                             +  crate + " / " + slot + " / " + channel);
                                     }
-                                    //System.out.println(" FIT RESULT = " + extendedFitter.adc + " / "
-                                    //        + this.extendedFitter.t0 + " / " + this.extendedFitter.ped);
                                     int adc_corrected = extendedFitter.adc + extendedFitter.ped*(nsa+nsb);
                                     adc.setHeight((short) this.extendedFitter.pulsePeakValue);
                                     adc.setIntegral(adc_corrected);
                                     adc.setTimeWord(this.extendedFitter.t0);
-                                    adc.setPedestal((short) this.extendedFitter.ped);                                
-                                }
+                                    adc.setPedestal((short) this.extendedFitter.ped);                                           
+                               }
                             }
                         }
                         if(data.getADCSize()>0){

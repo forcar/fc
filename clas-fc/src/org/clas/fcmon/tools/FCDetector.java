@@ -12,6 +12,7 @@ import java.util.TreeMap;
 
 import javax.swing.JPanel;
 
+import org.clas.fcmon.band.BANDPixels;
 import org.clas.fcmon.cc.CCPixels;
 import org.clas.fcmon.cnd.CNDPixels;
 import org.clas.fcmon.detector.view.DetectorPane2D;
@@ -42,6 +43,7 @@ public class FCDetector {
     public FTOFPixels[]            ftofPix = null; 
     public CTOFPixels[]            ctofPix = null; 
     public CNDPixels[]              cndPix = null; 
+    public BANDPixels[]            bandPix = null; 
     public MonitorApp                  app = null;
     public DetectorMonitor             mon = null;
     public TreeMap<String,JPanel>  rbPanes = new TreeMap<String,JPanel>();
@@ -119,7 +121,14 @@ public class FCDetector {
         this.cndPix = cndPix;   
         this.nStrips[0] = cndPix[0].nstr;
 //        this.nStrips[1] = ctofPix[1].nstr;
-    }      
+    }  
+    
+    public FCDetector(String name, BANDPixels[] bandPix) {
+        this.appName = name;
+        this.bandPix = bandPix;   
+        this.nStrips[0] = bandPix[0].nstr[2];
+//        this.nStrips[1] = ctofPix[1].nstr;
+    }   
     
     public void setApplicationClass(MonitorApp app) {
         this.app = app;
@@ -225,6 +234,10 @@ public class FCDetector {
                         if( useTDC) {dc = ftofPix[ilmap].Lmap_t; mapz=ftofPix[ilmap].Lmap_t_z;}  
                         layer = dd.getOrder()+1; layz=layer;
                         break;     
+        case "BANDDet": if(!useTDC) {dc = bandPix[ilmap].Lmap_a; mapz=bandPix[ilmap].Lmap_a_z;}
+                        if( useTDC) {dc = bandPix[ilmap].Lmap_t; mapz=bandPix[ilmap].Lmap_t_z;}  
+                        layer = dd.getOrder()+1; layz=layer;
+                        break;     
         case "CNDDet":  if(!useTDC) {dc = cndPix[ilmap].Lmap_a; mapz=cndPix[ilmap].Lmap_a_z;}
                         if( useTDC) {dc = cndPix[ilmap].Lmap_t; mapz=cndPix[ilmap].Lmap_t_z;}  
                         layer = dd.getOrder()+1; layz=0;
@@ -254,7 +267,6 @@ public class FCDetector {
         //double[] junk = ecPix[ilmap].Lmap_a_z.getItem(1,0);
         //System.out.println("ilmap,junk = "+ilmap+" "+junk[0]+" "+junk[1]+" "+junk[2]);
 
-//        if(app.debug) System.out.println("layer,opt = "+layer+" "+opt);
         if (app.getInProcess()>0&&!peakShapes) colorfraction = getcolor(dc.get(is,layer,opt),ic,mapz.getItem(layz,opt));
                 
         if (colorfraction<0.05) colorfraction = 0.05;
