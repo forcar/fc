@@ -25,6 +25,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import org.clas.fcmon.band.BANDPixels;
 import org.clas.fcmon.cc.CCPixels;
 import org.clas.fcmon.cnd.CNDPixels;
 import org.clas.fcmon.detector.view.DetectorShape2D;
@@ -74,6 +75,7 @@ public class FCApplication implements ActionListener  {
     public FTOFPixels[]                               ftofPix = null;
     public CTOFPixels[]                               ctofPix = null;
     public CNDPixels[]                                 cndPix = null;
+    public BANDPixels[]                               bandPix = null;
     
 	public DetectorCollection<TreeMap<Integer,Object>> Lmap_a = new  DetectorCollection<TreeMap<Integer,Object>>();
 	public TreeMap<String, DetectorCollection<H1F>>     hmap1 = new TreeMap<String, DetectorCollection<H1F>>();
@@ -158,6 +160,11 @@ public class FCApplication implements ActionListener  {
         this.ftofPix = ftofPix;   
         this.addCanvas(name);
     }
+    public FCApplication(String name, BANDPixels[] bandPix) {
+        this.appName = name;
+        this.bandPix = bandPix;   
+        this.addCanvas(name);
+    }   
     
     public FCApplication(String name, CTOFPixels[] ctofPix) {
         this.appName = name;
