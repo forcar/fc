@@ -21,7 +21,8 @@ public class BANDMode1App extends FCApplication {
     
     int is,lr,ic,idet,nstr;
     int ics[][] = new int[5][10];
-    String otab[]={" Left PMT "," Right PMT "};
+    String tit;
+    String otab[]={" L PMT "," R PMT "};
     
     public BANDMode1App(String name, BANDPixels[] bandPix) {
         super(name,bandPix);    
@@ -32,6 +33,7 @@ public class BANDMode1App extends FCApplication {
         mode1.addCanvas("Sum");
         mode1.addCanvas("TDIF");
         mode1.addCanvas("AvsT");
+        mode1.addCanvas("LOGRAT");
         engineView.add(mode1);
         return engineView;
     }    
@@ -41,17 +43,20 @@ public class BANDMode1App extends FCApplication {
         this.is = dd.getSector();
         this.lr = dd.getOrder()+1;
         this.ic = dd.getComponent();   
-        this.idet = ilmap;      
+        this.idet = ilmap;  
+        
+        tit = "SEC "+is+" LAY "+(idet+1);
         
         if (lr>3) return;
         
         this.nstr = bandPix[idet].nstr[is-1];    
         
         switch (mode1.selectedCanvas) {
-        case "Event": updateEvent(); break;
-        case   "Sum": updateSum();   break;
-        case  "TDIF": updateTDIF();  break;
-        case  "AvsT": updateAvsT();
+        case  "Event": updateEvent(); break;
+        case    "Sum": updateSum();   break;
+        case   "TDIF": updateTDIF();  break;
+        case   "AvsT": updateAvsT();  break;
+        case "LOGRAT": updateLOGRAT();
         }
         
      } 
@@ -59,16 +64,7 @@ public class BANDMode1App extends FCApplication {
     public void updateEvent() {
 
         int min=0, max=nstr;
-        c = mode1.getCanvas("Event");       
-
-        switch (is) {
-        case 1: c.divide(3,1); break;
-        case 2: c.divide(4,2); break;
-        case 3: c.divide(3,2); break;
-        case 4: c.divide(3,2); break;
-        case 5: c.divide(2,1);
-        }  
-
+        c = mode1.getCanvas("Event"); c.clear(); c.divide(2,4);      
         c.setAxisFontSize(14);
         
 //        app.mode7Emulation.init("/daq/fadc/ftof",app.currentCrate, app.currentSlot, app.currentChan);
@@ -93,7 +89,7 @@ public class BANDMode1App extends FCApplication {
             c.getPad(ip-min).getAxisX().setRange(0.,100.);
             c.getPad(ip-min).getAxisY().setRange(-100.,bandPix[0].amax[idet]*app.displayControl.pixMax);
             h = bandPix[idet].strips.hmap2.get("H2_a_Sevd").get(is,lr,0).sliceY(ip);            
-            h.setTitleX("Sector "+is+otab[lr-1]+(ip+1)+" (4 ns/ch)"); h.setTitleY("Counts");
+            h.setTitleX(tit+otab[lr-1]+(ip+1)+" (4 ns/ch)"); h.setTitleY("Counts");
             h.setFillColor(4); c.draw(h);
             h = bandPix[idet].strips.hmap2.get("H2_a_Sevd").get(is,lr,1).sliceY(ip); h.setTitle(" ");
             h.setFillColor(2); c.draw(h,"same");
@@ -115,18 +111,18 @@ public class BANDMode1App extends FCApplication {
         f1.setParameter(0,ic+1); f1.setLineWidth(1); f1.setLineColor(0);
         f2.setParameter(0,ic+2); f2.setLineWidth(1); f2.setLineColor(0);
                
-        c = mode1.getCanvas("Sum");  c.clear(); c.divide(2,2);       
+        c = mode1.getCanvas("Sum");  c.clear(); c.divide(2,2);   
         
         for (int il=1; il<3 ; il++) {
-            h2 = dc2a.get(is,il,5); h2.setTitleY("Sector "+is+otab[il-1]) ; h2.setTitleX("SAMPLES (4 ns/ch)");
+            h2 = dc2a.get(is,il,5); h2.setTitleY(tit+otab[il-1]) ; h2.setTitleX("SAMPLES (4 ns/ch)");
             canvasConfig(c,il-1,0.,100.,1.,nstr+1.,true).draw(h2);
             if (lr==il) {c.draw(f1,"same"); c.draw(f2,"same");}
             h1 = dc2a.get(is,il,5).sliceY(ic); h1.setOptStat(Integer.parseInt("1000100"));
-            h1.setTitleX("Sector "+is+otab[il-1]+(ic+1)+" (4 ns/ch)"); h1.setFillColor(0);
+            h1.setTitleX(tit+otab[il-1]+(ic+1)+" (4 ns/ch)"); h1.setFillColor(0);
             c.cd(il+1); h1.setTitle(" "); c.draw(h1);
             if (lr==il) {
                 h1=dc2a.get(is,il,5).sliceY(ic) ; h1.setFillColor(2); h1.setOptStat(Integer.parseInt("1000100"));
-                h1.setTitleX("Sector "+is+otab[il-1]+(ic+1)+" (4 ns/ch)"); c.draw(h1);
+                h1.setTitleX(tit+otab[il-1]+(ic+1)+" (4 ns/ch)"); c.draw(h1);
             }            
             if (app.isSingleEvent()) {h1=dc2t.get(is,il,0).sliceY(ic) ; h1.setFillColor(4); c.draw(h1,"same");}
         }
@@ -150,15 +146,15 @@ public class BANDMode1App extends FCApplication {
         c = mode1.getCanvas("TDIF");  c.clear(); c.divide(2,2);       
             
         for (int il=1; il<3 ; il++) {
-            h2 = dc2a.get(is,il,6); h2.setTitleY("Sector "+is+otab[il-1]) ; h2.setTitleX("TDC-FADC (NSEC)");
+            h2 = dc2a.get(is,il,6); h2.setTitleY(tit+otab[il-1]) ; h2.setTitleX("TDC-FADC (NSEC)");
             canvasConfig(c,il-1,-20.,20.,1.,nstr+1.,true).draw(h2);
             if (lr==il) {c.draw(f1,"same"); c.draw(f2,"same");}
             h1 = dc2a.get(is,il,6).sliceY(ic); h1.setOptStat(Integer.parseInt("10"));
-            h1.setTitleX("Sector "+is+otab[il-1]+(ic+1)+" (NSEC)"); h1.setFillColor(0);
+            h1.setTitleX(tit+otab[il-1]+(ic+1)+" (NSEC)"); h1.setFillColor(0);
             c.cd(il+1); h1.setTitle(" "); c.draw(h1);
             if (lr==il) {
                 h1=dc2a.get(is,il,6).sliceY(ic) ; h1.setFillColor(2);
-                h1.setTitleX("Sector "+is+otab[il-1]+(ic+1)+" (NSEC)"); c.draw(h1);
+                h1.setTitleX(tit+otab[il-1]+(ic+1)+" (NSEC)"); c.draw(h1);
             }            
         }
         
@@ -174,11 +170,16 @@ public class BANDMode1App extends FCApplication {
         
         H2F h2;
         
-        c = mode1.getCanvas("AvsT");  c.clear(); c.divide(2,1);       
+        c = mode1.getCanvas("AvsT");  c.clear(); c.divide(2,bandPix.length);       
        
-        for (int il=1; il<3; il++) {
-            h2=dc2a.get(is,il,1); h2.setTitleY("Sector "+is+otab[il-1]+" TDC") ; h2.setTitleX("Sector "+is+otab[il-1]+" FADC");
-            canvasConfig(c,il-1,0.,bandPix[0].amax[idet],0.,bandPix[0].tmax[idet],true).draw(h2);            
+        int n=0;
+        
+        for (int iis=1; iis<bandPix.length+1; iis++) {
+        for (int il=1; il<3; il++) {       	
+            h2=dc2a.get(iis,il,1); 
+            h2.setTitleY("TDC") ; h2.setTitleX("SEC "+iis+" LAY "+(idet+1)+otab[il-1]+" FADC");
+            canvasConfig(c,n,0.,bandPix[0].amax[idet],150.,250.,true).draw(h2); n++;           
+        }
         }
         
         c.repaint();
@@ -187,17 +188,16 @@ public class BANDMode1App extends FCApplication {
     
     public void updateLOGRAT() {
         
-        DetectorCollection<H2F> dc2a = bandPix[idet].strips.hmap2.get("H2_t_Hist");       
-           
+        DetectorCollection<H2F> dc2t = bandPix[idet].strips.hmap2.get("H2_t_Hist");       
+         
         H2F h2;
-        int min=0,max=24;
                 
-        c = mode1.getCanvas("LOGRAT");  c.clear(); c.divide(6,4); 
-        max=24 ; if (ic>23) {min=24; max=48;}; 
-        
-        for(int iip=min;iip<max;iip++) {
-            h2=dc2a.get(is,iip+1,2); h2.setTitleX(" PMT "+(iip+1)+" TL-TR (ns)") ;
-            canvasConfig(c,iip-min,-32.,-15.,-0.6,0.6,true).draw(h2);            
+        c = mode1.getCanvas("LOGRAT");  c.clear(); c.divide(2, 4);
+
+        for(int iip=0;iip<nstr;iip++) {
+            h2=dc2t.get(is,iip+1,2); 
+            h2.setTitleX(tit+" BAR "+(iip+1)+" TL-TR (ns)"); h2.setTitleY("LOG (AL/AR)");
+            canvasConfig(c,iip,-15.,5.,-0.2,0.4,true).draw(h2);            
         }
         
         c.repaint();

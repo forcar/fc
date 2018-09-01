@@ -41,9 +41,10 @@ public class BANDTdcApp extends FCApplication {
         int ilm = ilmap;
         double nstr = bandPix[ilm].nstr[is-1];
         
-        H2F h2a = bandPix[ilm].strips.hmap2.get("H2_t_Hist").get(is,1,0); h2a.setTitleY("Sector "+is+" Left PMT")  ; h2a.setTitleX("Left PMT TDC");
-        H2F h2b = bandPix[ilm].strips.hmap2.get("H2_t_Hist").get(is,2,0); h2b.setTitleY("Sector "+is+" Right PMT") ; h2b.setTitleX("Right PMT TDC");
-        H2F h2c = bandPix[ilm].strips.hmap2.get("H2_t_Hist").get(is,0,0); h2c.setTitleY("Sector "+is+" PADDLE")    ; h2c.setTitleX("TDIF");
+        String tit = "SEC "+is+" LAY "+(ilm+1);
+        H2F h2a = bandPix[ilm].strips.hmap2.get("H2_t_Hist").get(is,1,0); h2a.setTitleY(tit+" PMT"); h2a.setTitleX("L PMT TDC");
+        H2F h2b = bandPix[ilm].strips.hmap2.get("H2_t_Hist").get(is,2,0); h2b.setTitleY(tit+" PMT"); h2b.setTitleX("R PMT TDC");
+        H2F h2c = bandPix[ilm].strips.hmap2.get("H2_t_Hist").get(is,0,0); h2c.setTitleY(tit+" BAR"); h2c.setTitleX("TDIF");
         canvasConfig(c,0,0.,bandPix[0].tmax[ilm],1.,nstr+1.,true).draw(h2a);
         canvasConfig(c,1,0.,bandPix[0].tmax[ilm],1.,nstr+1.,true).draw(h2b);
         canvasConfig(c,2, -35.,  35.,1.,nstr+1.,true).draw(h2c);
@@ -59,9 +60,9 @@ public class BANDTdcApp extends FCApplication {
         f1.setLineColor(2); c.draw(f1,"same"); 
         f2.setLineColor(2); c.draw(f2,"same");
         
-        h1a = bandPix[ilm].strips.hmap2.get("H2_t_Hist").get(is,1,0).projectionY(); h1a.setTitleX("Sector "+is+" Left PMT");   h1a.setFillColor(col0);  
-        h1b = bandPix[ilm].strips.hmap2.get("H2_t_Hist").get(is,2,0).projectionY(); h1b.setTitleX("Sector "+is+" Right PMT" ); h1b.setFillColor(col0);  
-        h1c = bandPix[ilm].strips.hmap2.get("H2_t_Hist").get(is,0,0).projectionY(); h1c.setTitleX("Sector "+is+" PADDLE" );    h1c.setFillColor(col1);  
+        h1a = bandPix[ilm].strips.hmap2.get("H2_t_Hist").get(is,1,0).projectionY(); h1a.setTitleX(tit+" L PMT");  h1a.setFillColor(col0);  
+        h1b = bandPix[ilm].strips.hmap2.get("H2_t_Hist").get(is,2,0).projectionY(); h1b.setTitleX(tit+" R PMT" ); h1b.setFillColor(col0);  
+        h1c = bandPix[ilm].strips.hmap2.get("H2_t_Hist").get(is,0,0).projectionY(); h1c.setTitleX(tit+" BAR" );   h1c.setFillColor(col1);  
 
         if (lr==1) {h1a.setFillColor(col1); copy1=h1a.histClone("Copy"); copy1.reset(); copy1.setBinContent(ic, h1a.getBinContent(ic)); copy1.setFillColor(col2);}
         if (lr==2) {h1b.setFillColor(col1); copy1=h1b.histClone("Copy"); copy1.reset(); copy1.setBinContent(ic, h1b.getBinContent(ic)); copy1.setFillColor(col2);}
@@ -71,9 +72,9 @@ public class BANDTdcApp extends FCApplication {
         c.cd(4); h1b.setOptStat(Integer.parseInt("1000000")); c.draw(h1b); if (lr==2) c.draw(copy1,"same");
         c.cd(5); h1c.setOptStat(Integer.parseInt("1000000")); c.draw(h1c);            c.draw(copy2,"same");
         
-        h1a = bandPix[ilm].strips.hmap2.get("H2_t_Hist").get(is,1,0).sliceY(ic); h1a.setTitleX("Left PMT "+(ic+1)+" TDC");   h1a.setFillColor(col0);  
-        h1b = bandPix[ilm].strips.hmap2.get("H2_t_Hist").get(is,2,0).sliceY(ic); h1b.setTitleX("Right PMT "+(ic+1)+" TDC" ); h1b.setFillColor(col0);  
-        h1c = bandPix[ilm].strips.hmap2.get("H2_t_Hist").get(is,0,0).sliceY(ic); h1c.setTitleX("TDIF PADDLE "+(ic+1));       h1c.setFillColor(col2);  
+        h1a = bandPix[ilm].strips.hmap2.get("H2_t_Hist").get(is,1,0).sliceY(ic); h1a.setTitleX(tit+" L PMT "+(ic+1)+" TDC");  h1a.setFillColor(col0);  
+        h1b = bandPix[ilm].strips.hmap2.get("H2_t_Hist").get(is,2,0).sliceY(ic); h1b.setTitleX(tit+" R PMT "+(ic+1)+" TDC" ); h1b.setFillColor(col0);  
+        h1c = bandPix[ilm].strips.hmap2.get("H2_t_Hist").get(is,0,0).sliceY(ic); h1c.setTitleX(tit+" BAR "+(ic+1)+" TDIF");   h1c.setFillColor(col2);  
         
         if (lr==1) h1a.setFillColor(col2);
         if (lr==2) h1b.setFillColor(col2);

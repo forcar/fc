@@ -26,27 +26,21 @@ public class BANDMipApp extends FCApplication {
         int nstr = bandPix[ilm].nstr[is-1];
         int min=0, max=nstr;
         
-        switch (is) {
-        case 1: c.divide(3,1); break;
-        case 2: c.divide(4,2); break;
-        case 3: c.divide(3,2); break;
-        case 4: c.divide(3,2); break;
-        case 5: c.divide(2,1);
-        }     
-        
+        c.clear(); c.divide(2, 4);
         c.setAxisFontSize(12);
+        
 //      canvas.setAxisTitleFontSize(12);
 //      canvas.setTitleFontSize(14);
 //      canvas.setStatBoxFontSize(10);
         
         H1F h;
         String alab;
-        String otab[]={" Left PMT "," Right PMT "};
+        String otab[]={" L PMT "," R PMT "};
         String lab4[]={" ADC"," TDC","GMEAN PMT "};      
-
+        String tit = "SEC "+is+" LAY "+(ilm+1);
        
         for(int iip=min;iip<max;iip++) {
-            alab = otab[lr-1]+(iip+1)+lab4[0];
+            alab = tit+otab[lr-1]+(iip+1)+lab4[0];
             c.cd(iip-min);                           
             h = bandPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,lr,0).sliceY(iip); 
             h.setOptStat(Integer.parseInt("1000100")); 
@@ -59,7 +53,7 @@ public class BANDMipApp extends FCApplication {
         c.cd(ic-min); 
         h = bandPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,0,0).sliceY(ic); 
         h.setOptStat(Integer.parseInt("1000100")); 
-        alab = "PMT "+(ic+1)+" GMEAN"; h.setTitleX(alab); h.setTitle(""); h.setFillColor(2); c.draw(h); 
+        alab = tit+" BAR "+(ic+1)+" GMEAN"; h.setTitleX(alab); h.setTitle(""); h.setFillColor(2); c.draw(h); 
         
         c.repaint();
 

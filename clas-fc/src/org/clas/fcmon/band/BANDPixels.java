@@ -22,8 +22,8 @@ public class BANDPixels {
     double band_xpix[][][] = new double[4][14][5];
     double band_ypix[][][] = new double[4][14][5];
     
-    public double        amax[]= {4000.,4000.,4000.,4000.,4000.};
-    public double        tmax[] = {700.,700.,700.,700.,700.};
+    public double        amax[]= {6000.,6000.,6000.,6000.,6000.};
+    public double        tmax[] = {500.,500.,500.,500.,500.};
     
     int        nha[][] = new    int[6][2];
     int        nht[][] = new    int[6][2];
@@ -138,6 +138,9 @@ public class BANDPixels {
             int ill=0; iid="s"+Integer.toString(is)+"_l"+Integer.toString(ill)+"_c";
             H2_a_Hist.add(is, 0, 0, new H2F("a_gmean_"+iid+0, 100,   0., amax[id],nstr[is-1], 1., nend));
             H2_t_Hist.add(is, 0, 0, new H2F("a_tdif_"+iid+0,  100, -35.,      35.,nstr[is-1], 1., nend));
+            for (int ip=1; ip<nstr[is-1]+1; ip++) {
+                H2_t_Hist.add(is, ip, 2, new H2F("c_tdif_"+iid+1+ip,   50, -15., 5.,50,-0.2, 0.4));
+            }            
             for (int il=1 ; il<3 ; il++){
                 iid="s"+Integer.toString(is)+"_l"+Integer.toString(il)+"_c";
                 H2_a_Hist.add(is, il, 0, new H2F("a_raw_"+iid+0,      100,   0., amax[id],nstr[is-1], 1., nend));

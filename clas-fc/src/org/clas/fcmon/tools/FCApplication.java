@@ -219,8 +219,6 @@ public class FCApplication implements ActionListener  {
             if(testTriggerMask()) this.updateHipoData(event);        
         }
         
-        processCalib();   // Quantities for display and calibration engine
-        
         if (app.isSingleEvent()) {
             findPixels();     // Process all pixels for SED
             processSED();

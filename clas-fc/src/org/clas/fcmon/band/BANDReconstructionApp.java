@@ -81,6 +81,7 @@ public class BANDReconstructionApp extends FCApplication {
                    bandPix[idet].strips.hmap2.get("H2_a_Hist").get(is,il,5).reset();
                    bandPix[idet].strips.hmap2.get("H2_a_Hist").get(is,il,6).reset();
                    bandPix[idet].strips.hmap2.get("H2_t_Hist").get(is,il,0).reset();
+                   bandPix[idet].strips.hmap2.get("H2_t_Hist").get(is,il,2).reset();
                }
            }       
        } 
@@ -452,8 +453,12 @@ public class BANDReconstructionApp extends FCApplication {
            int ip = ig.getIndex(hash, 2);
             	   
         	   if(tdcs.hasItem(is,il,0,ip)&&tdcs.hasItem(is,il,1,ip)) {
-               float td = tdcs.getItem(is,il,0,ip).get(0)-tdcs.getItem(is,il,1,ip).get(0);
+                   float td = tdcs.getItem(is,il,0,ip).get(0)-tdcs.getItem(is,il,1,ip).get(0);
         	       bandPix[il-1].strips.hmap2.get("H2_t_Hist").get(is, 0, 0).fill(td,ip,1.0);  
+        	       if(adcs.hasItem(is,il,0,ip)&&adcs.hasItem(is,il,1,ip)) {
+        	    	   float lograt = (float) Math.log10(adcs.getItem(is,il,0,ip).get(0)/adcs.getItem(is,il,1,ip).get(0));
+        	           bandPix[il-1].strips.hmap2.get("H2_t_Hist").get(is, ip, 2).fill(td,lograt);
+        	       }    
         	   }
        }
       
