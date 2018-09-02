@@ -46,15 +46,15 @@ public class BANDMipApp extends FCApplication {
             h.setOptStat(Integer.parseInt("1000100")); 
             h.setTitleX(alab); h.setTitle(""); h.setFillColor(32); c.draw(h);
             h = bandPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,0,0).sliceY(iip);
-            h.setFillColor(4); c.draw(h,"same");  
+            h.setFillColor(34); c.draw(h,"same");  
 //            if (h.getEntries()>100) {h.fit(f1,"REQ");}
         }
-
+/*
         c.cd(ic-min); 
         h = bandPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,0,0).sliceY(ic); 
         h.setOptStat(Integer.parseInt("1000100")); 
         alab = tit+" BAR "+(ic+1)+" GMEAN"; h.setTitleX(alab); h.setTitle(""); h.setFillColor(2); c.draw(h); 
-        
+*/        
         c.repaint();
 
     }
