@@ -10,7 +10,7 @@ public class BANDConstants {
     public static float[] bandxoff = {0.f,0.f,75.35f,-75.35f,0.f};
     public static float[] bandyoff = {13,10,3,3,-3};
     public static int[][] bandlay  = {{3,7,6,6,2},{3,7,6,6,2},{3,7,6,6,2},{3,7,6,6,2},{3,7,5,5,0}};
-    public static int[][] bandtsum = {{1,4,11,17,23},{1,4,11,17,23},{1,4,11,17,23},{1,4,11,17,23},{1,4,11,15,0}};
+    public static int[][] bandtsum = {{1,4,11,17,23},{1,4,11,17,23},{1,4,11,17,23},{1,4,11,17,23},{1,4,11,16,0}};
     public static   int[] bandsum  = {1,4,11,11,17};
     public static   int[] bandbar  = {18,18,18,18,15};
     public static String[] bandlab = {"","","A","B",""};
