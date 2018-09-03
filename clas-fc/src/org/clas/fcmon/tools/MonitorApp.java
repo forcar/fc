@@ -36,6 +36,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import org.clas.containers.FTHashCollection;
+import org.clas.fcmon.band.BANDConstants;
 import org.clas.fcmon.detector.view.DetectorPane2D;
 //import org.jlab.clas.mq.IpcReceiver;
 //import org.jlab.clas.mq.IpcServer;
@@ -607,6 +608,13 @@ public class MonitorApp extends JFrame implements ActionListener {
         return 0;
     }   
     
+    public String getAlias(int s, int l, int c, int o) {
+    	switch (appName) {
+    	case "BANDMON": return BANDConstants.getAlias(s, l, c, o);
+    	}
+    	return "";
+    }
+    
     public void getMode7(int cr, int sl, int ch) {    
         mode7Emulation.configMode7(cr,sl,ch);
         this.nsa    = mode7Emulation.nsa;
@@ -636,7 +644,7 @@ public class MonitorApp extends JFrame implements ActionListener {
             currentSlot  = sl = dum[1];  
             currentChan  = ch = dum[2]; 
         }   
-        return " Sector:"+is+"  Layer:"+sp+comp+ic+" Order: "+or+"    Crate:"+cr+" Slot:"+sl+" Chan:"+ch;
+        return " Sector:"+is+"  Layer:"+sp+comp+ic+" Order: "+or+"    Crate:"+cr+" Slot:"+sl+" Chan:"+ch+"    "+getAlias(is,sp,ic,or);
     }
     
     public void updateStatusString(DetectorDescriptor dd)  {

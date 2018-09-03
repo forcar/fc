@@ -49,7 +49,7 @@ public class BANDPixels {
         if (det.equals("LAYER3")) id=2;
         if (det.equals("LAYER4")) id=3;
         if (det.equals("LAYER5")) id=4;
-        for (int is=0; is<bc.bandlay.length; is++) nstr[is]=bc.bandlay[is];
+        for (int is=0; is<bc.bandlay.length; is++) nstr[is]=bc.bandlay[id][is];
         detName = det;
         pixdef();
     }
@@ -89,7 +89,7 @@ public class BANDPixels {
         double   x_inc=0;
 		       
         for (int is=0; is<bc.bandlen.length; is++) {
-        	int    nnstr = bc.bandlay[is];
+        	int    nnstr = nstr[is];
         	double  xoff = bc.bandxoff[is];
         	double  yoff = bc.bandyoff[is];
         	double y_inc = bc.bandwid[is];

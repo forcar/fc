@@ -55,9 +55,8 @@ public class BANDScalersApp extends FCEpics {
         }  
         
         public void init() {
-            this.is1=BANDConstants.IS1; 
-            this.is2=BANDConstants.IS2;  
-            setPvNames(this.detName,1);
+            this.is1=1; 
+            this.is2=2;  
             setPvNames(this.detName,2);
             sectorSelected=is1;
             layerSelected=1;
@@ -68,7 +67,6 @@ public class BANDScalersApp extends FCEpics {
         
         public void startEPICS() {
             createContext();
-            setCaNames(this.detName,1);
             setCaNames(this.detName,2);
             initFifos();
             this.timer = new Timer(delay,action);  
@@ -214,7 +212,7 @@ public class BANDScalersApp extends FCEpics {
                     for (int ic=1; ic<nlayMap.get(detName)[il-1]+1; ic++) {
                         app.fifo4.add(is, il, ic,new LinkedList<Double>());
                         app.fifo5.add(is, il, ic,new LinkedList<Double>());
-                        connectCa(1,"cTdc",is,il,ic);
+//                        connectCa(2,"c",is,il,ic);
                         connectCa(2,"c",is,il,ic);
                     }
                 }
@@ -232,7 +230,7 @@ public class BANDScalersApp extends FCEpics {
                             app.fifo4.get(is, il, ic).removeFirst();
                             app.fifo5.get(is, il, ic).removeFirst();
                         }
-                        app.fifo4.get(is, il, ic).add(getCaValue(1,"cTdc",is, il, ic));
+                        app.fifo4.get(is, il, ic).add(getCaValue(2,"c",is, il, ic));
                         app.fifo5.get(is, il, ic).add(getCaValue(2,"c",is, il, ic));
                     }
                 }

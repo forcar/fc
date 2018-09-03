@@ -9,6 +9,7 @@ import java.util.concurrent.TimeoutException;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 
+import org.clas.fcmon.band.BANDConstants;
 import org.clas.fcmon.detector.view.EmbeddedCanvasTabbed;
 
 import org.epics.ca.Channel;
@@ -53,12 +54,14 @@ public class FCEpics  {
     String   ftof[] = {"PANEL1A_L","PANEL1A_R","PANEL1B_L","PANEL1B_R","PANEL2_L","PANEL2_R"};
     String   ctof[] = {"U","D"};
     String    cnd[] = {"Inner","Middle","Outer"};
+    String   band[] = {"1L","1R","2L","2R","3L","3R","4L","4R","5L","5R"};
     String     ec[] = {"U","V","W","UI","VI","WI","UO","VO","WO"};
     int     nltcc[] = {18,18};
     int     nhtcc[] = {4,4};
     int     nftof[] = {23,23,62,62,5,5};
     int     nctof[] = {48,48};
     int      ncnd[] = {2,2,2};
+    int     nband[] = {24,24,24,24,24,24,24,24,20,20};
     int       nec[] = {68,62,62,36,36,36,36,36,36};
     
     public int is1,is2;
@@ -73,7 +76,7 @@ public class FCEpics  {
         this.layMap.put("HTCC",htcc); this.nlayMap.put("HTCC", nhtcc);
         this.layMap.put("FTOF",ftof); this.nlayMap.put("FTOF", nftof);
         this.layMap.put("CTOF",ctof); this.nlayMap.put("CTOF", nctof);
-        this.layMap.put("BAND",ctof); this.nlayMap.put("BAND", nctof);
+        this.layMap.put("BAND",band); this.nlayMap.put("BAND", nband);
         this.layMap.put("CND",cnd);   this.nlayMap.put("CND",  ncnd);
         this.layMap.put("EC",ec);     this.nlayMap.put("EC",   nec);
 	}
@@ -111,7 +114,7 @@ public class FCEpics  {
     public int connectCa(int grp, String action, int sector, int layer, int channel) {
         if (!online) return 0;
         try {
-        //System.out.println("Connecting to grp "+grp+" sector "+sector+" layer "+layer+" channel "+channel);
+//        System.out.println("Connecting to grp "+grp+" sector "+sector+" layer "+layer+" channel "+channel);
         caMap.get(action).getItem(grp,sector,layer,channel).connectAsync().get(1,TimeUnit.MILLISECONDS);  //org.epics.ca
         }
         catch (InterruptedException e) {  
@@ -276,8 +279,9 @@ public class FCEpics  {
 	    case "HTCC": pv = "B_DET_"+detAlias(det,layer)+"_"+grps[grp]+"_"+"SEC"+sector+"_"+layToStr(det,layer)+channel; break;
 	    case "CTOF": pv = "B_DET_"+detAlias(det,layer)+"_"+grps[grp]+"_"+layToStr(det,layer)+chanToStr(channel); break;
 	    case  "CND": pv = "B_DET_"+detAlias(det,layer)+"_"+grps[grp]+"_"+layToStr(det,layer)+"_Seg"+chanToStr(sector)+"_E"+channel;
+	    case "BAND": pv = "B_DET_"+detAlias(det,layer)+"_"+grps[grp]+"_"+BANDConstants.getHvAlias(layToStr(det,layer), channel);
 	    }
-//	    System.out.println(pv+":"+action);
+//	    System.out.println(sector+" "+layer+" "+channel+" "+pv+":"+action);
 	    return pv+":"+action;
 	} 
     

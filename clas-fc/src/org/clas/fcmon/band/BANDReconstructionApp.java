@@ -371,7 +371,7 @@ public class BANDReconstructionApp extends FCApplication {
    public void clear(int idet) {
        
        for (int is=0 ; is<5 ; is++) {
-    	   int nstr = bandPix[0].nstr[is];
+    	   int nstr = bandPix[idet].nstr[is];
            for (int il=0 ; il<2 ; il++) {
                bandPix[idet].nha[is][il] = 0;
                bandPix[idet].nht[is][il] = 0;
@@ -402,7 +402,7 @@ public class BANDReconstructionApp extends FCApplication {
    
    public void fill(int idet, int is, int il, int ip, int adc, float[] tdc, float tdcf, float adph) {
 
-	   int nstr = bandPix[1].nstr[is-1];
+	   int nstr = bandPix[idet].nstr[is-1];
 
 	   for (int ii=0; ii<tdc.length; ii++) {
            

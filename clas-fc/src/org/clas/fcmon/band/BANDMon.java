@@ -232,8 +232,8 @@ public class BANDMon extends DetectorMonitor {
     public void update(DetectorShape2D shape) {
         //From DetectorView2D.DetectorViewLayer2D.drawLayer: Update color map of shape
         bandDet.update(shape);
-        if (app.getSelectedTabName().equals("Scalers")) bandScalers.updateDetectorView(shape);
-        if (app.getSelectedTabName().equals("HV"))           bandHv.updateDetectorView(shape);
+//        if (app.getSelectedTabName().equals("Scalers")) bandScalers.updateDetectorView(shape);
+//        if (app.getSelectedTabName().equals("HV"))           bandHv.updateDetectorView(shape);
 //        ftofCalib.updateDetectorView(shape);
     }
         
@@ -249,7 +249,7 @@ public class BANDMon extends DetectorMonitor {
         case "TDC":                            bandTdc.updateCanvas(dd); break;
         case "Pedestal":                  bandPedestal.updateCanvas(dd); break;
         case "MIP":                            bandMip.updateCanvas(dd); break; 
-//        case "HV":                              bandHv.updateCanvas(dd); break;
+        case "HV":                              bandHv.updateCanvas(dd); break;
 //        case "Scalers":                    bandScalers.updateCanvas(dd);
        } 
     }
@@ -319,7 +319,8 @@ public class BANDMon extends DetectorMonitor {
         // TODO Auto-generated method stub
         System.out.println("monitor.initEpics():Initializing EPICS Channel Access");
         if (app.xMsgHost=="localhost") {bandHv.online=false ; bandScalers.online=false;}
-        if ( doEpics) {bandHv.startEPICS(); bandScalers.startEPICS();}
+        if ( doEpics) {bandHv.startEPICS(); }
+        //bandScalers.startEPICS();}
         if (!doEpics) {bandHv.stopEPICS();  bandScalers.stopEPICS();}
     }
     

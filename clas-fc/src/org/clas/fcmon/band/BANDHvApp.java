@@ -48,8 +48,8 @@ public class BANDHvApp extends FCEpics implements ActionListener {
     }
     
     public void init() {
-        this.is1=BANDConstants.IS1;
-        this.is2=BANDConstants.IS2;
+        this.is1=1;
+        this.is2=2;
         setPvNames(this.detName,0);
         sectorSelected=is1;
         layerSelected=1;
@@ -174,6 +174,7 @@ public class BANDHvApp extends FCEpics implements ActionListener {
                         app.fifo2.get(is, il, ic).removeFirst();
                         app.fifo3.get(is, il, ic).removeFirst();
                     }
+//                    System.out.println(is+" "+il+" "+ic);
                     app.fifo1.get(is, il, ic).add(getCaValue(0,"vset",is, il, ic));
                     app.fifo2.get(is, il, ic).add(getCaValue(0,"vmon",is, il, ic));
                     app.fifo3.get(is, il, ic).add(getCaValue(0,"imon",is, il, ic));
@@ -233,19 +234,20 @@ public class BANDHvApp extends FCEpics implements ActionListener {
       double vset = app.fifo1.get(is,il,ic).getLast();
       double vmon = app.fifo2.get(is,il,ic).getLast(); 
       double imon = app.fifo3.get(is,il,ic).getLast(); 
-      this.statuslabel.setText(" Sector:"+is+"  SuperLayer:" +il+"  PMT:"+ic+"  Vset:"+(int)vset+"  Vmon:"+(int)vmon+"  Imon:"+(int)imon);        
+      this.statuslabel.setText("  Vset:"+(int)vset+"  Vmon:"+(int)vmon+"  Imon:"+(int)imon);        
     }  
     
     public void updateCanvas(DetectorDescriptor dd) {
         
-        sectorSelected  = dd.getSector();
-        layerSelected   = dd.getOrder()+1;
-        channelSelected = dd.getComponent(); 
+    	sectorSelected  = 1;
+        layerSelected   = dd.getOrder()+1+2*app.detectorIndex;
+        channelSelected = BANDConstants.getBar(app.detectorIndex, dd.getSector(), dd.getComponent())+1; 
+        orderSelected   = dd.getOrder();
         
         update1DScalers(engine1DCanvas.getCanvas("HV"),0);   
         update2DScalers(engine2DCanvas.getCanvas("Stripcharts"),0);
         
-        if (epicsEnabled) updateStatus(sectorSelected,layerSelected+2*app.detectorIndex,channelSelected+1);
+        if (epicsEnabled) updateStatus(sectorSelected,layerSelected,channelSelected);
 
         isCurrentSector = sectorSelected;
         isCurrentLayer  = layerSelected;
@@ -257,28 +259,29 @@ public class BANDHvApp extends FCEpics implements ActionListener {
         H1F c = new H1F();
         
         int is = sectorSelected;
-        int lr = layerSelected;
-        int ip = channelSelected; 
+        int lr = orderSelected+1;
+        int ip = channelSelected-1; 
         
         if (lr==0||lr>layMap.get(detName).length) return;
         
+        int  il = app.detectorIndex+1;
         int off = 2*app.detectorIndex;
              
         canvas.divide(4, 1);
         
-        h = H1_HV.get(is, 1+off, 0); h.setTitleX("Sector "+is+" Left PMT"); h.setTitleY("VOLTS");
+        h = H1_HV.get(is, 1+off, 0); h.setTitleX("LAY "+il+" L PMT"); h.setTitleY("VOLTS");
         h.setFillColor(33); canvas.cd(0); canvas.draw(h);
-        h = H1_HV.get(is, 2+off, 0); h.setTitleX("Sector "+is+" Right PMT"); h.setTitleY("VOLTS");
+        h = H1_HV.get(is, 2+off, 0); h.setTitleX("LAY "+il+" R PMT"); h.setTitleY("VOLTS");
         h.setFillColor(33); canvas.cd(1);    canvas.draw(h);
         
-        h = H1_HV.get(is, 1+off, 1); h.setTitleX("Sector "+is+" Left PMT"); h.setTitleY("VOLTS");
+        h = H1_HV.get(is, 1+off, 1); h.setTitleX("LAY "+il+" L PMT"); h.setTitleY("VOLTS");
         h.setFillColor(32); canvas.cd(0); canvas.draw(h,"same");
-        h = H1_HV.get(is, 2+off, 1); h.setTitleX("Sector "+is+" Right PMT"); h.setTitleY("VOLTS");
+        h = H1_HV.get(is, 2+off, 1); h.setTitleX("LAY "+il+" R PMT"); h.setTitleY("VOLTS");
         h.setFillColor(32); canvas.cd(1);    canvas.draw(h,"same");
 
-        h = H1_HV.get(is, 1+off, 2); h.setTitleX("Sector "+is+" Left PMT"); h.setTitleY("MICROAMPS");
+        h = H1_HV.get(is, 1+off, 2); h.setTitleX("LAY "+il+" L PMT"); h.setTitleY("MICROAMPS");
         h.setFillColor(32); canvas.cd(2); canvas.draw(h);
-        h = H1_HV.get(is, 2+off, 2); h.setTitleX("Sector "+is+" Right PMT"); h.setTitleY("MICROAMPS");
+        h = H1_HV.get(is, 2+off, 2); h.setTitleX("LAY "+il+" R PMT"); h.setTitleY("MICROAMPS");
         h.setFillColor(32); canvas.cd(3); canvas.draw(h);
         
         c = H1_HV.get(is, lr+off, 0).histClone("Copy"); c.reset() ; 
@@ -297,25 +300,23 @@ public class BANDHvApp extends FCEpics implements ActionListener {
         H2F h = new H2F();
         
         int is = sectorSelected;
-        int lr = layerSelected;
-                
-        if (lr==0||lr>layMap.get(detName).length) return;
         
         //Don't redraw unless timer fires or new sector selected
         if (flag==0&&(is==isCurrentSector)) return;  
         
+        int  il = app.detectorIndex+1;
         int off = 2*app.detectorIndex;
         
         canvas.divide(4, 1);
         
-        h = H2_HV.get(is, 1+off, 0); h.setTitleX("Sector "+is+" Left PMT"); h.setTitleY("TIME");
+        h = H2_HV.get(is, 1+off, 0); h.setTitleX("LAY "+il+" L PMT"); h.setTitleY("TIME");
         canvas.cd(0); canvas.draw(h);
-        h = H2_HV.get(is, 2+off, 0); h.setTitleX("Sector "+is+" Right PMT"); h.setTitleY("TIME");
+        h = H2_HV.get(is, 2+off, 0); h.setTitleX("LAY "+il+" R PMT"); h.setTitleY("TIME");
         canvas.cd(1);    canvas.draw(h);
 
-        h = H2_HV.get(is, 1+off, 2); h.setTitleX("Sector "+is+" Left PMT"); h.setTitleY("TIME");
+        h = H2_HV.get(is, 1+off, 2); h.setTitleX("LAY "+il+" L PMT"); h.setTitleY("TIME");
         canvas.cd(2); canvas.draw(h);
-        h = H2_HV.get(is, 2+off, 2); h.setTitleX("Sector "+is+" Right PMT"); h.setTitleY("TIME");
+        h = H2_HV.get(is, 2+off, 2); h.setTitleX("LAY "+il+" R PMT"); h.setTitleY("TIME");
         canvas.cd(3); canvas.draw(h);
         
         canvas.repaint();
@@ -352,8 +353,8 @@ public class BANDHvApp extends FCEpics implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         // TODO Auto-generated method stub
         int is = sectorSelected;
-        int lr = layerSelected+2*app.detectorIndex;
-        int ip = channelSelected+1; 
+        int lr = layerSelected;
+        int ip = channelSelected; 
         if(e.getActionCommand().compareTo("Load HV")==0) putCaValue(0,"vset",is,lr,ip,newHV);
         if(e.getActionCommand().compareTo("NEWHV")==0)   newHV = Double.parseDouble(newhv.getText());
         
