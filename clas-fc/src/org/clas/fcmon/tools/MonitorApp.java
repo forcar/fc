@@ -105,6 +105,7 @@ public class MonitorApp extends JFrame implements ActionListener {
     public int   currentChan  = 0;
     public int   currentEvent = 0;
     public int  detectorIndex = 0;
+    public String detectorAlias = "";
     public int      viewIndex = 1;
    
     public boolean    doEpics = false;
@@ -606,7 +607,12 @@ public class MonitorApp extends JFrame implements ActionListener {
         case "CNDMON":  return dd.getLayer();
         }
         return 0;
-    }   
+    }  
+    
+    public String setAlias(int s, int l, int c, int o) {
+    	this.detectorAlias = getAlias(s,l,c,o);
+    	return this.detectorAlias;
+    }
     
     public String getAlias(int s, int l, int c, int o) {
     	switch (appName) {
@@ -644,7 +650,7 @@ public class MonitorApp extends JFrame implements ActionListener {
             currentSlot  = sl = dum[1];  
             currentChan  = ch = dum[2]; 
         }   
-        return " Sector:"+is+"  Layer:"+sp+comp+ic+" Order: "+or+"    Crate:"+cr+" Slot:"+sl+" Chan:"+ch+"    "+getAlias(is,sp,ic,or);
+        return " Sector:"+is+"  Layer:"+sp+comp+ic+" Order: "+or+"    Crate:"+cr+" Slot:"+sl+" Chan:"+ch+"    "+setAlias(is,sp,ic,or);
     }
     
     public void updateStatusString(DetectorDescriptor dd)  {

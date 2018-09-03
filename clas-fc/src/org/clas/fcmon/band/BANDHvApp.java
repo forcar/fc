@@ -234,7 +234,7 @@ public class BANDHvApp extends FCEpics implements ActionListener {
       double vset = app.fifo1.get(is,il,ic).getLast();
       double vmon = app.fifo2.get(is,il,ic).getLast(); 
       double imon = app.fifo3.get(is,il,ic).getLast(); 
-      this.statuslabel.setText("  Vset:"+(int)vset+"  Vmon:"+(int)vmon+"  Imon:"+(int)imon);        
+      this.statuslabel.setText("PMT: "+app.detectorAlias+"    Vset:"+(int)vset+"  Vmon:"+(int)vmon+"  Imon:"+(int)imon);        
     }  
     
     public void updateCanvas(DetectorDescriptor dd) {
