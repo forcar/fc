@@ -105,7 +105,7 @@ public class CNDReconstructionApp extends FCApplication {
                int  il = bank.getByte("layer",i);
                int  lr = bank.getByte("order",i);                       
                int  ip = bank.getShort("component",i);
-               tdcd = bank.getInt("TDC",i)*tps;  
+               tdcd = bank.getInt("TDC",i)*tps-app.tdcOffset;  
               
                if (!tdcs.hasItem(is,lr-2,il)) tdcs.add(new ArrayList<Float>(),is,lr-2,il);
                     tdcs.getItem(is,lr-2,il).add(tdcd);              
@@ -168,6 +168,9 @@ public class CNDReconstructionApp extends FCApplication {
    
    public void updateEvioData(DataEvent event) {
        
+       float      tps =  (float) 0.02345;
+       float     tdcd = 0;
+       
        clear(0); tdcs.clear(); adcs.clear(); lapmt.clear(); ltpmt.clear();
        
 //       app.decoder.detectorDecoder.setTET(app.mode7Emulation.tet);
@@ -178,7 +181,7 @@ public class CNDReconstructionApp extends FCApplication {
        phase = 0;
        
        if (app.isSingleEvent()) {
-    	     System.out.println(" ");       
+    	 System.out.println(" ");       
          System.out.println("Event Number "+app.getEventNumber());
        }
               
@@ -190,10 +193,11 @@ public class CNDReconstructionApp extends FCApplication {
            int is = ddd.getDescriptor().getSector();
            int il = ddd.getDescriptor().getLayer();
            int lr = ddd.getDescriptor().getOrder();
-           int ip = ddd.getDescriptor().getComponent();          
-           if (app.isSingleEvent()) System.out.println("Sector "+is+" Layer "+il+" Order "+lr);
+           int ip = ddd.getDescriptor().getComponent();   
+           tdcd = ddd.getTDCData(0).getTime()*tps-app.tdcOffset;
+           if (app.isSingleEvent()) System.out.println("Sector "+is+" Layer "+il+" Order "+lr+"TDC "+tdcd);
            if (!tdcs.hasItem(is,lr-2,il)) tdcs.add(new ArrayList<Float>(),is,lr-2,il);
-                tdcs.getItem(is,lr-2,il).add((float) ddd.getTDCData(0).getTime()*24/1000);  
+                tdcs.getItem(is,lr-2,il).add(tdcd);  
            if (!ltpmt.hasItem(is)) {
                 ltpmt.add(new ArrayList<Integer>(),is);
                 ltpmt.getItem(is).add(is);
