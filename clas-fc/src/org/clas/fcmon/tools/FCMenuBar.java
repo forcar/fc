@@ -60,6 +60,7 @@ public class FCMenuBar extends JMenuBar  {
         JMenuItem          cnd = new JMenuItem("CND");
         JMenuItem         band = new JMenuItem("BAND");
         JMenuItem         htcc = new JMenuItem("HTCC");
+        JMenuItem          svt = new JMenuItem("SVT");
         JMenuItem          sd3 = new JMenuItem("clondaq3");
         JMenuItem          sd4 = new JMenuItem("clondaq4");
         JMenuItem          sd5 = new JMenuItem("clondaq5");
@@ -95,6 +96,7 @@ public class FCMenuBar extends JMenuBar  {
             ET_open.add(cnd);
             ET_open.add(band);
             ET_open.add(htcc);
+            ET_open.add(svt);
             ET_open.add(sd3);
             ET_open.add(sd4);
             ET_open.add(sd5);
@@ -115,6 +117,7 @@ public class FCMenuBar extends JMenuBar  {
           cnd.addActionListener(this);
           band.addActionListener(this);
           htcc.addActionListener(this);
+           svt.addActionListener(this);
            sd3.addActionListener(this);     
            sd4.addActionListener(this);     
            sd5.addActionListener(this);     
@@ -137,6 +140,7 @@ public class FCMenuBar extends JMenuBar  {
             if(e.getActionCommand().compareTo("CTOF")==0)     {ethost="adcctof1";etfile="/et/clasltcc";port=11112;}      
             if(e.getActionCommand().compareTo("CND")==0)      {ethost="adccnd1" ;etfile="/et/cndtest"; port=11112;}      
             if(e.getActionCommand().compareTo("BAND")==0)     {ethost="adcband1";etfile="/et/bandtest";port=11112;}      
+            if(e.getActionCommand().compareTo("SVT")==0)      {ethost="svt1";    etfile="/et/clasprod";port=11112;}      
             if(e.getActionCommand().compareTo("clondaq3")==0) {ethost="clondaq3";etfile="/tmp/et_sys_clasprod";}       
             if(e.getActionCommand().compareTo("clondaq4")==0) {ethost="clondaq4";etfile="/tmp/et_sys_clasprod";}       
             if(e.getActionCommand().compareTo("clondaq5")==0) {ethost="clondaq5";etfile="/et/clasprod";}       
