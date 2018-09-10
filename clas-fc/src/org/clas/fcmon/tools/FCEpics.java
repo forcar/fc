@@ -278,7 +278,7 @@ public class FCEpics  {
 	    switch (det) {
 	    case "HTCC": pv = "B_DET_"+detAlias(det,layer)+"_"+grps[grp]+"_"+"SEC"+sector+"_"+layToStr(det,layer)+channel; break;
 	    case "CTOF": pv = "B_DET_"+detAlias(det,layer)+"_"+grps[grp]+"_"+layToStr(det,layer)+chanToStr(channel); break;
-	    case  "CND": pv = "B_DET_"+detAlias(det,layer)+"_"+grps[grp]+"_"+layToStr(det,layer)+"_Seg"+chanToStr(sector)+"_E"+channel;
+	    case  "CND": pv = "B_DET_"+detAlias(det,layer)+"_"+grps[grp]+"_"+layToStr(det,layer)+"_Seg"+chanToStr(sector)+"_E"+channel;break;
 	    case "BAND": pv = "B_DET_"+detAlias(det,layer)+"_"+grps[grp]+"_"+BANDConstants.getHvAlias(layToStr(det,layer), channel);
 	    }
 //	    System.out.println(sector+" "+layer+" "+channel+" "+pv+":"+action);
