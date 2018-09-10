@@ -149,7 +149,7 @@ public class MonitorApp extends JFrame implements ActionListener {
     public int tet,nsa,nsb,pedref;
     public int maxEvents=100000000;
     public int tdcOffset=0;
-    public int phaseOffset=1;
+    public int phaseOffset=3;
     
     public boolean goodFilterEvent = false;
     public FTHashCollection rtt = null;
