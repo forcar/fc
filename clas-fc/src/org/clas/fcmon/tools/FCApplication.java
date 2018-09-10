@@ -110,9 +110,10 @@ public class FCApplication implements ActionListener  {
     
     private int nevents = 0;
     
-    public boolean testTrigger   = false;
-    public boolean triggerBeam[] = new boolean[32];
-    public boolean linlog        = true;
+    public boolean testTrigger     = false;
+    public boolean triggerBeam[]   = new boolean[32];
+    public boolean linlog          = true;
+    public boolean isEvioDataEvent = false;
     
     TriggerDataDgtz         trig = null;
     
@@ -186,7 +187,10 @@ public class FCApplication implements ActionListener  {
         app.decoder.detectorDecoder.setNSA(app.mode7Emulation.mode?0:app.mode7Emulation.nsa);
         app.decoder.detectorDecoder.setNSB(app.mode7Emulation.mode?0:app.mode7Emulation.nsb);   
         nevents++ ; if (nevents>app.maxEvents) {mon.reset(); nevents = 0;}
-        if(event instanceof EvioDataEvent){
+        
+        isEvioDataEvent = event instanceof EvioDataEvent;
+        
+        if(isEvioDataEvent){
         	
             app.decoder.initEvent(event);
 
@@ -226,17 +230,21 @@ public class FCApplication implements ActionListener  {
         	app.goodFilterEvent = false;
             for (int idet=0; idet<pixlength; idet++) processPixels(idet); // Process only single pixels 
             if (app.isHipoFileOpen) {
-            	if(!app.isFilter||app.isFilter&&app.goodFilterEvent) writeHipoOutput();
+            	if(!app.isFilter||app.isFilter&&app.goodFilterEvent) writeHipoOutput(event);
             };
             processCalib();   // Quantities for display and calibration engine
         }
     }  
     
-    public void writeHipoOutput() {
-        DataEvent  decodedEvent = app.decoder.getDataEvent();
-        DataBank   header = app.decoder.createHeaderBank(decodedEvent,0,0,0,0);
-        decodedEvent.appendBanks(header);
-        app.writer.writeEvent(decodedEvent);
+    public void writeHipoOutput(DataEvent event) {
+     	if(isEvioDataEvent) {
+        	DataEvent decodedEvent = app.decoder.getDataEvent();
+            DataBank   header = app.decoder.createHeaderBank(decodedEvent,0,0,0,0);
+            decodedEvent.appendBanks(header);
+            app.writer.writeEvent(decodedEvent);
+   	    } else {
+   		    app.writer.writeEvent(event);    		
+    	}
                
     }    
     
