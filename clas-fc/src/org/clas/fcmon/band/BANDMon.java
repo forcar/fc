@@ -319,8 +319,7 @@ public class BANDMon extends DetectorMonitor {
         // TODO Auto-generated method stub
         System.out.println("monitor.initEpics():Initializing EPICS Channel Access");
         if (app.xMsgHost=="localhost") {bandHv.online=false ; bandScalers.online=false;}
-        if ( doEpics) {bandHv.startEPICS(); }
-        //bandScalers.startEPICS();}
+        if ( doEpics) {bandHv.startEPICS(); bandScalers.startEPICS();}
         if (!doEpics) {bandHv.stopEPICS();  bandScalers.stopEPICS();}
     }
     
