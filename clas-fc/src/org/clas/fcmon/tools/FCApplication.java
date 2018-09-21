@@ -204,8 +204,9 @@ public class FCApplication implements ActionListener  {
             if (!testTriggerMask()) return;
             if( app.isMC) this.updateSimulatedData(event);
             boolean goodEvent = !app.isMC&&testTriggerMask();
-            if(!app.decoder.codaDecoder.isMode7()) this.updateEvioData(event);            
-            if( app.decoder.codaDecoder.isMode7()) this.updateHipoData(app.decoder.getDataEvent());            
+            this.updateEvioData(event); 
+//            if(!app.decoder.codaDecoder.isMode7()) this.updateEvioData(event);            
+//            if( app.decoder.codaDecoder.isMode7()) this.updateHipoData(app.decoder.getDataEvent());            
             
         } else {
 

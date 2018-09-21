@@ -10,9 +10,10 @@ import org.jlab.io.evio.EvioDataEvent;
 import org.jlab.io.hipo.HipoDataBank;
 import org.jlab.io.hipo.HipoDataEvent;
 import org.jlab.io.hipo.HipoDataSync;
-//import org.jlab.detector.decode.CodaEventDecoder;
+import org.jlab.detector.decode.CodaEventDecoder;
 //import org.jlab.detector.decode.DetectorEventDecoder;
 import org.jlab.detector.decode.DetectorDataDgtz;
+import org.jlab.detector.decode.FADCData;
 
 public class FCCLASDecoder {
        
@@ -89,6 +90,19 @@ public class FCCLASDecoder {
         if(event instanceof EvioDataEvent){
             try {
                 dataList    = codaDecoder.getDataEntries( (EvioDataEvent) event);
+                //-----------------------------------------------------------------------------
+                // This part reads the BITPACKED FADC data from tag=57638 Format (cmcms)
+                // Then unpacks into Detector Digigitized data, and appends to existing buffer
+                // Modified on 9/5/2018
+                //-----------------------------------------------------------------------------
+                
+                List<FADCData>  fadcPacked = codaDecoder.getADCEntries((EvioDataEvent) event);
+                if(fadcPacked!=null){
+                    List<DetectorDataDgtz> fadcUnpacked = FADCData.convert(fadcPacked);
+                    dataList.addAll(fadcUnpacked);
+                }
+                //  END of Bitpacked section                
+                //-----------------------------------------------------------------------------
                 if(this.decoderDebugMode>0){
                     System.out.println("\n>>>>>>>>> RAW decoded data");
                     for(DetectorDataDgtz data : dataList){
