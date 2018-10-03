@@ -66,6 +66,7 @@ public class BANDScalersApp extends FCEpics {
         }
         
         public void startEPICS() {
+        	if(true) return;
             createContext();
             setCaNames(this.detName,2);
             initFifos();
@@ -212,7 +213,8 @@ public class BANDScalersApp extends FCEpics {
                     for (int ic=1; ic<nlayMap.get(detName)[il-1]+1; ic++) {
                         app.fifo4.add(is, il, ic,new LinkedList<Double>());
                         app.fifo5.add(is, il, ic,new LinkedList<Double>());
-//                        connectCa(2,"c",is,il,ic);
+                        System.out.println(is+" "+il+" "+ic);
+//                        connectCa(1,"cTdc",is,il,ic);
                         connectCa(2,"c",is,il,ic);
                     }
                 }
@@ -227,10 +229,12 @@ public class BANDScalersApp extends FCEpics {
                 for (int il=1; il<layMap.get(detName).length+1 ; il++) {
                     for (int ic=1; ic<nlayMap.get(detName)[il-1]+1; ic++) {
                         if(nfifo>nmax) {
-                            app.fifo4.get(is, il, ic).removeFirst();
+//                            app.fifo4.get(is, il, ic).removeFirst();
                             app.fifo5.get(is, il, ic).removeFirst();
                         }
-                        app.fifo4.get(is, il, ic).add(getCaValue(2,"c",is, il, ic));
+//                        app.fifo4.get(is, il, ic).add(getCaValue(1,"cTdc",is, il, ic));
+                        System.out.println(is+" "+il+" "+ic);
+                        double dum1 = getCaValue(2,"c",is, il, ic);
                         app.fifo5.get(is, il, ic).add(getCaValue(2,"c",is, il, ic));
                     }
                 }
@@ -246,26 +250,27 @@ public class BANDScalersApp extends FCEpics {
                     if(!isAccum) {H1_SCA.get(is, il, 0).reset(); H1_SCA.get(is, il, 1).reset();}
                     H2_SCA.get(is, il, 0).reset(); H2_SCA.get(is, il, 1).reset();
                     for (int ic=1; ic<nlayMap.get(detName)[il-1]+1; ic++) {                    
-                        H1_SCA.get(is, il, 0).fill(ic,app.fifo4.get(is, il, ic).getLast());
+//                        H1_SCA.get(is, il, 0).fill(ic,app.fifo4.get(is, il, ic).getLast());
                         H1_SCA.get(is, il, 1).fill(ic,app.fifo5.get(is, il, ic).getLast());
-                        Double ts1[] = new Double[app.fifo4.get(is, il, ic).size()];
+//                        Double ts1[] = new Double[app.fifo4.get(is, il, ic).size()];
                         Double ts2[] = new Double[app.fifo5.get(is, il, ic).size()];
-                        app.fifo4.get(is, il, ic).toArray(ts1);
+//                        app.fifo4.get(is, il, ic).toArray(ts1);
                         app.fifo5.get(is, il, ic).toArray(ts2);
-                        for (int it=0; it<ts1.length; it++) {
+                        for (int it=0; it<ts2.length; it++) {
                             if(isNorm) {
-                                ts1[it]=(ts1[it]-norm3[il-1][ic-1])/Math.sqrt(ts1[it]);
+//                                ts1[it]=(ts1[it]-norm3[il-1][ic-1])/Math.sqrt(ts1[it]);
                                 ts2[it]=(ts2[it]-norm4[il-1][ic-1])/Math.sqrt(ts2[it]);
                             }                
-                            H2_SCA.get(is, il, 0).fill(ic,it,ts1[it]);
+//                            H2_SCA.get(is, il, 0).fill(ic,it,ts1[it]);
                             H2_SCA.get(is, il, 1).fill(ic,it,ts2[it]);
                         }
                     }
                     if(isAccum&&!isNorm&&nTimer==10) {
-                        norm1 = H1_SCA.get(is, il, 0).getData();
-                        norm2 = H1_SCA.get(is, il, 1).getData();
                         int itim = nTimer+1;
-                        for (int i=0; i<norm1.length; i++) {norm3[il-1][i]=norm1[i]/itim;norm4[il-1][i]=norm2[i]/itim;}
+//                        norm1 = H1_SCA.get(is, il, 0).getData();
+//                        for (int i=0; i<norm1.length; i++) {norm3[il-1][i]=norm1[i]/itim;}
+                        norm2 = H1_SCA.get(is, il, 1).getData();
+                        for (int i=0; i<norm2.length; i++) {norm4[il-1][i]=norm2[i]/itim;}
                     }    
                 }
             }
@@ -279,9 +284,10 @@ public class BANDScalersApp extends FCEpics {
         
         public void updateCanvas(DetectorDescriptor dd) {
             
-            sectorSelected  = dd.getSector();  
-            layerSelected   = dd.getOrder()+1;
-            channelSelected = dd.getComponent(); 
+        	sectorSelected  = 1;
+            layerSelected   = dd.getOrder()+1+2*app.detectorIndex;
+            channelSelected = BANDConstants.getBar(app.detectorIndex, dd.getSector(), dd.getComponent())+1; 
+            orderSelected   = dd.getOrder();
             
             updateScalers(0);
             
@@ -295,28 +301,31 @@ public class BANDScalersApp extends FCEpics {
             H1F c = new H1F();
             
             int is = sectorSelected;
-            int lr = layerSelected+2*app.detectorIndex;
-            int ip = channelSelected; 
+            int lr = orderSelected+1;
+            int ip = channelSelected-1;  
             
             if (lr==0||lr>layMap.get(detName).length) return;
                         
+            int  il = app.detectorIndex+1;
+            int off = 2*app.detectorIndex;
+            
             canvas.divide(2, 1);
             canvas.getPad(0).getAxisY().setLog(isLogy); 
             canvas.getPad(1).getAxisY().setLog(isLogy); 
             
-            String tit = "Sector "+is+" "+layMap.get(detName)[lr-1]+" PMT";
+            String tit = "LAY "+layMap.get(detName)[off+lr-1]+" PMT";
             
-            h = H1_SCA.get(is, lr, 0); h.setTitleX(tit); h.setTitleY("DSC2 HITS");
+            h = H1_SCA.get(is, off+lr, 0); h.setTitleX(tit); h.setTitleY("DSC2 HITS");
             h.setFillColor(32); canvas.cd(0); canvas.draw(h);
 
-            h = H1_SCA.get(is, lr, 1); h.setTitleX(tit); h.setTitleY("FADC HITS");
+            h = H1_SCA.get(is, off+lr, 1); h.setTitleX(tit); h.setTitleY("FADC HITS");
             h.setFillColor(32); canvas.cd(1); canvas.draw(h);
             
-            c = H1_SCA.get(is, lr, 0).histClone("Copy"); c.reset() ; 
+            c = H1_SCA.get(is, off+lr, 0).histClone("Copy"); c.reset() ; 
             c.setBinContent(ip, H1_SCA.get(is, lr, 0).getBinContent(ip));
             c.setFillColor(2);  canvas.cd(0); canvas.draw(c,"same");
             
-            c = H1_SCA.get(is, lr, 1).histClone("Copy"); c.reset() ; 
+            c = H1_SCA.get(is, off+lr, 1).histClone("Copy"); c.reset() ; 
             c.setBinContent(ip, H1_SCA.get(is, lr, 1).getBinContent(ip));
             c.setFillColor(2);  canvas.cd(1); canvas.draw(c,"same");
               
@@ -328,12 +337,16 @@ public class BANDScalersApp extends FCEpics {
             H2F h = new H2F();
             
             int is = sectorSelected;
-            int lr = layerSelected+2*app.detectorIndex; 
-            
+            int lr = orderSelected+1;
+            int ip = channelSelected-1;           
+          
             if (lr==0||lr>layMap.get(detName).length) return;
             
             //Don't redraw unless timer fires or new sector selected
-            if (flag==0&&lr==isCurrentLayer) return;  
+            if (flag==0&&lr==isCurrentLayer) return; 
+            
+            int  il = app.detectorIndex+1;
+            int off = 2*app.detectorIndex;
             
             canvas.divide(2, 1);
             canvas.getPad(0).getAxisY().setLog(false); 
@@ -349,12 +362,12 @@ public class BANDScalersApp extends FCEpics {
                 canvas.getPad(1).getAxisZ().setRange(-3.0,3.0);
             }
             
-            String tit = "Sector "+is+" "+layMap.get(detName)[lr-1]+" PMT";
-            
-            h = H2_SCA.get(is, lr, 0); h.setTitleX(tit); h.setTitleY("TIME");
+             String tit = "LAY "+layMap.get(detName)[off+lr-1]+" PMT";
+           
+            h = H2_SCA.get(is, off+lr, 0); h.setTitleX(tit); h.setTitleY("TIME");
             canvas.cd(0); canvas.draw(h);
             
-            h = H2_SCA.get(is, lr, 1); h.setTitleX(tit); h.setTitleY("TIME");
+            h = H2_SCA.get(is, off+lr, 1); h.setTitleX(tit); h.setTitleY("TIME");
             canvas.cd(1); canvas.draw(h);
             
             isCurrentSector = is;

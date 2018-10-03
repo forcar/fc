@@ -129,7 +129,7 @@ public class FCMenuBar extends JMenuBar  {
     
 	@Override
 	    public void actionPerformed(ActionEvent e) {
-		    int port=11112;
+		    int port=11111;
     	    if(e.getActionCommand().compareTo("Sector 1")==0) {ethost="adcecal1";etfile="/tmp/et_sys_clasprod";}
     	    if(e.getActionCommand().compareTo("Sector 2")==0) {ethost="adcecal2";etfile="/tmp/et_sys_clasprod";}
     	    if(e.getActionCommand().compareTo("Sector 3")==0) {ethost="adcecal3";etfile="/tmp/et_sys_clasprod";}

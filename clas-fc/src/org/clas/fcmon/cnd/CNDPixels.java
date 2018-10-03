@@ -25,7 +25,7 @@ public class CNDPixels {
     public    int     cnd_nlay[] = {1};
 
     public double         amax[] = {5000.};
-    public double         tlim[] = {700.,800.};
+    public double         tlim[] = {0.,500.};
     
     int        nha[][] = new    int[24][2];
     int        nht[][] = new    int[24][2];
