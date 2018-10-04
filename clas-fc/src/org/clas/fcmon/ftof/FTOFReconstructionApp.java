@@ -78,8 +78,10 @@ public class FTOFReconstructionApp extends FCApplication {
                ftofPix[idet].strips.hmap2.get("H2_t_Hist").get(is,0,0).reset();
                for (int il=1 ; il<3 ; il++) {
                    ftofPix[idet].strips.hmap2.get("H2_a_Hist").get(is,il,0).reset();
+                   ftofPix[idet].strips.hmap2.get("H2_a_Hist").get(is,il,1).reset();
                    ftofPix[idet].strips.hmap2.get("H2_a_Hist").get(is,il,3).reset();
                    ftofPix[idet].strips.hmap2.get("H2_a_Hist").get(is,il,5).reset();
+                   ftofPix[idet].strips.hmap2.get("H2_a_Hist").get(is,il,6).reset();
                    ftofPix[idet].strips.hmap2.get("H2_t_Hist").get(is,il,0).reset();
                }
            }       
@@ -286,7 +288,7 @@ public class FTOFReconstructionApp extends FCApplication {
                tdc  = new float[list.size()];
                for (int ii=0; ii<tdcc.length; ii++) {
             	   tdc[ii] = tdcc[ii]-app.phaseCorrection*4;  
-    	           float tdif = tdc[ii]-FTOFConstants.TOFFSET[lr]-tf;
+    	           float tdif = tdc[ii]-tf;
                    ftofPix[il-1].strips.hmap2.get("H2_a_Hist").get(is,lr+1,6).fill(tdif,ip);
                }
            } else {

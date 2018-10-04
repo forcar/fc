@@ -195,7 +195,9 @@ public class CNDReconstructionApp extends FCApplication {
            int lr = ddd.getDescriptor().getOrder();
            int ip = ddd.getDescriptor().getComponent();   
            tdcd = ddd.getTDCData(0).getTime()*tps-app.tdcOffset;
+           
            if (app.isSingleEvent()) System.out.println("Sector "+is+" Layer "+il+" Order "+lr+"TDC "+tdcd);
+           
            if (!tdcs.hasItem(is,lr-2,il)) tdcs.add(new ArrayList<Float>(),is,lr-2,il);
                 tdcs.getItem(is,lr-2,il).add(tdcd);  
            if (!ltpmt.hasItem(is)) {

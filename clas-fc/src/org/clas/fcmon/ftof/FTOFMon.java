@@ -76,6 +76,7 @@ public class FTOFMon extends DetectorMonitor {
         app.init();
         app.getDetectorView().setFPS(10);
         app.setSelectedTab(2); 
+        app.setTDCOffset(95);
         monitor.ftofDet.initButtons();
     }
     

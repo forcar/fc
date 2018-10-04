@@ -79,6 +79,7 @@ public class CTOFReconstructionApp extends FCApplication {
                ctofPix[idet].strips.hmap2.get("H2_t_Hist").get(is,3,4).reset();
                for (int il=1 ; il<3 ; il++) {
                    ctofPix[idet].strips.hmap2.get("H2_a_Hist").get(is,il,0).reset();
+                   ctofPix[idet].strips.hmap2.get("H2_a_Hist").get(is,il,1).reset();
                    ctofPix[idet].strips.hmap2.get("H2_a_Hist").get(is,il,3).reset();
                    ctofPix[idet].strips.hmap2.get("H2_a_Hist").get(is,il,5).reset();
                    ctofPix[idet].strips.hmap2.get("H2_a_Hist").get(is,il,6).reset();
@@ -180,22 +181,31 @@ public class CTOFReconstructionApp extends FCApplication {
    
    public void updateEvioData(DataEvent event) {
        
+       float      tps =  (float) 0.02345;
+       float     tdcd = 0;
+       
        clear(0); tdcs.clear(); adcs.clear(); lapmt.clear(); ltpmt.clear();
               
 //       app.decoder.detectorDecoder.setTET(app.mode7Emulation.tet);
 //       app.decoder.detectorDecoder.setNSA(app.mode7Emulation.nsa);
 //       app.decoder.detectorDecoder.setNSB(app.mode7Emulation.nsb);
        
+       float phase = app.phase;
+       phase = 0;
+       
        List<DetectorDataDgtz> adcDGTZ = app.decoder.getEntriesADC(DetectorType.CTOF);
        List<DetectorDataDgtz> tdcDGTZ = app.decoder.getEntriesTDC(DetectorType.CTOF);
+       
        for (int i=0; i < tdcDGTZ.size(); i++) {
            DetectorDataDgtz ddd=tdcDGTZ.get(i);
            int is = ddd.getDescriptor().getSector();
            int il = ddd.getDescriptor().getLayer();
            int lr = ddd.getDescriptor().getOrder();
            int ip = ddd.getDescriptor().getComponent();
+           tdcd = ddd.getTDCData(0).getTime()*tps-app.tdcOffset;
+           
            if (!tdcs.hasItem(lr-2,ip)) tdcs.add(new ArrayList<Float>(),lr-2,ip);
-                tdcs.getItem(lr-2,ip).add((float) ddd.getTDCData(0).getTime()*23.45f/1000);              
+                tdcs.getItem(lr-2,ip).add(tdcd);              
            if (!ltpmt.hasItem(ip)) {
         	    ltpmt.add(new ArrayList<Integer>(),ip);
                 ltpmt.getItem(ip).add(ip);
