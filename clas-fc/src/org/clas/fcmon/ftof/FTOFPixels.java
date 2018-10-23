@@ -21,8 +21,8 @@ public class FTOFPixels {
     double ftof_ypix[][][] = new double[4][124][7];
     
     public int     ftof_nstr[] = {23,62,5};
-    public double        amax[]= {4000.,6000.,4000.};
-    public double        tmax[] = {700.,700.,700.};
+    public double        amax[]= {3000.,3000.,3000.};
+    public double        tmax[] = {220.,220.,220.};
     
     int        nha[][] = new    int[6][2];
     int        nht[][] = new    int[6][2];

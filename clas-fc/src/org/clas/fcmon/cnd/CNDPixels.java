@@ -147,6 +147,9 @@ public class CNDPixels {
             int ill=0; iid="s"+Integer.toString(is)+"_l"+Integer.toString(ill)+"_c";
             H2_a_Hist.add(is, 0, 0, new H2F("a_gmean_"+iid+0, 100,   0., amax[id],nstr, 1., nend));
             H2_t_Hist.add(is, 0, 0, new H2F("a_tdif_"+iid+0,  100, -15.,      15.,nstr, 1., nend));
+            for (int il=1; il<4; il++) {
+                H2_t_Hist.add(is, il, 4, new H2F("c_tdif_"+iid+1+is+il,   50, -15., 15.,50,-1.1, 1.1));  
+            }
             for (int lr=1 ; lr<3 ; lr++){
                 iid="s"+Integer.toString(is)+"_l"+Integer.toString(lr)+"_c";
                 H2_a_Hist.add(is, lr, 0, new H2F("a_raw_"+iid+0,      100,   0.,amax[id], nstr, 1., nend));
