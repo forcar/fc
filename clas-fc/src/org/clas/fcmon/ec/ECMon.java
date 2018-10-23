@@ -44,7 +44,7 @@ public class ECMon extends DetectorMonitor {
     EvioDataSync             writer = null;
     Boolean                saveFile = false;
    
-    public static int        calRun = 4460;
+    public static int        calRun = 4483;
     public static String  variation = "default";
     int                       detID = 0;
     int                         is1 = 1;
@@ -225,6 +225,7 @@ public class ECMon extends DetectorMonitor {
             writer.open("/Users/colesmith/ECMON/EVIO/test.evio");
         }
 
+        ecEngine.isSingleThreaded = true;
         ecEngine.init();
         ecEngine.isMC = app.isMC;
         ecEngine.setVariation(app.variation);
