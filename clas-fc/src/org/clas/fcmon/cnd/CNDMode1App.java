@@ -37,6 +37,7 @@ public class CNDMode1App extends FCApplication {
         engineView.setLayout(new BorderLayout());
         mode1.addCanvas("Sum");
         mode1.addCanvas("AvsT");
+        mode1.addCanvas("LOGRAT");
         engineView.add(mode1);
         return engineView;
     }    
@@ -55,9 +56,10 @@ public class CNDMode1App extends FCApplication {
         this.nstr = cndPix[idet].nstr;    
         
         switch (mode1.selectedCanvas) {
-        case "Event": updateEvent(); break;
-        case   "Sum": updateSum(); break;
-        case  "AvsT": updateAvsT();
+        case   "Event": updateEvent(); break;
+        case     "Sum": updateSum();   break;
+        case    "AvsT": updateAvsT();  break;
+        case  "LOGRAT": updateLOGRAT();
         }
         
      } 
@@ -153,7 +155,7 @@ public class CNDMode1App extends FCApplication {
         
         for (int il=1; il<4; il++) {
         for (int lr=1; lr<3; lr++) {
-            h2=dc2t.get(is,lr,1); 
+            h2=dc2t.get(is,lr,il); 
             h2.setTitleY("Sector "+is+" Layer "+il+otab[lr-1]+" TDC") ; 
             h2.setTitleX("Sector "+is+" Layer "+il+otab[lr-1]+" FADC");
             canvasConfig(c,n,0.,cndPix[0].amax[0],tlo,thi,true).draw(h2);   
@@ -165,4 +167,22 @@ public class CNDMode1App extends FCApplication {
         
     }
     
+    public void updateLOGRAT() {
+        
+        DetectorCollection<H2F> dc2a = cndPix[idet].strips.hmap2.get("H2_t_Hist");       
+           
+        H2F h2;
+        int min=1,max=9;
+                
+        c = mode1.getCanvas("LOGRAT");  c.clear(); c.divide(2,4); 
+        max=9 ; if (is>8) {min=9; max=17;} if (is>16) {min=17; max=25;} 
+        
+        for(int iis=min;iis<max;iis++) {
+            h2=dc2a.get(iis,ic+1,4); h2.setTitleX(" SEC "+iis+" LAY "+(ic+1)+" TUP-TDOWN (ns)") ;
+            canvasConfig(c,iis-min,-15.,15.,-1.1,1.1,true).draw(h2);            
+        }
+        
+        c.repaint();
+        
+    }    
 }

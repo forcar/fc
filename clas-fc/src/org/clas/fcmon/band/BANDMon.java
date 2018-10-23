@@ -61,8 +61,7 @@ public class BANDMon extends DetectorMonitor {
         String det = "BAND";
         BANDMon monitor = new BANDMon(det);	
         if (args.length != 0) {
-            monitor.is1=Integer.parseInt(args[0]); 
-            monitor.is2=Integer.parseInt(args[1]);    
+            app.tcpPort=Integer.parseInt(args[0]);    
          }
         app.setPluginClass(monitor);
         app.setAppName(appname);

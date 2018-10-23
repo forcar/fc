@@ -291,7 +291,7 @@ public class ECMon extends DetectorMonitor {
         }  
         
        ecRecon.addEvent(de);
-//       ecTrig.addEvent(de);
+       ecTrig.addEvent(de);
       
       if(app.doEng) {
           ecEngine.singleEvent = app.isSingleEvent() ; 

@@ -391,7 +391,7 @@ public class CNDReconstructionApp extends FCApplication {
    
    public void processCalib() {
 	   
-	   if (!isGoodMIP()) return;
+//	   if (!isGoodMIP()) return;
 	   
        IndexGenerator ig = new IndexGenerator();
        
@@ -413,7 +413,11 @@ public class CNDReconstructionApp extends FCApplication {
            for (int il=1; il<4; il++) {
         	   if(tdcs.hasItem(is,0,il)&&tdcs.hasItem(is,1,il)) {
                float td = tdcs.getItem(is,0,il).get(0) - tdcs.getItem(is,1,il).get(0);
-        	       cndPix[0].strips.hmap2.get("H2_t_Hist").get(is, 0, 0).fill(td,il,1.0);  
+        	       cndPix[0].strips.hmap2.get("H2_t_Hist").get(is, 0, 0).fill(td,il,1.0); 
+        	       if(adcs.hasItem(is,0,il)&&adcs.hasItem(is,1,il)) {
+        	    	   float lograt = (float) Math.log10(adcs.getItem(is,0,il).get(0)/adcs.getItem(is,1,il).get(0));
+        	           cndPix[0].strips.hmap2.get("H2_t_Hist").get(is, il, 4).fill(td,lograt);
+        	       }        	       
         	   }
            }
        }      
