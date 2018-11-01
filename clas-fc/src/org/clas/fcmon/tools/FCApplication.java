@@ -225,7 +225,7 @@ public class FCApplication implements ActionListener  {
         }
         
         if (app.isSingleEvent()) {
-            findPixels();     // Process all pixels for SED
+            findPixels();     // Process all pixels for SingleEventDisplay
             processSED();
         } else {
         	app.goodFilterEvent = false;

@@ -275,9 +275,10 @@ public class FCDetector {
             shape.reset();
             pal=palette4;            
             List<double[]> clusterList = ecPix[ilmap].clusterXY.get(is);
+            //draw pixel shape which overlaps with cluster x,y position
             for(int i=0; i<clusterList.size(); i++) {
                double dum[] = clusterList.get(i);
-               if(shape.isContained(dum[0],dum[1])) shape.setCounter(i+1, dum[0], dum[1]);
+               if(shape.isContained(dum[0],dum[1])) shape.setCounter(i+1, dum[0], dum[1]); //draws blue dot at cluster x,y position
             }   
         }
         if (app.isSingleEvent()&&peakShapes) colorfraction=0.7;
