@@ -306,7 +306,7 @@ public class FCCLASDecoder {
             scalerBANK.setShort("channel", i, (short) scalerDGTZ.get(i).getDescriptor().getChannel());
             scalerBANK.setByte("helicity", i, (byte) scalerDGTZ.get(i).getSCALERData(0).getHelicity());
             scalerBANK.setByte("quartet", i, (byte) scalerDGTZ.get(i).getSCALERData(0).getQuartet());
-            scalerBANK.setInt("value", i, scalerDGTZ.get(i).getSCALERData(0).getValue());
+            scalerBANK.setLong("value", i, scalerDGTZ.get(i).getSCALERData(0).getValue());
         }
         return scalerBANK;
     }  
