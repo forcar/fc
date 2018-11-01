@@ -712,7 +712,7 @@ public class ECGainsApp extends FCApplication implements ActionListener {
                     h2 =dg4.getH2F("hi_"+det[id]+"_"+lay[il]+ro+"_"+is);
                     fd = new FitData(h2.projectionX().getGraph(),min,max); fd.setInt((int)h2.projectionX().getIntegral()); 
                     fd.graph.getAttributes().setTitleX(h2.getTitleX()); 
-                    fd.initFit(min,max); fd.fitGraph("Q"); MipFits.add(fd,iis,id,il,0);                    
+                    fd.initFit(min,max); fd.fitGraph(""); MipFits.add(fd,iis,id,il,0);                    
                 }                    
                 for (int il=il1; il<il2; il++) {
                     System.out.println("ro:"+ro+" sector "+is+" det "+id+" lay "+il);
