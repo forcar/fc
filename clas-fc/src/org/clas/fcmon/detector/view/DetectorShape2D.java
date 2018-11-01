@@ -231,6 +231,7 @@ public class DetectorShape2D {
             //g2d.setStroke(new BasicStroke(2));
             g2d.draw(path);
             
+            //shapes which are flagged with counter will be highlighted in red
             if(this.counter>0) {
                 this.setColor(255, 0, 0);
                 g2d.setColor(this.getSwingColor());

@@ -438,10 +438,10 @@ public class DetectorView2D extends JPanel implements MouseMotionListener {
             for(DetectorShape2D shape : hits){
                 double x = world.getPointX(shape.xc);
                 double y = world.getPointY(shape.yc);
-                shape.setColor(150,150,255);
+                shape.setColor(0, 255, 0);
                 g2d.setColor(shape.getSwingColor());
-                g2d.setStroke(new BasicStroke(2));
-                g2d.fillOval((int) x, (int) y,10, 10);
+                g2d.setStroke(new BasicStroke(4));
+                g2d.draw3DRect((int) x-5, (int) y-5, 10, 10, true);
                 g2d.setStroke(new BasicStroke(0));           
             }
             
