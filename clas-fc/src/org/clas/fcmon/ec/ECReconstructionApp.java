@@ -477,7 +477,7 @@ public class ECReconstructionApp extends FCApplication {
        }   
    }
    
-  public void processSED() {
+   public void processSED() {
       
       for (int idet=0; idet<ecPix.length; idet++) {
       for (int is=iis1; is<iis2; is++) {
@@ -507,10 +507,11 @@ public class ECReconstructionApp extends FCApplication {
           }
       }  
       }
-  }
+   }
   
    public void findPixels(int idet) {
-
+   //Assembles list of pixels from hit strips
+	   
        int u,v,w,ii;
 
        for (int is=iis1 ; is<iis2 ; is++) { // Loop over sectors
