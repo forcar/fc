@@ -209,7 +209,8 @@ public class CTOFMode1App extends FCApplication {
         
         for(int iip=min;iip<max;iip++) {
             h2=dc2a.get(is,iip+1,2); h2.setTitleX(" PMT "+(iip+1)+" TUP-TDOWN (ns)") ;
-            canvasConfig(c,iip-min,-32.,-15.,-0.6,0.6,true).draw(h2);            
+//            canvasConfig(c,iip-min,-32.,-15.,-0.6,0.6,true).draw(h2);            
+            canvasConfig(c,iip-min,-10., 10.,-0.6,0.6,true).draw(h2);            
         }
         
         c.repaint();
