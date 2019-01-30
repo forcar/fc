@@ -201,7 +201,7 @@ public class CTOFMon extends DetectorMonitor {
     @Override
     public void dataEventAction(DataEvent de) {
         if (firstevent && app.getEventNumber()>2) {
-   	        initCCDB(app.decoder.runno);
+   	        initCCDB(app.getEventNumber());
    	        firstevent=false;
         }  
         ctofRecon.addEvent(de);	
