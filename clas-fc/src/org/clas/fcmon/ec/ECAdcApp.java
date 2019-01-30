@@ -19,6 +19,7 @@ public class ECAdcApp extends FCApplication {
     
     int ics[][] = new int[3][10];
     int la,ilm ;
+    double amax=ecPix[ilm].amax[0];
     
     public ECAdcApp(String name, ECPixels[] ecPix) {
         super(name,ecPix);    
@@ -38,8 +39,8 @@ public class ECAdcApp extends FCApplication {
     
     public void stripCanvas() {
        
-        F1D f1 = new F1D("p0","[a]",0.,250.); 
-        F1D f2 = new F1D("p0","[a]",0.,250.); 
+        F1D f1 = new F1D("p0","[a]",0.,amax); 
+        F1D f2 = new F1D("p0","[a]",0.,amax); 
         f1.setParameter(0,ic+1); f1.setLineWidth(1); f1.setLineColor(2);
         f2.setParameter(0,ic+2); f2.setLineWidth(1); f2.setLineColor(2); 
 
@@ -54,7 +55,7 @@ public class ECAdcApp extends FCApplication {
             canvasConfig(c,il-1,0.,40.,1.,ecPix[ilm].ec_nstr[il-1]+1.,true).draw(h2);
             if (la==il) {c.draw(f1,"same"); c.draw(f2,"same");}
             h2 = dc2a.get(is,il,0); h2.setTitleY("Sector "+is+otab[ilm][il-1]) ; h2.setTitleX("ADC");
-            canvasConfig(c,il+2,0.,250.,1.,ecPix[ilm].ec_nstr[il-1]+1.,true).draw(h2); 
+            canvasConfig(c,il+2,0.,amax,1.,ecPix[ilm].ec_nstr[il-1]+1.,true).draw(h2); 
             if (la==il) {c.draw(f1,"same"); c.draw(f2,"same");}
             h1 = dc2a.get(is,il,0).projectionY(); h1.setTitleX("Sector "+is+otab[ilm][il-1]); h1.setFillColor(0); 
             if (la==il) {h1.setFillColor(4); copy1=h1.histClone("Copy"); copy1.reset(); copy1.setBinContent(ic, h1.getBinContent(ic)); copy1.setFillColor(2);}
@@ -81,10 +82,10 @@ public class ECAdcApp extends FCApplication {
                           
         for (int il=1; il<4; il++) {
             h2 = dc2a.get(is,il,1); h2.setTitleY("Sector "+is+otab[ilm][il-1]) ; h2.setTitleX("ADC");
-            canvasConfig(c,il-1,0.,250.,1.,ecPix[ilm].ec_nstr[il-1]+1.,true).draw(h2);
+            canvasConfig(c,il-1,0.,amax,1.,ecPix[ilm].ec_nstr[il-1]+1.,true).draw(h2);
             int strip = ecPix[ilm].pixels.getStrip(il,ic+1);
-            F1D f1 = new F1D("p0","[a]",0.,250.); f1.setLineColor(2); f1.setLineWidth(1); f1.setParameter(0,strip);
-            F1D f2 = new F1D("p0","[a]",0.,250.); f2.setLineColor(2); f2.setLineWidth(1); f2.setParameter(0,strip+1);
+            F1D f1 = new F1D("p0","[a]",0.,amax); f1.setLineColor(2); f1.setLineWidth(1); f1.setParameter(0,strip);
+            F1D f2 = new F1D("p0","[a]",0.,amax); f2.setLineColor(2); f2.setLineWidth(1); f2.setParameter(0,strip+1);
             c.draw(f1,"same");
             c.draw(f2,"same");  
             h1 = dc2a.get(is,il,1).sliceY(strip-1); h1.setTitleX("Sector "+is+otab[ilm][il-1]+strip+" ADC");  

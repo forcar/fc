@@ -118,7 +118,7 @@ public class ECReconstructionApp extends FCApplication {
               
        clear(0); clear(1); clear(2); tdcs.clear();
        
-       if (app.isMC)  {tdcmax=2000000; offset=600;}
+       if (app.isMC)  {tdcmax=2000000; offset=200;}
        
        sca = (app.isCRT) ? 6.6:1; // For pre-installation PCAL CRT runs
        
