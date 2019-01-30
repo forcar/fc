@@ -21,7 +21,7 @@ public class CTOFPixels {
     double ctof_ypix[][][] = new double[4][124][7];
     
     public    int     ctof_nstr[] = {48};
-    public double           amax[]= {7000.,15000.};
+    public double           amax[]= {2000.,2000.};
     public double           tlim[]= {0.,300.};
     
     int        nha[][] = new    int[6][4];
@@ -134,7 +134,8 @@ public class CTOFPixels {
             H2_t_Hist.add(is, 0, 0, new H2F("a_tdif_"+iid+0,  100, -35.,      35.,nstr, 1., nend));
             H2_t_Hist.add(is, 0, 1, new H2F("b_tdif_"+iid+1,   50, -20.,      20.,48,1.,49.));
             for (int ip=1; ip<49; ip++) {
-                H2_t_Hist.add(is, ip, 2, new H2F("c_tdif_"+iid+1+ip,   50, -32., -15.,50,-0.6, 0.6));
+//                H2_t_Hist.add(is, ip, 2, new H2F("c_tdif_"+iid+1+ip,   50, -32., -15.,50,-0.6, 0.6));
+                H2_t_Hist.add(is, ip, 2, new H2F("c_tdif_"+iid+1+ip,   50, -10., 10.,50,-0.6, 0.6));
             }
            for (int il=1 ; il<3 ; il++){
                 iid="s"+Integer.toString(is)+"_l"+Integer.toString(il)+"_c";

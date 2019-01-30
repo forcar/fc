@@ -212,7 +212,7 @@ public class CCMon extends DetectorMonitor {
     public void dataEventAction(DataEvent de) {
         if (firstevent && app.getEventNumber()>2) {
 	        System.out.println(appname+".dataEventAction: First Event");
-   	        initCCDB(app.run);
+   	        initCCDB(app.getEventNumber());
    	        firstevent=false;
         }  
         ccRecon.addEvent(de);	

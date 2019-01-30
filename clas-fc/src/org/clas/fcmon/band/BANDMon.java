@@ -205,8 +205,8 @@ public class BANDMon extends DetectorMonitor {
     @Override
     public void dataEventAction(DataEvent de) {
         if (firstevent&&app.getEventNumber()>2) {
-    	        System.out.println(appname+".dataEventAction: First Event");
-   	        initCCDB(app.run);
+    	    System.out.println(appname+".dataEventAction: First Event");
+   	        initCCDB(app.getEventNumber());
    	        firstevent=false;
          }
         bandRecon.addEvent(de);	

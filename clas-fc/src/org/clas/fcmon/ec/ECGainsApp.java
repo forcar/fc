@@ -28,7 +28,6 @@ import org.jlab.groot.group.DataGroup;
 import org.jlab.groot.math.F1D;
 import org.jlab.io.base.DataBank;
 import org.jlab.io.base.DataEvent;
-import org.jlab.service.ec.ECEngine;
 import org.jlab.utils.groups.IndexedList;
 
 public class ECGainsApp extends FCApplication implements ActionListener {

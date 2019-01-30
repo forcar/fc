@@ -137,10 +137,10 @@ public class FCMenuBar extends JMenuBar  {
     	    if(e.getActionCommand().compareTo("Sector 5")==0) {ethost="adcecal5";etfile="/tmp/et_sys_clasprod";}
             if(e.getActionCommand().compareTo("Sector 6")==0) {ethost="adcecal6";etfile="/tmp/et_sys_clasprod";}      
             if(e.getActionCommand().compareTo("HTCC")==0)     {ethost="adcctof1";etfile="/et/clasltcc";port=11112;}      
-            if(e.getActionCommand().compareTo("CTOF")==0)     {ethost="adcctof1";etfile="/et/clasltcc";port=11111;}      
-            if(e.getActionCommand().compareTo("CND")==0)      {ethost="adccnd1" ;etfile="/et/cndtest"; port=11112;}      
+            if(e.getActionCommand().compareTo("CTOF")==0)     {ethost="svt1";    etfile="/et/clasltcc";port=11111;}      
+            if(e.getActionCommand().compareTo("CND")==0)      {ethost="svt1";    etfile="/et/clasltcc"; port=11111;}      
             if(e.getActionCommand().compareTo("BAND")==0)     {ethost="adcband1";etfile="/et/bandtest";port=app.tcpPort;}      
-            if(e.getActionCommand().compareTo("SVT")==0)      {ethost="svt1";    etfile="/et/clasprod";port=11112;}      
+            if(e.getActionCommand().compareTo("SVT")==0)      {ethost="svt1";    etfile="/et/clasprod";port=11111;}      
             if(e.getActionCommand().compareTo("clondaq3")==0) {ethost="clondaq3";etfile="/tmp/et_sys_clasprod";}       
             if(e.getActionCommand().compareTo("clondaq4")==0) {ethost="clondaq4";etfile="/tmp/et_sys_clasprod";}       
             if(e.getActionCommand().compareTo("clondaq5")==0) {ethost="clondaq5";etfile="/et/clasprod";}       
@@ -157,8 +157,8 @@ public class FCMenuBar extends JMenuBar  {
     	        fc.setFileFilter(new javax.swing.filechooser.FileFilter(){
     		
     	    	    public boolean accept(File f) {
-    			    return f.getName().toLowerCase().endsWith(".evio") || 
-    			           f.getName().toLowerCase().endsWith(".hipo") || 
+    			    return f.getName().toLowerCase().endsWith(".evio") || f.getName().toLowerCase().matches(".*\\.evio.*") ||
+    			           f.getName().toLowerCase().endsWith(".hipo") || f.getName().toLowerCase().matches(".*\\.hipo.*") ||
     			           f.isDirectory();
     		    }
     	    	

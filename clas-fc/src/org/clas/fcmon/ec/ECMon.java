@@ -15,6 +15,7 @@ import org.jlab.io.evio.EvioDataEvent;
 import org.jlab.io.evio.EvioDataSync;
 import org.jlab.service.ec.ECEngine;
 
+
 import java.util.Arrays;
 import java.util.TreeMap;
 
@@ -285,7 +286,7 @@ public class ECMon extends DetectorMonitor {
     public void dataEventAction(DataEvent de) { 
       
         if (firstevent && app.getEventNumber()>2) {
-        	    System.out.println(appname+".dataEventAction: First Event");
+        	System.out.println(appname+".dataEventAction: First Event");
    	        initCCDB(app.run);
    	        firstevent=false;
         }  

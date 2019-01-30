@@ -102,7 +102,8 @@ public class ECPixels {
     double[] cerrPhot = {7,15.,20.};
     double[] cerrElec = {10.,10.,10.};
 //    double[] cerrElec = {100.,100.,100.};
-    
+    public double        amax[] = {250.,250.};
+    public double        tmax[] = {300.,300.};    
     public int idet=0;
     public String detName = null;
 	
@@ -358,12 +359,12 @@ public class ECPixels {
                 
                 // Occupancy  
                 id="s"+Integer.toString(is)+"_l"+Integer.toString(il)+"_c";
-                H2_a_Hist.add(is, il, 0, new H2F("a_raw_"+id+0, 125,   0., 250., nstr, 1., nend));
-                H2_a_Hist.add(is, il, 1, new H2F("b_pix_"+id+1, 125,   0., 250., nstr, 1., nend));
+                H2_a_Hist.add(is, il, 0, new H2F("a_raw_"+id+0, 125,   0., amax[0], nstr, 1., nend));
+                H2_a_Hist.add(is, il, 1, new H2F("b_pix_"+id+1, 125,   0., amax[0], nstr, 1., nend));
                 H2_a_Hist.add(is, il, 3, new H2F("b_raw_"+id+3, 80,    0., 40.,  nstr, 1., nend));
-                H2_a_Hist.add(is, il, 4, new H2F("a_raw_"+id+4, 100,   0., 200.,100, 0.,600.));
-                H2_t_Hist.add(is, il, 0, new H2F("a_raw_"+id+0, 100,   0., 600., nstr, 1., nend));
-                H2_t_Hist.add(is, il, 1, new H2F("b_pix_"+id+1, 100,   0., 600., nstr, 1., nend));
+                H2_a_Hist.add(is, il, 4, new H2F("a_raw_"+id+4, 100,   0., amax[1],  100, 0.,tmax[1]));
+                H2_t_Hist.add(is, il, 0, new H2F("a_raw_"+id+0, 100,   0., tmax[0], nstr, 1., nend));
+                H2_t_Hist.add(is, il, 1, new H2F("b_pix_"+id+1, 100,   0., tmax[0], nstr, 1., nend));
                 
                 // Pedestal Noise  
                 H2_Peds_Hist.add(is, il, 0, new H2F("a_ped_"+id+0,  20, -10.,  10., nstr, 1., nend)); 
@@ -390,7 +391,7 @@ public class ECPixels {
             
                 id="s"+Integer.toString(is)+"_l"+Integer.toString(3)+"_c";
                 H2_t_Hist.add(is, 3, 3, new H2F("a_raw_"+id+3,  41, -40.,  40., 6, 0., 6.)); // No phase correction
-                H2_t_Hist.add(is, 3, 4, new H2F("a_raw_"+id+4, 100,   0., 600., 6, 0., 6.)); // With phase correction
+                H2_t_Hist.add(is, 3, 4, new H2F("a_raw_"+id+4, 100,   0., tmax[0], 6, 0., 6.)); // With phase correction
             
                 // Reconstructed data
                 id="s"+Integer.toString(is)+"_l"+Integer.toString(4)+"_c";
@@ -457,8 +458,8 @@ public class ECPixels {
                 
                 // Occupancy 
                 id="s"+Integer.toString(is)+"_l"+Integer.toString(il)+"_c";
-                H2_a_Hist.add(is, il, 2, new H2F("c_pix_"+id+2,  25,   0., 250., npix, 1., pend));
-                H2_t_Hist.add(is, il, 2, new H2F("c_pix_"+id+2,  40, 450., 850., npix, 1., pend));
+                H2_a_Hist.add(is, il, 2, new H2F("c_pix_"+id+2,  25, 0., amax[0], npix, 1., pend));
+                H2_t_Hist.add(is, il, 2, new H2F("c_pix_"+id+2,  40, 0., tmax[0], npix, 1., pend));
                 
                 // Layer Maps
                 H1_a_Maps.add(is, il, 0, new H1F("a_apix_"   +id+0, npix, 1., pend)); //adc weighted pixel
@@ -495,7 +496,7 @@ public class ECPixels {
                 H2_PCt_Stat.add(is, 0, 0, new H2F("a_evt_"+id+0, nstr, 1., nend,  3, 1., 4.));              
                 H2_PCt_Stat.add(is, 0, 1, new H2F("b_tdc_"+id+1, nstr, 1., nend,  3, 1., 4.));              
                 H2_PCa_Stat.add(is, 0, 3, new H2F("a_pix_"+id+3,   50,-1.,    1,  3, 1., 4.));                       
-                H2_PCa_Stat.add(is, 0, 4, new H2F("b_pix_"+id+4,   50, 0.,  1.1,  4, 0., 4.));                       
+                H2_PCa_Stat.add(is, 0, 4, new H2F("b_pix_"+id+4,   50, 0.,  1.1,  4, 0., 4.));                                              
                 H2_PCt_Stat.add(is, 0, 3, new H2F("a_pix_"+id+3,   50,-1.,    1,  3, 1., 4.));                       
                 H2_PCt_Stat.add(is, 0, 4, new H2F("b_pix_"+id+4,   50, 0.,  1.1,  4, 0., 4.));                       
                 H2_PC_Stat.add(is, 0, 3, new H2F("a_pix_"+id+3,   50,-1.,    1,  3, 1., 4.));                       

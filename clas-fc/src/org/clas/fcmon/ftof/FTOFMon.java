@@ -85,7 +85,7 @@ public class FTOFMon extends DetectorMonitor {
     }   
     
     public void initCCDB(int runno) {
-        System.out.println(appname+".initCCDB()"); 
+        System.out.println(appname+".initCCDB("+runno+")"); 
         ccdb.init(Arrays.asList(new String[]{
                 "/daq/fadc/ftof",
                 "/daq/tt/ftof",
@@ -97,7 +97,7 @@ public class FTOFMon extends DetectorMonitor {
     } 
     
     public void initDetector() {
-        System.out.println(appname=".initDetector()"); 
+        System.out.println(appname+".initDetector()"); 
         ftofDet = new FTOFDet("FTOFDet",ftofPix);
         ftofDet.setMonitoringClass(this);
         ftofDet.setApplicationClass(app);
@@ -206,8 +206,8 @@ public class FTOFMon extends DetectorMonitor {
     @Override
     public void dataEventAction(DataEvent de) {
         if (firstevent&&app.getEventNumber()>2) {
-    	        System.out.println(appname+".dataEventAction: First Event");
-   	        initCCDB(app.run);
+    	    System.out.println(appname+".dataEventAction: First Event");
+   	        initCCDB(app.getEventNumber());
    	        firstevent=false;
          }
         ftofRecon.addEvent(de);	

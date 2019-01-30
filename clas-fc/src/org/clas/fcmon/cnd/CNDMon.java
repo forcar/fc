@@ -198,8 +198,8 @@ public class CNDMon extends DetectorMonitor {
     public void dataEventAction(DataEvent de) {    	  
           if (firstevent&&app.getEventNumber()>2) {
   	         System.out.println(appname+".dataEventAction: First Event");
-        	     initCCDB(app.run);
-        	     firstevent=false;
+        	 initCCDB(app.getEventNumber());
+        	 firstevent=false;
           }
     	  cndRecon.addEvent(de);	
     }
