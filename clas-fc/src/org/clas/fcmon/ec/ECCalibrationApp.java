@@ -128,14 +128,14 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
     	
     }
     
-    public JCheckBox getECButton() {
-        JCheckBox button = new JCheckBox("EC");
+    public JCheckBox getECiButton() {
+        JCheckBox button = new JCheckBox("ECi");
         button.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
                 if(e.getStateChange() == ItemEvent.SELECTED) {
-                    doIDET[1] = true; doIDET[2]=true;
+                    doIDET[1] = true;  
                 } else {
-                    doIDET[1] = false; doIDET[2]=false;
+                    doIDET[1] = false;  
                 };
             }
         });           
@@ -143,7 +143,21 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
         
         return button;    	
     }    
-    
+    public JCheckBox getECoButton() {
+        JCheckBox button = new JCheckBox("ECo");
+        button.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                if(e.getStateChange() == ItemEvent.SELECTED) {
+                    doIDET[2]=true;
+                } else {
+                    doIDET[2]=false;
+                };
+            }
+        });           
+        button.setSelected(false);
+        
+        return button;    	
+    }     
     public JCheckBox getSectorButton(int s) {
         JCheckBox button = new JCheckBox("S"+s);
         button.addItemListener(new ItemListener() {
@@ -177,7 +191,8 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
         hvSave.setActionCommand("LOADHV");
         for (int s=1; s<7 ; s++) buttonPane.add(getSectorButton(s));
         buttonPane.add(getPCButton());
-        buttonPane.add(getECButton());
+        buttonPane.add(getECiButton());
+        buttonPane.add(getECoButton());
         buttonPane.add(tableWrite);
         buttonPane.add(tableSave);
         buttonPane.add(tableRead);
@@ -920,6 +935,8 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
                          
                         CalibrationData fits = new CalibrationData(is, sl, ip);
                         fits.getDescriptor().setType(DetectorType.ECAL);
+                        if(ip==36||ip==68||ip==62) fits.ignorePixelStatus();
+                        if(ip<4)                   fits.ignoreLoPixelStatus();
                         fits.addGraph(ecPix[idet].strips.getpixels(il,ip,cnts),
                                       ecPix[idet].strips.getpixels(il,ip,distmap),
                                       ecPix[idet].strips.getpixels(il,ip,meanmap),
@@ -927,6 +944,9 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
                                       ecPix[idet].strips.getpixels(il,ip,status));
                         fits.setFitLimits(calib.getDoubleValue("FitMin",is,sl,ip),
                                           calib.getDoubleValue("FitMax",is,sl,ip));
+                        
+                        if(ip<8) fits.fitGainsOnly(true);
+                        
                         fits.analyze(idet,scale);
                         
                         if(doIDET[idet]&&doSector[is-1]) {
@@ -1124,14 +1144,17 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
                      
                      c = fitCof.getCanvas("COEF"); c.divide(2,2);
                      
+                     F1D f2 = new F1D("p0","[a]",0,nstr+1); f2.setParameter(0,1); f2.setLineWidth(1); f2.setLineColor(1);
+                     
                      c.cd(0); c.getPad(0).getAxisX().setRange(0.,xmax);c.getPad(0).getAxisY().setRange(0.,2.);
                      c.draw(ccdbAGraph) ; c.draw(parAGraph,"same"); c.draw(parAGraphi,"same"); 
-                     c.cd(1); c.getPad(1).getAxisX().setRange(0.,xmax);c.getPad(1).getAxisY().setRange(0.,600.);
+                     c.cd(1); c.getPad(1).getAxisX().setRange(0.,xmax);c.getPad(1).getAxisY().setRange(0.5,600.);
                      c.draw(ccdbBGraph); c.draw(parBGraph,"same"); c.draw(parBGraphi,"same");                       
                      c.cd(2); c.getPad(2).getAxisX().setRange(0.,xmax);c.getPad(2).getAxisY().setRange(0.,2.);
                      c.draw(ccdbCGraph) ; c.draw(parCGraph,"same"); c.draw(parCGraphi,"same");
-                     c.cd(3); c.getPad(3).getAxisX().setRange(0.,xmax);c.getPad(3).getAxisY().setRange(0.,2.);
+                     c.cd(3); c.getPad(3).getAxisX().setRange(0.,xmax);c.getPad(3).getAxisY().setRange(0.5,1.5);
                      c.draw(ccdbGAINGraph) ; c.draw(parACGraph,"same"); c.draw(parACGraphi,"same"); 
+                     c.draw(f2,"same");
                      
                      c.repaint();
                       

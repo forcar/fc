@@ -25,9 +25,18 @@ public class CalibrationData {
     public double   fitXmin   = 0.;
     public double   fitXmax   = 450.;
     public double  xprawMax   = 450.;
-    public final    int[] ATT = {150,150,150,200,200,200,200,200,200};
+    public final    int[][] ATT = {{150,150,150,220,220,200,150,150,140},
+    		                       {150,150,150,220,200,200,200,220,230},
+    		                       {150,150,150,200,200,200,200,240,200},
+    		                       {150,150,150,200,200,200,170,200,200},
+    		                       {150,150,150,220,260,200,190,230,220},
+    		                       {150,150,150,210,140,200,150,140,150}};
     
     private int sector,view,strip;
+    
+    private boolean fitGainsOnly = false;
+    private boolean ignoreLoPixelStatus = false;
+    private boolean ignorePixelStatus = false;
     
     F1D f1 = null;
     String otab[]={"U Strip ",      "V Strip ",      "W Strip ",
@@ -61,7 +70,9 @@ public class CalibrationData {
 
         // For raw graph cnts>5 data>20
         for(int loop=0; loop < data.length; loop++) {
-            fitcut[loop] = cnts[loop]>11&&data[loop]>20&&!status[loop];
+        	boolean badPixel = (ignoreLoPixelStatus&&loop<4)?false:(ignorePixelStatus?false:status[loop]); 
+//        	System.out.println(sector+" "+view+" "+strip+" "+loop+" "+status[loop]+" "+badPixel);
+            fitcut[loop] = cnts[loop]>11&&data[loop]>20&&!badPixel;
             if (fitcut[loop]) fitSize++;
             xpraw[loop]  = xdata[loop]; 
             xprawe[loop] = 0.;
@@ -118,21 +129,38 @@ public class CalibrationData {
         if (dataSize>0) {
             fitXmin = fitLimits[0]*xprawMax;
             fitXmax = fitLimits[1]*xprawMax;
-        }
-        
+        }        
+    }
+    
+    public void fitGainsOnly(boolean val) {
+    	this.fitGainsOnly = val;
+    }
+    
+    public void ignoreLoPixelStatus() {
+    	this.ignoreLoPixelStatus = true;
+    }
+    
+    public void ignorePixelStatus() {
+    	this.ignorePixelStatus = true;
     }
     
     public void addFitFunction(int idet) {
-        switch (idet) {
+    	int sl = this.view; int is=this.sector;
+    	switch (idet) {
         case 0: f1 = new F1D("A*exp(-x/B)+C","[A]*exp(-x/[B])+[C]",fitXmin,fitXmax);
-        f1.setParameter(1,376.); f1.setParLimits(1,1.,500.);
-        f1.setParameter(2, 20.); f1.setParLimits(2,1.,100.); break;
+        f1.setParameter(1,ATT[is-1][sl-1]); f1.setParLimits(1,1.,1200.); 
+        f1.setParameter(2,0);               f1.setParLimits(2,1.,100.); 
+        if (fitGainsOnly) {f1.setParLimits(1,ATT[is-1][sl-1]-10,ATT[is-1][sl-1]+10);f1.setParLimits(2,0,1);}
+        break;
         case 1: f1 = new F1D("A*exp(-x/B)+C","[A]*exp(-x/[B])+[C]",fitXmin,fitXmax);
-        f1.setParameter(1,376.); f1.setParLimits(1,1.,5000.);
-        f1.setParameter(2,0.1);  f1.setParLimits(2,0.,1.); break;
-        case 2: f1 = new F1D("A*exp(-x/B)+C","[A]*exp(-x/[B])+[C]",fitXmin,fitXmax);
-        f1.setParameter(1,376.); f1.setParLimits(1,1.,5000.);
-        f1.setParameter(2,0.1);  f1.setParLimits(2,0.,1.);
+        f1.setParameter(1,ATT[is-1][sl-1]); f1.setParLimits(1,1.,450.);
+        f1.setParameter(2,0);               f1.setParLimits(2,0.,1.); 
+        if (fitGainsOnly) f1.setParLimits(1,ATT[is-1][sl-1]-20,ATT[is-1][sl-1]+20);
+        break;
+       case 2: f1 = new F1D("A*exp(-x/B)+C","[A]*exp(-x/[B])+[C]",fitXmin,fitXmax);
+        f1.setParameter(1,ATT[is-1][sl-1]); f1.setParLimits(1,1.,450.);
+        f1.setParameter(2,0);               f1.setParLimits(2,0.,1.);
+        if (fitGainsOnly) f1.setParLimits(1,ATT[is-1][sl-1]-20,ATT[is-1][sl-1]+20);        
         }
         f1.setLineWidth(1); f1.setLineColor(2); 
         this.functions.add(f1);        
@@ -140,15 +168,12 @@ public class CalibrationData {
     
     public void analyze(int idet, double scale){
     	DataFitter.FITPRINTOUT=false;
-//    	int sl = idet*3+this.view;
     	int sl = this.view;
     	addFitFunction(idet);
         for(int loop = 0; loop < this.fitgraphs.size(); loop++){
             this.rawgraphs.get(0).getAttributes().setTitle("Sector "+sector+" "+otab[sl-1]+" "+strip+" NO PIXEL FIT");
             F1D func = this.functions.get(loop);
             func.setParameter(0, scale);
-            func.setParameter(1, ATT[sl-1]);
-            func.setParameter(2, 0.);
             double [] dataY=this.fitgraphs.get(loop).getVectorY().getArray();
             if (dataY.length>0) {
             	int imax = Math.min(4,dataY.length-1);
