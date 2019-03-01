@@ -191,7 +191,7 @@ public class ECReconstructionApp extends FCApplication {
                
                if (ped>0) ecPix[idet].strips.hmap2.get("H2_Peds_Hist").get(is,ilay,0).fill(this.pedref-ped, ip);
                             
-               fill(idet, is, ilay, ip, sadc, tdc, t, sadc);  
+               fill(idet, is, ilay, ip, sadc, tdc, t, sadc,0);  
                fillSED(idet, is, ilay, ip, (int) sadc, tdc);
                
                } //isGoodSector ?
@@ -204,6 +204,7 @@ public class ECReconstructionApp extends FCApplication {
        float      tps =  (float) 0.02345;
        float     tdcd = 0;
        
+//       System.out.println("NEW EVENT "+app.getTotalEventNumber());
        clear(0); clear(1); clear(2); tdcs.clear();
       
 //       app.decoder.detectorDecoder.setTET(app.mode7Emulation.tet);
@@ -270,7 +271,10 @@ public class ECReconstructionApp extends FCApplication {
            int ped = app.mode7Emulation.User_pedref==1 ? this.pedref:pd;
            int pedsum=0; double baseline=0; double noise=0 ; double rms=0;
            
+           int ovf=0;
            for (int ii=0 ; ii< pulse.length ; ii++) {
+//        	   if(pulse[ii]>=4090) System.out.println("OVERFLOW "+ii+" "+pulse[ii]+" "+is+" "+idet+" "+ilay+" "+ip+" "+ad);
+        	   if (pulse[ii]>=4090) ovf++;
                ecPix[idet].strips.hmap2.get("H2_Mode1_Hist").get(is,ilay,0).fill(ii,ip,pulse[ii]-ped);
                if (ii>1&&ii<16) {pedsum+=pulse[ii]; noise+=pulse[ii]*pulse[ii];}
                if (app.isSingleEvent()) {
@@ -288,7 +292,7 @@ public class ECReconstructionApp extends FCApplication {
            float sca = (float) ((is==5)?ecc.SCALE5[il-1]:ecc.SCALE[il-1]);
            float sadc = ad / sca;
            
-           fill(idet, is, ilay, ip, sadc, tdc, tf, ph);                     
+           fill(idet, is, ilay, ip, sadc, tdc, tf, ph, ovf);                     
            fillSED(idet, is, ilay, ip, (int) sadc, tdc);
            
            }    // isGoodSector?     
@@ -367,7 +371,7 @@ public class ECReconstructionApp extends FCApplication {
                   goodstrip= true;
                   if(app.isCRT&&il==2&&ip==53) goodstrip=false;
                   tdc[0] = ((float)tdcc-tdcmax+1364000)/1000; 
-                  if (goodstrip&&isGoodSector(is)) fill(idet, is, il, ip, adc, tdc, tdcf, tdcf); 
+                  if (goodstrip&&isGoodSector(is)) fill(idet, is, il, ip, adc, tdc, tdcf, tdcf,0); 
               }
           }
       }  
@@ -440,7 +444,7 @@ public class ECReconstructionApp extends FCApplication {
        ecPix[idet].strips.hmap1.get("H1_Stra_Sevd").get(is,il,1).fill(ip,adc/sca);  //fill all hits with energy (MeV)    
    }
         
-   public void fill(int idet, int is, int il, int ip, float adc, float[] tdc, float tdcf, float adph) {
+   public void fill(int idet, int is, int il, int ip, float adc, float[] tdc, float tdcf, float adph, int ovf) {
 
 	   double thr = ecPix[idet].getStripThr(app.config,il)*ecc.AtoE[idet*3+il-1]/10;
 	   
@@ -474,6 +478,10 @@ public class ECReconstructionApp extends FCApplication {
            ecPix[idet].strips.hmap2.get("H2_a_Hist").get(is,il,0).fill(adc,ip,1.);  
            ecPix[idet].strips.hmap2.get("H2_PCa_Stat").get(is,0,0).fill(ip,il,1.);
            ecPix[idet].strips.hmap2.get("H2_PCa_Stat").get(is,0,1).fill(ip,il,adc);
+           if (ovf>0) {
+        	   ecPix[idet].strips.hmap2.get("H2_PCa_Stat").get(is,0,2).fill(ip,il,1);
+        	   ecPix[idet].strips.hmap2.get("H2_PCa_Stat").get(is,0,5).fill(ip,il,ovf);
+           }
        }   
    }
    
@@ -523,6 +531,7 @@ public class ECReconstructionApp extends FCApplication {
                        w=ecPix[idet].strra[is][2][k];
                        int dalitz = u+v+w;
                        if (dalitz==73||dalitz==74) { // Dalitz test
+                    	   
                            ecPix[idet].mpix[is]++;      ii = ecPix[idet].mpix[is]-1;
                            ecPix[idet].ecadcpix[is][0][ii] = (int) ecPix[idet].adcr[is][0][i];
                            ecPix[idet].ecadcpix[is][1][ii] = (int) ecPix[idet].adcr[is][1][i];
