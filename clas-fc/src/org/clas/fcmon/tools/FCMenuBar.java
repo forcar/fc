@@ -295,14 +295,21 @@ public class FCMenuBar extends JMenuBar  {
 		
         JMenu menu = new JMenu("TriggerBits");
         
-		
-        String TriggerDef[] = { "Electron",
+//RGA		
+        String TriggerDefRGA[] = { "Electron",
 		        "Electron S1","Electron S2","Electron S3","Electron S4","Electron S5","Electron S6",
 		        "ElectronOR noDC>300","PCALxECAL>10","","","","","","","","","","",
 		        "FTOFxPCALxECAL(1-4)","FTOFxPCALxECAL(2-5)","FTOFxPCALxECAL(3-6)","","",
 		        "FTxHDxFTOFxPCALxCTOF",
 		        "FTxHDx(FTOFxPCAL)^2","FTxHD>100","FT>100","","","",
 		        "1K Pulser"};
+        
+//RGB
+        String TriggerDef[] = { "Electron OR",
+		        "Electron S1","Electron S2","Electron S3","Electron S4","Electron S5","Electron S6",
+		        "FTOFxPCALxECALxDC(1-4)","FTOFxPCALxECALxDC(2-5)","FTOFxPCALxECALxDC(3-6)",
+		        "Electron OR no DC","","","","","","","","","","","","","","","","","","","","",
+		        "1K Pulser"};       
         
         public JMenu getMenu() {
         	    return menu;

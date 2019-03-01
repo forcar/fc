@@ -503,7 +503,11 @@ public class MonitorApp extends JFrame implements ActionListener {
     }
     
     public int getEventNumber() {
-    	    return eventControl.currentEvent;
+        return eventControl.currentEvent;
+    }
+    
+    public int getTotalEventNumber() {
+    	return evtno;
     }
     
     public String getDataSource(){

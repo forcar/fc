@@ -29,6 +29,7 @@ public class ECMode1App extends FCApplication  {
    int ics[][] = new int[3][10];
    double amax=ecPix[idet].amax[1], tmax=ecPix[idet].tmax[1];
    
+   String  det[] = {" PCAL "," ECIN "," ECOU "};
    String otab[][]={{" U PMT "," V PMT "," W PMT "},
            {" U Inner PMT "," V Inner PMT "," W Inner PMT "},
            {" U Outer PMT "," V Outer PMT "," W Outer PMT "}};
@@ -48,6 +49,7 @@ public class ECMode1App extends FCApplication  {
        mode1.addCanvas("TDIF");
        mode1.addCanvas("AvsT");
        mode1.addCanvas("SYNC");  
+       mode1.addCanvas("OVFL");  
        return mode1;
    }
    
@@ -60,14 +62,18 @@ public class ECMode1App extends FCApplication  {
       
       if (la>3) return;
       
-      this.nstr = ecPix[idet].ec_nstr[la-1];    
+      this.nstr = ecPix[idet].ec_nstr[la-1];
+      
+      PCMon_zmin = 100;
+      PCMon_zmax = 4000;        
       
       switch (mode1.selectedCanvas) {
       case  "PMT": updateEvent(); break;
-      case "TDIF": updateTDIF(); break;
+      case "TDIF": updateTDIF();  break;
       case "AvsT": updateAvsT();  break;
       case  "UVW": updateUVW();   break;
-      case "SYNC": updateSync();
+      case "SYNC": updateSync();  break;
+      case "OVFL": updateOVF();
       }
       
    }
@@ -212,11 +218,36 @@ public class ECMode1App extends FCApplication  {
            canvasConfig(c,is-1,-40.,40.,0.,6.,true).draw(h2);
        }
        for (int is=1; is<7; is++) {
-           h2 = dc2t.get(is,3,4) ;  h2.setTitleY("PHASE") ; h2.setTitleX("Sector "+is+" W Inner TDC (ns)");   
-           canvasConfig(c,is-1+6,0.,tmax,0.,6.,true).draw(h2);
+//           h2 = dc2t.get(is,3,4) ;  h2.setTitleY("PHASE") ; h2.setTitleX("Sector "+is+" W Inner TDC (ns)");   
+//           canvasConfig(c,is-1+6,0.,tmax,0.,6.,true).draw(h2);
+           H1F h1 = dc2t.get(is,3,4).projectionX() ;  h1.setTitleY("COUNTS") ; h1.setTitleX("Sector "+is+" W Inner TDC (ns)");   
+           canvasConfig(c,is-1+6,0.,tmax,0.,0.,false).draw(h1);
        }
        
        c.repaint();   
    }
+   
+   public void updateOVF() {
+	   
+       DetectorCollection<H2F> dc2a = ecPix[idet].strips.hmap2.get("H2_PCa_Stat"); 
+       
+	   PCMon_zmin = 0.;
+	   PCMon_zmax = 1.;        
+       
+       H2F hd1=null; H2F hd2=null; 
+       int n=0;
+
+       c = mode1.getCanvas("OVFL"); c.clear(); c.divide(1,2);
+            
+       H2F h2 = dc2a.get(is, 0, 2); H2F h0 = dc2a.get(is, 0, 0); H2F h5 = dc2a.get(is, 0, 5);
+       hd1=hd1.divide(h2,h0); hd2=hd2.divide(h5,h2);  
+       String tit = "Sector "+is+det[idet];
+       hd1.setTitleY("UVW"); hd1.setTitleX("PMT"); hd2.setTitleY("UVW"); hd2.setTitleX("PMT");
+       hd1.setTitle("Fraction of hits with FADC>4090 - "+tit); hd2.setTitle("FADC overflow multiplicity - "+tit);
+       PCMon_zmin = 0.; PCMon_zmax = 0.2; canvasConfig(c,n++,0,0,0,0,false).draw(hd1);
+       PCMon_zmin = 0.; PCMon_zmax = 5.0; canvasConfig(c,n++,0,0,0,0,false).draw(hd2);
+             
+       c.repaint();	       
+   }   
    
 }
