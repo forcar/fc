@@ -435,7 +435,7 @@ public class CTOFReconstructionApp extends FCApplication {
         	       ctofPix[0].strips.hmap2.get("H2_t_Hist").get(1, 0, 0).fill(td,ip,1.0); 
         	       if(adcs.hasItem(0,ip)&&adcs.hasItem(1,ip)) {
         	    	   float lograt = (float) Math.log10(adcs.getItem(0,ip).get(0)/adcs.getItem(1,ip).get(0));
-        	           ctofPix[0].strips.hmap2.get("H2_t_Hist").get(1, ip, 2).fill(td,lograt);
+        	           ctofPix[0].strips.hmap2.get("H2_t_Hist").get(1, ip, 2).fill(td+25,lograt);
         	       }
         	   }
        }      

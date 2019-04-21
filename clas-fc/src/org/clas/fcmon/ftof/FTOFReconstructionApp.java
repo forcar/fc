@@ -159,8 +159,8 @@ public class FTOFReconstructionApp extends FCApplication {
                if(!tdcs.hasItem(is,il,lr-2,ip)) tdcs.add(new ArrayList<Float>(),is,il,lr-2,ip);
                    tdcs.getItem(is,il,lr-2,ip).add(tdcd); 
                    if (!ltpmt.hasItem(is,il,ip)) {
-                	        ltpmt.add(new ArrayList<Integer>(),is,il,ip);
-                	        ltpmt.getItem(is,il,ip).add(ip);
+                	    ltpmt.add(new ArrayList<Integer>(),is,il,ip);
+                	    ltpmt.getItem(is,il,ip).add(ip);
                    } 
                }
            }
@@ -191,7 +191,7 @@ public class FTOFReconstructionApp extends FCApplication {
                           
                Float[] tdcc; float[] tdc;
               
-               if (tdcs.hasItem(is,il,lr,ip)) {
+               if (tdcs.hasItem(is,il,lr,ip)) {            	   
                    List<Float> list = new ArrayList<Float>();
                    list = tdcs.getItem(is,il,lr,ip); tdcc=new Float[list.size()]; list.toArray(tdcc);
                    tdc = new float[list.size()];
