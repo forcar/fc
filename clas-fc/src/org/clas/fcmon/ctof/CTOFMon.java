@@ -71,7 +71,7 @@ public class CTOFMon extends DetectorMonitor {
         app.init();
         app.getDetectorView().setFPS(10);
         app.setSelectedTab(2); 
-        app.setTDCOffset(159);
+        app.setTDCOffset(0);
         monitor.ctofDet.initButtons();
     }
     
