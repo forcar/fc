@@ -65,7 +65,7 @@ public class ECEngineApp extends FCApplication implements ActionListener {
     JCheckBox              gainBtn = null;
     ButtonGroup                bG1 = null;
     List<TOFPaddle>     paddleList = null;
-    
+ 
 //    EBEngine                       ebe = new EBEngine("ECMON");
 //    EventBuilder                    eb = null;
     List<DetectorResponse> ecClusters  = null;

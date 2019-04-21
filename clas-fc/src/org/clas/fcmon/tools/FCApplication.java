@@ -1,55 +1,33 @@
 package org.clas.fcmon.tools;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
-import java.util.stream.Collectors;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 import javax.swing.JRadioButton;
-import javax.swing.JTabbedPane;
-import javax.swing.SwingUtilities;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 import org.clas.fcmon.band.BANDPixels;
 import org.clas.fcmon.cc.CCPixels;
 import org.clas.fcmon.cnd.CNDPixels;
-import org.clas.fcmon.detector.view.DetectorShape2D;
 import org.clas.fcmon.ec.ECPixels;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
 import org.clas.fcmon.ftof.FTOFPixels;
 import org.clas.fcmon.htcc.HTCCPixels;
 import org.clas.fcmon.ctof.CTOFPixels;
-import org.jlab.coda.jevio.ByteDataTransformer;
-import org.jlab.coda.jevio.EvioNode;
 import org.jlab.detector.base.DetectorCollection;
 import org.jlab.detector.base.DetectorDescriptor;
-import org.jlab.detector.calib.tasks.CalibrationEngine;
 import org.jlab.detector.calib.tasks.CalibrationEngineView;
-import org.jlab.detector.decode.DetectorDataDgtz;
-import org.jlab.detector.decode.DetectorDataDgtz.VTPData;
 import org.jlab.groot.group.DataGroup;
 import org.jlab.io.base.DataBank;
 import org.jlab.io.base.DataEvent;
 import org.jlab.io.evio.EvioDataEvent;
-import org.jlab.io.evio.EvioTreeBranch;
-import org.jlab.io.hipo.HipoDataBank;
-import org.jlab.io.hipo.HipoDataEvent;
+import org.jlab.jnp.hipo4.data.Bank;
+import org.jlab.jnp.hipo4.data.Event;
 import org.jlab.utils.groups.IndexedList;
 import org.jlab.groot.graphics.EmbeddedCanvas;
 import org.jlab.groot.base.GStyle;
@@ -239,9 +217,12 @@ public class FCApplication implements ActionListener  {
     
     public void writeHipoOutput(DataEvent event) {
      	if(isEvioDataEvent) {
-        	DataEvent decodedEvent = app.decoder.getDataEvent();
+            DataEvent decodedEvent = (DataEvent) app.decoder.getDataEvent();
             DataBank   header = app.decoder.createHeaderBank(decodedEvent,0,0,0,0);
-            decodedEvent.appendBanks(header);
+//            DataBank        header = (DataBank) app.decoder.createHeaderBank(app.run,app.evtno,0,0);
+            if(header!=null) decodedEvent.appendBanks(header);
+//            DataBank   trigger = (DataBank) app.decoder.createTriggerBank();
+//            if(trigger!=null) decodedEvent.appendBanks(trigger);
             app.writer.writeEvent(decodedEvent);
    	    } else {
    		    app.writer.writeEvent(event);    		

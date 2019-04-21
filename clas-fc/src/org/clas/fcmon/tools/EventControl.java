@@ -19,16 +19,13 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import org.clas.fcmon.detector.view.DetectorPane2D;
-import org.jlab.clas.physics.Vector3;
 import org.jlab.io.base.DataEvent;
 import org.jlab.io.base.DataSource;
-//import org.jlab.evio.clas12.EvioDataEvent;
-//import org.jlab.evio.clas12.EvioETSource;
-//import org.jlab.evio.clas12.EvioSource;
 import org.jlab.io.evio.EvioDataEvent;
 import org.jlab.io.evio.EvioETSource;
 import org.jlab.io.evio.EvioRingSource;
 import org.jlab.io.evio.EvioSource;
+import org.jlab.io.hipo3.Hipo3DataSource;
 import org.jlab.io.hipo.HipoDataSource;
 import org.jlab.io.hipo.HipoRingSource;
 import org.jlab.utils.groups.IndexedList;
@@ -47,10 +44,8 @@ public class EventControl extends JPanel implements ActionListener, ChangeListen
     SpinnerModel    model = new SpinnerNumberModel(0,0,10,0.1);
     JSpinner spinnerDelay = new JSpinner(model);
 	
-    File                  file = null;
-    String            filename = null;
-    File              eviofile = null;
-    String        eviofilename = null;   
+    File                    file = null;
+    String              filename = null;
     
     DataSource          evReader = null;      
     EvioETSource        etReader = null;
@@ -162,18 +157,20 @@ public class EventControl extends JPanel implements ActionListener, ChangeListen
     	}
     }
  
-    public void openEvioFile(File eviofile) {
+    public void openFile(File file, String tag) {
         if(isEvioFileOpen||isHipoFileOpen) evReader.close();
         this.monitoringClass.init();
-        if(eviofile.getName().contains("hipo")==true){
+        if(file.getName().contains("hipo")==true){
             isHipoFileOpen = true; isEvioFileOpen = false;
-            evReader = new HipoDataSource();
-        } else {
+            if(tag=="HIPO3") evReader = new Hipo3DataSource();
+            if(tag=="HIPO4") evReader = new HipoDataSource();
+        } 
+        if(file.getName().contains("evio")==true) {
             isEvioFileOpen = true; isHipoFileOpen = false;
-            evReader = new EvioSource();
+            if(tag=="EVIO")  evReader = new EvioSource();
         }        
-        eviofilename = eviofile.getAbsolutePath();
-        evReader.open(eviofilename);
+        filename = file.getAbsolutePath();
+        evReader.open(filename);
         isRemote          = false;
         isSingleEvent     = false;
         isEtFileOpen      = false;
@@ -184,7 +181,7 @@ public class EventControl extends JPanel implements ActionListener, ChangeListen
         currentEvent = 1;
 //        currentEvent = evReader.getCurrentIndex();
         Integer nevents = evReader.getSize();  
-        this.fileLabel.setText("FILE: "+eviofile.getName());
+        this.fileLabel.setText("FILE: "+ file.getName());
         this.statusLabel.setText("   EVENTS IN FILE : " + nevents.toString() + "  CURRENT : " + currentEvent);
     }
     
@@ -306,7 +303,7 @@ public class EventControl extends JPanel implements ActionListener, ChangeListen
          	
             class CrunchifyReminder extends TimerTask {
             	    public void run() {
-            	      	for (int i=1 ; i<200 ; i++) {
+            	      	for (int i=1 ; i<2000 ; i++) {
                          processNextEvent();
             		    }
             	    }
@@ -417,14 +414,16 @@ public class EventControl extends JPanel implements ActionListener, ChangeListen
                 try {
                     Thread.sleep(threadDelay);
                     monitoringClass.dataEventAction(event);
-                } catch (Exception e) {
+                } 
+                catch (Exception e) {
                     e.printStackTrace();                     
                 }
             } else {             
                 try {
                     Thread.sleep(20);
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(HipoRingSource.class.getName()).log(Level.SEVERE, null, ex);
+                } 
+                catch (InterruptedException ex) {
+                        Logger.getLogger(HipoRingSource.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
 
@@ -432,47 +431,48 @@ public class EventControl extends JPanel implements ActionListener, ChangeListen
     	
     	if(isEvioFileOpen||isHipoFileOpen) {
     		
-    	    if(evReader.hasEvent()){
+    	    if(evReader.hasEvent()) {
     	        
     	        DataEvent event = evReader.getNextEvent();
     	        currentEvent++;
     	        
 //    		    currentEvent    = evReader.getCurrentIndex();
-            if(isSingleEvent) {
-                eventList.add(event,currentEvent);
-                monitoringClass.analyze();    
-            }
+                if(isSingleEvent) {
+                    eventList.add(event,currentEvent);
+                    monitoringClass.analyze();    
+                }
             
     		    int nevents = evReader.getSize();  
-            if(currentEvent>100&&currentEvent%5000==0) monitoringClass.analyze();
+                if(currentEvent>100&&currentEvent%5000==0) monitoringClass.analyze();
+            
     		    this.statusLabel.setText("   EVENTS IN FILE : " + nevents + "  CURRENT : " + currentEvent);
         
     		    try {
-                Thread.sleep(threadDelay);
-                monitoringClass.dataEventAction(event);
+                    Thread.sleep(threadDelay);
+                    monitoringClass.dataEventAction(event);
     		    } 
     		    
     		    catch (Exception ex) {
     			    ex.printStackTrace();
     		    }
      
-        } else {
+            } else {
         	
-            isRunning = false;
-            inProcess = 2;
-    	        killTimer();
-    	        evReader.close();
-            isEvioFileOpen = false;
-            isHipoFileOpen = false;
-            buttonNextFFW.setEnabled(false);
-            buttonStop.setEnabled(false);
-            buttonNext.setEnabled(false);
-            buttonPrev.setEnabled(false);        
-    	        monitoringClass.analyze();
-            monitoringClass.close();
-            System.out.println("DONE PROCESSING FILE");
+                isRunning = false;
+                inProcess = 2;
+                killTimer();
+                evReader.close();
+                isEvioFileOpen = false;
+                isHipoFileOpen = false;
+                buttonNextFFW.setEnabled(false);
+                buttonStop.setEnabled(false);
+                buttonNext.setEnabled(false);
+                buttonPrev.setEnabled(false);        
+                monitoringClass.analyze();
+                monitoringClass.close();
+                System.out.println("DONE PROCESSING FILE");
             
-        }
+            }
     	}
 
     }  
