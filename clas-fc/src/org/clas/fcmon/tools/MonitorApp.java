@@ -41,6 +41,7 @@ import org.jlab.groot.base.GStyle;
 //import org.jlab.detector.decode.CLASDecoder;
 //import org.jlab.detector.decode.CodaEventDecoder;
 import org.jlab.groot.graphics.EmbeddedCanvas;
+//import org.jlab.io.hipo3.Hipo3DataSync;
 import org.jlab.io.hipo.HipoDataSync;
 import org.jlab.utils.groups.IndexedTable;
 
@@ -84,10 +85,12 @@ public class MonitorApp extends JFrame implements ActionListener {
     
     public FCMenuBar               menuBar = null;
     public CodaEventDecoder    codadecoder = new CodaEventDecoder();
-    public FCCLASDecoder           decoder = new FCCLASDecoder();
+    public FCCLASDecoder3           decoder = new FCCLASDecoder3();
+    public FCCLASDecoder4          decoder4 = new FCCLASDecoder4();
+//    public Hipo3DataSync           writer3 = null;
+    public HipoDataSync             writer = null;
     public DisplayControl   displayControl = null;	
     public Mode7Emulation   mode7Emulation = null;
-    public HipoDataSync             writer = null;
     
     int      selectedTabIndex = 0;  
     String   selectedTabName  = " ";  
@@ -202,6 +205,10 @@ public class MonitorApp extends JFrame implements ActionListener {
     
     public void setVariation(String variation) {
         this.variation = variation;
+    }
+    
+    public int getRunNumber() {
+    	return Integer.parseInt(runNumber);
     }
     
     public void getReverseTT(ConstantsManager ccdb, int run, String table) {
@@ -654,11 +661,16 @@ public class MonitorApp extends JFrame implements ActionListener {
         this.statusLabel.setText(getStatusString(dd)) ; 
     }
     
+ //   public abstract class HipoDataSync {
+ //   	public abstract setCompressionType(int val);
+ //   	public abstract open(String val);
+ //   	
+ //   }
+    
     public void openHipoFile(String path) {               
         HipoFileName = path+"clas_00"+runNumber+".hipo";
         System.out.println("app.openHipoFile(): Opening "+HipoFileName);
         writer = new HipoDataSync();
-        writer.setCompressionType(2);
         writer.open(HipoFileName);
         isHipoFileOpen = true;
     }

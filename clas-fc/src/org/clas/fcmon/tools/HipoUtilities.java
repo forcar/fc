@@ -300,13 +300,15 @@ public class HipoUtilities {
             reader.open(inputFiles.get(i));
             while(reader.hasNext()==true){
                 HipoEvent event = reader.readNextEvent();
-                HipoGroup bank = event.getGroup("REC::Particle");
                 boolean containsElec = false;
-                int nrows = bank.getNode("pid").getDataSize();
-                for(int ii = 0; ii < nrows; ii++){
-                   int pid = bank.getNode("pid").getShort(i);
-                   if(pid==11) containsElec = true;
-                }               
+                if(event.hasGroup("REC::Particle")) {
+                	HipoGroup bank = event.getGroup("REC::Particle");
+                	int nrows = bank.getNode("pid").getDataSize();
+                	for(int ii = 0; ii < nrows; ii++){
+                		int pid = bank.getNode("pid").getInt(ii);
+                		if(pid==11) containsElec = true;	
+                	} 
+                }
                 if(containsElec&&filter.isValid(event)==true){
                     HipoEvent outEvent = filter.getEvent(event);
                     writer.writeEvent(outEvent);

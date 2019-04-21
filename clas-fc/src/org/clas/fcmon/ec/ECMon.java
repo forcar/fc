@@ -54,7 +54,7 @@ public class ECMon extends DetectorMonitor {
     double               PCMon_zmin = 0;
     double               PCMon_zmax = 0;
     boolean              firstevent = true;
-   
+  
     String                   mondet = "EC";
     static String           appname = "ECMON";
     String                 detnam[] = {"PCAL","ECin","ECout"};

@@ -23,6 +23,7 @@ public class DetectorEventDecoder {
     
     ConstantsManager  translationManager = new ConstantsManager();
     ConstantsManager  fitterManager      = new ConstantsManager();
+    ConstantsManager  scalerManager      = new ConstantsManager();
     
     List<String>  tablesTrans            = null;
     List<String>  keysTrans              = null;
@@ -53,6 +54,20 @@ public class DetectorEventDecoder {
     
     public void setRunNumber(int run){
         this.runNumber = run;
+    }
+    
+    public int getRunNumber() {
+        return this.runNumber;
+    }
+
+     public float getRcdbTorusScale() {
+        return ((Double)this.scalerManager.getRcdbConstant(this.runNumber,"torus_scale").
+                getValue()).floatValue();
+    }
+
+     public float getRcdbSolenoidScale() {
+        return ((Double)this.scalerManager.getRcdbConstant(this.runNumber,"solenoid_scale").
+                getValue()).floatValue();
     }
     
     //lcs
@@ -105,7 +120,8 @@ public class DetectorEventDecoder {
         tablesFitter = Arrays.asList(new String[]{"/daq/fadc/clasdev/htcc"});
         translationManager.init(keysTrans,tablesTrans);
         fitterManager.init(keysFitter, tablesFitter);
-    }
+        scalerManager.init(Arrays.asList(new String[]{"/runcontrol/fcup"}));    
+    }  
     
     public final void initDecoder(){
         keysTrans = Arrays.asList(new String[]{

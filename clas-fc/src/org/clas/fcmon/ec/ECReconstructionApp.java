@@ -377,15 +377,6 @@ public class ECReconstructionApp extends FCApplication {
       }  
       //System.out.println(" ");
    }
-
-   public void writeHipoOutput() {
-       
-       DataEvent  decodedEvent = app.decoder.getDataEvent();
-       DataBank   header = app.decoder.createHeaderBank(decodedEvent,0,0,0,0);
-       decodedEvent.appendBanks(header);
-       app.writer.writeEvent(decodedEvent);
-              
-   }
    
    public void clear(int idet) {
             

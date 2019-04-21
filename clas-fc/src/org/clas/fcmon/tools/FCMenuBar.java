@@ -49,7 +49,9 @@ public class FCMenuBar extends JMenuBar  {
         JMenu             menu = new JMenu("File");
         JMenu          ET_open = new JMenu("Attach to ET");
         JMenu          XM_open = new JMenu("xMsg Ring");
-        JMenuItem    file_open = new JMenuItem("Load EVIO or HIPO File");    
+        JMenuItem ev_file_open = new JMenuItem("Load EVIO File");    
+        JMenuItem h3_file_open = new JMenuItem("Load HIPO3 File");    
+        JMenuItem h4_file_open = new JMenuItem("Load HIPO4 File");    
         JMenuItem           s1 = new JMenuItem("Sector 1");
         JMenuItem           s2 = new JMenuItem("Sector 2");
         JMenuItem           s3 = new JMenuItem("Sector 3");
@@ -74,7 +76,7 @@ public class FCMenuBar extends JMenuBar  {
         String          etfile = null;
     
         String      fileformat = null;
-        File          eviofile = null;
+        File              file = null;
   
         public JMenu getMenu() {
         	    return menu;
@@ -82,7 +84,9 @@ public class FCMenuBar extends JMenuBar  {
     
         public void createMenu() {
     	
-            menu.add(file_open);
+            menu.add(ev_file_open);
+            menu.add(h3_file_open);
+            menu.add(h4_file_open);
             menu.add(ET_open);
             menu.add(XM_open);
            
@@ -105,7 +109,9 @@ public class FCMenuBar extends JMenuBar  {
             XM_open.add(x0);
             XM_open.add(x1);
    
-            file_open.addActionListener(this);   
+            ev_file_open.addActionListener(this);   
+            h3_file_open.addActionListener(this);   
+            h4_file_open.addActionListener(this);   
         
             s1.addActionListener(this);
             s2.addActionListener(this);
@@ -114,7 +120,7 @@ public class FCMenuBar extends JMenuBar  {
             s5.addActionListener(this);
             s6.addActionListener(this);   
           ctof.addActionListener(this);
-          cnd.addActionListener(this);
+           cnd.addActionListener(this);
           band.addActionListener(this);
           htcc.addActionListener(this);
            svt.addActionListener(this);
@@ -130,6 +136,7 @@ public class FCMenuBar extends JMenuBar  {
 	@Override
 	    public void actionPerformed(ActionEvent e) {
 		    int port=app.tcpPort;
+		    
     	    if(e.getActionCommand().compareTo("Sector 1")==0) {ethost="adcecal1";etfile="/tmp/et_sys_clasprod";}
     	    if(e.getActionCommand().compareTo("Sector 2")==0) {ethost="adcecal2";etfile="/tmp/et_sys_clasprod";}
     	    if(e.getActionCommand().compareTo("Sector 3")==0) {ethost="adcecal3";etfile="/tmp/et_sys_clasprod";}
@@ -138,42 +145,47 @@ public class FCMenuBar extends JMenuBar  {
             if(e.getActionCommand().compareTo("Sector 6")==0) {ethost="adcecal6";etfile="/tmp/et_sys_clasprod";}      
             if(e.getActionCommand().compareTo("HTCC")==0)     {ethost="adcctof1";etfile="/et/clasltcc";port=11112;}      
             if(e.getActionCommand().compareTo("CTOF")==0)     {ethost="svt1";    etfile="/et/clasltcc";port=11111;}      
-            if(e.getActionCommand().compareTo("CND")==0)      {ethost="svt1";    etfile="/et/clasltcc"; port=11111;}      
+            if(e.getActionCommand().compareTo("CND")==0)      {ethost="svt1";    etfile="/et/clasltcc";port=11111;}      
             if(e.getActionCommand().compareTo("BAND")==0)     {ethost="adcband1";etfile="/et/bandtest";port=app.tcpPort;}      
             if(e.getActionCommand().compareTo("SVT")==0)      {ethost="svt1";    etfile="/et/clasprod";port=11111;}      
             if(e.getActionCommand().compareTo("clondaq3")==0) {ethost="clondaq3";etfile="/tmp/et_sys_clasprod";}       
             if(e.getActionCommand().compareTo("clondaq4")==0) {ethost="clondaq4";etfile="/tmp/et_sys_clasprod";}       
             if(e.getActionCommand().compareTo("clondaq5")==0) {ethost="clondaq5";etfile="/et/clasprod";}       
             if(e.getActionCommand().compareTo("clondaq6")==0) {ethost="clondaq6";etfile="/et/clasprod";} 
-    	    if(ethost!=null) app.eventControl.openEtFile(ethost,etfile,port);    	
-            if(e.getActionCommand().compareTo("Load EVIO or HIPO File")==0) this.chooseEvioFile();
+    	    if(ethost!=null) app.eventControl.openEtFile(ethost,etfile,port);    
+    	    
+            if(e.getActionCommand().compareTo("Load EVIO File")==0)  this.chooseFile("EVIO");
+            if(e.getActionCommand().compareTo("Load HIPO3 File")==0) this.chooseFile("HIPO3");
+            if(e.getActionCommand().compareTo("Load HIPO4 File")==0) this.chooseFile("HIPO4");
             if(e.getActionCommand().compareTo("EVIO")==0) app.eventControl.openXEvioRing();
             if(e.getActionCommand().compareTo("HIPO")==0) app.eventControl.openXHipoRing();
 	    }
 	
-        public void chooseEvioFile() {
-            	final JFileChooser fc = new JFileChooser();
-    	
-    	        fc.setFileFilter(new javax.swing.filechooser.FileFilter(){
+        public void chooseFile(String tag) {
+        	
+            final JFileChooser fc = new JFileChooser();
+            
+            fc.setFileFilter(new javax.swing.filechooser.FileFilter(){
     		
-    	    	    public boolean accept(File f) {
-    			    return f.getName().toLowerCase().endsWith(".evio") || f.getName().toLowerCase().matches(".*\\.evio.*") ||
-    			           f.getName().toLowerCase().endsWith(".hipo") || f.getName().toLowerCase().matches(".*\\.hipo.*") ||
-    			           f.isDirectory();
+            public boolean accept(File f) {
+                return f.getName().toLowerCase().endsWith(".evio") || f.getName().toLowerCase().matches(".*\\.evio.*") ||
+                       f.getName().toLowerCase().endsWith(".hipo") || f.getName().toLowerCase().matches(".*\\.hipo.*") ||
+                       f.isDirectory();
     		    }
     	    	
             public String getDescription() {
-                    return "EVIO CLAS data format";
+            	return tag+" CLAS data format";
             }
+        
             });
     	
-    	        String currentDir = System.getenv("PWD");
+            String currentDir = System.getenv("PWD");
             if(currentDir!=null) fc.setCurrentDirectory(new File(currentDir));
-            int returnVal = fc.showOpenDialog(this);
+            int      returnVal = fc.showOpenDialog(this);
         
             if (returnVal == JFileChooser.APPROVE_OPTION) {
-          	    eviofile     =       fc.getSelectedFile();
-                app.eventControl.openEvioFile(eviofile);
+          	    file = fc.getSelectedFile();
+                app.eventControl.openFile(file,tag);
             }
         }
         
