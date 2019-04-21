@@ -220,6 +220,7 @@ public class ECMon extends DetectorMonitor {
         System.out.println(appname+".initEngine():Initializing ecEngine");
         System.out.println("Configuration: "+app.config); 
         System.out.println("Variation: "+app.variation);
+        System.out.println("SingleThreaded:"+ecEngine.isSingleThreaded);
         
         if(saveFile) {
             writer = new EvioDataSync();
@@ -227,6 +228,7 @@ public class ECMon extends DetectorMonitor {
         }
 
         ecEngine.isSingleThreaded = true;
+        
         ecEngine.init();
         ecEngine.isMC = app.isMC;
         ecEngine.setVariation(app.variation);
