@@ -24,13 +24,13 @@ public class JCSG {
     
     String          name[] = {"PCAL","ECin","ECout"};
     int             isec[] = {1,1,1};
-    int             ilay[] = {3,3,3};
+    int             ilay[] = {1,1,1};
     int             istr[] = {59,28,28}; //Normal radius from target at {59,28,28}
 
     int[][]       vertices = {{4,0,5,1,7,3,6,2},{6,2,7,3,5,1,4,0},{4,0,5,1,7,3,6,2},  //JCSG vertices -> CJ vertices (PCAL)
                               {4,0,5,1,7,3,6,2},{6,2,7,3,5,1,4,0},{1,5,0,4,2,6,3,7},  //JCSG vertices -> CJ vertices (ECIN)
                               {4,0,5,1,7,3,6,2},{6,2,7,3,5,1,4,0},{1,5,0,4,2,6,3,7}}; //JCSG vertices -> CJ vertices (ECOU)
-                             //        U                V                 W
+                             //       U                 V                 W
     int                cal = 0;
     
     public JCSG() {        
