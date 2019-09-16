@@ -92,37 +92,38 @@ public class MonitorApp extends JFrame implements ActionListener {
     public DisplayControl   displayControl = null;	
     public Mode7Emulation   mode7Emulation = null;
     
-    int      selectedTabIndex = 0;  
-    String   selectedTabName  = " ";  
-    public String currentView = null;
-    public int   currentCrate = 1;
-    public int   currentSlot  = 3;
-    public int   currentChan  = 0;
-    public int   currentEvent = 0;
-    public int  detectorIndex = 0;
+    int        selectedTabIndex = 0;  
+    String     selectedTabName  = " ";  
+    public String   currentView = null;
+    public int     currentCrate = 1;
+    public int     currentSlot  = 3;
+    public int     currentChan  = 0;
+    public int     currentEvent = 0;
+    public int    detectorIndex = 0;
     public String detectorAlias = "";
-    public int      viewIndex = 1;
+    public int        viewIndex = 1;
    
-    public boolean    doEpics = false;
-    public String     appName = null;
-    public String    rootPath = ".";
-    public String    hipoPath = null;
-    public String   calibPath = null;
-    public String      hvPath = null;
-    public String  scalerPath = null;
-    public String    evioPath = null;
-    public String    xMsgHost = "localhost";
-    public String   runNumber = "100";
-    public boolean      debug = false;
-    public boolean       isMC = false;
-    public boolean      isMCB = false;
-    public boolean       isTB = false;
-    public boolean   isFilter = false;
-    public boolean  isTrigger = false;
-    public boolean      isIPC = false;
-    public boolean      isCRT = false;
-    public boolean      doEng = false;
-    public boolean     doGain = false;
+    public boolean     doEpics = false;
+    public String      appName = null;
+    public String     rootPath = ".";
+    public String     hipoPath = null;
+    public String hipoFilePath = null;
+    public String    calibPath = null;
+    public String       hvPath = null;
+    public String   scalerPath = null;
+    public String     evioPath = null;
+    public String     xMsgHost = "localhost";
+    public String    runNumber = "100";
+    public boolean       debug = false;
+    public boolean        isMC = false;
+    public boolean       isMCB = false;
+    public boolean        isTB = false;
+    public boolean    isFilter = false;
+    public boolean   isTrigger = false;
+    public boolean       isIPC = false;
+    public boolean       isCRT = false;
+    public boolean       doEng = false;
+    public boolean      doGain = false;
     
     public String    HipoFileName = null;
     public boolean isHipoFileOpen = false;   
@@ -254,7 +255,8 @@ public class MonitorApp extends JFrame implements ActionListener {
             xMsgHost = "localhost";
         }
         
-        hipoPath  = rootPath+"/HIPO/";
+        hipoPath  = rootPath+"/HIPO4/";
+    hipoFilePath  = rootPath+"/HIPO/";
         calibPath = rootPath+"/CALIB/";
            hvPath = rootPath+"/HV/";
        scalerPath = rootPath+"/SCALERS/";
@@ -668,7 +670,7 @@ public class MonitorApp extends JFrame implements ActionListener {
  //   }
     
     public void openHipoFile(String path) {               
-        HipoFileName = path+"clas_00"+runNumber+".hipo";
+        HipoFileName = path+"clas_00"+runNumber+".hipo4";
         System.out.println("app.openHipoFile(): Opening "+HipoFileName);
         writer = new HipoDataSync();
         writer.open(HipoFileName);

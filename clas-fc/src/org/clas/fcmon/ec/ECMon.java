@@ -92,6 +92,7 @@ public class ECMon extends DetectorMonitor {
         app.init();
         app.getDetectorView().setFPS(10);
         app.setSelectedTab(2); 
+        app.setTDCOffset(420);
         monitor.ecDet.initButtons();
         app.initFCMenu();
     }
@@ -376,7 +377,7 @@ public class ECMon extends DetectorMonitor {
     public void readHipoFile() {        
         System.out.println(appname+".readHipoFile()");
         for (int idet=0; idet<3; idet++) {
-            String hipoFileName = app.hipoPath+mondet+idet+"_"+app.runNumber+".hipo";
+            String hipoFileName = app.hipoFilePath+mondet+idet+"_"+app.runNumber+".hipo";
             System.out.println("Reading Histograms from "+hipoFileName);
             ecPix[idet].initHistograms(hipoFileName);
           }
@@ -387,7 +388,7 @@ public class ECMon extends DetectorMonitor {
     public void writeHipoFile() {
         System.out.println(appname+".writeHipoFile()");
         for (int idet=0; idet<3; idet++) {
-            String hipoFileName = app.hipoPath+mondet+idet+"_"+app.runNumber+".hipo";
+            String hipoFileName = app.hipoFilePath+mondet+idet+"_"+app.runNumber+".hipo";
             System.out.println("Writing Histograms to "+hipoFileName);
             HipoFile histofile = new HipoFile(hipoFileName);
             histofile.addToMap("H2_a_Hist",    ecPix[idet].strips.hmap2.get("H2_a_Hist")); 
