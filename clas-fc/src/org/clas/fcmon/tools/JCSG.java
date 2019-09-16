@@ -13,29 +13,34 @@ import org.jlab.geom.prim.Point3D;
 
 public class JCSG {
     
-    ConstantProvider   cp1 = GeometryFactory.getConstants(DetectorType.ECAL,1,"default");
+//	String variation = "default";
+	String variation = "rga_fall2018";
+	
+    ConstantProvider   cp1 = GeometryFactory.getConstants(DetectorType.ECAL,1,variation); 
+    
     PCALGeant4Factory pcal = new PCALGeant4Factory(cp1);
     ECGeant4Factory   ecal = new   ECGeant4Factory(cp1);
     
-    ConstantProvider   cp2 = GeometryFactory.getConstants(DetectorType.ECAL,1,"default");    
+    ConstantProvider   cp2 = GeometryFactory.getConstants(DetectorType.ECAL,1,variation); 
     ECDetector    detector = new ECFactory().createDetectorCLAS(cp2);
     ECLayer        ecLayer = null;
     Point3D         point1 = new Point3D();
     
     String          name[] = {"PCAL","ECin","ECout"};
     int             isec[] = {1,1,1};
-    int             ilay[] = {3,3,3};
+    int             ilay[] = {1,1,1};
     int             istr[] = {59,28,28}; //Normal radius from target at {59,28,28}
 
     int[][]       vertices = {{4,0,5,1,7,3,6,2},{6,2,7,3,5,1,4,0},{4,0,5,1,7,3,6,2},  //JCSG vertices -> CJ vertices (PCAL)
                               {4,0,5,1,7,3,6,2},{6,2,7,3,5,1,4,0},{1,5,0,4,2,6,3,7},  //JCSG vertices -> CJ vertices (ECIN)
                               {4,0,5,1,7,3,6,2},{6,2,7,3,5,1,4,0},{1,5,0,4,2,6,3,7}}; //JCSG vertices -> CJ vertices (ECOU)
-                             //        U                V                 W
+                             //       U                 V                 W
     int                cal = 0;
     
     public JCSG() {        
     	G4Trap vol = new G4Trap("vol", 1,0,0,1,1,1,0,1,1,1,0);
         for(int i=0;i<8;i++) System.out.println(getP3D(vol.getVertex(i)));
+        System.out.println("\n"+"Variation "+variation);
         System.out.println("\n"+"/geometry/ec/ec/dist2tgt = "+cp2.getDouble("/geometry/ec/ec/dist2tgt",0)+" mm"+"\n");
         System.out.println("SECTOR "+isec[0]+" LAYER "+ilay[0]+ " PCAL STRIP "+istr[0]+" EC STRIP "+istr[1]+"\n");
         processVert();
