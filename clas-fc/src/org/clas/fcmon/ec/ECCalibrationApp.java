@@ -838,13 +838,13 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
                 
                 while (line != null) {
 
-                    String[] lineValues = line.trim().split("\\s+");
+                	String[] lineValues = line.trim().split("\\s+");
                     
                     is  = Integer.parseInt(lineValues[0]);
                     il  = Integer.parseInt(lineValues[1]);
                     ip  = Integer.parseInt(lineValues[2]);
                     
-                    if (calib.hasEntry(is,il,ip)&&doIDET[il>3?1:0]) {
+                    if (calib.hasEntry(is,il,ip)&&doIDET[getDet(il)-1]) {
                         double A = Double.parseDouble(lineValues[3]);
                         double C = Double.parseDouble(lineValues[7]);
                         if (A==0) A=1.0;
@@ -891,6 +891,9 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
         
         @Override
         public void analyze(int idet, int is1, int is2, int il1, int il2, int ip1, int ip2) {
+            
+        	String arg = idet+" "+is1+" "+is2+" "+il1+" "+il2+" "+ip1+" "+ip1;
+            System.out.println("ECCalibrationApp:ECAttenEventListener.analyze"+arg);
             
             TreeMap<Integer, Object> map;
             boolean doCalibration=false;
@@ -1060,7 +1063,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
                          int gsca = 1;
                          if (ilmap==0) gsca = 15;
                          if (ilmap>0)  gsca = (iss==5) ? 5:10;
-                         ccdbGAIN[ip]  = 1./(gain.getDoubleValue("gain",iss,sl,ip+1)*gsca);
+                         ccdbGAIN[ip]  = 1./(gain.getDoubleValue("gain",iss,sl,ip+1)*gsca); //2019: CLAS12ANA.ECmip
                          ccdbGAINe[ip] = gain.getDoubleValue("gainErr",iss,sl,ip+1)*gsca/(ccdbGAIN[ip]*ccdbGAIN[ip]);
                          ccdbAC[ip]= ccdbA[ip]+ccdbC[ip];
                          ccdbAe[ip]  = 0.;
@@ -1105,10 +1108,10 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
                      GStyle.getGraphErrorsAttributes().setMarkerColor(2);
                      GStyle.getGraphErrorsAttributes().setFillStyle(2);
                        
-                     ccdbAGraph.setTitleX(otab[ilmap][il-1])    ; ccdbAGraph.setTitleY("A")  ;
-                     ccdbBGraph.setTitleX(otab[ilmap][il-1])    ; ccdbBGraph.setTitleY("B")  ;
-                     ccdbCGraph.setTitleX(otab[ilmap][il-1])    ; ccdbCGraph.setTitleY("C")  ;
-                     ccdbGAINGraph.setTitleX(otab[ilmap][il-1]) ; ccdbGAINGraph.setTitleY("A+C")  ;
+                     ccdbAGraph.setTitleX(otab[ilmap][il-1])    ; ccdbAGraph.setTitleY("A")  ; //2019: ECmon
+                     ccdbBGraph.setTitleX(otab[ilmap][il-1])    ; ccdbBGraph.setTitleY("B")  ; //2019: ECmon
+                     ccdbCGraph.setTitleX(otab[ilmap][il-1])    ; ccdbCGraph.setTitleY("C")  ; //2019: ECmon
+                     ccdbGAINGraph.setTitleX(otab[ilmap][il-1]) ; ccdbGAINGraph.setTitleY("A+C")  ; //2019: CLAS12ANA.ECmip
                      
                      chi2Graph.setTitleX(otab[ilmap][il-1]) ;  
                      chi2Graph.setTitleY("REDUCED CHI^2"); 
@@ -1297,7 +1300,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
                     is  = Integer.parseInt(lineValues[0]);
                     il  = Integer.parseInt(lineValues[1]);
                     ip  = Integer.parseInt(lineValues[2]);
-                    if (calib.hasEntry(is,il,ip)&&doIDET[il>3?1:0]) {
+                    if (calib.hasEntry(is,il,ip)&&doIDET[getDet(il)-1]) {
                         double  gain = Double.parseDouble(lineValues[3]);
                         double gaine = Double.parseDouble(lineValues[4]);
                         calib.setDoubleValue(gain, "gain",   is,il,ip);
