@@ -48,7 +48,7 @@ public class ECMon extends DetectorMonitor {
     public static int        calRun = 4483;
     public static String  variation = "default";
     int                       detID = 0;
-    int                         is1 = 1;
+    int                         is1 = 6;
     int                         is2 = 7;  
     int    nsa,nsb,tet,p1,p2,pedref = 0;
     double               PCMon_zmin = 0;
@@ -287,7 +287,7 @@ public class ECMon extends DetectorMonitor {
       
         if (firstevent && app.getEventNumber()>2) {
         	System.out.println(appname+".dataEventAction: First Event");
-   	        initCCDB(app.run);
+   	        initCCDB(calRun);
    	        firstevent=false;
         }  
         
@@ -304,6 +304,8 @@ public class ECMon extends DetectorMonitor {
         	     de.removeBank("ECAL::clusters");
         	     de.removeBank("ECAL::calib");  
           }
+          ecEngine.setLogWeight(app.isWLOG);
+          ecEngine.setLogParam(app.wlogPar);
           ecEngine.processDataEvent(de);     
           ecEng.addEvent(de);
           if(app.doGain) ecGains.addEvent(de);

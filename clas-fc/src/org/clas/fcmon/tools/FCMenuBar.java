@@ -230,6 +230,7 @@ public class FCMenuBar extends JMenuBar  {
                 }
                 }); 
             menu.add(item4);
+
         }
         
         public void chooseUpdateInterval() {

@@ -121,6 +121,7 @@ public class MonitorApp extends JFrame implements ActionListener {
     public boolean  isTrigger = false;
     public boolean      isIPC = false;
     public boolean      isCRT = false;
+    public boolean     isWLOG = true;
     public boolean      doEng = false;
     public boolean     doGain = false;
     
@@ -129,6 +130,7 @@ public class MonitorApp extends JFrame implements ActionListener {
     public String       variation = "default";
     public String            geom = "2.5";
     public String          config = "muon";
+    public double         wlogPar = 4.0;
     public int            trigger = 1;        //0=cluster 1=pixel
     public int               omap = 0;
     public int                run = 0;
