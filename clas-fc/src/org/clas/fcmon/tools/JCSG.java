@@ -82,7 +82,9 @@ public class JCSG {
     private void printCJ(ScintillatorPaddle paddle) {
     	for(int j=0; j<8 ; j++) {
     		point1.copy(paddle.getVolumePoint(vertices[(ilay[cal]-1)+3*cal][j]));
-    		String r0 = String.format("%.4f",(float)Math.sqrt(point1.x()*point1.x()+point1.z()*point1.z()));
+            point1.rotateZ(Math.toRadians(-60*(isec[0]-1)));
+            point1.rotateY(Math.toRadians(-25)); 
+            String r0 = String.format("%.4f",(float)Math.sqrt(point1.x()*point1.x()+point1.z()*point1.z()));
     		String r1 = String.format("%.4f",(float)Math.sqrt(point1.x()*point1.x()+point1.y()*point1.y()+point1.z()*point1.z()));
     		System.out.println(point1+"    Rxz = "+r0+"    Rxyz = "+r1);	
     	}   	

@@ -58,10 +58,11 @@ public class ECEngineApp extends FCApplication implements ActionListener {
 //    HTCCReconstructionService engineHTCC = new HTCCReconstructionService();
     
     JTextField                  sf = new JTextField(4);  
+    JTextField                wlog = new JTextField(4);  
     JComboBox                   cb = null;
     JCheckBox             debugBtn = null;
     JCheckBox               engBtn = null;
-    JCheckBox               crtBtn = null;
+    JCheckBox              wlogBtn = null;
     JCheckBox              gainBtn = null;
     ButtonGroup                bG1 = null;
     List<TOFPaddle>     paddleList = null;
@@ -163,6 +164,10 @@ public class ECEngineApp extends FCApplication implements ActionListener {
        sf.setActionCommand("SF"); sf.addActionListener(this); sf.setText(app.geom);  
        buttonPane.add(sf); 
        
+       buttonPane.add(new JLabel("WLOG:"));
+       wlog.setActionCommand("WLOG"); wlog.addActionListener(this); wlog.setText(Double.toString(app.wlogPar));  
+       buttonPane.add(wlog); 
+       
        debugBtn = new JCheckBox("Debug");
        debugBtn.addItemListener(new ItemListener() {
            public void itemStateChanged(ItemEvent e) {
@@ -202,18 +207,18 @@ public class ECEngineApp extends FCApplication implements ActionListener {
        gainBtn.setSelected(false);
        buttonPane.add(gainBtn);
        
-       crtBtn = new JCheckBox("CRT");
-       crtBtn.addItemListener(new ItemListener() {
+       wlogBtn = new JCheckBox("WLOG");
+       wlogBtn.addItemListener(new ItemListener() {
            public void itemStateChanged(ItemEvent e) {
                if(e.getStateChange() == ItemEvent.SELECTED) {
-                   app.isCRT = true;
+                   app.isWLOG = true;
                } else {
-                   app.isCRT = false;
+                   app.isWLOG = false;
                };
            }
        });         
-       crtBtn.setSelected(false);
-       buttonPane.add(crtBtn);
+       wlogBtn.setSelected(false);
+       buttonPane.add(wlogBtn);
        
        return buttonPane;
        
@@ -223,7 +228,8 @@ public class ECEngineApp extends FCApplication implements ActionListener {
    public void actionPerformed(ActionEvent e) {
        if(e.getActionCommand().compareTo("SF")==0) app.geom = sf.getText();
        app.trigger = Integer.parseInt(bG1.getSelection().getActionCommand());
-   }      
+       if(e.getActionCommand().compareTo("WLOG")==0) app.wlogPar = Double.valueOf(wlog.getText());
+   }  
    
    private void createPopupMenu(){
        strips.popup = new JPopupMenu();

@@ -130,19 +130,20 @@ package org.clas.fcmon.tools;
 		public static void main(String[] args) {
 			short setdetsector = 1;
 			//PCal: 1, ECInner: 4, ECOuter: 7	
-			short setdetECallayer = 1;
 			short U = 0;
 			short V = 1;
 			short W = 2;
-			short setview = U;
-			byte setstripID = 62;
+			
+			short setdetECallayer = 1;
+			short         setview = U;
+			byte       setstripID = 1;
 			
 			newFactory fnew = new geometryTest().new newFactory();
 			oldFactory fold = new geometryTest().new oldFactory();
 			
 			short detECallayer = setdetECallayer;
-			short view = setview;
-			byte ECallayer = (byte) (detECallayer+view);
+			short         view = setview;
+			byte     ECallayer = (byte) (detECallayer+view);
 			
 			IndexedList<Double> CalConststore = new IndexedList<>(2);
 			
@@ -152,15 +153,16 @@ package org.clas.fcmon.tools;
 			if(ECallayer == 3) stripmax = 62;
 			
 			int strip = setstripID;
-				byte stripID = (byte) strip;
+			byte stripID = (byte) strip;
 				
-				float PMTedgextot = 0;
-				float PMTedgeytot = 0;
-				float PMTedgeztot = 0;
-				float noPMTedgextot = 0;
-				float noPMTedgeytot = 0;
-				float noPMTedgeztot = 0;
-				if(detECallayer != 1) // EC
+			float PMTedgextot = 0;
+			float PMTedgeytot = 0;
+			float PMTedgeztot = 0;
+			float noPMTedgextot = 0;
+			float noPMTedgeytot = 0;
+			float noPMTedgeztot = 0;
+			
+			if(detECallayer != 1) // EC
 				{
 					int a = 0;
 					{
@@ -221,9 +223,10 @@ package org.clas.fcmon.tools;
 						System.out.println(" ");											
 					}
 				}
+			
 				if(detECallayer == 1) // PCAL
 				{
-					int iv = W+1;
+					int iv = W+1; iv=1;
 					//fnew.getVertices(setdetsector,1,iv,1,3,5,7); //far end
 					//fnew.getVertices(setdetsector,1,iv,0,2,4,6); //readout end
 					fnew.getVertices(setdetsector,1,iv,1,0,2,3); //front face					
@@ -239,6 +242,7 @@ package org.clas.fcmon.tools;
 					point = fnew.ind.getItem(setdetsector,1,iv,strip).get(3);
 					System.out.println("3= "+point.x()+" "+point.y()+" "+point.z());
 					System.out.println(" ");
+					
 					point = fold.ind.getItem(setdetsector,1,iv,strip).get(0);
 					System.out.println("0= "+point.x()+" "+point.y()+" "+point.z());
 					point = fold.ind.getItem(setdetsector,1,iv,strip).get(1);
@@ -247,6 +251,7 @@ package org.clas.fcmon.tools;
 					System.out.println("5= "+point.x()+" "+point.y()+" "+point.z());
 					point = fold.ind.getItem(setdetsector,1,iv,strip).get(3);
 					System.out.println("1= "+point.x()+" "+point.y()+" "+point.z());
+					System.out.println(" ");											
 					
 					for(int a = 0; a <= 4; a++)
 					{

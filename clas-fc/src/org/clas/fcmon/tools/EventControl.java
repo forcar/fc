@@ -433,7 +433,7 @@ public class EventControl extends JPanel implements ActionListener, ChangeListen
     		
     	    if(evReader.hasEvent()) {
     	        
-    	        DataEvent event = evReader.getNextEvent();
+    	        DataEvent event = evReader.getNextEvent(); 
     	        currentEvent++;
     	        
 //    		    currentEvent    = evReader.getCurrentIndex();
