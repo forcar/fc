@@ -13,7 +13,7 @@ import javax.swing.JFrame;
 import javax.swing.JSplitPane;
 
 import org.clas.fcmon.tools.CalDrawDB;
-import org.clas.fcmon.tools.CalibrationData;
+import org.clas.fcmon.tools.CalibrationData_old;
 import org.clas.fcmon.tools.FCCalibrationData;
 import org.clas.fcmon.tools.Pixel;
 import org.clas.fcmon.tools.Pixels;
