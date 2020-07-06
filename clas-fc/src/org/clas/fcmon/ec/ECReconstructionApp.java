@@ -22,6 +22,9 @@ import org.jlab.utils.groups.IndexedList;
 import org.jlab.io.base.DataBank;
 import org.jlab.io.base.DataEvent;
 
+//clas12ana
+import org.clas.analysis.ECPart;
+
 public class ECReconstructionApp extends FCApplication {
     
    FADCFitter     fitter  = new FADCFitter(1,15);
@@ -147,7 +150,7 @@ public class ECReconstructionApp extends FCApplication {
                int  il = bank.getByte("layer",i);
                int  ip = bank.getShort("component",i);
                int adc = Math.abs(bank.getInt("ADC",i));
-               float t = bank.getFloat("time",i);               
+               float t = bank.getFloat("time",i)-(app.isMC?(tdcmax-offset+app.phaseCorrection*4):0);               
                int ped = bank.getShort("ped", i); 
                
                Float[] tdcc; float[] tdc; 
@@ -166,8 +169,7 @@ public class ECReconstructionApp extends FCApplication {
                
                sca = (float) ((is==5)?ecc.SCALE5[il-1]:ecc.SCALE[il-1]);
                if(app.isMC&&app.variation=="clas6") sca = 1;
-               float sadc = (float) (adc / sca);
-               
+               float sadc = (float) (adc / sca);               
                
                for (int ii=0 ; ii< 100 ; ii++) {
                    double wgt1=0; double wgt2=0;

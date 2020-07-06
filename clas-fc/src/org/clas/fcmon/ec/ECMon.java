@@ -48,7 +48,7 @@ public class ECMon extends DetectorMonitor {
     public static int        calRun = 4483;
     public static String  variation = "default";
     int                       detID = 0;
-    int                         is1 = 6;
+    int                         is1 = 1;
     int                         is2 = 7;  
     int    nsa,nsb,tet,p1,p2,pedref = 0;
     double               PCMon_zmin = 0;
@@ -219,6 +219,7 @@ public class ECMon extends DetectorMonitor {
     
     public void initEngine() {
         System.out.println(appname+".initEngine():Initializing ecEngine");
+        System.out.println("isMC: "+app.isMC);
         System.out.println("Configuration: "+app.config); 
         System.out.println("Variation: "+app.variation);
         System.out.println("SingleThreaded:"+ecEngine.isSingleThreaded);
@@ -284,20 +285,29 @@ public class ECMon extends DetectorMonitor {
 		ecGains.clearHistograms();
 		ecTrig.clearHistograms();
     } 
+    
+    public void dropBanks(DataEvent event) {    	
+        if(event.hasBank("ECAL::clusters")) event.removeBanks("ECAL::hits","ECAL::peaks","ECAL::clusters","ECAL::calib","ECAL::moments");
+        if(event.hasBank("ECAL::clusters")) event.removeBank("ECAL::clusters");
+        if(event.hasBank("ECAL::hits"))     event.removeBank("ECAL::hits");
+        if(event.hasBank("ECAL::peaks"))    event.removeBank("ECAL::peaks");
+        if(event.hasBank("ECAL::calib"))    event.removeBank("ECAL::calib");
+        if(event.hasBank("ECAL::moments"))  event.removeBank("ECAL::moments");  	
+    } 
 
     @Override
-    public void dataEventAction(DataEvent de) { 
-      
+    public void dataEventAction(DataEvent de) {
+    	
         if (firstevent && app.getEventNumber()>2) {
         	System.out.println(appname+".dataEventAction: First Event");
    	        initCCDB(calRun);
    	        firstevent=false;
         }  
         
-       ecRecon.addEvent(de);
-       ecTrig.addEvent(de);
+        ecRecon.addEvent(de);
+        ecTrig.addEvent(de);
       
-      if(app.doEng) {
+        if(app.doEng) {
           ecEngine.singleEvent = app.isSingleEvent() ; 
           ecEngine.debug       = app.debug; 
           ecEngine.isMC        = app.isMC;       
@@ -309,11 +319,13 @@ public class ECMon extends DetectorMonitor {
           }
           ecEngine.setLogWeight(app.isWLOG);
           ecEngine.setLogParam(app.wlogPar);
+          ecEngine.setClusterCuts(app.pcT, app.eciT, app.ecoT);
+          dropBanks(de);
           ecEngine.processDataEvent(de);     
           ecEng.addEvent(de);
           if(app.doGain) ecGains.addEvent(de);
           if(de instanceof EvioDataEvent&&saveFile) writer.writeEvent(de);
-      }
+        }
     }
 
 	@Override
