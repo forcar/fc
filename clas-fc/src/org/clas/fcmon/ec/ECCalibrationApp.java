@@ -6,9 +6,12 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -85,6 +88,8 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
     int selectedSector = 1;
     int selectedLayer = 1;
     int selectedPaddle = 1;
+    
+    boolean debug = false;
     
     Boolean[]   doIDET = {false,false,false};
     Boolean[] doSector = {false,false,false,false,false,false};
@@ -892,8 +897,8 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
         @Override
         public void analyze(int idet, int is1, int is2, int il1, int il2, int ip1, int ip2) {
             
-        	String arg = idet+" "+is1+" "+is2+" "+il1+" "+il2+" "+ip1+" "+ip1;
-            System.out.println("ECCalibrationApp:ECAttenEventListener.analyze"+arg);
+//        	String arg = idet+" "+is1+" "+is2+" "+il1+" "+il2+" "+ip1+" "+ip1;
+//            System.out.println("ECCalibrationApp:ECAttenEventListener.analyze"+arg);
             
             TreeMap<Integer, Object> map;
             boolean doCalibration=false;
@@ -1366,17 +1371,21 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
 
     }
     
-    private class ECStatusEventListener extends ECCalibrationEngine {
+    public class ECStatusEventListener extends ECCalibrationEngine {
         
         EmbeddedCanvasTabbed  ECStatus = new EmbeddedCanvasTabbed("Status");
         EmbeddedCanvas               c = new EmbeddedCanvas(); 
         
-        H1F h1a,h1t;
+        H1F h1af,h1a,h1t;
         double aYL,aYS,aYR,tYL,tYS,tYR;
-        public DetectorCollection<H2F> H2_STAT = new DetectorCollection<H2F>();
         
+        public DetectorCollection<H2F> H2_STAT = new DetectorCollection<H2F>();
+        DetectorCollection<Float>         asum = new DetectorCollection<Float>();
+        DetectorCollection<Float>         tsum = new DetectorCollection<Float>();
         IndexedTable        status = null; 
         
+        int is1,is2;
+       
         ECStatusEventListener(){};
         
         public void init(int is1, int is2){
@@ -1390,6 +1399,9 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
             setCalibPane();
             
             collection.clear();
+            
+            this.is1=is1;
+            this.is2=is2;   
             
             makeNewTable(is1,is2);
             initHistos(is1,is2);
@@ -1413,7 +1425,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
             
             calib = new CalibrationConstants(3,"status/I");
             calib.setName(names[STATUS]);
-            calib.setPrecision(3);
+//            calib.setPrecision(3);
             
             for (int i=0; i<9; i++) { 
                 calib.addConstraint(3,   0,   0, 1, i+1);
@@ -1447,27 +1459,45 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
         
         public double integral(H1F h, double xmin, double xmax) {
             
-            float[] histogramData = h.getData();
+            float[] histogramData = h.getData(); 
             Axis xAxis = h.getxAxis();
             double integral = 0.0;
-            for(int i = 0; i <= xAxis.getNBins(); i++){
-                if(xAxis.getBinCenter(i)>xmin&&xAxis.getBinCenter(i)<xmax) integral += histogramData[i];
+            for(int i = 0; i < xAxis.getNBins(); i++) {
+                if(xAxis.getBinCenter(i)>xmin && xAxis.getBinCenter(i)<xmax) integral += histogramData[i];
             }
             return integral;            
         }
         
-        public int getStatus() {   
+        public Integer getStatus() {   
             int t = app.trigger;  //0=cluster 1=pixel
-            aYL=integral(h1a,ecc.AL[t][0],ecc.AL[t][1]);
-            aYS=integral(h1a,ecc.AS[t][0],ecc.AS[t][1]);
-            aYR=integral(h1a,ecc.AR[t][0],ecc.AR[t][1]);
+            aYL=integral(h1af,ecc.AL[t][0],ecc.AL[t][1]);
+            aYS=integral(h1af,ecc.AS[t][0],ecc.AS[t][1]);
+            aYR=integral(h1af,ecc.AR[t][0],ecc.AR[t][1]);
             tYL=integral(h1t,ecc.TL[t][0],ecc.TL[t][1]);
             tYS=integral(h1t,ecc.TS[t][0],ecc.TS[t][1]);
             tYR=integral(h1t,ecc.TR[t][0],ecc.TR[t][1]);
-            if (badA())      return 1;  
+            
+            if (badAT())     return 3;  
             if (badT())      return 2;  
-            if (badAT())     return 3;
+            if (badA())      return 1;
             return 0;            
+        }
+        
+        public Integer getStatus(int is, int sl, int ip) {
+        	float Asum = asum.get(7, sl, ip), A = asum.get(is, sl, ip);
+        	float Tsum = tsum.get(7, sl, ip), T = tsum.get(is, sl, ip);
+        	System.out.println(is+" "+sl+" "+ip+" "+A+" "+Asum+" "+T+" "+Tsum);
+        	Boolean  badA = A==0 && T>0;
+            Boolean  badT = T==0 && A>0;
+            Boolean badAT = A==0 && T==0;
+        	Boolean sbadA = Math.abs(Asum-A)>5*Math.sqrt(Asum);
+        	Boolean sbadT = Math.abs(Tsum-T)>5*Math.sqrt(Tsum);
+        	if (badA && !badT) return 3;
+        	if (badT && !badA) return 2;
+        	if (badAT)         return 1;
+        	if (sbadA)         return 4;
+        	if (sbadT)         return 5;
+            return 0;
         }
         
         public double getBackground() {
@@ -1478,27 +1508,52 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
             switch (stat) 
             {
             case 0: return 0.0;  
-            case 1: return 0.85;  
-            case 2: return 0.20;  
-            case 3: return 0.65; 
+            case 1: return 0.0;  
+            case 2: return 0.0;  
+            case 3: return 0.1; 
+            case 4: return 0.7;
             case 5: return 0.9; 
             }
-        return 0;
+        return 0.48;
             
         }
         
-        public Boolean goodA() {return aYS>10;}
-        public Boolean badA()  {return (aYS<10)&&(tYS>10);}
-        public Boolean badT()  {return (tYS<10)&&(aYS>10);}
-        public Boolean badAT() {return (tYS<10)&&(aYS<10);}
-        public double  getLL() {return (goodA()) ? aYL/aYS:0.0;}
+        public Boolean goodA() {return aYS>10000;}
+        public Boolean goodT() {return tYS>200;}
+        public Boolean badA()  {return (aYS<10000)&&(tYS>200);}
+        public Boolean badT()  {return (tYS<200)&&(aYS>10000);}
+        public Boolean badAT() {return (tYS<200)&&(aYS<10000);}
+        public double  getLL() {return (goodT()) ? tYL/tYS:0.0;}
+       
         
         @Override
         public void analyze(int idet, int is1, int is2, int il1, int il2, int ip1, int ip2) {
             
-            DetectorCollection<H2F> dc2a = ecPix[idet].strips.hmap2.get("H2_Mode1_Hist"); 
-            DetectorCollection<H2F> dc2t = ecPix[idet].strips.hmap2.get("H2_t_Hist"); 
+            DetectorCollection<H2F> dc2af = ecPix[idet].strips.hmap2.get("H2_Mode1_Hist"); 
+            DetectorCollection<H2F> dc2a  = ecPix[idet].strips.hmap2.get("H2_a_Hist"); 
+            DetectorCollection<H2F> dc2t  = ecPix[idet].strips.hmap2.get("H2_t_Hist");
             
+            asum.clear(); tsum.clear();
+            
+            for (int il=1; il<4 ; il++) {
+        		int iptst = ecPix[idet].ec_nstr[il-1]+1;
+                int ipmax = ip2>iptst ? iptst:ip2;
+                int    sl = il+idet*3;  // Superlayer PCAL:1-3 ECinner: 4-6 ECouter: 7-9
+                for(int ip = 1; ip < ipmax; ip++) {
+                    float aint = 0, tint = 0; int acnt=0, tcnt=0;
+                	for (int is=is1; is<is2; is++) {
+                        asum.add(is,sl,ip,(float)dc2a.get(is,il,0).sliceY(ip-1).integral());
+                        tsum.add(is,sl,ip,(float)dc2t.get(is,il,0).sliceY(ip-1).integral());
+                        acnt+=(asum.get(is, sl, ip)>0?1:0);
+                        tcnt+=(tsum.get(is, sl, ip)>0?1:0);
+                		aint+=(asum.get(is, sl, ip)>0?asum.get(is, sl, ip):0);
+                		tint+=(tsum.get(is, sl, ip)>0?tsum.get(is, sl, ip):0); 
+                    }
+                    asum.add(7,sl,ip,aint/acnt);
+                    tsum.add(7,sl,ip,tint/tcnt);
+                }
+            }
+
             for(int is=is1; is<is2; is++) {
                 H2_STAT.get(is, 0, idet).reset(); H2_STAT.get(is, 1, idet).reset(); 
                 for (int il=1; il<4 ; il++) {
@@ -1506,9 +1561,10 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
                     int iptst = ecPix[idet].ec_nstr[il-1]+1;
                     int ipmax = ip2>iptst ? iptst:ip2;
                     for(int ip = 1; ip < ipmax; ip++) {
-                        h1a=dc2a.get(is,il,0).sliceY(ip-1);
-                        h1t=dc2t.get(is,il,0).sliceY(ip-1);
-                        int status = getStatus();
+                        h1af = dc2af.get(is,il,0).sliceY(ip-1);
+                        h1a  = dc2a.get(is,il,0).sliceY(ip-1);
+                        h1t  = dc2t.get(is,il,0).sliceY(ip-1);
+                        Integer status = getStatus(is,sl,ip);
                         calib.setIntValue(status,"status", is, sl, ip);   
                         H2_STAT.get(is, 0, idet).fill((float)ip, (float)il, getPlotStatus(status));
                         H2_STAT.get(is, 1, idet).fill((float)ip, (float)il, getBackground());
@@ -1516,7 +1572,8 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
                 }   
             }
           
-            calib.fireTableDataChanged();            
+            calib.fireTableDataChanged();  
+            writeFile(getFileName(app.runNumber),1,7,1,10); //because CalibrationConstants.write does not work for integer tables
         }
         
         @Override
@@ -1536,6 +1593,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
                     if(is==1) H2_STAT.get(is, 0, idet).setTitle(ecPix[idet].detName);
                     H2_STAT.get(is, 0, idet).setTitleX("SECTOR "+is);
                     c.getPad(n).getAxisZ().setRange(0.0, 1.0); 
+                    c.getPad(n).getAxisZ().setLog(false);
                     c.cd(n); c.draw(H2_STAT.get(is, 0, idet)); n++;                   
                 }
             }            
@@ -1563,9 +1621,42 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
         @Override
         public boolean isGoodPaddle(int sector, int layer, int paddle) {
             return (getTestChannel(sector,layer,paddle) == 0);
-        }         
+        }   
+        
+    	public void writeFile(String file, int is1, int is2, int il1, int il2) {
+    		
+    		String line = new String();
+    		int[] npmt = {68,62,62,36,36,36,36,36,36};    
+    		
+    		try { 
+    			File outputFile = new File(file);
+    			FileWriter outputFw = new FileWriter(outputFile.getAbsoluteFile());
+    			BufferedWriter outputBw = new BufferedWriter(outputFw);
+    			
+    			for (int is=is1; is<is2; is++) {
+    				for (int il=il1; il<il2; il++ ) {
+    					for (int ip=0; ip<npmt[il-1]; ip++) {
+    						    line = is+" "+il+" "+(ip+1)+" "+calib.getIntValue("status",is,il,ip+1);
+    						    System.out.println(line);
+    						    outputBw.write(line);
+    						    outputBw.newLine();
+    					}
+    				}
+    			}
+
+    			outputBw.close();
+    			outputFw.close();
+    		}
+    		catch(IOException ex) {
+    			System.out.println("Error writing file '" );                   
+    			ex.printStackTrace();
+    		}
+
+    	}
         
     }
+    
+
 /*
     private class ECTimingEventListener extends ECCalibrationEngine {
     	

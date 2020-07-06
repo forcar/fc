@@ -99,7 +99,7 @@ public class ECPixels {
     int[][] pthrZero = {{1,1,1},{1,1,1},{1,1,1}};
         
     double[] cerrMuon = {5.5,10.,10.};
-    double[] cerrPhot = {7,15.,20.};
+    double[] cerrPhot = {7.0,15.,20.};
     double[] cerrElec = {10.,10.,10.};
 //    double[] cerrElec = {100.,100.,100.};
     public double        amax[] = {250.,250.};
@@ -399,7 +399,7 @@ public class ECPixels {
                 H2_a_Hist.add(is, 4, 1, new H2F("a_reco_"+id+1, 50, 0., 3.5, 40, 0.15, 0.35));
                 H2_a_Hist.add(is, 4, 2, new H2F("a_reco_"+id+2, 50, 0., 1.0, 40, 0.15, 0.35));
                 H2_a_Hist.add(is, 4, 3, new H2F("a_reco_"+id+3, 50, 0., 1.0, 40, 0.15, 0.35));
-                H2_a_Hist.add(is, 4, 4, new H2F("a_reco_"+id+4, 40, 0., 20., 50, -1.0, 1.0));
+                H2_a_Hist.add(is, 4, 4, new H2F("a_reco_"+id+4, 50, -1.0, 1.0,40, 0., 20.));
                 
                 H1_a_Hist.add(is, 4, 0, new H1F("b_reco_"+id+0, 50, -300, 300.));
                 H1_a_Hist.add(is, 4, 1, new H1F("b_reco_"+id+1, 50, -2.0, 2.0));
@@ -417,7 +417,7 @@ public class ECPixels {
                 id="s"+Integer.toString(is)+"_l"+Integer.toString(7)+"_c";
 //              H2_a_Hist.add(is, 7, 0, new H2F("d_reco_"+id+0, 200, -600., 600., 200, -600., 600.));   
 //              H2_a_Hist.add(is, 7, 1, new H2F("d_reco_"+id+1, 200, -600., 600., 200, -600., 600.));                   
-                H2_a_Hist.add(is, 7, 2, new H2F("d_reco_"+id+2, 50, 0., 20., 50, 0., 5.0));   
+                H2_a_Hist.add(is, 7, 2, new H2F("d_reco_"+id+2, 120, 0., 20., 120, 0., 12.0));   
                 
                 id="s"+Integer.toString(is)+"_l"+Integer.toString(8)+"_c";                
                 H2_a_Hist.add(is, 8, 0, new H2F("f_reco_"+id+0, 50, -10., 10., 3, 1., 4.));                  
