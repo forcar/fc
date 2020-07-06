@@ -41,6 +41,7 @@ import org.jlab.groot.base.GStyle;
 //import org.jlab.detector.decode.CLASDecoder;
 //import org.jlab.detector.decode.CodaEventDecoder;
 import org.jlab.groot.graphics.EmbeddedCanvas;
+import org.jlab.io.base.DataEvent;
 //import org.jlab.io.hipo3.Hipo3DataSync;
 import org.jlab.io.hipo.HipoDataSync;
 import org.jlab.utils.groups.IndexedTable;
@@ -129,7 +130,9 @@ public class MonitorApp extends JFrame implements ActionListener {
     public String    HipoFileName = null;
     public boolean isHipoFileOpen = false;   
     public String       variation = "default";
-    public String            geom = "2.5";
+    public float             pcT =  7f;
+    public float            eciT = 15f;
+    public float            ecoT = 20f;
     public String          config = "muon";
     public double         wlogPar = 4.0;
     public int            trigger = 1;        //0=cluster 1=pixel
