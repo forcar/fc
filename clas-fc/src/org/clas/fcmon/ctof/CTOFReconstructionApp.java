@@ -370,7 +370,7 @@ public class CTOFReconstructionApp extends FCApplication {
              ctofPix[idet].strips.hmap2.get("H2_t_Hist").get(is,il,0).fill(tdc[ii],ip,1.0);
        }
        
-       ctofPix[idet].strips.hmap2.get("H2_a_Hist").get(is,il,1).fill(adc,tdc[ii],1.0);
+       if (tdc.length>1) ctofPix[idet].strips.hmap2.get("H2_a_Hist").get(is,il,1).fill(adc,tdc[ii],1.0);
           
        }
        

@@ -38,7 +38,10 @@ public class CTOFMon extends DetectorMonitor {
     double                 PCMon_zmin = 0;
     double                 PCMon_zmax = 0;
     boolean                firstevent = true;
-   
+    
+    static int                   fmax = 100; //fadc samples (4ns/sample)
+    static int                   tmax = 300; //tmax (ns)
+    
     String mondet                     = "CTOF";
     static String             appname = "CTOFMON";
 	
@@ -47,16 +50,16 @@ public class CTOFMon extends DetectorMonitor {
     public CTOFMon(String det) {
         super(appname, "1.0", "lcsmith");
         mondet = det;
-        ctofPix[0] = new CTOFPixels("CTOF");
+        ctofPix[0] = new CTOFPixels("CTOF",fmax,tmax);
     }
 
     public static void main(String[] args){		
-        String det = "CTOF";
-        CTOFMon monitor = new CTOFMon(det);	
+        String det = "CTOF";        
         if (args.length != 0) {
-            monitor.is1=Integer.parseInt(args[0]); 
-            monitor.is2=Integer.parseInt(args[1]);    
+        	fmax = Integer.parseInt(args[0]);
+        	tmax = Integer.parseInt(args[1]);   
          }
+        CTOFMon monitor = new CTOFMon(det);	
         app.setPluginClass(monitor);
         app.setAppName(appname);
         app.makeGUI();
