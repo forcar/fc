@@ -102,8 +102,8 @@ public class ECPixels {
     double[] cerrPhot = {7.0,15.,20.};
     double[] cerrElec = {10.,10.,10.};
 //    double[] cerrElec = {100.,100.,100.};
-    public double        amax[] = {250.,250.};
-    public double        tmax[] = {300.,300.};    
+    public double        amax[] = {250.,250.,40};
+    public double        tmax[] = {300.,300.,300.};    
     public int idet=0;
     public String detName = null;
 	
@@ -361,8 +361,9 @@ public class ECPixels {
                 id="s"+Integer.toString(is)+"_l"+Integer.toString(il)+"_c";
                 H2_a_Hist.add(is, il, 0, new H2F("a_raw_"+id+0, 125,   0., amax[0], nstr, 1., nend));
                 H2_a_Hist.add(is, il, 1, new H2F("b_pix_"+id+1, 125,   0., amax[0], nstr, 1., nend));
-                H2_a_Hist.add(is, il, 3, new H2F("b_raw_"+id+3, 80,    0., 40.,  nstr, 1., nend));
+                H2_a_Hist.add(is, il, 3, new H2F("b_raw_"+id+3, 80,    0., amax[2], nstr, 1., nend));
                 H2_a_Hist.add(is, il, 4, new H2F("a_raw_"+id+4, 100,   0., amax[1],  100, 0.,tmax[1]));
+                H2_a_Hist.add(is, il, 5, new H2F("a_raw_"+id+5, 100,   0., amax[2],  100, 0.,tmax[1]));
                 H2_t_Hist.add(is, il, 0, new H2F("a_raw_"+id+0, 100,   0., tmax[0], nstr, 1., nend));
                 H2_t_Hist.add(is, il, 1, new H2F("b_pix_"+id+1, 100,   0., tmax[0], nstr, 1., nend));
                 

@@ -27,7 +27,7 @@ public class ECMode1App extends FCApplication  {
    
    int is,la,ic,idet,nstr;
    int ics[][] = new int[3][10];
-   double amax=ecPix[idet].amax[1], tmax=ecPix[idet].tmax[1];
+   double amax=ecPix[idet].amax[1], amax2=ecPix[idet].amax[2], tmax=ecPix[idet].tmax[1];
    
    String  det[] = {" PCAL "," ECIN "," ECOU "};
    String otab[][]={{" U PMT "," V PMT "," W PMT "},
@@ -199,6 +199,8 @@ public class ECMode1App extends FCApplication  {
        for (int il=1; il<4; il++) {
            h2=dc2a.get(is,il,4); h2.setTitleY("Sector "+is+otab[idet][il-1]+" TDC") ; h2.setTitleX("Sector "+is+otab[idet][il-1]+" FADC");
            canvasConfig(c,il-1,0.,amax,0.,tmax,true).draw(h2);            
+           h2=dc2a.get(is,il,5); h2.setTitleY("Sector "+is+otab[idet][il-1]+" TDC") ; h2.setTitleX("Sector "+is+otab[idet][il-1]+" FADC");
+           canvasConfig(c,il-1+3,0.,amax2,0.,tmax,true).draw(h2);            
        }
        
        c.repaint();

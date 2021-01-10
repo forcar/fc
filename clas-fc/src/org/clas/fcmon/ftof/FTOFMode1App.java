@@ -172,12 +172,14 @@ public class FTOFMode1App extends FCApplication {
         
         H2F h2;
         
-        c = mode1.getCanvas("AvsT");  c.clear(); c.divide(2,1);       
+        c = mode1.getCanvas("AvsT");  c.clear(); c.divide(2,2);       
        
         for (int il=1; il<3; il++) {
             h2=dc2a.get(is,il,1); h2.setTitleY("Sector "+is+otab[il-1]+" TDC") ; h2.setTitleX("Sector "+is+otab[il-1]+" FADC");
             canvasConfig(c,il-1,0.,ftofPix[0].amax[idet],0.,ftofPix[0].tmax[idet],true).draw(h2);            
-        }
+            h2=dc2a.get(is,il,2); h2.setTitleY("Sector "+is+otab[il-1]+" TDC") ; h2.setTitleX("Sector "+is+otab[il-1]+" FADC");
+            canvasConfig(c,il-1+2,0.,ftofPix[0].amax[3],0.,ftofPix[0].tmax[3],true).draw(h2);            
+       }
         
         c.repaint();
         

@@ -35,12 +35,15 @@ public class FTOFMon extends DetectorMonitor {
        
     public int                 calRun = 12;
     int                         detID = 0;
-    int                           is1 = 1;    //All sectors: is1=1 is2=7  Single sector: is1=s is2=s+1
-    int                           is2 = 7; 
     int      nsa,nsb,tet,p1,p2,pedref = 0;
     double                 PCMon_zmin = 0;
     double                 PCMon_zmax = 0;
     boolean                firstevent = true;
+    
+    static int                    is1 = 1;    //All sectors: is1=1 is2=7  Single sector: is1=s is2=s+1
+    static int                    is2 = 7;       
+    static int                   fmax = 100; //fadc samples (4ns/sample)
+    static int                   tmax = 300; //tmax (ns)    
     
     String mondet                     = "FTOF";
     static String             appname = "FTOFMON";
@@ -59,9 +62,11 @@ public class FTOFMon extends DetectorMonitor {
         String det = "FTOF";
         FTOFMon monitor = new FTOFMon(det);	
         if (args.length != 0) {
-            monitor.is1=Integer.parseInt(args[0]); 
-            monitor.is2=Integer.parseInt(args[1]);    
-         }
+            is1=Integer.parseInt(args[0]); 
+            is2=Integer.parseInt(args[1]);    
+        	fmax = Integer.parseInt(args[2]);
+        	tmax = Integer.parseInt(args[3]); 	
+        }
         app.setPluginClass(monitor);
         app.setAppName(appname);
         app.makeGUI();
