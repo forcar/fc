@@ -32,13 +32,13 @@ public class CTOFMon extends DetectorMonitor {
        
     public int                 calRun = 12;
     int                         detID = 0;
-    int                           is1 = 1;    //All sectors: is1=1 is2=7  Single sector: is1=s is2=s+1
-    int                           is2 = 2; 
     int      nsa,nsb,tet,p1,p2,pedref = 0;
     double                 PCMon_zmin = 0;
     double                 PCMon_zmax = 0;
     boolean                firstevent = true;
     
+    static int                    is1 = 1;    //All sectors: is1=1 is2=7  Single sector: is1=s is2=s+1
+    static int                    is2 = 2; 
     static int                   fmax = 100; //fadc samples (4ns/sample)
     static int                   tmax = 300; //tmax (ns)
     
