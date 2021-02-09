@@ -249,7 +249,7 @@ public class EventControl extends JPanel implements ActionListener, ChangeListen
     	    	
         if(e.getActionCommand().compareTo("<")==0){
             isSingleEvent = true;
-            if(evReader.hasEvent()){
+            if(evReader.hasEvent()){ 
 //                currentEvent = evReader.getCurrentIndex();
                 DataEvent event = null;
                 if(currentEvent>=2){                    
@@ -433,7 +433,7 @@ public class EventControl extends JPanel implements ActionListener, ChangeListen
     		
     	    if(evReader.hasEvent()) {
     	        
-    	        DataEvent event = evReader.getNextEvent(); 
+    	        DataEvent event = evReader.getNextEvent();
     	        currentEvent++;
     	        
 //    		    currentEvent    = evReader.getCurrentIndex();
