@@ -8,23 +8,19 @@ import org.jlab.geom.base.ConstantProvider;
 import org.jlab.geom.component.ScintillatorPaddle;
 import org.jlab.geom.detector.ec.ECDetector;
 import org.jlab.geom.detector.ec.ECFactory;
-import org.jlab.geom.detector.ec.ECLayer;
 import org.jlab.geom.prim.Point3D;
 
 public class JCSG {
     
-//	String variation = "default";
-	String variation = "rga_fall2018";
+	String variation = "default";
+//	String variation = "rga_fall2018";
 	
-    ConstantProvider   cp1 = GeometryFactory.getConstants(DetectorType.ECAL,1,variation); 
-    
+    ConstantProvider   cp1 = GeometryFactory.getConstants(DetectorType.ECAL,1,variation);     
     PCALGeant4Factory pcal = new PCALGeant4Factory(cp1);
     ECGeant4Factory   ecal = new   ECGeant4Factory(cp1);
     
     ConstantProvider   cp2 = GeometryFactory.getConstants(DetectorType.ECAL,1,variation); 
     ECDetector    detector = new ECFactory().createDetectorCLAS(cp2);
-    ECLayer        ecLayer = null;
-    Point3D         point1 = new Point3D();
     
     String          name[] = {"PCAL","ECin","ECout"};
     int             isec[] = {1,1,1};
@@ -35,7 +31,7 @@ public class JCSG {
                               {4,0,5,1,7,3,6,2},{6,2,7,3,5,1,4,0},{1,5,0,4,2,6,3,7},  //JCSG vertices -> CJ vertices (ECIN)
                               {4,0,5,1,7,3,6,2},{6,2,7,3,5,1,4,0},{1,5,0,4,2,6,3,7}}; //JCSG vertices -> CJ vertices (ECOU)
                              //       U                 V                 W
-    int                cal = 0;
+    int cal = 0;
     
     public JCSG() {        
     	G4Trap vol = new G4Trap("vol", 1,0,0,1,1,1,0,1,1,1,0);
@@ -69,24 +65,27 @@ public class JCSG {
     }
     
     private void printJCSG(G4Trap vol) {
+    	Point3D point;
         for(int i=0;i<8;i++) {
-            double x = vol.getVertex(i).x;
-            double y = vol.getVertex(i).y;
-            double z = vol.getVertex(i).z;
-            String r0 = String.format("%.4f",(float)Math.sqrt(x*x+z*z));
-            String r1 = String.format("%.4f",(float)Math.sqrt(x*x+y*y+z*z));
-            System.out.println(getP3D(vol.getVertex(i))+"    Rxz = "+r0+"    Rxyz = "+r1); 
+        	point = getP3D(vol.getVertex(i));
+            point.rotateZ(Math.toRadians(-60*(isec[0]-1)));
+            point.rotateY(Math.toRadians(-25)); 
+            String r0 = String.format("%.4f",(float)Math.sqrt(point.x()*point.x()+point.z()*point.z()));
+    		String r1 = String.format("%.4f",(float)Math.sqrt(point.x()*point.x()+point.y()*point.y()+point.z()*point.z()));
+            System.out.println(point+"    Rxz = "+r0+"    Rxyz = "+r1); 
         }    	
     }
     
     private void printCJ(ScintillatorPaddle paddle) {
+    	Point3D point = new Point3D();
     	for(int j=0; j<8 ; j++) {
-    		point1.copy(paddle.getVolumePoint(vertices[(ilay[cal]-1)+3*cal][j]));
-            point1.rotateZ(Math.toRadians(-60*(isec[0]-1)));
-            point1.rotateY(Math.toRadians(-25)); 
-            String r0 = String.format("%.4f",(float)Math.sqrt(point1.x()*point1.x()+point1.z()*point1.z()));
-    		String r1 = String.format("%.4f",(float)Math.sqrt(point1.x()*point1.x()+point1.y()*point1.y()+point1.z()*point1.z()));
-    		System.out.println(point1+"    Rxz = "+r0+"    Rxyz = "+r1);	
+    		int il = ilay[cal]>3?ilay[cal]-4:ilay[cal]-1;
+    		point.copy(paddle.getVolumePoint(vertices[il+3*cal][j]));
+            point.rotateZ(Math.toRadians(-60*(isec[0]-1)));
+            point.rotateY(Math.toRadians(-25)); 
+            String r0 = String.format("%.4f",(float)Math.sqrt(point.x()*point.x()+point.z()*point.z()));
+    		String r1 = String.format("%.4f",(float)Math.sqrt(point.x()*point.x()+point.y()*point.y()+point.z()*point.z()));
+    		System.out.println(point+"    Rxz = "+r0+"    Rxyz = "+r1);	
     	}   	
     }
     
