@@ -29,6 +29,7 @@ public class CTOFMode1App extends FCApplication {
     String otab[]={" UP PMT "," DOWN PMT "};
     double tlo = ctofPix[0].tlim[0];
     double thi = ctofPix[0].tlim[1];
+    double fhi = ctofPix[0].fmax;
     
     public CTOFMode1App(String name, CTOFPixels[] ctofPix) {
         super(name,ctofPix);    
@@ -85,9 +86,9 @@ public class CTOFMode1App extends FCApplication {
         if (app.mode7Emulation.User_tet>0)  tet=app.mode7Emulation.User_tet;
         if (app.mode7Emulation.User_tet==0) tet=app.mode7Emulation.CCDB_tet;
         
-        F1D f1 = new F1D("p0","[a]",0.,100.); f1.setParameter(0,tet);
+        F1D f1 = new F1D("p0","[a]",0.,fhi); f1.setParameter(0,tet);
         f1.setLineColor(2);
-        F1D f2 = new F1D("p0","[a]",0.,100.); f2.setParameter(0,app.mode7Emulation.CCDB_tet);
+        F1D f2 = new F1D("p0","[a]",0.,fhi); f2.setParameter(0,app.mode7Emulation.CCDB_tet);
         f2.setLineColor(4);f2.setLineStyle(2);
 
         H1F h ; 
@@ -97,7 +98,7 @@ public class CTOFMode1App extends FCApplication {
         for(int ip=min;ip<max;ip++){
             c.cd(ip-min); 
             c.getPad(ip-min).setOptStat(Integer.parseInt("0"));
-            c.getPad(ip-min).getAxisX().setRange(0.,100.);
+            c.getPad(ip-min).getAxisX().setRange(0.,fhi);
             c.getPad(ip-min).getAxisY().setRange(-20.,2000*app.displayControl.pixMax);
             h = ctofPix[idet].strips.hmap2.get("H2_a_Sevd").get(is,lr,0).sliceY(ip);            
             h.setTitleX("Sector "+is+otab[lr-1]+(ip+1)+" (4 ns/ch)"); h.setTitleY("Counts"); h.setTitle(" ");
@@ -117,8 +118,8 @@ public class CTOFMode1App extends FCApplication {
         
         H1F h1; H2F h2;
         
-        F1D f1 = new F1D("p0","[a]",0.,100.); 
-        F1D f2 = new F1D("p0","[a]",0.,100.); 
+        F1D f1 = new F1D("p0","[a]",0.,fhi); 
+        F1D f2 = new F1D("p0","[a]",0.,fhi); 
         f1.setParameter(0,ic+1); f1.setLineWidth(1); f1.setLineColor(0);
         f2.setParameter(0,ic+2); f2.setLineWidth(1); f2.setLineColor(0);
                
@@ -126,7 +127,7 @@ public class CTOFMode1App extends FCApplication {
             
         for (int il=1; il<3 ; il++) {
             h2 = dc2a.get(is,il,5); h2.setTitleY("Sector "+is+otab[il-1]) ; h2.setTitleX("SAMPLES (4 ns/ch)");
-            canvasConfig(c,il-1,0.,100.,1.,nstr+1.,true).draw(h2);
+            canvasConfig(c,il-1,0.,fhi,1.,nstr+1.,true).draw(h2);
             if (lr==il) {c.draw(f1,"same"); c.draw(f2,"same");}
             h1 = dc2a.get(is,il,5).sliceY(ic); h1.setOptStat(Integer.parseInt("10"));
             h1.setTitleX("Sector "+is+otab[il-1]+(ic+1)+" (4 ns/ch)"); h1.setFillColor(0);

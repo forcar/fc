@@ -453,6 +453,7 @@ public class ECReconstructionApp extends FCApplication {
            ecPix[idet].strips.hmap2.get("H2_t_Hist").get(is,il,0).fill(tdc[ii],ip,1.);
            ecPix[idet].strips.hmap2.get("H2_PCt_Stat").get(is,0,0).fill(ip,il,1.);
            ecPix[idet].strips.hmap2.get("H2_PCt_Stat").get(is,0,1).fill(ip,il,tdc[ii]);
+           if(adc>0) ecPix[idet].strips.hmap2.get("H2_a_Hist").get(is,il,5).fill(adc,tdc[ii],1.0);   
        }
        
        ecPix[idet].strips.hmap2.get("H2_a_Hist").get(is,il,4).fill(adc,tdc[ii],1.0);   

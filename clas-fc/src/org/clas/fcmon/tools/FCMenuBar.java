@@ -317,12 +317,12 @@ public class FCMenuBar extends JMenuBar  {
 		        "FTxHDx(FTOFxPCAL)^2","FTxHD>100","FT>100","","","",
 		        "1K Pulser"};
         
-//RGB
+//RGB        
         String TriggerDef[] = { "Electron OR",
-		        "Electron S1","Electron S2","Electron S3","Electron S4","Electron S5","Electron S6",
-		        "FTOFxPCALxECALxDC(1-4)","FTOFxPCALxECALxDC(2-5)","FTOFxPCALxECALxDC(3-6)",
-		        "Electron OR no DC","","","","","","","","","","","","","","","","","","","","",
-		        "1K Pulser"};       
+		        "e Sector 1","e Sector 2","e Sector 3","e Sector 4","e Sector 5","e Sector 6",
+		        "Muons S1+ S4-","Muons S2+ S5-","Muons S3+ S6-",
+		        "Muons S4+ S1-","Muons S5+ S2-","Muons S6+ S3-","","","","","","","","","","","","","","","","","","",
+		        "1K Pulser"};          
         
         public JMenu getMenu() {
         	    return menu;
