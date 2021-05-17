@@ -317,9 +317,6 @@ public class ECReconstructionApp extends FCApplication {
       if (ecPix.length>1)  {detlen=det.length; clear(0); clear(1); clear(2);} 
       if (ecPix.length==1) {detlen=1;          clear(0);}
       
-//      System.out.println(" ");
-      
-      
       for (int idet=0; idet<detlen; idet++) {
           
           double fac = (app.isCRT==true) ? 6.6:1; // For pre-installation PCAL CRT runs
@@ -377,7 +374,7 @@ public class ECReconstructionApp extends FCApplication {
               }
           }
       }  
-      //System.out.println(" ");
+
    }
    
    public void clear(int idet) {

@@ -19,6 +19,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import org.clas.fcmon.detector.view.DetectorPane2D;
+import org.jlab.io.base.DataBank;
 import org.jlab.io.base.DataEvent;
 import org.jlab.io.base.DataSource;
 import org.jlab.io.evio.EvioDataEvent;
@@ -339,6 +340,11 @@ public class EventControl extends JPanel implements ActionListener, ChangeListen
         }   	
     }
     
+    private int getEventNumber(DataEvent event) {
+        DataBank bank = event.getBank("RUN::config");
+        return (bank!=null) ? bank.getInt("event", 0): 0;
+    }
+    
     private void processNextEvent() {	
     	if (!isRunning) return;
     	
@@ -434,6 +440,7 @@ public class EventControl extends JPanel implements ActionListener, ChangeListen
     	    if(evReader.hasEvent()) {
     	        
     	        DataEvent event = evReader.getNextEvent();
+    	        int evno = getEventNumber(event);
     	        currentEvent++;
     	        
 //    		    currentEvent    = evReader.getCurrentIndex();
@@ -442,10 +449,10 @@ public class EventControl extends JPanel implements ActionListener, ChangeListen
                     monitoringClass.analyze();    
                 }
             
-    		    int nevents = evReader.getSize();  
+    		    int nevents = evReader.getSize(); 
                 if(currentEvent>100&&currentEvent%5000==0) monitoringClass.analyze();
             
-    		    this.statusLabel.setText("   EVENTS IN FILE : " + nevents + "  CURRENT : " + currentEvent);
+    		    this.statusLabel.setText("   EVENTS: " + nevents + "  EV: " +currentEvent+" EVn:"+evno);
         
     		    try {
                     Thread.sleep(threadDelay);

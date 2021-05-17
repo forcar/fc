@@ -41,7 +41,6 @@ public class ECMon extends DetectorMonitor {
     ECHvApp                    ecHv = null;  
     ECTriggerApp             ecTrig = null;
     
-    ECEngine               ecEngine = null;
     EvioDataSync             writer = null;
     Boolean                saveFile = false;
    
@@ -123,8 +122,6 @@ public class ECMon extends DetectorMonitor {
     
     public void makeApps()  {
         System.out.println(appname+".makeApps()");   
-        
-        ecEngine   = new ECEngine();
         
         ecRecon = new ECReconstructionApp("ECREC",ecPix);        
         ecRecon.setMonitoringClass(this);
@@ -217,42 +214,15 @@ public class ECMon extends DetectorMonitor {
         for (int i=0; i<ecPix.length; i++)   ecPix[i].getLmapMinMax(0,1,0,0); 
     }
     
-    public void initEngine() {
-        System.out.println(appname+".initEngine():Initializing ecEngine");
-        System.out.println("isMC: "+app.isMC);
-        System.out.println("Configuration: "+app.config); 
-        System.out.println("Variation: "+app.variation);
-        System.out.println("SingleThreaded:"+ecEngine.isSingleThreaded);
-        
-        if(saveFile) {
-            writer = new EvioDataSync();
-            writer.open("/Users/colesmith/ECMON/EVIO/test.evio");
-        }
-
-        ecEngine.isSingleThreaded = true;
-        
-        ecEngine.init();
-        ecEngine.isMC = app.isMC;
-        ecEngine.setVariation(app.variation);
-       
-        ecEngine.setStripThresholds(ecPix[0].getStripThr(app.config, 1),
-                                    ecPix[1].getStripThr(app.config, 1),
-                                    ecPix[2].getStripThr(app.config, 1));  
-        ecEngine.setPeakThresholds(ecPix[0].getPeakThr(app.config, 1),
-                                   ecPix[1].getPeakThr(app.config, 1),
-                                   ecPix[2].getPeakThr(app.config, 1));  
-        ecEngine.setClusterCuts(ecPix[0].getClusterErr(app.config),
-                                ecPix[1].getClusterErr(app.config),
-                                ecPix[2].getClusterErr(app.config));
-        putGlob("ecEng",ecEngine.getHist());
-        
-    }
-    
     public void initEpics(Boolean doEpics) {
         System.out.println(appname+".initScalers():Initializing EPICS Channel Access");
         if (app.xMsgHost=="localhost") {ecHv.online=false ; ecScalers.online=false;}
         if ( doEpics) {ecHv.startEPICS(); ecScalers.startEPICS();}
         if (!doEpics) {ecHv.stopEPICS();  ecScalers.stopEPICS();}
+    }
+    
+    public void initEngine() {
+    	
     }
 	
     public void initGlob() {
@@ -308,20 +278,18 @@ public class ECMon extends DetectorMonitor {
         ecTrig.addEvent(de);
       
         if(app.doEng) {
-          ecEngine.singleEvent = app.isSingleEvent() ; 
-          ecEngine.debug       = app.debug; 
-          ecEngine.isMC        = app.isMC;       
+          ecEng.ecEngine.singleEvent = app.isSingleEvent() ; 
+          ecEng.ecEngine.debug       = app.debug; 
+          ecEng.ecEngine.setDebugSplit(app.debug);
+          ecEng.ecEngine.isMC        = app.isMC;       
           if(de.hasBank("ECAL::hits")) {
         	     de.removeBank("ECAL::hits");
         	     de.removeBank("ECAL::peaks");
         	     de.removeBank("ECAL::clusters");
         	     de.removeBank("ECAL::calib");  
           }
-          ecEngine.setLogWeight(app.isWLOG);
-          ecEngine.setLogParam(app.wlogPar);
-          ecEngine.setClusterCuts(app.pcT, app.eciT, app.ecoT);
           dropBanks(de);
-          ecEngine.processDataEvent(de);     
+          ecEng.ecEngine.processDataEvent(de);     
           ecEng.addEvent(de);
           if(app.doGain) ecGains.addEvent(de);
           if(de instanceof EvioDataEvent && saveFile) writer.writeEvent(de);
@@ -340,7 +308,7 @@ public class ECMon extends DetectorMonitor {
 			    for (int idet=0; idet<ecPix.length; idet++) ecRecon.makeMaps(idet);
 		        System.out.println("End of run");
 				ecCalib.analyzeAllEngines(is1,is2,1,4);			
-				if (app.doEng&&app.doGain) ecGains.analyze();
+				if (app.doEng && app.doGain) ecGains.analyze();
 		        app.setInProcess(3); 
 		}
 	}
@@ -438,7 +406,7 @@ public class ECMon extends DetectorMonitor {
 
     @Override
     public void go() {
-        app.displayControl.setFPS(10);
+        app.displayControl.setFPS(1);
         
     }	
 

@@ -56,7 +56,7 @@ public class ECPart  {
     public double[] x = new double[2];
     public double[] y = new double[2];
     public double[] distance1 = new double[2];
-    public double[] distance2 = new double[2];
+    public double[] distance2 = new double[2]; 
     public double mpi0 = 0.1349764;
     public double melec = 0.000511;
     public String geom = "2.4";

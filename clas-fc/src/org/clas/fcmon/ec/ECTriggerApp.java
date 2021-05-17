@@ -250,7 +250,6 @@ public class ECTriggerApp extends FCApplication{
      }
      
      public void clearHistograms() {
-         System.out.println("ECTriggerApp:clearHistograms():");        
          createHistos();
      }
      

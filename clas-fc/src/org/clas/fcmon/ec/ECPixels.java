@@ -344,6 +344,8 @@ public class ECPixels {
         DetectorCollection<H1F> H1_Strt_Sevd  = new DetectorCollection<H1F>();
         DetectorCollection<H1F> H1_Pixa_Sevd  = new DetectorCollection<H1F>();
         DetectorCollection<H1F> H1_Pixt_Sevd  = new DetectorCollection<H1F>();
+        DetectorCollection<H1F> H1_Clus_Mult  = new DetectorCollection<H1F>();
+        DetectorCollection<H2F> H2_Clus_Mult  = new DetectorCollection<H2F>();
         
         String id;
         int nstr = ec_nstr[0]            ; double nend = nstr+1;  
@@ -503,7 +505,12 @@ public class ECPixels {
                 H2_PCt_Stat.add(is, 0, 3, new H2F("a_pix_"+id+3,   50,-1.,    1,  3, 1., 4.));                       
                 H2_PCt_Stat.add(is, 0, 4, new H2F("b_pix_"+id+4,   50, 0.,  1.1,  4, 0., 4.));                       
                 H2_PC_Stat.add(is, 0, 3, new H2F("a_pix_"+id+3,   50,-1.,    1,  3, 1., 4.));                       
-                H2_PC_Stat.add(is, 0, 4, new H2F("b_pix_"+id+4,   50, 0.,  1.1,  4, 0., 4.));                       
+                H2_PC_Stat.add(is, 0, 4, new H2F("b_pix_"+id+4,   50, 0.,  1.1,  4, 0., 4.)); 
+                
+                H1_Clus_Mult.add(is, 0, 0, new H1F("a_clus_"+id+0, 12, 0, 12));         
+                H2_Clus_Mult.add(is, 0, 0, new H2F("b_clus_"+id+0, 12, 0, 12,  4, 0,  4));   
+                H2_Clus_Mult.add(is, 0, 1, new H2F("c_clus_"+id+0, 50, 0,  5, 10, 0, 10));
+               
         }
         
         if(!hipoFile.equals(" ")){
@@ -537,6 +544,8 @@ public class ECPixels {
         strips.addH2DMap("H2_Tdif_Hist", H2_Tdif_Hist);
         strips.addH2DMap("H2_Mode1_Hist",H2_Mode1_Hist);
         strips.addH2DMap("H2_Mode1_Sevd",H2_Mode1_Sevd);
+        strips.addH1DMap("H1_Clus_Mult", H1_Clus_Mult);
+        strips.addH2DMap("H2_Clus_Mult", H2_Clus_Mult);
    
     }	
 

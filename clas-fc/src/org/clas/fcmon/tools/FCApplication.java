@@ -157,6 +157,10 @@ public class FCApplication implements ActionListener  {
         this.addCanvas(name);
     }
     
+    public void initHist() {
+    	
+    }
+    
     public void addEvent(DataEvent event) {
     	
     	// globals set here must go to app.* since this is called only in ReconstructionApp

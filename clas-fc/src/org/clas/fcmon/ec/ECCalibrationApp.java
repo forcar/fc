@@ -66,7 +66,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
     JButton                    tableRead = null;
     JButton                       hvSave = null;
     ConstantsManager                ccdb = new ConstantsManager();
-    ArrayList<CalibrationConstants> list = new ArrayList<CalibrationConstants>();
+    ArrayList<CalibrationConstants> list = new ArrayList<CalibrationConstants>(); 
     ECConstants                      ecc = new ECConstants();
 
     public ECCalibrationEngine[] engines = {

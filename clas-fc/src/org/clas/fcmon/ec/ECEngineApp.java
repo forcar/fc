@@ -9,6 +9,7 @@ import java.awt.event.ItemListener;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultComboBoxModel;
@@ -27,26 +28,34 @@ import org.clas.fcmon.detector.view.DetectorShape2D;
 import org.clas.fcmon.detector.view.EmbeddedCanvasTabbed;
 import org.clas.fcmon.tools.FCApplication;
 import org.jlab.clas.detector.CalorimeterResponse;
+import org.jlab.clas.detector.DetectorParticle;
 import org.jlab.clas.detector.DetectorResponse;
+import org.jlab.clas.physics.Particle;
+import org.jlab.clas.physics.Vector3;
 import org.jlab.detector.base.DetectorCollection;
 import org.jlab.detector.base.DetectorDescriptor;
 import org.jlab.detector.base.DetectorType;
 import org.jlab.geom.prim.Line3D;
 import org.jlab.geom.prim.Point3D;
+import org.jlab.geom.prim.Vector3D;
 import org.jlab.groot.graphics.EmbeddedCanvas;
 import org.jlab.groot.math.F1D;
 import org.jlab.io.base.DataBank;
 import org.jlab.io.base.DataEvent;
+import org.jlab.io.evio.EvioDataSync;
 import org.jlab.rec.eb.EBCCDBConstants;
+import org.jlab.rec.eb.SamplingFractions;
 import org.jlab.service.eb.EBEngine;
 import org.jlab.service.eb.EventBuilder;
+import org.jlab.service.ec.ECEngine;
+import org.jlab.utils.groups.IndexedList;
 import org.jlab.groot.data.H1F;
 import org.jlab.groot.data.H2F; 
 import org.clas.fcmon.ftof.DataProvider;
 import org.clas.fcmon.ftof.TOFPaddle;
+import org.jlab.utils.groups.IndexedList.IndexGenerator;
 
-//import org.clas.analysis.ECPart;
-import org.clas.tools.EBMC;
+import org.clas.tools.EBMCEngine;
 
 public class ECEngineApp extends FCApplication implements ActionListener {
 
@@ -70,19 +79,21 @@ public class ECEngineApp extends FCApplication implements ActionListener {
     JCheckBox              gainBtn = null;
     ButtonGroup                bG1 = null;
     List<TOFPaddle>     paddleList = null;
- 
-//    EBEngine                       ebe = new EBEngine("ECMON");
-//    EventBuilder                    eb = null;
-//    List<DetectorResponse> ecClusters  = null;
-//    ECPart                        part = new ECPart();  
     
-    EBMC eb  = new EBMC();
+    ECEngine               ecEngine = new ECEngine();
+    EBMCEngine eb                   = new EBMCEngine();
+    
+	List<Float>                GEN = new ArrayList<Float>();
+	List<Float>                REC = new ArrayList<Float>();  
     
     List<List<DetectorResponse>>   res = new ArrayList<List<DetectorResponse>>();    
-    
+	List<DetectorParticle>          np = new ArrayList<DetectorParticle>();    
+	
     DetectorType[] detNames = {DetectorType.ECAL, DetectorType.ECIN, DetectorType.ECOUT};
     double pcx,pcy,pcz;
     double refE=0,refP=0,refTH=15;
+    
+    H2F eff;
 
    public ECEngineApp(String name, ECPixels[] ecPix) {
       super(name,ecPix);
@@ -91,10 +102,45 @@ public class ECEngineApp extends FCApplication implements ActionListener {
       is1 = ECConstants.IS1;
       is2 = ECConstants.IS2;
       eb.getCCDB(10);
-      
-//	  ebe.init();
-//      eb = new EventBuilder(new EBCCDBConstants(10,ebe.getConstantsManager()));    	
-//      engineHTCC.init();
+      eb.setMCpid(22); 
+      eb.setGeom("2.5");  
+      initHist();
+   }
+   
+   public void initHist() {
+	   eff = new H2F("Efficiency", 50, 0,  5, 10, 0, 10);  
+   }
+   
+   
+   public void initEngine() {
+       System.out.println(getName()+".initEngine():Initializing ecEngine");
+       System.out.println("isMC: "+app.isMC);
+       System.out.println("Configuration: "+app.config); 
+       System.out.println("Variation: "+app.variation);
+       System.out.println("SingleThreaded:"+ecEngine.isSingleThreaded);
+       
+//       if(saveFile) {
+//           writer = new EvioDataSync();
+//           writer.open("/Users/colesmith/ECMON/EVIO/test.evio");
+//       }
+
+       ecEngine.isSingleThreaded = true;       
+       ecEngine.isMC = app.isMC;       
+       ecEngine.setVariation(app.variation);
+       ecEngine.init();
+       initEngineThresh();      
+   }
+   
+   public void initEngineThresh() {
+       ecEngine.setStripThresholds(ecPix[0].getStripThr(app.config, 1),
+                                   ecPix[1].getStripThr(app.config, 1),
+                                   ecPix[2].getStripThr(app.config, 1));  
+       ecEngine.setPeakThresholds(ecPix[0].getPeakThr(app.config, 1),
+                                  ecPix[1].getPeakThr(app.config, 1),
+                                  ecPix[2].getPeakThr(app.config, 1));  
+       ecEngine.setClusterCuts(ecPix[0].getClusterErr(app.config),
+                               ecPix[1].getClusterErr(app.config),
+                               ecPix[2].getClusterErr(app.config));	   
    }
    
    public JPanel getPanel() {        
@@ -103,7 +149,7 @@ public class ECEngineApp extends FCApplication implements ActionListener {
        engineView.add(getButtonPane(),BorderLayout.PAGE_END);
        strips.addCanvas("Ns");
        peaks.addCanvas("Np");
-       clusters.addCanvas("Nc");
+       clusters.addCanvas("Nc"); clusters.addCanvas("Eff");
        mc.addCanvas("Resid");
        mc.addCanvas("SF");
        mc.addCanvas("PI0");
@@ -134,8 +180,7 @@ public class ECEngineApp extends FCApplication implements ActionListener {
    public JPanel getButtonPane() {
        
        buttonPane = new JPanel();
-       buttonPane.setLayout(new FlowLayout());
-       
+       buttonPane.setLayout(new FlowLayout());       
        buttonPane.add(new JLabel("Trigger:"));
        
        bG1 = new ButtonGroup();
@@ -163,7 +208,7 @@ public class ECEngineApp extends FCApplication implements ActionListener {
                case   "pizero": app.config="pi0";  break;
                case     "None": app.config="none";
                }
-               mon.initEngine();
+               initEngineThresh();
            }
        });
 
@@ -206,6 +251,7 @@ public class ECEngineApp extends FCApplication implements ActionListener {
                } else {
                    app.doEng = false;
                };
+               initEngine();
            }
        });           
        engBtn.setSelected(false);
@@ -232,21 +278,21 @@ public class ECEngineApp extends FCApplication implements ActionListener {
                } else {
                    app.isWLOG = false;
                };
+               ecEngine.setLogWeight(app.isWLOG);
            }
        });         
-       wlogBtn.setSelected(false);
+       wlogBtn.setSelected(true);
        buttonPane.add(wlogBtn);
        
        return buttonPane;
        
    }
-
    
    public void actionPerformed(ActionEvent e) {
-       if(e.getActionCommand().compareTo("PC")==0)   app.pcT     = Float.valueOf(pcT.getText());
-       if(e.getActionCommand().compareTo("ECI")==0)  app.eciT    = Float.valueOf(eciT.getText());
-       if(e.getActionCommand().compareTo("ECO")==0)  app.ecoT    = Float.valueOf(ecoT.getText());
-       if(e.getActionCommand().compareTo("WLOG")==0) app.wlogPar = Double.valueOf(wlog.getText());
+       if(e.getActionCommand().compareTo("PC")==0)   {app.pcT     = Float.valueOf(pcT.getText());   ecEngine.setClusterCuts(app.pcT, app.eciT, app.ecoT);}
+       if(e.getActionCommand().compareTo("ECI")==0)  {app.eciT    = Float.valueOf(eciT.getText());  ecEngine.setClusterCuts(app.pcT, app.eciT, app.ecoT);}
+       if(e.getActionCommand().compareTo("ECO")==0)  {app.ecoT    = Float.valueOf(ecoT.getText());  ecEngine.setClusterCuts(app.pcT, app.eciT, app.ecoT);}
+       if(e.getActionCommand().compareTo("WLOG")==0) {app.wlogPar = Double.valueOf(wlog.getText()); ecEngine.setLogParam(app.wlogPar);}
        app.trigger = Integer.parseInt(bG1.getSelection().getActionCommand());
    }  
    
@@ -266,36 +312,28 @@ public class ECEngineApp extends FCApplication implements ActionListener {
        int[] il = {1,2,3,1,2,3,1,2,3}; // layer 1-3: PCAL 4-6: ECinner 7-9: ECouter  
        return il[layer-1];
     }
-      
-   public void addEvent(DataEvent event) {
-
-	   // For single photon MC runs estimate expected PCAL (x,y,z) impact based on earliest TOF
-	   if(eb.isMC && eb.readMC(event)) {          
-    	   if(event.hasBank("ECAL::true")==true) {
-    		   DataBank bank = event.getBank("ECAL::true");
-    	       double tmax = 30;
-    		   for(int i=0; i < bank.rows(); i++) {
-    			   float pcX = bank.getFloat("avgX",i);
-    			   float pcY = bank.getFloat("avgY",i);
-    			   float pcZ = bank.getFloat("avgZ",i);
-    			   float pcT = bank.getFloat("avgT",i);
-    			   if(pcT<tmax){pcx=pcX; pcy=pcY; pcz=pcZ ; tmax = pcT;}
-    		   }
-    	   }
-       }
-       
-       if(event.hasBank("ECAL::clusters")) fillHistos(event);
-       
+   
+   public List<Float> getkin(List<Particle> list) {
+   	List<Float> out = new ArrayList<Float>();
+   	int n=0;
+   	for (Particle p : list) {
+		    out.add(n++,(float) p.e());
+		    out.add(n++,(float) Math.toDegrees(p.theta())); 
+		    out.add(n++,(float) Math.toDegrees(p.phi()));
+   	}
+		return out;
    }
    
-   public void fillHistos(DataEvent event) {
+   public void addEvent(DataEvent event) {              
+       if(event.hasBank("ECAL::clusters")) fillHistos(event);       
+   }
+   
+   public void fillHistos(DataEvent de) {
        
        double[] esum = {0,0,0,0,0,0};
        int[][] nesum = {{0,0,0,0,0,0},{0,0,0,0,0,0},{0,0,0,0,0,0}};
        int[]   iidet = {1,4,7};
        int       ipp = 0;
-       
-       DataBank ecBank = event.getBank("ECAL::clusters");
        
        if (app.isSingleEvent()) {
            for (int i=0; i<3; i++) app.getDetectorView().getView().removeLayer("L"+i);
@@ -306,6 +344,7 @@ public class ECEngineApp extends FCApplication implements ActionListener {
                    ecPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,5,0).reset();
                    ecPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,6,0).reset();
                    ecPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,9,0).reset();
+                   ecPix[ilm].strips.hmap2.get("H2_Clus_Mult").get(is,0,0).reset(); //Cluster multiplicity
                }
                ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,4).reset(); //X vs OPA
                ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,3).reset(); //Sampling fraction vs energy
@@ -321,13 +360,12 @@ public class ECEngineApp extends FCApplication implements ActionListener {
        }
        
        //Monitor EC peak data
-       
-      if(event.hasBank("ECAL::peaks")){
-         DataBank bank = event.getBank("ECAL::peaks");
+      if(de.hasBank("ECAL::peaks")){
+         DataBank bank = de.getBank("ECAL::peaks");
          for(int i=0; i < bank.rows(); i++) {
             int    is = bank.getByte("sector",i);
             int    il = bank.getByte("layer",i);
-            float  en = bank.getFloat("energy",i);
+            float  en = bank.getFloat("energy",i);             
             if (isGoodSector(is)) {
             ecPix[getDet(il)].strips.hmap2.get("H2_a_Hist").get(is,4,0).fill(en*1e3,getLay(il),1.);  
             
@@ -355,201 +393,12 @@ public class ECEngineApp extends FCApplication implements ActionListener {
             }           
             }
         }        
-      } 
-      
-      // Monitor EC cluster data
-
-      res.clear();
-      eb.setGeom("2.5");  
-      eb.setConfig(app.config);  
-      eb.setGoodPhotons(1212);
-      
-      eb.readMC(event); 
-     
-      if (eb.readMC(event)) {
-    	  
-      eb.readEC(event,"ECAL::clusters");  
-                 
-      double pcalE[] = new double[6];
-    	  
-      double    mcR = Math.sqrt(pcx*pcx+pcy*pcy+pcz*pcz);
-      double mcThet = Math.asin(Math.sqrt(pcx*pcx+pcy*pcy)/mcR)*180/Math.PI;
-      ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,9,0).fill(eb.refTH-mcThet,1.);  //refTH-mcThet
-          
-      for (int idet=0; idet<3; idet++) {
-          res.add(eb.eb.getUnmatchedResponses(null, DetectorType.ECAL,iidet[idet]));
-          for(int i = 0; i < res.get(idet).size(); i++){
-              int        is = res.get(idet).get(i).getDescriptor().getSector();
-              double energy = res.get(idet).get(i).getEnergy();
-              double      X = res.get(idet).get(i).getPosition().x();
-              double      Y = res.get(idet).get(i).getPosition().y();
-              double      Z = res.get(idet).get(i).getPosition().z();
-              double    pcR = Math.sqrt(X*X+Y*Y+Z*Z);
-              double pcThet = Math.asin(Math.sqrt(X*X+Y*Y)/pcR)*180/Math.PI;
-              if (app.debug) {
-                 System.out.println("Cluster: "+X+" "+Y+" "+Z);
-                 System.out.println("Cluster-target:"+pcR);
-                 System.out.println("GEMC-target:"+0.1*mcR);
-                 System.out.println("Cluster thet: "+pcThet);
-                 System.out.println("GEMC thet: "+mcThet);
-                 System.out.println(" ");
-              }
-              if(idet==0) {
-                  ecPix[idet].strips.hmap2.get("H2_a_Hist").get(is,8,0).fill(0.1*pcx-X,1.);
-                  ecPix[idet].strips.hmap2.get("H2_a_Hist").get(is,8,0).fill(0.1*pcy-Y,2.);
-                  ecPix[idet].strips.hmap2.get("H2_a_Hist").get(is,8,0).fill(0.1*pcz-Z,3.);
-                  ecPix[idet].strips.hmap2.get("H2_a_Hist").get(is,8,1).fill(0.1*pcx-X,eb.refTH);
-                  ecPix[idet].strips.hmap2.get("H2_a_Hist").get(is,8,2).fill(0.1*pcy-Y,eb.refTH);
-                  ecPix[idet].strips.hmap2.get("H2_a_Hist").get(is,8,3).fill(0.1*pcz-Z,eb.refTH);
-                  ecPix[idet].strips.hmap2.get("H2_a_Hist").get(is,8,4).fill(0.1*mcR-pcR,eb.refTH);
-              }
-              ecPix[idet].strips.hmap2.get("H2_a_Hist").get(is,9,0).fill(pcThet-eb.refTH,2.);
-              ecPix[idet].strips.hmap2.get("H2_a_Hist").get(is,9,idet+1).fill(pcThet-eb.refTH,eb.refTH); //pcThet-refTH
-              //Transform X,Y,Z from CLAS into tilted for detector view
-              Point3D xyz = new Point3D(-X,Y,Z);
-              xyz.rotateZ(Math.toRadians(60*(is-1)));
-              xyz.rotateY(Math.toRadians(25));
-              xyz.translateXYZ(-333.1042, 0.0, 0.0);
-              xyz.rotateZ(Math.toRadians(-60*(is-1)));
-              double[] dum  = {xyz.x(),-xyz.y()}; 
-//              System.out.println("sector,layer="+is+" "+il);  
-//            System.out.println("Cluster: "+dum[0]+" "+dum[1]+" "+xyz.z());
-//            System.out.println("Cluster: "+X+" "+Y+" "+Z);
-              if (app.isSingleEvent()) ecPix[idet].clusterXY.get(is).add(dum);
-              ecPix[idet].strips.hmap2.get("H2_a_Hist").get(is,4,0).fill(energy*1e3,4,1.);          // Layer Cluster Energy
-              ecPix[idet].strips.hmap2.get("H2_a_Hist").get(is,4,1).fill(eb.refE*1e-3,energy/eb.refE,1.); // Layer Cluster Normalized Energy
-              if(idet==0) pcalE[is-1] += energy*1e3;
-              if(energy*1e3>10) {esum[is-1]+=energy*1e3; nesum[idet][is-1]++;}
-          }
       }
-      
-      int  htcc[] = new int[6];
-      if(event.hasBank("HTCC::adc")){
-    	     DataBank rawbank = event.getBank("HTCC::adc");    
-             for(int i=0; i < rawbank.rows(); i++) {
-            	     int is = rawbank.getByte("sector", i);
-            	     int ia = rawbank.getInt("ADC", i);
-            	     if (ia>400)  htcc[is-1]+=ia;
-             } 
-/*             
-             engineHTCC.processDataEvent(event); 
-             
-             if(event.hasBank("HTCC::rec")){
-        	     DataBank bank = event.getBank("HTCC::rec");    
-                 for(int i=0; i < bank.rows(); i++) {
-                	   int id = bank.getShort("id", i);
-                	   int nphe = bank.getShort("nphe", i);
-                	   int adc = rawbank.getInt("ADC", id);
-                	   System.out.println("id,adc,nphe,);
-                	   
-                 }
-             }
-*/
-      }
-      
-      if(event.hasBank("MIP::event")){          
-          DataBank bank = event.getBank("MIP::event");
-          for(int i=0; i < bank.rows(); i++) eb.mip[i]=bank.getByte("mip", i);
-          
-      } else if (event.hasBank("FTOF::adc")) {
-          paddleList = DataProvider.getPaddleList(event);          
-          double[] thresh = {500,1000,1000}; 
-          for (int i=0; i<6; i++) eb.mip[i]=0;       
-          if (paddleList!=null) {
-          for (TOFPaddle paddle : paddleList){           
-              int toflay = paddle.getDescriptor().getLayer();            
-              int   isec = paddle.getDescriptor().getSector();
-              eb.mip[isec-1] = (paddle.geometricMean()>thresh[toflay-1]) ? 1:0;
-          }
-          }
-          
-      } else if (event.hasBank("REC::Scintillator")) {
-          double[] thresh = {7,8,8}; 
-          for (int i=0; i<6; i++) eb.mip[i]=0;       
-    	  DataBank bank = event.getBank("REC::Scintillator");
-    	  for (int i=0; i<bank.rows(); i++) {
-    		  if (bank.getByte("detector", i)==12) {
-        		  int toflay = bank.getByte("layer", i);
-        		  int   isec = bank.getByte("sector", i);
-        		  eb.mip[isec-1] = (toflay<3&&bank.getFloat("energy",i)>thresh[toflay-1]) ? 1:0;
-    		  }
-    	  }      
-      }  
-      
-      if (app.config=="pi0") eb.getNeutralResponses();
-
-      for (int is=is1; is<is2; is++) {
-          
-          if (isGoodSector(is)) {
-//          if (htcc[is-1]>0) System.out.println("esum,htcc = "+is+" "+esum[is-1]+" "+htcc[is-1]);
-          if(nesum[0][is-1]==1) { 
-              ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,0).fill(esum[is-1],8,1.);                                       // Total Single Cluster Energy PC=1                     
-              ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,3).fill(1e-3*esum[is-1],1e-3*esum[is-1]/eb.refE,1.);          // S.F. vs. meas.photon energy  
-              if(htcc[is-1]>1500) ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,0).fill(esum[is-1],5,1.);                   // Total Cluster Energy PC>0
-              if(htcc[is-1]>3000) ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,0).fill(esum[is-1],7,1.);                   // Total Cluster Energy            
-              if(htcc[is-1]>3000&&pcalE[is-1]>50) ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,0).fill(esum[is-1],6,1.);   // Total Cluster Energy            
-
-          }
-
-          if (app.config=="pi0"&&eb.mip[is-1]!=1) {  // No FTOF MIP in sector
-       	  
-              double invmass = Math.sqrt(eb.getTwoPhotonInvMass(is));
-              double     opa = Math.acos(eb.cth)*180/3.14159;
-              
-              boolean badPizero = eb.isMC ? false:eb.X>0.5 && opa<8;
-      
-              if(eb.iis[0]>0&&eb.iis[1]>0&&!badPizero) {
-            	  
-              System.out.println("invmass "+invmass);
-              
-              ecPix[0].strips.hmap1.get("H1_a_Hist").get(eb.iis[0], 11,eb.iis[1]).fill((float)invmass*1e3); // Two-photon invariant mass
-              
-              if(eb.iis[0]==eb.iis[1]) {
-                  
-              if(nesum[0][is-1]>1 && nesum[1][is-1]>0) {
-                  ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,0).fill(esum[is-1],7,1.);          // Total Cluster Energy            
-                  ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,2).fill(eb.e1,eb.SF1db,1.);    // S.F. vs. meas. photon energy            
-                  ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,7,2).fill(opa,eb.e1c*eb.e2c,1.); // E1*E2 vs opening angle            
-              }            
-                        
-              if (invmass>0.100 && invmass<0.180) {
-                  ecPix[0].strips.hmap1.get("H1_a_Hist").get(is,4,0).fill((float)(1e3*(Math.sqrt(eb.tpi2)-eb.refE))); // Pizero total energy error
-                  ecPix[0].strips.hmap1.get("H1_a_Hist").get(is,4,1).fill(Math.acos(eb.cpi0)*180/3.14159-eb.refTH);   // Pizero theta angle error
-                  ecPix[0].strips.hmap1.get("H1_a_Hist").get(is,4,2).fill((float)eb.X);                                 // Pizero energy asymmetry
-                  ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,4).fill((float)eb.X,opa);      
-                  ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,9,4).fill(eb.distance1[0],1,1.); // Pizero photon 1 PCAL-ECinner cluster error
-                  ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,9,4).fill(eb.distance1[1],2,1.); // Pizero photon 2 PCAL-ECinner cluster error
-                  ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,9,4).fill(eb.distance2[0],3,1.); // Pizero photon 1 PCAL-ECouter cluster error
-                  ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,9,4).fill(eb.distance2[1],4,1.); // Pizero photon 2 PCAL-ECouter cluster error   
-                  ecPix[0].strips.hmap2.get("H2_a_Hist").get(1,9,5).fill(-eb.x[0][0], eb.y[0][0],1.);
-                  ecPix[0].strips.hmap2.get("H2_a_Hist").get(1,9,6).fill(-eb.x[0][0], eb.y[0][0],invmass/eb.mpi0);
-                  ecPix[0].strips.hmap2.get("H2_a_Hist").get(1,9,7).fill(-eb.x[1][0], eb.y[1][0],1.);
-                  ecPix[0].strips.hmap2.get("H2_a_Hist").get(1,9,8).fill(-eb.x[1][0], eb.y[1][0],invmass/eb.mpi0);
-                  float ipU,ipV,ipW;
-                  ipU = (ecBank.getInt("coordU", eb.iip[0][0])-4)/8;
-                  ipV = (ecBank.getInt("coordV", eb.iip[0][0])-4)/8;
-                  ipW = (ecBank.getInt("coordW",eb.iip[0][0])-4)/8;
-                  ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,10,1).fill(invmass*1e3,ipU);
-                  ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,10,2).fill(invmass*1e3,ipV);
-                  ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,10,3).fill(invmass*1e3,ipW);
-                  ipU = (ecBank.getInt("coordU", eb.iip[1][0])-4)/8;
-                  ipV = (ecBank.getInt("coordV", eb.iip[1][0])-4)/8;
-                  ipW = (ecBank.getInt("coordW", eb.iip[1][0])-4)/8;
-                  ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,10,4).fill(invmass*1e3,ipU);
-                  ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,10,5).fill(invmass*1e3,ipV);
-                  ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,10,6).fill(invmass*1e3,ipW);
-              }
-          }
-          }
-          }
-      
-          }
-      }
-      
-      if(event.hasBank("ECAL::calib")) {
+            
+      if(de.hasBank("ECAL::calib")) {
           double raw[] = new double[3];
           double rec[] = new double[3];
-          DataBank bank = event.getBank("ECAL::calib");
+          DataBank bank = de.getBank("ECAL::calib");
           for(int i=0; i < bank.rows(); i++) {
              int is = bank.getByte("sector",i);
              int il = bank.getByte("layer",i);
@@ -563,17 +412,111 @@ public class ECEngineApp extends FCApplication implements ActionListener {
              if(isGoodSector(is)) {
              for (int k=1; k<4; k++) ecPix[getDet(il)].strips.hmap2.get("H2_a_Hist").get(is,5,0).fill(raw[k-1]*1e3,k,1.);        // raw peak energies          
              for (int k=1; k<4; k++) ecPix[getDet(il)].strips.hmap2.get("H2_a_Hist").get(is,6,0).fill(rec[k-1]*1e3,k,1.);        // reconstructed peak energies          
-             for (int k=1; k<4; k++) ecPix[getDet(il)].strips.hmap2.get("H2_a_Hist").get(is,6,k).fill(1e-3*eb.refE,rec[k-1]/eb.refE);  // sampling fraction vs. energy  
+             for (int k=1; k<4; k++) ecPix[getDet(il)].strips.hmap2.get("H2_a_Hist").get(is,6,k).fill(1e-3*refE,rec[k-1]/refE);  // sampling fraction vs. energy  
              }
 //             System.out.println("sector,layer ="+is+" "+il);  
 //             System.out.println("X,Y,Z,energy="+X+" "+Y+" "+Z+" "+energy);  
 //             System.out.println(" ");
           }
       }
+      if(de.hasBank("ECAL::clusters")) {
+    	  int nclus[][] = new int[6][3]; IndexedList<List<Integer>> stat = new IndexedList<List<Integer>>(2);
+    	  DataBank bank = de.getBank("ECAL::clusters");
+    	  for(int i=0; i<bank.rows(); i++) {
+    		  int  is = bank.getByte("sector",i);
+    		  int  il = getDet(bank.getByte("layer",i));
+    		  float x = bank.getFloat("x",i);
+    		  float y = bank.getFloat("y",i);
+    		  float z = bank.getFloat("z",i);
+    		  int  st = bank.getInt("status", i);
+    		  if(!stat.hasItem(is,il)) stat.add(new ArrayList<Integer>(),is,il);
+    		  stat.getItem(is,il).add(st);
+    		  //Transform X,Y,Z from CLAS into tilted for detector view
+    		  Point3D xyz = new Point3D(-x,y,z);
+    		  xyz.rotateZ(Math.toRadians(60*(is-1)));
+    		  xyz.rotateY(Math.toRadians(25));
+    		  xyz.translateXYZ(-333.1042, 0.0, 0.0);
+    		  xyz.rotateZ(Math.toRadians(-60*(is-1)));
+    		  double[] dum  = {xyz.x(),-xyz.y()}; 
+    		  nclus[is-1][il]++;
+    		  if (app.isSingleEvent()) ecPix[il].clusterXY.get(is).add(dum);    	  
+    	  }
+    	  
+    	  for (int is=1; is<7; is++) {
+    		  for (int il=0; il<3; il++) {
+    			  ecPix[il].strips.hmap1.get("H1_Clus_Mult").get(is,0,0).fill(nclus[is-1][il]);
+    		  }
+    	  }   
+    	  
+  	      IndexGenerator ig = new IndexGenerator();                
+  	      for (Map.Entry<Long,List<Integer>>  entry : stat.getMap().entrySet()){
+	           int is = ig.getIndex(entry.getKey(), 0);  
+  	           int il = ig.getIndex(entry.getKey(), 1);
+  	           for (Integer p : entry.getValue()) ecPix[il].strips.hmap2.get("H2_Clus_Mult").get(is,0,0).fill(nclus[is-1][il],p);	           
+  	      }
+  	      
+      }
       
-   }
+      // Monitor EC cluster data
+      int npart=0; 
       
-   }
+  	  GEN.clear();  REC.clear(); res.clear();
+  	  
+  	  DetectorParticle p1 = new DetectorParticle();
+  	  DetectorParticle p2 = new DetectorParticle();  
+  	  
+      eb.setConfig(app.config);  
+  	  
+  	  boolean goodev = eb.readMC(de) && eb.pmc.size()==2;
+ 	  
+      if (goodev) {
+          
+    	  GEN = getkin(eb.pmc); 
+    	  float refTH = GEN.get(2), refE = GEN.get(0);
+      
+    	  double  opa = eb.pmv.get(0).theta(eb.pmv.get(1));
+    	  Vector3 ggc = eb.pmv.get(0).cross(eb.pmv.get(1));
+    	  double ggp = Math.toDegrees(Math.atan2(ggc.y(),ggc.x()));
+    	  if(ggp<0) ggp=-ggp;
+    	  ggp=ggp-90;
+    	  if(ggp<0) ggp=ggp+180;
+    	  
+      	  if (!eb.processDataEvent(de)) return;
+      	  
+      	  np.clear(); np = eb.eb.getEvent().getParticles(); 
+      	  
+      	  List<Particle> plist = new ArrayList<Particle>(); 
+    	
+//    	System.out.println("PART ");
+    	
+      	  int trsec = -1; int trpid = -211;
+      	  for (DetectorParticle dp: np) {
+      		  DetectorResponse dr = dp.getHit(DetectorType.ECAL);
+//    		System.out.println(dp.getPid()+" "+dp.getSector(DetectorType.ECAL));
+      		  int pid = dp.getPid(); int sec = dp.getSector(DetectorType.ECAL);
+      		  if(trsec==-1 && pid==trpid) trsec=sec;
+      	  }
+    	
+      	  for (DetectorParticle dp : np) { // make list of neutral Particle objects 
+      		  if(dp.getSector(DetectorType.ECAL)!=trsec && dp.getPid()==22) { npart++;
+      		  if(!eb.hasStartTime && dp.getPid()==2112) {// this repairs zero momentum neutrons from non-PCAL seeded neutrals
+      			  double e = dp.getEnergy(DetectorType.ECAL)/getSF(dp); 		
+      			  Vector3D vec = dp.getHit(DetectorType.ECAL).getPosition(); vec.unit(); 			    		
+      			  dp.vector().add(new Vector3(e*vec.x(),e*vec.y(),e*vec.z())); //track energy for neutrals in DetectorParticle
+      			  dp.setPid(22);
+      		  }
+      		  plist.add(dp.getPhysicsParticle(22)); //only this gives you SF corrected Particle energy from DetectorParticle
+      		  }
+      	  }
+      	  
+     	  eff.fill(opa,0);
+     	  
+     	  if (npart>=2) {
+     		eff.fill(opa,1); 
+     	  }
+      }
+      
+  }
    
   private class toLocal {
       
@@ -593,6 +536,10 @@ public class ECEngineApp extends FCApplication implements ActionListener {
       
   }
   
+  public double getSF(DetectorParticle dp) {
+ 		return SamplingFractions.getMean(22, dp, eb.ccdb);
+  }  
+   
    public static double getSF(String geom, double e) {
        switch (geom) {
        case "2.4": return 0.268*(1.0151  - 0.0104/e - 0.00008/e/e); 
@@ -614,7 +561,8 @@ public class ECEngineApp extends FCApplication implements ActionListener {
       int ilm = ilmap;
         
       double   zmax = (double) mon.getGlob().get("PCMon_zmax");
-      DetectorCollection<H1F> ecEngHist = (DetectorCollection<H1F>) mon.getGlob().get("ecEng");
+      DetectorCollection<H1F> ecEngHist  = ecEngine.getHist(); 
+      DetectorCollection<H2F> ecEngHist2 = ecEngine.getHist2();  
       
       this.getDetIndices(dd);
             
@@ -636,6 +584,7 @@ public class ECEngineApp extends FCApplication implements ActionListener {
          h1.setTitleX(dtab[ilm]+otab[il-1]+"PMT"); h1.setTitleY(" ");
          if (il==1) h1.setTitleY("Strip Energy (MeV)"); 
          c.cd(ii); 
+         c.getPad(ii).getAxisY().setLog(app.displayControl.pixMax==1?true:false);
          c.getPad(ii).getAxisX().setRange(0.,ecPix[ilm].ec_nstr[il-1]+1);
          c.getPad(ii).getAxisY().setRange(0.,5*zmax*app.displayControl.pixMax); ii++;
          c.draw(h1);
@@ -667,7 +616,7 @@ public class ECEngineApp extends FCApplication implements ActionListener {
 //          h  = ecPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,4,0).sliceY(il-1) ;  h.setFillColor(0);
           h1 = ecPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,5,0).sliceY(il-1) ; h1.setFillColor(34);
           h2 = ecPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,6,0).sliceY(il-1) ; h2.setFillColor(32);
-          h2.setOptStat(Integer.parseInt("11001100"));
+          h2.setOptStat(Integer.parseInt("1000100"));
 //          h.setTitleX(dtab[ilm]+otab[il-1]+"Peak Energy (MeV)");  h.setTitle("");
           h1.setTitle(""); h2.setTitle("");    
           h2.setTitleX(dtab[ilm]+otab[il-1]+"Peak Energy (MeV)");          
@@ -687,7 +636,7 @@ public class ECEngineApp extends FCApplication implements ActionListener {
 	  for(ilm=0; ilm<3; ilm++) {
           h1=ecEngHist.get(is,ilm+1,0); ; h1.setTitleX(dtab[ilm]+"Cluster Error (cm)"); h1.setFillColor(0);
           h2=ecEngHist.get(is,ilm+1,1); ; h2.setFillColor(2); 
-          h2.setOptStat(Integer.parseInt("1100"));
+          h2.setOptStat(Integer.parseInt("1000100"));
           c.cd(ii); c.getPad(ii).getAxisX().setRange(-100.,100.); ii++;
           c.draw(h1); c.draw(h2,"same");
 	  }
@@ -695,14 +644,13 @@ public class ECEngineApp extends FCApplication implements ActionListener {
       // Cluster energy PCAL, ECinner, ECouter
 	  for(ilm=0; ilm<3; ilm++) {
           h = ecPix[ilm].strips.hmap2.get("H2_a_Hist").get(is,4,0).sliceY((int)3) ; h.setTitleX(dtab[ilm]+"Cluster Energy (MeV)"); h.setFillColor(2);          
-          h.setOptStat(Integer.parseInt("11001100")); 
+          h.setOptStat(Integer.parseInt("1000100")); 
           c.cd(ii); c.getPad(ii).getAxisX().setRange(0.,10*zmax*app.displayControl.pixMax); ii++;
           c.draw(h); 
 	  }
 	  
 	  // Single Cluster total energy     
-      h = ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,0).sliceY((int)7) ; h.setTitleX("Total Single Cluster Energy (MeV)"); h.setFillColor(2);          
-//      h.setOptStat(Integer.parseInt("11001100")); 
+      h = ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,0).sliceY((int)7) ; h.setTitleX("Total Single Cluster Energy (MeV)"); h.setFillColor(2);           
       h.setOptStat(Integer.parseInt("1000100")); 
       c.cd(ii);  c.getPad(ii).getAxisX().setRange(0.,xmx2*2.2); ii++;
       c.draw(h);      
@@ -718,11 +666,44 @@ public class ECEngineApp extends FCApplication implements ActionListener {
       
       // Cluster total energy
       h = ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,0).sliceY((int)6) ; h.setTitleX("Total Cluster Energy (MeV)"); h.setFillColor(2);          
-      h.setOptStat(Integer.parseInt("11001100")); 
+      h.setOptStat(Integer.parseInt("1000100")); 
       c.cd(ii);  c.getPad(ii).getAxisX().setRange(0.,xmx2*2.2); ii++;
       c.draw(h);
       
       c.repaint();
+      
+      ii=0;
+      c = clusters.getCanvas("Nc"); c.divide(3,3);
+      c.cd(ii); ii++; h = ecPix[0].strips.hmap1.get("H1_Clus_Mult").get(is,0,0) ; h.setTitleX("PCAL Clusters"); h.setFillColor(2); h.setTitle(""); 
+      h.setOptStat(Integer.parseInt("1000100"));c.draw(h);
+      c.cd(ii); ii++; h = ecPix[1].strips.hmap1.get("H1_Clus_Mult").get(is,0,0) ; h.setTitleX("ECIN Clusters"); h.setFillColor(2); h.setTitle(""); 
+      h.setOptStat(Integer.parseInt("1000100"));c.draw(h);
+      c.cd(ii); ii++; h = ecPix[2].strips.hmap1.get("H1_Clus_Mult").get(is,0,0) ; h.setTitleX("ECOU Clusters"); h.setFillColor(2); h.setTitle(""); 
+      h.setOptStat(Integer.parseInt("1000100"));c.draw(h);
+      
+      h2f=ecEngHist2.get(is,1,1); ; h2f.setTitleX("PCAL Clusters"); h2f.setTitleY("Cluster Error (cm)"); 
+      c.cd(ii); c.getPad(ii).getAxisZ().setLog(true); c.draw(h2f); ii++;
+      h2f=ecEngHist2.get(is,2,1); ; h2f.setTitleX("ECIN Clusters"); h2f.setTitleY("Cluster Error (cm)"); 
+      c.cd(ii); c.getPad(ii).getAxisZ().setLog(true); c.draw(h2f); ii++;
+      h2f=ecEngHist2.get(is,3,1); ; h2f.setTitleX("ECAL Clusters"); h2f.setTitleY("Cluster Error (cm)"); 
+      c.cd(ii); c.getPad(ii).getAxisZ().setLog(true); c.draw(h2f); ii++;
+	  
+      h2f=ecPix[0].strips.hmap2.get("H2_Clus_Mult").get(is, 0, 0); ; h2f.setTitleX("PCAL Clusters"); h2f.setTitleY("Cluster Status"); 
+      c.cd(ii); c.getPad(ii).getAxisZ().setLog(true); c.draw(h2f); ii++;
+      h2f=ecPix[1].strips.hmap2.get("H2_Clus_Mult").get(is, 0, 0); ; h2f.setTitleX("ECIN Clusters"); h2f.setTitleY("Cluster Status"); 
+      c.cd(ii); c.getPad(ii).getAxisZ().setLog(true); c.draw(h2f); ii++;
+      h2f=ecPix[2].strips.hmap2.get("H2_Clus_Mult").get(is, 0, 0); ; h2f.setTitleX("ECOU Clusters"); h2f.setTitleY("Cluster Status");       
+      c.cd(ii); c.getPad(ii).getAxisZ().setLog(true); c.draw(h2f); ii++;
+      
+      c.repaint();
+      
+      c = clusters.getCanvas("Eff");      
+      c.cd(0) ;  
+      h = eff.sliceY(0); h.getAttributes().setFillColor(3); c.draw(h); 
+      h = eff.sliceY(1); h.getAttributes().setFillColor(2); c.draw(h,"same");
+      
+      c.repaint();
+      
       
       // JTabbedPane plots: MC=TRUE-DGTZ residuals RESID=cluster matching residuals PI0=Pi-zero plots   
       
@@ -794,7 +775,7 @@ public class ECEngineApp extends FCApplication implements ActionListener {
       
       // PI0 TAB
       ii=0;
-      System.out.println("I am here");
+      
       c = mc.getCanvas("PI0"); c.divide(3,2);      
       h = ecPix[0].strips.hmap1.get("H1_a_Hist").get(is,11,is) ; h.setTitleX("Two Photon Invariant Mass (MeV)"); h.setFillColor(2); 
       h.setOptStat(Integer.parseInt("11001100")); 
@@ -909,5 +890,200 @@ public class ECEngineApp extends FCApplication implements ActionListener {
       c.repaint();
       
    }
+   
+   // For single photon MC runs estimate expected PCAL (x,y,z) impact based on earliest TOF
+
+/*  	  
+   if(de.hasBank("ECAL::true")==true) {
+    	   DataBank bank = de.getBank("ECAL::true");
+    	   double tmax = 30;
+    	   for(int i=0; i < bank.rows(); i++) {
+    		   float pcX = bank.getFloat("avgX",i);
+    		   float pcY = bank.getFloat("avgY",i);
+    		   float pcZ = bank.getFloat("avgZ",i);
+    		   float pcT = bank.getFloat("avgT",i);
+    		   if(pcT<tmax){pcx=pcX; pcy=pcY; pcz=pcZ ; tmax = pcT;}
+    	   }
+   }
+              
+   double pcalE[] = new double[6];
+ 	  
+   double    mcR = Math.sqrt(pcx*pcx+pcy*pcy+pcz*pcz);
+   double mcThet = Math.asin(Math.sqrt(pcx*pcx+pcy*pcy)/mcR)*180/Math.PI;
+   
+   ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,9,0).fill(refTH-mcThet,1.);  //refTH-mcThet
+       
+   for (int idet=0; idet<3; idet++) {
+       res.add(eb.eb.getUnmatchedResponses(null, DetectorType.ECAL,iidet[idet]));
+       for(int i = 0; i < res.get(idet).size(); i++){
+           int        is = res.get(idet).get(i).getDescriptor().getSector();
+           double energy = res.get(idet).get(i).getEnergy();
+           double      X = res.get(idet).get(i).getPosition().x();
+           double      Y = res.get(idet).get(i).getPosition().y();
+           double      Z = res.get(idet).get(i).getPosition().z();
+           double    pcR = Math.sqrt(X*X+Y*Y+Z*Z);
+           double pcThet = Math.asin(Math.sqrt(X*X+Y*Y)/pcR)*180/Math.PI;
+           if (app.debug) {
+              System.out.println("Cluster: "+X+" "+Y+" "+Z);
+              System.out.println("Cluster-target:"+pcR);
+              System.out.println("GEMC-target:"+0.1*mcR);
+              System.out.println("Cluster thet: "+pcThet);
+              System.out.println("GEMC thet: "+mcThet);
+              System.out.println(" ");
+           }
+           if(idet==0) {
+               ecPix[idet].strips.hmap2.get("H2_a_Hist").get(is,8,0).fill(0.1*pcx-X,1.);
+               ecPix[idet].strips.hmap2.get("H2_a_Hist").get(is,8,0).fill(0.1*pcy-Y,2.);
+               ecPix[idet].strips.hmap2.get("H2_a_Hist").get(is,8,0).fill(0.1*pcz-Z,3.);
+               ecPix[idet].strips.hmap2.get("H2_a_Hist").get(is,8,1).fill(0.1*pcx-X,refTH);
+               ecPix[idet].strips.hmap2.get("H2_a_Hist").get(is,8,2).fill(0.1*pcy-Y,refTH);
+               ecPix[idet].strips.hmap2.get("H2_a_Hist").get(is,8,3).fill(0.1*pcz-Z,refTH);
+               ecPix[idet].strips.hmap2.get("H2_a_Hist").get(is,8,4).fill(0.1*mcR-pcR,refTH);
+           }
+           ecPix[idet].strips.hmap2.get("H2_a_Hist").get(is,9,0).fill(pcThet-refTH,2.);
+           ecPix[idet].strips.hmap2.get("H2_a_Hist").get(is,9,idet+1).fill(pcThet-refTH,refTH); //pcThet-refTH
+           //Transform X,Y,Z from CLAS into tilted for detector view
+           Point3D xyz = new Point3D(-X,Y,Z);
+           xyz.rotateZ(Math.toRadians(60*(is-1)));
+           xyz.rotateY(Math.toRadians(25));
+           xyz.translateXYZ(-333.1042, 0.0, 0.0);
+           xyz.rotateZ(Math.toRadians(-60*(is-1)));
+           double[] dum  = {xyz.x(),-xyz.y()}; 
+//           System.out.println("sector,layer="+is+" "+il);  
+//         System.out.println("Cluster: "+dum[0]+" "+dum[1]+" "+xyz.z());
+//         System.out.println("Cluster: "+X+" "+Y+" "+Z);
+           if (app.isSingleEvent()) ecPix[idet].clusterXY.get(is).add(dum);
+           ecPix[idet].strips.hmap2.get("H2_a_Hist").get(is,4,0).fill(energy*1e3,4,1.);             // Layer Cluster Energy
+           ecPix[idet].strips.hmap2.get("H2_a_Hist").get(is,4,1).fill(eb.refE*1e-3,energy/refE,1.); // Layer Cluster Normalized Energy
+           if(idet==0) pcalE[is-1] += energy*1e3;
+           if(energy*1e3>10) {esum[is-1]+=energy*1e3; nesum[idet][is-1]++;}
+       }
+   }
+   
+   int  htcc[] = new int[6];
+   if(de.hasBank("HTCC::adc")){
+ 	     DataBank rawbank = de.getBank("HTCC::adc");    
+          for(int i=0; i < rawbank.rows(); i++) {
+         	     int is = rawbank.getByte("sector", i);
+         	     int ia = rawbank.getInt("ADC", i);
+         	     if (ia>400)  htcc[is-1]+=ia;
+          } 
+             
+          engineHTCC.processDataEvent(event); 
+          
+          if(event.hasBank("HTCC::rec")){
+     	     DataBank bank = event.getBank("HTCC::rec");    
+              for(int i=0; i < bank.rows(); i++) {
+             	   int id = bank.getShort("id", i);
+             	   int nphe = bank.getShort("nphe", i);
+             	   int adc = rawbank.getInt("ADC", id);
+             	   System.out.println("id,adc,nphe,);
+             	   
+              }
+          }
+
+   }
+   
+   if(de.hasBank("MIP::event")){          
+       DataBank bank = de.getBank("MIP::event");
+       for(int i=0; i < bank.rows(); i++) eb.mip[i]=bank.getByte("mip", i);
+       
+   } else if (de.hasBank("FTOF::adc")) {
+       paddleList = DataProvider.getPaddleList(de);          
+       double[] thresh = {500,1000,1000}; 
+       for (int i=0; i<6; i++) eb.mip[i]=0;       
+       if (paddleList!=null) {
+       for (TOFPaddle paddle : paddleList){           
+           int toflay = paddle.getDescriptor().getLayer();            
+           int   isec = paddle.getDescriptor().getSector();
+           eb.mip[isec-1] = (paddle.geometricMean()>thresh[toflay-1]) ? 1:0;
+       }
+       }
+       
+   } else if (de.hasBank("REC::Scintillator")) {
+       double[] thresh = {7,8,8}; 
+       for (int i=0; i<6; i++) eb.mip[i]=0;       
+ 	  DataBank bank = de.getBank("REC::Scintillator");
+ 	  for (int i=0; i<bank.rows(); i++) {
+ 		  if (bank.getByte("detector", i)==12) {
+     		  int toflay = bank.getByte("layer", i);
+     		  int   isec = bank.getByte("sector", i);
+     		  eb.mip[isec-1] = (toflay<3&&bank.getFloat("energy",i)>thresh[toflay-1]) ? 1:0;
+ 		  }
+ 	  }      
+   }  
+   
+   if (app.config=="pi0") eb.getNeutralResponses(1,7);
+
+   for (int is=is1; is<is2; is++) {
+       
+       if (isGoodSector(is)) {
+//       if (htcc[is-1]>0) System.out.println("esum,htcc = "+is+" "+esum[is-1]+" "+htcc[is-1]);
+       if(nesum[0][is-1]==1) { 
+           ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,0).fill(esum[is-1],8,1.);                                       // Total Single Cluster Energy PC=1                     
+           ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,3).fill(1e-3*esum[is-1],1e-3*esum[is-1]/eb.refE,1.);            // S.F. vs. meas.photon energy  
+           if(htcc[is-1]>1500) ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,0).fill(esum[is-1],5,1.);                   // Total Cluster Energy PC>0
+           if(htcc[is-1]>3000) ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,0).fill(esum[is-1],7,1.);                   // Total Cluster Energy            
+//           if(htcc[is-1]>3000&&pcalE[is-1]>50) ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,0).fill(esum[is-1],6,1.);   // Total Cluster Energy            
+
+       }
+
+       if (app.config=="pi0" && eb.mip[is-1]!=1) {  // No FTOF MIP in sector
+     	  
+           DataBank ecBank = de.getBank("ECAL::clusters");              
+    	  
+           double invmass = Math.sqrt(eb.getTwoPhotonInvMass(is));
+           double     opa = Math.acos(eb.cth)*180/3.14159;
+           
+           boolean badPizero = eb.isMC ? false:eb.X>0.5 && opa<8;
+   
+           if(eb.iis[0]>0&&eb.iis[1]>0&&!badPizero) {
+         	  
+           System.out.println("invmass "+invmass);
+           
+           ecPix[0].strips.hmap1.get("H1_a_Hist").get(eb.iis[0], 11,eb.iis[1]).fill((float)invmass*1e3); // Two-photon invariant mass
+           
+           if(eb.iis[0]==eb.iis[1]) {
+               
+           if(nesum[0][is-1]>1 && nesum[1][is-1]>0) {
+               ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,0).fill(esum[is-1],7,1.);      // Total Cluster Energy            
+               ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,2).fill(eb.e1,eb.SF1db,1.);    // S.F. vs. meas. photon energy            
+               ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,7,2).fill(opa,eb.e1c*eb.e2c,1.); // E1*E2 vs opening angle            
+           }            
+                     
+           if (invmass>0.100 && invmass<0.180) {
+               ecPix[0].strips.hmap1.get("H1_a_Hist").get(is,4,0).fill((float)(1e3*(Math.sqrt(eb.tpi2)-refE))); // Pizero total energy error
+               ecPix[0].strips.hmap1.get("H1_a_Hist").get(is,4,1).fill(Math.acos(eb.cpi0)*180/3.14159-refTH);   // Pizero theta angle error
+               ecPix[0].strips.hmap1.get("H1_a_Hist").get(is,4,2).fill((float)eb.X);                                 // Pizero energy asymmetry
+               ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,4).fill((float)eb.X,opa);      
+               ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,9,4).fill(eb.distance1[0],1,1.); // Pizero photon 1 PCAL-ECinner cluster error
+               ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,9,4).fill(eb.distance1[1],2,1.); // Pizero photon 2 PCAL-ECinner cluster error
+               ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,9,4).fill(eb.distance2[0],3,1.); // Pizero photon 1 PCAL-ECouter cluster error
+               ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,9,4).fill(eb.distance2[1],4,1.); // Pizero photon 2 PCAL-ECouter cluster error   
+               ecPix[0].strips.hmap2.get("H2_a_Hist").get(1,9,5).fill(-eb.x[0][0], eb.y[0][0],1.);
+               ecPix[0].strips.hmap2.get("H2_a_Hist").get(1,9,6).fill(-eb.x[0][0], eb.y[0][0],invmass/eb.mpi0);
+               ecPix[0].strips.hmap2.get("H2_a_Hist").get(1,9,7).fill(-eb.x[1][0], eb.y[1][0],1.);
+               ecPix[0].strips.hmap2.get("H2_a_Hist").get(1,9,8).fill(-eb.x[1][0], eb.y[1][0],invmass/eb.mpi0);
+               float ipU,ipV,ipW;
+               ipU = (ecBank.getInt("coordU", eb.iip[0][0])-4)/8;
+               ipV = (ecBank.getInt("coordV", eb.iip[0][0])-4)/8;
+               ipW = (ecBank.getInt("coordW", eb.iip[0][0])-4)/8;
+               ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,10,1).fill(invmass*1e3,ipU);
+               ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,10,2).fill(invmass*1e3,ipV);
+               ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,10,3).fill(invmass*1e3,ipW);
+               ipU = (ecBank.getInt("coordU", eb.iip[1][0])-4)/8;
+               ipV = (ecBank.getInt("coordV", eb.iip[1][0])-4)/8;
+               ipW = (ecBank.getInt("coordW", eb.iip[1][0])-4)/8;
+               ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,10,4).fill(invmass*1e3,ipU);
+               ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,10,5).fill(invmass*1e3,ipV);
+               ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,10,6).fill(invmass*1e3,ipW);
+           }
+       }
+       }
+       }
+   
+       }
+   }
+*/ 
    
 }
