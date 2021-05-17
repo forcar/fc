@@ -359,7 +359,7 @@ public class ECEngineApp extends FCApplication implements ActionListener {
            }
        }
        
-       //Monitor EC peak data
+       // Monitor EC peak data
       if(de.hasBank("ECAL::peaks")){
          DataBank bank = de.getBank("ECAL::peaks");
          for(int i=0; i < bank.rows(); i++) {
