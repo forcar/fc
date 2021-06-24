@@ -1382,7 +1382,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
         public DetectorCollection<H2F> H2_STAT = new DetectorCollection<H2F>();
         DetectorCollection<Float>         asum = new DetectorCollection<Float>();
         DetectorCollection<Float>         tsum = new DetectorCollection<Float>();
-        IndexedTable        status = null; 
+        IndexedTable                    status = null; 
         
         int is1,is2;
        
@@ -1417,8 +1417,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
         public void setCalibPane() {
             System.out.println("setCalibPane:ECStatus");
             enginePane.setTopComponent(ECStatus);             
-            enginePane.setDividerLocation(0.8);
-    
+            enginePane.setDividerLocation(0.8);    
         } 
         
         public void makeNewTable(int is1, int is2) {
@@ -1486,17 +1485,25 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
         public Integer getStatus(int is, int sl, int ip) {
         	float Asum = asum.get(7, sl, ip), A = asum.get(is, sl, ip);
         	float Tsum = tsum.get(7, sl, ip), T = tsum.get(is, sl, ip);
-        	System.out.println(is+" "+sl+" "+ip+" "+A+" "+Asum+" "+T+" "+Tsum);
-        	Boolean  badA = A==0 && T>0;
-            Boolean  badT = T==0 && A>0;
-            Boolean badAT = A==0 && T==0;
-        	Boolean sbadA = Math.abs(Asum-A)>5*Math.sqrt(Asum);
-        	Boolean sbadT = Math.abs(Tsum-T)>5*Math.sqrt(Tsum);
-        	if (badA && !badT) return 3;
+        	float aAsym = (A-Asum)/(A+Asum), tAsym = (T-Tsum)/(T+Tsum);
+        	Boolean   badA = A==0 && T>0;   //dead ADC good TDC
+            Boolean   badT = T==0 && A>0;   //dead TDC good ADC
+            Boolean  badAT = A==0 && T==0;  //dead PMT or HV
+        	Boolean nnbadA = aAsym < -0.85; //dead but noisy
+        	Boolean nnbadT = tAsym < -0.85; //dead but noisy
+       	    Boolean  nbadA = aAsym < -0.30; //low gain, bad cable, high threshold
+        	Boolean  nbadT = tAsym < -0.30; //low gain, bad cable, high threshold
+       	    Boolean  pbadA = aAsym >  0.30; //noisy, light leak
+        	Boolean  pbadT = tAsym >  0.30; //noisy, light leak
+        	if (badA && !badT) return 1;
         	if (badT && !badA) return 2;
-        	if (badAT)         return 1;
-        	if (sbadA)         return 4;
-        	if (sbadT)         return 5;
+        	if (badAT)         return 3;
+       	    if (nnbadA)        return 1;
+        	if (nnbadT)        return 2;
+        	if (nbadA)         return 4;
+        	if (nbadT)         return 5;
+        	if (pbadA)         return 6;
+        	if (pbadT)         return 7;
             return 0;
         }
         
@@ -1508,11 +1515,13 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
             switch (stat) 
             {
             case 0: return 0.0;  
-            case 1: return 0.0;  
-            case 2: return 0.0;  
-            case 3: return 0.1; 
-            case 4: return 0.7;
-            case 5: return 0.9; 
+            case 1: return 0.60; 
+            case 2: return 0.48;  
+            case 3: return 0.02;  
+            case 4: return 0.75;
+            case 5: return 0.85; 
+            case 6: return 0.99;
+            case 7: return 1.10; 
             }
         return 0.48;
             
