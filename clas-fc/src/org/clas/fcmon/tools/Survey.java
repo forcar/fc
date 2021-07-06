@@ -130,7 +130,7 @@ public class Survey{
 		dg = new DataGroup(6,3); 
 		Boolean opt = vmap.getName()=="EC";
 		int n=0;       
-        String xtxt = "Corner Points";
+        String   xtxt = "Corner Points";
         String[] ytxt = {"X","Y","Z"};
         
 		for (int ix=0; ix<3; ix++) {
@@ -163,7 +163,7 @@ public class Survey{
 		dg = new DataGroup(6,1); 
 		Boolean opt = vmap.getName()=="EC";
 		int n=0;       
-        String xtxt = "Line Segments";
+        String   xtxt = "Line Segments";
         String[] ytxt = {"D"};
         
 		for (int ix=0; ix<1; ix++) {
@@ -193,12 +193,10 @@ public class Survey{
 	}
 	
 	public void plotPCmEC() {
-		dg = new DataGroup(6,2); 
-	
+		dg = new DataGroup(6,2); 	
 		int n=0;       
-        String xtxt = "Corner Points";
-
         String[] ytxt = {"#DeltaY   PCAL - EC (mm)","#DeltaZ   PCAL - EC (mm)"};
+        String   xtxt = "Corner Points";
         
 		for (int ix=0; ix<2; ix++) {
    	    for (int is=1; is<7; is++) {            
@@ -212,10 +210,10 @@ public class Survey{
 		
 		float yavgpc[]= {0,0,0,0,0,0}, yavgec[]= {0,0,0,0,0,0}; 
 		for(String str : pcal_rt.getMap().keySet()) {
-			int is=getSector(str)-1;
+			int  is=getSector(str)-1;
 			int  in=pcal_rt.getIndex(str)+1;
 			int inn=pcal_rt.getVindex(str);
-			yavgec[is] += (float)ec_rt.getVertex(inn).y();yavgpc[is] += (float)pcal_rt.getVertex(str).y();
+			yavgec[is] += (float)ec_rt.getVertex(inn).y(); yavgpc[is] += (float)pcal_rt.getVertex(str).y();
 			((GraphErrors) dg.getData(is+ 0).get(0)).addPoint(in,          pcal_rt.getVertex(str).y()-ec_rt.getVertex(inn).y(), 0,0);
 			((GraphErrors) dg.getData(is+ 6).get(0)).addPoint(in, Math.abs(pcal_rt.getVertex(str).z()-ec_rt.getVertex(inn).z()), 0,0);
 			System.out.println(str+" "+pcal_rt.getVertex(str).y()+" "+ec_rt.getVertex(inn).y());
