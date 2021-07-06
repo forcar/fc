@@ -87,7 +87,7 @@ public class MonitorApp extends JFrame implements ActionListener {
     public FCMenuBar               menuBar = null;
     public CodaEventDecoder    codadecoder = new CodaEventDecoder();
     public FCCLASDecoder3           decoder = new FCCLASDecoder3();
-    public FCCLASDecoder4          decoder4 = new FCCLASDecoder4();
+//    public FCCLASDecoder4          decoder4 = new FCCLASDecoder4();
 //    public Hipo3DataSync           writer3 = null;
     public HipoDataSync             writer = null;
     public DisplayControl   displayControl = null;	

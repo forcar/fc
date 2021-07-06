@@ -15,15 +15,16 @@ import org.jlab.geom.detector.ec.ECFactory;
 import org.jlab.geom.prim.Point3D;
 import org.jlab.geom.prim.Vector3D;
 
-public class JCSG {
+public class JCSG{
     
-//	String variation = "default";
-	String variation = "rga_fall2018";
+	String variation = "default";
+//	String variation = "rga_fall2018";
 
 	//JCSG geometry
     ConstantProvider   cp1 = GeometryFactory.getConstants(DetectorType.ECAL,11,variation);     
-    PCALGeant4Factory pcal = new PCALGeant4Factory(cp1);
+    PCALGeant4Factory pcal = new PCALGeant4Factory(cp1); 
     ECGeant4Factory   ecal = new   ECGeant4Factory(cp1);
+    
     
     //CJ geometry
     ConstantProvider   cp2 = GeometryFactory.getConstants(DetectorType.ECAL,11,variation); 
@@ -34,9 +35,9 @@ public class JCSG {
     String          name[] = {"PCAL","ECin","ECout"};
     String          view[] = {"U","V","W"};
     int             isec[] = {1,1,1};
-    int             ilay[] = {3,3,3};
-    int             istr[] = {ilay[0]==1?68:62,36,36}; //Normal radius from target is at {59,28,28}
-//    int             istr[] = {59,28,28}; //Normal radius from target
+    int             ilay[] = {1,1,1};
+//    int             istr[] = {ilay[0]==1?68:62,36,36}; //Normal radius from target is at {59,28,28}
+    int             istr[] = {59,28,28}; //Normal radius from target
     
 // These were valid as of 2018
 //    int[][]       vertices = {{4,0,5,1,7,3,6,2},{6,2,7,3,5,1,4,0},{4,0,5,1,7,3,6,2},  //CJ vertices (PCAL) -> JCSG vertices 
@@ -54,8 +55,9 @@ public class JCSG {
     	G4Trap vol = new G4Trap("vol", 1,0,0,1,1,1,0,1,1,1,0);
         for(int i=0;i<8;i++) System.out.println(getP3D(vol.getVertex(i)));
         System.out.println("\n"+"Variation "+variation);
-        System.out.println("\n"+"/geometry/ec/ec/dist2tgt = "+cp2.getDouble("/geometry/ec/ec/dist2tgt",0)+" mm"+"\n");
-        System.out.println("SECTOR "+isec[0]+" LAYER "+ilay[0]+ " PCAL STRIP "+istr[0]+" EC STRIP "+istr[1]+"\n");
+        System.out.println("/geometry/pcal/pcal/dist2tgt = "+cp2.getDouble("/geometry/pcal/pcal/dist2tgt",0)+" mm");
+        System.out.println("/geometry/ec/ec/dist2tgt = "+cp2.getDouble("/geometry/ec/ec/dist2tgt",0)+" mm"+"\n");
+        System.out.println("SECTOR "+isec[0]+" LAYER "+ilay[0]+ " STRIP PCAL: "+istr[0]+" ECAL: "+istr[1]+" ECOU: "+istr[2]+"\n");
         processVert();
     }
         

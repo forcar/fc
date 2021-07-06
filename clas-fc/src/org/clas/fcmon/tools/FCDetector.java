@@ -255,6 +255,8 @@ public class FCDetector {
                         //if( useTDC) dc = ccPix.Lmap_t;
         }
         
+        if(mapz==null) return;
+        
         // Update shape color map depending on process status and layer
         // layers 1-6 reserved for strip views, layers >7 for pixel views
         // Lmap_a stores live colormap of detector shape elements

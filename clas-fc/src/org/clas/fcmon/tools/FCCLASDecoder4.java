@@ -14,7 +14,7 @@ import org.jlab.io.hipo.HipoDataEvent;
 import org.jlab.io.hipo.HipoDataSync;
 
 import org.jlab.detector.decode.CodaEventDecoder;
-import org.jlab.detector.decode.DaqScalers;
+//import org.jlab.detector.decode.DaqScalers;
 //import org.clas.fcmon.tools.CodaEventDecoder;
 //import org.jlab.detector.decode.DetectorEventDecoder;
 import org.jlab.detector.decode.DetectorDataDgtz;
@@ -521,13 +521,13 @@ public class FCCLASDecoder4 {
         final double seconds = s2<s1 ? s2+60*60*24-s1 : s2-s1;
 
         // interpret/calibrate RAW::scaler into RUN::scaler:
-        DaqScalers r = DaqScalers.create(rawScalerBank,fcupTable,seconds);
-        if (r==null) return null;
+//        DaqScalers r = DaqScalers.create(rawScalerBank,fcupTable,seconds);
+//        if (r==null) return null;
 
         Bank scalerBank = new Bank(schemaFactory.getSchema("RUN::scaler"),1);
-        scalerBank.putFloat("fcup",0,r.getBeamCharge());
-        scalerBank.putFloat("fcupgated",0,r.getBeamChargeGated());
-        scalerBank.putFloat("livetime",0,r.getLivetime());
+//        scalerBank.putFloat("fcup",0,r.getBeamCharge());
+//        scalerBank.putFloat("fcupgated",0,r.getBeamChargeGated());
+//        scalerBank.putFloat("livetime",0,r.getLivetime());
 
         return scalerBank;
     }

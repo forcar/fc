@@ -110,12 +110,12 @@ public class HipoDST {
 //              byte[] array = reader.readEvent(nev);
                 HipoEvent array = reader.readEvent(nev);
 //              DataEvent de = (DataEvent) new HipoDataEvent(array,reader.getSchemaFactory());
-                DataEvent de = (DataEvent) new HipoDataEvent(array);
-                ecEngine.processDataEvent(de);
-                if (saveEvent(de,outEvent,filter)) {
-                    if (debug==1) de.getBank("ECAL::clusters").show();
-                    writer.writeEvent(outEvent);
-                }
+//                DataEvent de = (DataEvent) new HipoDataEvent(array);
+//                ecEngine.processDataEvent(de);
+//                if (saveEvent(de,outEvent,filter)) {
+//                    if (debug==1) de.getBank("ECAL::clusters").show();
+//                    writer.writeEvent(outEvent);
+//                }
                 progress.updateStatus();
             }
         }
@@ -359,8 +359,8 @@ public class HipoDST {
                group.getNode("pz").setFloat(j, (float) Math.random());
            }
            
-           HipoDataBank bank = new HipoDataBank(group);
-           bank.show();
+//           HipoDataBank bank = new HipoDataBank(group);
+//           bank.show();
            HipoEvent event = writer.createEvent();
            event.writeGroup(group);
            writer.writeEvent(event);

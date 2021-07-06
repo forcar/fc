@@ -16,7 +16,7 @@ import org.jlab.io.base.DataEvent;
 
 public class FTOFMon extends DetectorMonitor {
 	
-    static MonitorApp             app = new MonitorApp("FTOFMon",1800,950);	
+    static MonitorApp             app = new MonitorApp("FTOFMon",1800,950); 
     
     FTOFPixels              ftofPix[] = new FTOFPixels[3];
     ConstantsManager             ccdb = new ConstantsManager();

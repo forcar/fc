@@ -155,17 +155,21 @@ public class ECReconstructionApp extends FCApplication {
                
                Float[] tdcc; float[] tdc; 
                
+               idet = getDet(il);
+               ilay = getLay(il);
+               
                if (tdcs.hasItem(is,il,ip)) {
                    List<Float> list = new ArrayList<Float>();
                    list = tdcs.getItem(is,il,ip); tdcc=new Float[list.size()]; list.toArray(tdcc);
                    tdc  = new float[list.size()];
-                   for (int ii=0; ii<tdcc.length; ii++) tdc[ii] = tdcc[ii]-tdcmax+offset-app.phaseCorrection*4;  
+                   for (int ii=0; ii<tdcc.length; ii++) {
+                	   tdc[ii] = tdcc[ii]-tdcmax+offset-app.phaseCorrection*4;  
+        	           float tdif = tdc[ii]-t;
+                       ecPix[idet].strips.hmap2.get("H2_Tdif_Hist").get(is,ilay,0).fill(tdif,ip);
+                   }
                } else {
                    tdc = new float[1];
                }
-               
-               idet = getDet(il);
-               ilay = getLay(il);
                
                sca = (float) ((is==5)?ecc.SCALE5[il-1]:ecc.SCALE[il-1]);
                if(app.isMC&&app.variation=="clas6") sca = 1;
