@@ -1,0 +1,6 @@
+#!/bin/sh -f
+
+SCRIPT_DIR=`dirname $0`
+DISTRO_DIR=$SCRIPT_DIR/../ ; export DISTRO_DIR
+
+java -Xmx8191m -cp "$DISTRO_DIR/lib/*" org.clas.fcmon.ctof.CTOFMon $*
