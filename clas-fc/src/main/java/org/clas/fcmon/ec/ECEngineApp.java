@@ -47,7 +47,7 @@ import org.jlab.rec.eb.EBCCDBConstants;
 import org.jlab.rec.eb.SamplingFractions;
 import org.jlab.service.eb.EBEngine;
 import org.jlab.service.eb.EventBuilder;
-import org.jlab.service.ec.ECEngine;
+import org.clas.service.ec.ECEngine;
 import org.jlab.utils.groups.IndexedList;
 import org.jlab.groot.data.H1F;
 import org.jlab.groot.data.H2F; 

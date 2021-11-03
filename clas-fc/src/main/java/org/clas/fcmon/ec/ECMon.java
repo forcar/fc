@@ -13,8 +13,8 @@ import org.jlab.groot.base.GStyle;
 import org.jlab.io.base.DataEvent;
 import org.jlab.io.evio.EvioDataEvent;
 import org.jlab.io.evio.EvioDataSync;
-import org.jlab.service.ec.ECEngine;
-
+import org.clas.service.ec.ECEngine;
+import org.clas.service.ec.ECStrip;
 
 import java.util.Arrays;
 import java.util.TreeMap;
@@ -47,8 +47,8 @@ public class ECMon extends DetectorMonitor {
     public static int        calRun = 4483;
     public static String  variation = "default";
     int                       detID = 0;
-    int                         is1 = 1;
-    int                         is2 = 7;  
+    int                         is1 = 2;
+    int                         is2 = 3;  
     int    nsa,nsb,tet,p1,p2,pedref = 0;
     double               PCMon_zmin = 0;
     double               PCMon_zmax = 0;
@@ -57,6 +57,8 @@ public class ECMon extends DetectorMonitor {
     String                   mondet = "EC";
     static String           appname = "ECMON";
     String                 detnam[] = {"PCAL","ECin","ECout"};
+    
+    ECConstants                        ecc = new ECConstants();
         
     TreeMap<String,Object> glob = new TreeMap<String,Object>();
    
@@ -274,7 +276,7 @@ public class ECMon extends DetectorMonitor {
    	        firstevent=false;
         }  
         
-        ecRecon.addEvent(de);
+        if(!app.doEng) ecRecon.addEvent(de);
         ecTrig.addEvent(de);
       
         if(app.doEng) {
@@ -291,6 +293,20 @@ public class ECMon extends DetectorMonitor {
           dropBanks(de);
           ecEng.ecEngine.processDataEvent(de);     
           ecEng.addEvent(de);
+          ecRecon.clear(0); ecRecon.clear(1);ecRecon.clear(2);
+          for (ECStrip strip : ecEng.ecEngine.getStrips()) {
+        	  int is = strip.getDescriptor().getSector();
+        	  int il = strip.getDescriptor().getLayer();
+        	  int ip = strip.getDescriptor().getComponent();
+              int idet = ecEng.getDet(il);
+              int ilay = ecEng.getLay(il);
+              float[] tdc = new float[1];
+              tdc[0] = (float)strip.getRawTime()-app.tdcOffset;
+              float sca = (float) ((is==5)?ecc.SCALE5[il-1]:ecc.SCALE[il-1]);
+              ecRecon.fill(   idet, is, ilay, ip, strip.getADC()/sca, tdc, 0f, 0f, 0);
+              ecRecon.fillSED(idet, is, ilay, ip, strip.getADC(), tdc);
+          }
+
           if(app.doGain) ecGains.addEvent(de);
           if(de instanceof EvioDataEvent && saveFile) writer.writeEvent(de);
         }

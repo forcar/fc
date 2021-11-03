@@ -1467,7 +1467,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
             return integral;            
         }
         
-        public Integer getStatus() {   
+/*        public Integer getStatus() {   
             int t = app.trigger;  //0=cluster 1=pixel
             aYL=integral(h1af,ecc.AL[t][0],ecc.AL[t][1]);
             aYS=integral(h1af,ecc.AS[t][0],ecc.AS[t][1]);
@@ -1481,7 +1481,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
             if (badA())      return 1;
             return 0;            
         }
-        
+*/        
         public Integer getStatus(int is, int sl, int ip) {
         	float Asum = asum.get(7, sl, ip), A = asum.get(is, sl, ip);
         	float Tsum = tsum.get(7, sl, ip), T = tsum.get(is, sl, ip);
