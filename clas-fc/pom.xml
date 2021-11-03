@@ -13,7 +13,7 @@
 	<type>jar</type>
       </dependency>   
       <dependency>
-	<groupId>org.clas.detector</groupId>
+	<groupId>org.jlab.fc</groupId>
 	<artifactId>clas12ana</artifactId>
 	<version>3.0</version>
 	<type>jar</type>
