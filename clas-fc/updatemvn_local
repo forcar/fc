@@ -1,10 +1,8 @@
 #!/bin/sh -f
 
-mvn install:install-file -Dfile=/Users/colesmith/coatjava/lib/services/clas12detector-ec-1.0-SNAPSHOT.jar   -DgroupId=org.jlab.services -DartifactId=clas12detector-ec   -Dpackaging=jar -Dversion=1.0-SNAPSHOT
-mvn install:install-file -Dfile=/Users/colesmith/coatjava/lib/services/clas12detector-tof-1.0-SNAPSHOT.jar  -DgroupId=org.jlab.services -DartifactId=clas12detector-tof  -Dpackaging=jar -Dversion=1.0-SNAPSHOT
-mvn install:install-file -Dfile=/Users/colesmith/coatjava/lib/services/clas12detector-eb-1.0-SNAPSHOT.jar   -DgroupId=org.jlab.services -DartifactId=clas12detector-eb   -Dpackaging=jar -Dversion=1.0-SNAPSHOT
-mvn install:install-file -Dfile=/Users/colesmith/coatjava/lib/clas/coat-libs-6.6.5-SNAPSHOT.jar             -DgroupId=org.jlab.coat     -DartifactId=coat-libs           -Dpackaging=jar -Dversion=6.6.5-SNAPSHOT
-mvn install:install-file -Dfile=./external-dependencies/clas12ana-3.0.jar                                   -DgroupId=org.jlab.fc       -DartifactId=clas12ana           -Dpackaging=jar -Dversion=3.0
+mvn install:install-file -Dfile=$COATJAVA/lib/services/clas12detector-ec-1.0-SNAPSHOT.jar   -DgroupId=org.jlab.services -DartifactId=clas12detector-ec   -Dpackaging=jar -Dversion=1.0-SNAPSHOT
+mvn install:install-file -Dfile=$COATJAVA/lib/services/clas12detector-tof-1.0-SNAPSHOT.jar  -DgroupId=org.jlab.services -DartifactId=clas12detector-tof  -Dpackaging=jar -Dversion=1.0-SNAPSHOT
+mvn install:install-file -Dfile=$COATJAVA/lib/services/clas12detector-eb-1.0-SNAPSHOT.jar   -DgroupId=org.jlab.services -DartifactId=clas12detector-eb   -Dpackaging=jar -Dversion=1.0-SNAPSHOT
 mvn install:install-file -Dfile=./external-dependencies/3DViewer-1.0-SNAPSHOT.jar                           -DgroupId=org.jlab.fc       -DartifactId=3DViewer            -Dpackaging=jar -Dversion=1.0-SNAPSHOT
 mvn install:install-file -Dfile=./external-dependencies/ca-1.0.0.jar                                        -DgroupId=org.jlab.fc       -DartifactId=ca                  -Dpackaging=jar -Dversion=1.0.0
 mvn install:install-file -Dfile=./external-dependencies/disruptor-3.3.0.jar                                 -DgroupId=org.jlab.fc       -DartifactId=disruptor           -Dpackaging=jar -Dversion=3.3.0
