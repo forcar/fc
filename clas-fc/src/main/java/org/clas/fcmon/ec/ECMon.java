@@ -44,11 +44,11 @@ public class ECMon extends DetectorMonitor {
     EvioDataSync             writer = null;
     Boolean                saveFile = false;
    
-    public static int        calRun = 4483;
+    public static int        calRun = 6603;
     public static String  variation = "default";
     int                       detID = 0;
-    int                         is1 = 2;
-    int                         is2 = 3;  
+    int                         is1 = 1;
+    int                         is2 = 7;  
     int    nsa,nsb,tet,p1,p2,pedref = 0;
     double               PCMon_zmin = 0;
     double               PCMon_zmax = 0;

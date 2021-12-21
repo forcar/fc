@@ -14,7 +14,9 @@ import org.jlab.detector.base.DetectorDescriptor;
 //import org.root.histogram.H1D;
 //groot
 import org.jlab.groot.graphics.EmbeddedCanvas;
+import org.jlab.groot.math.Axis;
 import org.jlab.groot.math.F1D;
+import org.jlab.groot.data.GraphErrors;
 import org.jlab.groot.data.H1F;
 import org.jlab.groot.data.H2F;
 
@@ -157,6 +159,7 @@ public class ECMode1App extends FCApplication  {
 //      ics[idet][la-1]=ic;
       
    }
+   
    public void updateTDIF() {
        
        DetectorCollection<H2F> dc2a = ecPix[idet].strips.hmap2.get("H2_Tdif_Hist");        
@@ -187,24 +190,56 @@ public class ECMode1App extends FCApplication  {
        
        ics[idet][la-1]=ic;
        
-   }   
+   } 
+   
    public void updateAvsT() {
        
        DetectorCollection<H2F> dc2a = ecPix[idet].strips.hmap2.get("H2_a_Hist");       
-       
+               
        H2F h2;
+       GraphErrors geff;
        
-       c = mode1.getCanvas("AvsT");  c.clear(); c.divide(3,2);       
+       c = mode1.getCanvas("AvsT");  c.clear(); c.divide(3,4);       
       
        for (int il=1; il<4; il++) {
            h2=dc2a.get(is,il,4); h2.setTitleY("Sector "+is+otab[idet][il-1]+" TDC") ; h2.setTitleX("Sector "+is+otab[idet][il-1]+" FADC");
            canvasConfig(c,il-1,0.,amax,0.,tmax,true).draw(h2);            
            h2=dc2a.get(is,il,5); h2.setTitleY("Sector "+is+otab[idet][il-1]+" TDC") ; h2.setTitleX("Sector "+is+otab[idet][il-1]+" FADC");
-           canvasConfig(c,il-1+3,0.,amax2,0.,tmax,true).draw(h2);            
+           canvasConfig(c,il-1+3,0.,amax2,0.,tmax,true).draw(h2);     
+           geff = getEff(h2,dc2a.get(is,il,3)); geff.setTitleY("DSC Efficiency");   geff.setTitleX("Sector "+is+otab[idet][il-1]+" FADC");
+           canvasConfig(c,il-1+6,0.,amax2,0,1.05,false).draw(geff); 
+           h2=dc2a.get(is,il,3); h2.setTitleY("Sector "+is+otab[idet][il-1]) ;        h2.setTitleX("Sector "+is+otab[idet][il-1]+" FADC");
+           canvasConfig(c,il-1+9,0.,amax2,0,0,true).draw(h2);     
        }
        
        c.repaint();
        
+   }
+   
+   public H1F projectionX(H2F h2, float ymin, float ymax ) {
+       String name = "X Projection";
+       Axis xAxis = h2.getXAxis(), yAxis = h2.getYAxis();
+       double xMin = xAxis.min();
+       double xMax = xAxis.max();
+       int xNum = xAxis.getNBins();
+       H1F projX = new H1F(name, xNum, xMin, xMax);
+       int ybinlo = yAxis.getBin(ymin), ybinhi = yAxis.getBin(ymax);
+       double height = 0.0;
+       for (int x = 0; x < xAxis.getNBins(); x++) {
+           height = 0.0;
+           for (int y = ybinlo; y < ybinhi; y++) {
+               height += h2.getBinContent(x, y);
+           }
+           projX.setBinContent(x, height);
+       }
+       
+       return projX;
+   }
+   
+   public GraphErrors getEff(H2F h1, H2F h2) {	  	
+	   GraphErrors  gout = H1F.divide(projectionX(h1,120,200), h2.projectionX()).getGraph();
+	   gout.setMarkerColor(1); gout.setLineColor(2);
+	   return gout;
    }
    
    public void updateSync() {
