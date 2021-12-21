@@ -143,9 +143,9 @@ public class FCMenuBar extends JMenuBar  {
     	    if(e.getActionCommand().compareTo("Sector 4")==0) {ethost="adcecal4";etfile="/tmp/et_sys_clasprod";}
     	    if(e.getActionCommand().compareTo("Sector 5")==0) {ethost="adcecal5";etfile="/tmp/et_sys_clasprod";}
             if(e.getActionCommand().compareTo("Sector 6")==0) {ethost="adcecal6";etfile="/tmp/et_sys_clasprod";}      
-            if(e.getActionCommand().compareTo("HTCC")==0)     {ethost="adcctof1";etfile="/et/clasltcc";port=11112;}      
-            if(e.getActionCommand().compareTo("CTOF")==0)     {ethost="svt1";    etfile="/et/clasltcc";port=11111;}      
-            if(e.getActionCommand().compareTo("CND")==0)      {ethost="svt1";    etfile="/et/clasltcc";port=11111;}      
+            if(e.getActionCommand().compareTo("HTCC")==0)     {ethost="adcctof1";etfile="/et/clasprod";port=11111;}      
+            if(e.getActionCommand().compareTo("CTOF")==0)     {ethost="adcctof1";etfile="/et/clasprod";port=11111;}      
+            if(e.getActionCommand().compareTo("CND")==0)      {ethost="adcctof1";etfile="/et/clasprod";port=11111;}      
             if(e.getActionCommand().compareTo("BAND")==0)     {ethost="adcband1";etfile="/et/bandtest";port=app.tcpPort;}      
             if(e.getActionCommand().compareTo("SVT")==0)      {ethost="svt1";    etfile="/et/clasprod";port=11111;}      
             if(e.getActionCommand().compareTo("clondaq3")==0) {ethost="clondaq3";etfile="/tmp/et_sys_clasprod";}       
