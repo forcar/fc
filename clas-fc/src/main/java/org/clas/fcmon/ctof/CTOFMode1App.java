@@ -71,7 +71,7 @@ public class CTOFMode1App extends FCApplication {
     public void updateEvent() {
 
         int min=0, max=nstr;
-        c = mode1.getCanvas("Event");       
+        c = mode1.getCanvas("Event");   c.clear();    
         
         switch (idet) {
         case 0: c.divide(4,6); max=24 ; if (ic>23) {min=24; max=48;} if (ic>47) {min=48; max=nstr;} break;
@@ -92,9 +92,7 @@ public class CTOFMode1App extends FCApplication {
         f2.setLineColor(4);f2.setLineStyle(2);
 
         H1F h ; 
-       
-        c.clear();
-        
+              
         for(int ip=min;ip<max;ip++){
             c.cd(ip-min); 
             c.getPad(ip-min).setOptStat(Integer.parseInt("0"));

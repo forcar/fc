@@ -83,7 +83,7 @@ public class ECMode1App extends FCApplication  {
    public void updateEvent() {   
    
       int min=0, max=nstr;
-      c = mode1.getCanvas("PMT");
+      c = mode1.getCanvas("PMT"); c.clear();
       
       switch (idet) {
       case 0: c.divide(4,6); max=24 ; if (ic>23) {min=24; max=48;} if (ic>47) {min=48; max=nstr;} break;
@@ -107,19 +107,17 @@ public class ECMode1App extends FCApplication  {
       F1D f2 = new F1D("p0","[a]",0.,100.); f2.setParameter(0,app.mode7Emulation.CCDB_tet);
       f2.setLineColor(4); f2.setLineStyle(2);	
 		
-      H1F h ;
-      
-      c.clear();
+      H1F h,hb ;
       
       for(int ip=min;ip<max;ip++){
-          c.cd(ip-min); 
-          c.getPad(ip-min).setOptStat(Integer.parseInt("0"));
+          c.cd(ip-min);           
           c.getPad(ip-min).getAxisX().setRange(0.,100.);
           c.getPad(ip-min).getAxisY().setRange(-100.,4000*app.displayControl.pixMax);
-          h = ecPix[idet].strips.hmap2.get("H2_Mode1_Sevd").get(is,la,0).sliceY(ip); 
+          hb = ecPix[idet].strips.hmap2.get("H2_Mode1_Sevd").get(is,la,1).sliceY(ip); 
+          h  = ecPix[idet].strips.hmap2.get("H2_Mode1_Sevd").get(is,la,0).sliceY(ip); 
           h.setTitleX("Sector "+is+otab[idet][la-1]+(ip+1)+"  (4 ns/ch)"); h.setTitleY("Counts");
-          h.setFillColor(4); c.draw(h);
-          h = ecPix[idet].strips.hmap2.get("H2_Mode1_Sevd").get(is,la,1).sliceY(ip); 
+          hb.setOptStat(hb.integral()>0 ? "1000000":"0");
+          hb.setFillColor(4);c.draw(hb);
           h.setFillColor(2); c.draw(h,"same");
           c.draw(f1,"same"); c.draw(f2,"same");
           }  

@@ -67,7 +67,7 @@ public class CNDMode1App extends FCApplication {
     public void updateEvent() {
 
         int min=0, max=nstr;
-        c = mode1.getCanvas("Event");       
+        c = mode1.getCanvas("Event"); c.clear();       
           
         c.divide(2,3);
         c.setAxisFontSize(14);
@@ -85,8 +85,6 @@ public class CNDMode1App extends FCApplication {
         f2.setLineColor(4);f2.setLineStyle(2);
 
         H1F h ; 
-       
-        c.clear();
         
         int n = 0;
         

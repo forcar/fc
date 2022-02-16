@@ -52,7 +52,7 @@ public class CCMode1App extends FCApplication {
     public void updateEvent() {
 
         int min=0;
-        c = mode1.getCanvas("Event");       
+        c = mode1.getCanvas("Event");  c.clear();      
     
         c.divide(3,6);
         c.setAxisFontSize(14);
@@ -68,8 +68,7 @@ public class CCMode1App extends FCApplication {
         f2.setLineColor(4);f2.setLineStyle(2);
         
         H1F h ; 
-              
-        c.clear();
+
         
         for(int ip=0;ip<ccPix.nstr[0];ip++){
             c.cd(ip); c.getPad(ip).setOptStat(Integer.parseInt("0")); 

@@ -59,8 +59,8 @@ public class FTOFMode1App extends FCApplication {
     public void updateEvent() {
 
         int min=0, max=nstr;
-        c = mode1.getCanvas("Event");       
-        
+        c = mode1.getCanvas("Event"); c.clear();
+                
         switch (idet) {
         case 0: c.divide(4,6); break;
         case 1: c.divide(4,6); max=24 ; if (ic>23) {min=24; max=48;} if (ic>47) {min=48; max=nstr;} break;
@@ -83,11 +83,9 @@ public class FTOFMode1App extends FCApplication {
 
         H1F h ; 
        
-        c.clear();
-        
         for(int ip=min;ip<max;ip++){
             c.cd(ip-min); 
-            c.getPad(ip-min).setOptStat(Integer.parseInt("0"));
+            c.getPad(ip-min).setOptStat("0");
             c.getPad(ip-min).getAxisX().setRange(0.,100.);
             c.getPad(ip-min).getAxisY().setRange(-100.,ftofPix[0].amax[idet]*app.displayControl.pixMax);
             h = ftofPix[idet].strips.hmap2.get("H2_a_Sevd").get(is,lr,0).sliceY(ip);            

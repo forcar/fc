@@ -80,8 +80,6 @@ public class BANDMode1App extends FCApplication {
         f2.setLineColor(4);f2.setLineStyle(2);
 
         H1F h ; 
-       
-        c.clear();
         
         for(int ip=min;ip<max;ip++){
             c.cd(ip-min); 

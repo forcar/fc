@@ -65,7 +65,8 @@ public class HTCCMode1App extends FCApplication {
 
         int min=0, max=nstr;
         
-        c = mode1.getCanvas("Event");       
+        c = mode1.getCanvas("Event");  c.clear();             
+       
         c.divide(6,4); max=24 ; 
         c.setAxisFontSize(14);
         
@@ -82,8 +83,7 @@ public class HTCCMode1App extends FCApplication {
         f2.setLineColor(4);f2.setLineStyle(2);
 
         H1F h ; 
-       
-        c.clear();
+
         int n=0;
 
         for(int ip=0;ip<4;ip++){
