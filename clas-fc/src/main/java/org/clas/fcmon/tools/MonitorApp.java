@@ -133,7 +133,7 @@ public class MonitorApp extends JFrame implements ActionListener {
     public float             pcT =  7f;
     public float            eciT = 15f;
     public float            ecoT = 20f;
-    public String          config = "muon";
+    public String          config = "phot";
     public double         wlogPar = 4.0;
     public int            trigger = 1;        //0=cluster 1=pixel
     public int               omap = 0;

@@ -290,10 +290,10 @@ public class ECMon extends DetectorMonitor {
         	     de.removeBank("ECAL::clusters");
         	     de.removeBank("ECAL::calib");  
           }
-          dropBanks(de);
-          ecEng.ecEngine.processDataEvent(de);     
-          ecEng.addEvent(de);
-          ecRecon.clear(0); ecRecon.clear(1);ecRecon.clear(2);
+          
+          dropBanks(de); ecEng.ecEngine.processDataEvent(de);  
+          
+          ecRecon.clear(0); ecRecon.clear(1); ecRecon.clear(2);
           for (ECStrip strip : ecEng.ecEngine.getStrips()) {
         	  int is = strip.getDescriptor().getSector();
         	  int il = strip.getDescriptor().getLayer();
@@ -302,14 +302,31 @@ public class ECMon extends DetectorMonitor {
               int ilay = ecEng.getLay(il);
               float[] tdc = new float[1];
               tdc[0] = (float)strip.getRawTime()-app.tdcOffset;
+
               float sca = (float) ((is==5)?ecc.SCALE5[il-1]:ecc.SCALE[il-1]);
-              ecRecon.fill(   idet, is, ilay, ip, strip.getADC()/sca, tdc, 0f, 0f, 0);
-              ecRecon.fillSED(idet, is, ilay, ip, strip.getADC(), tdc);
+              ecRecon.fill(   idet, is, ilay, ip,        strip.getADC()/sca,  tdc, 0f, 0f, 0);
+              ecRecon.fillSED(idet, is, ilay, ip, (int) (strip.getADC()/sca), tdc);
+          }
+          
+          ecEng.addEvent(de);
+      
+          if (app.isSingleEvent()) {
+              ecRecon.findPixels();     // Process all pixels for SingleEventDisplay
+              ecRecon.processSED();
           }
 
           if(app.doGain) ecGains.addEvent(de);
           if(de instanceof EvioDataEvent && saveFile) writer.writeEvent(de);
         }
+    }
+    
+    public void debugit(String val) {
+    	System.out.println(val);
+        for (int ilmap=0; ilmap<3; ilmap++) {
+      	  for (int is=1; is<7; is++) {
+               if(ecPix[ilmap].clusterXY.containsKey(is)) System.out.println(ilmap+" "+is+" "+ecPix[ilmap].clusterXY.get(is).size());
+      	  }
+        }    	
     }
 
 	@Override

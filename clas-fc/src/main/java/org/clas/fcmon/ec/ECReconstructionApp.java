@@ -573,9 +573,11 @@ public class ECReconstructionApp extends FCApplication {
                
                good_uvwa = good_ua && good_va && good_wa; //Multiplicity test (NU=NV=NW=1)
                
-               good_pix[0] = good_ua&&ecPix[idet].adcr[is][1][0]>35&&ecPix[idet].adcr[is][2][0]>35; // If single U strip, require V,W>35
-               good_pix[1] = good_va&&ecPix[idet].adcr[is][0][0]>35&&ecPix[idet].adcr[is][2][0]>35; // If single V strip, require U,W>35
-               good_pix[2] = good_wa&&ecPix[idet].adcr[is][0][0]>35&&ecPix[idet].adcr[is][1][0]>35; // If single W strip, require U,V>35
+               int thr = 35; 
+               
+               good_pix[0] = good_ua && ecPix[idet].adcr[is][1][0]>thr && ecPix[idet].adcr[is][2][0]>thr; // If single U strip, require V,W>35
+               good_pix[1] = good_va && ecPix[idet].adcr[is][0][0]>thr && ecPix[idet].adcr[is][2][0]>thr; // If single V strip, require U,W>35
+               good_pix[2] = good_wa && ecPix[idet].adcr[is][0][0]>thr && ecPix[idet].adcr[is][1][0]>thr; // If single W strip, require U,V>35
 
                if (idet==0 ) good_dalitz = Math.abs(ecPix[idet].uvwa[is]-2.0)<0.1;                              //PCAL dalitz
                if (idet>0)   good_dalitz = (ecPix[idet].uvwa[is]-2.0)>0.02 && (ecPix[idet].uvwa[is]-2.0)<0.056; //ECAL dalitz              
@@ -596,7 +598,7 @@ public class ECReconstructionApp extends FCApplication {
                    
                    for (int il=1; il<4 ; il++){
                        double adcc = ecPix[idet].adcr[is][il-1][0]/pixelLength[pixel-1]; //Normalize to pixel length (EC projective geometry)
-                       if (good_pix[il-1]&&adcc<250) {
+                       if (good_pix[il-1]&&adcc<250) { 
                          ecPix[idet].pixels.hmap1.get("H1_a_Maps").get(is+1,il,4).fill(pixel,1.0); // Events per pixel
                          ecPix[idet].strips.hmap2.get("H2_a_Hist").get(is+1,il,1).fill(adcc,ecPix[idet].strra[is][il-1][0],1.0) ;
                          ecPix[idet].strips.hmap2.get("H2_a_Hist").get(is+1,il,2).fill(adcc,pixel,1.0);                        
@@ -615,9 +617,9 @@ public class ECReconstructionApp extends FCApplication {
                
                good_uvwt = good_ut && good_vt && good_wt; //Multiplicity test (NU=NV=NW=1)    
                
-               good_pix[0] = good_ut&&ecPix[idet].tdcr[is][0][0]>500&&ecPix[idet].tdcr[is][0][0]<800;  
-               good_pix[1] = good_vt&&ecPix[idet].tdcr[is][1][0]>500&&ecPix[idet].tdcr[is][1][0]<800;  
-               good_pix[2] = good_wt&&ecPix[idet].tdcr[is][2][0]>500&&ecPix[idet].tdcr[is][2][0]<800;  
+               good_pix[0] = good_ut&&ecPix[idet].tdcr[is][0][0]>100&&ecPix[idet].tdcr[is][0][0]<200;  
+               good_pix[1] = good_vt&&ecPix[idet].tdcr[is][1][0]>100&&ecPix[idet].tdcr[is][1][0]<200;  
+               good_pix[2] = good_wt&&ecPix[idet].tdcr[is][2][0]>100&&ecPix[idet].tdcr[is][2][0]<200;  
                
                if (idet==0) good_dalitz = Math.abs(ecPix[idet].uvwt[is]-2.0)<0.1;                              //PCAL dalitz
                if (idet>0)  good_dalitz = (ecPix[idet].uvwt[is]-2.0)>0.02 && (ecPix[idet].uvwt[is]-2.0)<0.056; //ECAL dalitz                

@@ -1646,7 +1646,6 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
     				for (int il=il1; il<il2; il++ ) {
     					for (int ip=0; ip<npmt[il-1]; ip++) {
     						    line = is+" "+il+" "+(ip+1)+" "+calib.getIntValue("status",is,il,ip+1);
-    						    System.out.println(line);
     						    outputBw.write(line);
     						    outputBw.newLine();
     					}

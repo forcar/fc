@@ -1,44 +1,36 @@
 package org.clas.fcmon.ec;
 
-import java.awt.BorderLayout;
+
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.TreeMap;
 
 import javax.swing.JFrame;
-import javax.swing.JSplitPane;
 
 import org.clas.fcmon.tools.CalDrawDB;
-import org.clas.fcmon.tools.CalibrationData_old;
 import org.clas.fcmon.tools.FCCalibrationData;
 import org.clas.fcmon.tools.Pixel;
 import org.clas.fcmon.tools.Pixels;
 import org.clas.fcmon.tools.Strips;
-import org.clas.fcmon.tools.DataBaseLoader;
 import org.clas.fcmon.tools.ECpixelDepth;
-import org.jlab.detector.base.DetectorCollection;
-import org.jlab.detector.base.DetectorDescriptor;
-import org.jlab.detector.base.DetectorType;
-import org.jlab.detector.calib.utils.ConstantsManager;
-import org.clas.containers.FTHashCollection;
 import org.clas.fcmon.detector.view.DetectorShape2D;
-import org.jlab.groot.ui.PaveText;
+
+import org.jlab.detector.base.DetectorCollection;
+import org.jlab.detector.base.DetectorLayer;
+
 import org.jlab.utils.groups.IndexedList;
-import org.jlab.utils.groups.IndexedTable;
+
 import org.jlab.geom.detector.ec.ECDetector;
-import org.jlab.geom.detector.ec.ECFactory;
 import org.jlab.geom.detector.ec.ECLayer;
-import org.jlab.geom.prim.Path3D;
+
 import org.jlab.groot.base.GStyle;
 import org.jlab.groot.data.H1F;
 import org.jlab.groot.data.H2F;
 import org.jlab.groot.graphics.EmbeddedCanvas;
 
-import math.geom2d.polygon.Polygons2D;
 import math.geom2d.polygon.SimplePolygon2D;
 
 public class ECPixels {
@@ -89,6 +81,7 @@ public class ECPixels {
     float     ph[][][] = new  float[6][3][68]; 
     
     int[][] sthrMuon = {{5,5,5},{5,5,5},{5,5,5}}; //15,20,20
+//    int[][] sthrMuon = {{15,15,15},{20,20,20},{20,20,20}}; //15,20,20
     int[][] sthrPhot = {{10,10,10},{9,9,9},{8,8,8}};
     int[][] sthrElec = {{10,10,10},{10,10,10},{10,10,10}};
     int[][] sthrZero = {{1,1,1},{1,1,1},{1,1,1}};
@@ -115,8 +108,9 @@ public class ECPixels {
         if (det.equals("ECin"))   idet=1;
         if (det.equals("ECout"))  idet=2;
         for (int suplay=idet ; suplay<idet+1; suplay++) {
+            int off = suplay==0 ? DetectorLayer.PCAL_Z : (suplay==1 ? DetectorLayer.EC_INNER_Z : DetectorLayer.EC_OUTER_Z);
             for (int layer=0; layer<3; layer++) {
-                ecLayer = detector.getSector(0).getSuperlayer(suplay).getLayer(layer);
+                ecLayer = detector.getSector(0).getSuperlayer(suplay).getLayer(layer+off);
                 ec_nstr[layer] = ecLayer.getAllComponents().size();
                 strips.nstr[layer] = ec_nstr[layer];
             }
@@ -507,8 +501,8 @@ public class ECPixels {
                 H2_PC_Stat.add(is, 0, 3, new H2F("a_pix_"+id+3,   50,-1.,    1,  3, 1., 4.));                       
                 H2_PC_Stat.add(is, 0, 4, new H2F("b_pix_"+id+4,   50, 0.,  1.1,  4, 0., 4.)); 
                 
-                H1_Clus_Mult.add(is, 0, 0, new H1F("a_clus_"+id+0, 12, 0, 12));         
-                H2_Clus_Mult.add(is, 0, 0, new H2F("b_clus_"+id+0, 12, 0, 12,  4, 0,  4));   
+                H1_Clus_Mult.add(is, 0, 0, new H1F("a_clus_"+id+0, 11, 1, 12));         
+                H2_Clus_Mult.add(is, 0, 0, new H2F("b_clus_"+id+0, 11, 1, 12,  7, 0,  7));   
                 H2_Clus_Mult.add(is, 0, 1, new H2F("c_clus_"+id+0, 50, 0,  5, 10, 0, 10));
                
         }
