@@ -5,6 +5,7 @@ import math.geom2d.polygon.Polygon2D;
 import math.geom2d.polygon.Polygons2D;
 import math.geom2d.polygon.SimplePolygon2D;
 
+import org.jlab.detector.base.DetectorLayer;
 import org.jlab.detector.base.DetectorType;
 
 import org.clas.fcmon.detector.view.DetectorShape2D;
@@ -1354,7 +1355,8 @@ public class CalDrawDB{
         
         for(int sector = 0; sector < 6; ++sector) {
 		    for(int l = 0; l<3; l++) {    	
-	        	ecLayer = detector.getSector(sector).getSuperlayer(suplay).getLayer(l);
+		    	int off = suplay==0 ? DetectorLayer.PCAL_Z : (suplay==1 ? DetectorLayer.EC_INNER_Z : DetectorLayer.EC_OUTER_Z);
+		    	ecLayer = detector.getSector(sector).getSuperlayer(suplay).getLayer(l+off);
         		numstrips[l] = ecLayer.getNumComponents();
 	        	int n = 0;
 		    	for(ScintillatorPaddle paddle1 : ecLayer.getAllComponents()) {
@@ -1400,7 +1402,8 @@ public class CalDrawDB{
 		    for(int l = 0; l <3; l++)
 		    {    	
 	        	//	                                             PCAL ==0         u,v,w
-	        	ecLayer = detector.getSector(sector).getSuperlayer(suplay).getLayer(l);
+		    	int off = suplay==0 ? DetectorLayer.PCAL_Z : (suplay==1 ? DetectorLayer.EC_INNER_Z : DetectorLayer.EC_OUTER_Z);
+		    	ecLayer = detector.getSector(sector).getSuperlayer(suplay).getLayer(l+off);
 	        	
 	        	//get number of l strips
         		numstrips[l] = ecLayer.getNumComponents();
