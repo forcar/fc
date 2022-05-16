@@ -15,6 +15,7 @@ import org.clas.fcmon.tools.FCCalibrationData;
 import org.clas.fcmon.tools.Pixel;
 import org.clas.fcmon.tools.Pixels;
 import org.clas.fcmon.tools.Strips;
+import org.clas.service.ec.ECCluster;
 import org.clas.fcmon.tools.ECpixelDepth;
 import org.clas.fcmon.detector.view.DetectorShape2D;
 
@@ -81,24 +82,27 @@ public class ECPixels {
     float     ph[][][] = new  float[6][3][68]; 
     
     int[][] sthrMuon = {{5,5,5},{5,5,5},{5,5,5}}; //15,20,20
-//    int[][] sthrMuon = {{15,15,15},{20,20,20},{20,20,20}}; //15,20,20
     int[][] sthrPhot = {{10,10,10},{9,9,9},{8,8,8}};
     int[][] sthrElec = {{10,10,10},{10,10,10},{10,10,10}};
+    int[][] sthrTest = {{10,10,10},{9,9,9},{13,13,13}};
     int[][] sthrZero = {{1,1,1},{1,1,1},{1,1,1}};
     
     int[][] pthrMuon = {{15,15,15},{20,20,20},{20,20,20}};
     int[][] pthrPhot = {{18,18,18},{20,20,20},{15,15,15}};
     int[][] pthrElec = {{30,30,30},{30,30,30},{30,30,30}};
+    int[][] pthrTest = {{18,18,18},{20,20,20},{15,15,15}};
     int[][] pthrZero = {{1,1,1},{1,1,1},{1,1,1}};
-        
+    
     double[] cerrMuon = {5.5,10.,10.};
-    double[] cerrPhot = {7.0,15.,20.};
+    double[] cerrPhot = {7,15,20}; 
     double[] cerrElec = {10.,10.,10.};
+    double[] cerrTest = {4.5,11.,13.};
 //    double[] cerrElec = {100.,100.,100.};
     public double        amax[] = {250.,250.,99};
     public double        tmax[] = {300.,300.,300.};    
     public int idet=0;
     public String detName = null;
+    public int simSector = 2;
 	
     public ECPixels(String det, ECDetector ecdet) {		
         System.out.println(" "); System.out.println("ECPixels("+det+")");
@@ -174,6 +178,7 @@ public class ECPixels {
         case    "phot": return sthrPhot[idet][layer-1] ; 
         case    "muon": return sthrMuon[idet][layer-1] ;  
         case    "elec": return sthrElec[idet][layer-1] ;
+        case    "test": return sthrTest[idet][layer-1] ;
         case    "none": return sthrZero[idet][layer-1] ;
         }
         return 0;
@@ -185,6 +190,7 @@ public class ECPixels {
         case    "phot": return pthrPhot[idet][layer-1] ;  
         case    "muon": return pthrMuon[idet][layer-1] ; 
         case    "elec": return pthrElec[idet][layer-1] ;
+        case    "test": return pthrTest[idet][layer-1] ;
         case    "none": return pthrZero[idet][layer-1] ;
         }
         return 0;
@@ -196,6 +202,7 @@ public class ECPixels {
         case    "phot": return (float) cerrPhot[idet] ;  
         case    "muon": return (float) cerrMuon[idet] ; 
         case    "elec": return (float) cerrElec[idet] ;
+        case    "test": return (float) cerrTest[idet] ;
         case    "none": return (float) cerrMuon[idet] ;
         }
         return 0;
@@ -377,6 +384,7 @@ public class ECPixels {
                 // Single Event Strip Occupancy
                 H1_Stra_Sevd.add(is, il, 0, new H1F("a_sed_stra_"+id+0, nstr,  1., nend));
                 H1_Stra_Sevd.add(is, il, 1, new H1F("b_sed_stra_"+id+1, nstr,  1., nend));
+                H1_Stra_Sevd.add(is, il, 2, new H1F("c_sed_stra_"+id+2, nstr,  1., nend));
                 H1_Strt_Sevd.add(is, il, 0, new H1F("a_sed_strt_"+id+0, nstr,  1., nend));
                 H1_Strt_Sevd.add(is, il, 1, new H1F("b_sed_strt_"+id+1, nstr,  1., nend));
                 
@@ -427,9 +435,26 @@ public class ECPixels {
                 H2_a_Hist.add(is, 9, 0, new H2F("g_reco_"+id+0, 50,  -2.,  2., 3, 1., 4.));   //refTH-mcThet                
                 H2_a_Hist.add(is, 9, 1, new H2F("g_reco_"+id+1, 50, -0.5, 0.5, 60, 5., 36.)); //PCAL: pcThet-refTH                
                 H2_a_Hist.add(is, 9, 2, new H2F("g_reco_"+id+2, 50, -1., 1., 30, 5., 36.));   //ECin: pcThet-refTH                
-                H2_a_Hist.add(is, 9, 3, new H2F("g_reco_"+id+3, 50, -1., 1., 30, 5., 36.));   //ECou: pcThet-refTH                 
-                H2_a_Hist.add(is, 9, 4, new H2F("g_reco_"+id+4, 60, -2., 40., 4, 1., 5.));    //PCAL-EC cluster error     
-                if (is==1) {
+                H2_a_Hist.add(is, 9, 3, new H2F("g_reco_"+id+3, 50, -1., 1., 30, 5., 36.));   //ECou: pcThet-refTH    
+                
+                if (is==simSector) {
+                	H2_a_Hist.add(is, 9,10, new H2F("g_reco_"+id+4, 60,  0,10,  4, 1,  5));  //PCAL-EC matching distance 
+                	H2_a_Hist.add(is, 9,11, new H2F("g_reco_"+id+5, 60,-10,10, 12, 1, 13));  //PCAL-EC matching x,y residuals
+                	H2_a_Hist.add(is, 9,20, new H2F("g_reco_"+id+6, 50,  0,5.2,50, 0.5,1.5));  
+                	H2_a_Hist.add(is, 9,21, new H2F("g_reco_"+id+7, 50,  0,5.2,50, 0.5,1.5)); 
+                	H2_a_Hist.add(is, 9,22, new H2F("g_reco_"+id+8, 50,  0,5.2,50,-1,  1));  
+                	H2_a_Hist.add(is, 9,23, new H2F("g_reco_"+id+9, 50,  0,5.2,50,-1,  1));  
+                	H2_a_Hist.add(is, 9,30, new H2F("g_reco_"+id+10,50,  0,5.2,50, 0.5,1.5));  
+                	H2_a_Hist.add(is, 9,31, new H2F("g_reco_"+id+11,50,  0,5.2,50, 0.5,1.5)); 
+                	H2_a_Hist.add(is, 9,32, new H2F("g_reco_"+id+12,50,  0,5.2,50,-1,  1));  
+                	H2_a_Hist.add(is, 9,33, new H2F("g_reco_"+id+13,50,  0,5.2,50,-1,  1));  
+                	H2_a_Hist.add(is, 9,40, new H2F("g_reco_"+id+14,50,  5,30, 50, 0.5,1.5));  
+                	H2_a_Hist.add(is, 9,41, new H2F("g_reco_"+id+15,50,  2,10, 50, 0.5,1.5)); 
+                	H2_a_Hist.add(is, 9,42, new H2F("g_reco_"+id+16,50,  5,30, 50,-1,  1));  
+                	H2_a_Hist.add(is, 9,43, new H2F("g_reco_"+id+17,50,  2,10, 50,-1,  1));  
+                }
+
+                if (is==simSector) {
                   H2_a_Hist.add(is, 9, 5, new H2F("g_reco_"+id+5, 60, -410., 410., 60, -410., 410.));    //Pizero mass error vs X,Y
                   H2_a_Hist.add(is, 9, 6, new H2F("g_reco_"+id+6, 60, -410., 410., 60, -410., 410.));    //Pizero mass error vs X,Y
                   H2_a_Hist.add(is, 9, 7, new H2F("g_reco_"+id+7, 60, -410., 410., 60, -410., 410.));    //Pizero mass error vs X,Y
@@ -476,34 +501,39 @@ public class ECPixels {
                 H1_Pixa_Sevd.add(is, il, 0, new H1F("a_pix_"+id+0, npix,  1., pend));
                 H1_Pixt_Sevd.add(is, il, 0, new H1F("t_pix_"+id+0, npix,  1., pend));
             }           
-                // Non-layer Pixel Maps
-                id="s"+Integer.toString(is)+"_l"+Integer.toString(7)+"_c";
-                H1_a_Maps.add(is, 7, 0, new H1F("a_aepix_"   +id+0, npix, 1., pend)); // event weighted pixel
-                H1_a_Maps.add(is, 7, 1, new H1F("b_asumpix_" +id+1, npix, 1., pend)); // adc   U+V+W weighted pixel
-                H1_a_Maps.add(is, 7, 2, new H1F("c_nsumpix_" +id+2, npix, 1., pend)); // adc   U+V+W weighted normalized pixel
-                H1_a_Maps.add(is, 7, 3, new H1F("d_nepix_"   +id+3, npix, 1., pend)); // event weighted normalized pixel
-                H1_t_Maps.add(is, 7, 0, new H1F("a_tepix_"   +id+0, npix, 1., pend));    
-                H1_t_Maps.add(is, 7, 1, new H1F("b_tsumpix_" +id+1, npix, 1., pend));    
-                H1_t_Maps.add(is, 7, 2, new H1F("c_nsumpix_" +id+2, npix, 1., pend));  
-                H1_t_Maps.add(is, 7, 3, new H1F("d_nepix_"   +id+3, npix, 1., pend));    
+            // Non-layer Pixel Maps
+            id="s"+Integer.toString(is)+"_l"+Integer.toString(7)+"_c";
+            H1_a_Maps.add(is, 7, 0, new H1F("a_aepix_"   +id+0, npix, 1., pend)); // event weighted pixel
+            H1_a_Maps.add(is, 7, 1, new H1F("b_asumpix_" +id+1, npix, 1., pend)); // adc   U+V+W weighted pixel
+            H1_a_Maps.add(is, 7, 2, new H1F("c_nsumpix_" +id+2, npix, 1., pend)); // adc   U+V+W weighted normalized pixel
+            H1_a_Maps.add(is, 7, 3, new H1F("d_nepix_"   +id+3, npix, 1., pend)); // event weighted normalized pixel
+            H1_t_Maps.add(is, 7, 0, new H1F("a_tepix_"   +id+0, npix, 1., pend));    
+            H1_t_Maps.add(is, 7, 1, new H1F("b_tsumpix_" +id+1, npix, 1., pend));    
+            H1_t_Maps.add(is, 7, 2, new H1F("c_nsumpix_" +id+2, npix, 1., pend));  
+            H1_t_Maps.add(is, 7, 3, new H1F("d_nepix_"   +id+3, npix, 1., pend));    
                         
-                id="s"+Integer.toString(is)+"_l"+Integer.toString(0)+"_c";
-                H2_PCa_Stat.add(is, 0, 0, new H2F("a_evt_"+id+0, nstr, 1., nend,  3, 1., 4.));              
-                H2_PCa_Stat.add(is, 0, 1, new H2F("b_adc_"+id+1, nstr, 1., nend,  3, 1., 4.));              
-                H2_PCa_Stat.add(is, 0, 2, new H2F("c_ovf_"+id+2, nstr, 1., nend,  3, 1., 4.));              
-                H2_PCa_Stat.add(is, 0, 5, new H2F("c_ovf_"+id+5, nstr, 1., nend,  3, 1., 4.));              
-                H2_PCt_Stat.add(is, 0, 0, new H2F("a_evt_"+id+0, nstr, 1., nend,  3, 1., 4.));              
-                H2_PCt_Stat.add(is, 0, 1, new H2F("b_tdc_"+id+1, nstr, 1., nend,  3, 1., 4.));              
-                H2_PCa_Stat.add(is, 0, 3, new H2F("a_pix_"+id+3,   50,-1.,    1,  3, 1., 4.));                       
-                H2_PCa_Stat.add(is, 0, 4, new H2F("b_pix_"+id+4,   50, 0.,  1.1,  4, 0., 4.));                                              
-                H2_PCt_Stat.add(is, 0, 3, new H2F("a_pix_"+id+3,   50,-1.,    1,  3, 1., 4.));                       
-                H2_PCt_Stat.add(is, 0, 4, new H2F("b_pix_"+id+4,   50, 0.,  1.1,  4, 0., 4.));                       
-                H2_PC_Stat.add(is, 0, 3, new H2F("a_pix_"+id+3,   50,-1.,    1,  3, 1., 4.));                       
-                H2_PC_Stat.add(is, 0, 4, new H2F("b_pix_"+id+4,   50, 0.,  1.1,  4, 0., 4.)); 
+            id="s"+Integer.toString(is)+"_l"+Integer.toString(0)+"_c";
+            H2_PCa_Stat.add(is, 0, 0, new H2F("a_evt_"+id+0, nstr, 1., nend,  3, 1., 4.));              
+            H2_PCa_Stat.add(is, 0, 1, new H2F("b_adc_"+id+1, nstr, 1., nend,  3, 1., 4.));              
+            H2_PCa_Stat.add(is, 0, 2, new H2F("c_ovf_"+id+2, nstr, 1., nend,  3, 1., 4.));              
+            H2_PCa_Stat.add(is, 0, 5, new H2F("c_ovf_"+id+5, nstr, 1., nend,  3, 1., 4.));              
+            H2_PCt_Stat.add(is, 0, 0, new H2F("a_evt_"+id+0, nstr, 1., nend,  3, 1., 4.));              
+            H2_PCt_Stat.add(is, 0, 1, new H2F("b_tdc_"+id+1, nstr, 1., nend,  3, 1., 4.));              
+            H2_PCa_Stat.add(is, 0, 3, new H2F("a_pix_"+id+3,   50,-1.,    1,  3, 1., 4.));                       
+            H2_PCa_Stat.add(is, 0, 4, new H2F("b_pix_"+id+4,   50, 0.,  1.1,  4, 0., 4.));                                              
+            H2_PCt_Stat.add(is, 0, 3, new H2F("a_pix_"+id+3,   50,-1.,    1,  3, 1., 4.));                       
+            H2_PCt_Stat.add(is, 0, 4, new H2F("b_pix_"+id+4,   50, 0.,  1.1,  4, 0., 4.));                       
+            H2_PC_Stat.add(is,  0, 3, new H2F("a_pix_"+id+3,   50,-1.,    1,  3, 1., 4.));                       
+            H2_PC_Stat.add(is,  0, 4, new H2F("b_pix_"+id+4,   50, 0.,  1.1,  4, 0., 4.)); 
                 
-                H1_Clus_Mult.add(is, 0, 0, new H1F("a_clus_"+id+0, 11, 1, 12));         
-                H2_Clus_Mult.add(is, 0, 0, new H2F("b_clus_"+id+0, 11, 1, 12,  7, 0,  7));   
-                H2_Clus_Mult.add(is, 0, 1, new H2F("c_clus_"+id+0, 50, 0,  5, 10, 0, 10));
+            H1_Clus_Mult.add(is, 0, 0, new H1F("a_clus_"+id+0, 11, 1, 12));                          
+            H2_Clus_Mult.add(is, 0, 0, new H2F("b_clus_"+id+0, 11, 1, 12,  7, 0,  7));   
+            H2_Clus_Mult.add(is, 0, 1, new H2F("c_clus_"+id+0, 50, 0,  5, 10, 0, 10));
+                
+            for (int il=1; il<4; il++) {
+                id="s"+Integer.toString(is)+"_l"+Integer.toString(il)+"_c";
+                H2_Clus_Mult.add(is, il, 0, new H2F("d_clus_"+id+0, 50, 0, 5, 3, 2, 5));
+            }
                
         }
         
