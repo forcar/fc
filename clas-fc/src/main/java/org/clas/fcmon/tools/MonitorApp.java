@@ -77,7 +77,7 @@ public class MonitorApp extends JFrame implements ActionListener {
     JCheckBox    filterBtn = null;
     JCheckBox       ipcBtn = null;
     JCheckBox     epicsBtn = null;    
-    JButton       openBtn  = null;
+    JButton        openBtn = null;
     JButton       closeBtn = null;
     
     TreeMap<String,EmbeddedCanvas>  paneCanvas = new TreeMap<String,EmbeddedCanvas>();
@@ -123,19 +123,13 @@ public class MonitorApp extends JFrame implements ActionListener {
     public boolean  isTrigger = false;
     public boolean      isIPC = false;
     public boolean      isCRT = false;
-    public boolean     isWLOG = true;
+    public boolean   repeatEv = false;
     public boolean      doEng = false;
     public boolean     doGain = false;
     
     public String    HipoFileName = null;
-    public boolean isHipoFileOpen = false;   
-    public String       variation = "default";
-    public float             pcT =  7f;
-    public float            eciT = 15f;
-    public float            ecoT = 20f;
-    public String          config = "phot";
-    public double         wlogPar = 4.0;
-    public int            trigger = 1;        //0=cluster 1=pixel
+    public boolean isHipoFileOpen = false; 
+
     public int               omap = 0;
     public int                run = 0;
     public int        triggerMask = 0; // Set in FCMenuBar
@@ -152,6 +146,8 @@ public class MonitorApp extends JFrame implements ActionListener {
     public int maxEvents=100000000;
     public int tdcOffset=0;
     public int phaseOffset=3;
+    
+    public String geomVariation = "rga_fall2018";
     
     public boolean goodFilterEvent = false;
     public FTHashCollection rtt = null;
@@ -209,8 +205,8 @@ public class MonitorApp extends JFrame implements ActionListener {
         this.appName = name;
     }
     
-    public void setVariation(String variation) {
-        this.variation = variation;
+    public void setGeomVariation(String name) {
+    	geomVariation = name;
     }
     
     public int getRunNumber() {
