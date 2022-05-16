@@ -9,11 +9,9 @@ import org.jlab.detector.base.DetectorDescriptor;
 import org.jlab.detector.calib.utils.ConstantsManager;
 import org.jlab.geom.detector.ec.ECDetector;
 import org.jlab.geom.detector.ec.ECFactory;
-import org.jlab.groot.base.GStyle;
 import org.jlab.io.base.DataEvent;
 import org.jlab.io.evio.EvioDataEvent;
 import org.jlab.io.evio.EvioDataSync;
-import org.clas.service.ec.ECEngine;
 import org.clas.service.ec.ECStrip;
 
 import java.util.Arrays;
@@ -43,12 +41,12 @@ public class ECMon extends DetectorMonitor {
     
     EvioDataSync             writer = null;
     Boolean                saveFile = false;
-   
+    DataEvent              de_copy  = null;
+    
     public static int        calRun = 6603;
-    public static String  variation = "default";
     int                       detID = 0;
-    int                         is1 = 1;
-    int                         is2 = 7;  
+    int                         is1 = 2;
+    int                         is2 = 3;  
     int    nsa,nsb,tet,p1,p2,pedref = 0;
     double               PCMon_zmin = 0;
     double               PCMon_zmax = 0;
@@ -56,19 +54,20 @@ public class ECMon extends DetectorMonitor {
   
     String                   mondet = "EC";
     static String           appname = "ECMON";
+    static String     geomVariation = "rga_fall2018";
     String                 detnam[] = {"PCAL","ECin","ECout"};
-    
-    ECConstants                        ecc = new ECConstants();
+        
+    ECConstants                 ecc = new ECConstants();
         
     TreeMap<String,Object> glob = new TreeMap<String,Object>();
    
     public ECMon(String det) {
         super(appname,"1.0","lcsmith");
         mondet = det;
-        ECDetector ecdet  = new ECFactory().createDetectorTilted(GeometryFactory.getConstants(DetectorType.ECAL, 10, "default"));
-        ecPix[0] = new ECPixels("PCAL",ecdet);
-        ecPix[1] = new ECPixels("ECin",ecdet);
-        ecPix[2] = new ECPixels("ECout",ecdet);
+        ECDetector ecdet  = new ECFactory().createDetectorTilted(GeometryFactory.getConstants(DetectorType.ECAL, 10, geomVariation));
+        ecPix[0] = new ECPixels("PCAL",ecdet);  ecPix[0].simSector=is1;
+        ecPix[1] = new ECPixels("ECin",ecdet);  ecPix[1].simSector=is1;
+        ecPix[2] = new ECPixels("ECout",ecdet); ecPix[2].simSector=is1;
     }
 	
     public static void main(String[] args){
@@ -78,9 +77,9 @@ public class ECMon extends DetectorMonitor {
            monitor.is1=Integer.parseInt(args[0]); 
            monitor.is2=Integer.parseInt(args[1]);    
         }
+        app.setGeomVariation(geomVariation);
         app.setPluginClass(monitor);
         app.setAppName(appname);
-        app.setVariation(variation);
         app.makeGUI();
         app.getEnv();
         monitor.initConstants();
@@ -109,9 +108,11 @@ public class ECMon extends DetectorMonitor {
                 "/daq/tt/ec",
                 "/calibration/ec/attenuation",
                 "/calibration/ec/gain",
-                "/calibration/ec/status"}));
+                "/calibration/ec/status",
+                "/geometry/pcal/alignment",
+                "/geometry/ec/alignment"}));
         app.getReverseTT(ccdb,runno,"/daq/tt/ec");
-        app.mode7Emulation.init(ccdb,runno,"/daq/fadc/ec", 3,3,1);        
+        app.mode7Emulation.init(ccdb,runno,"/daq/fadc/ec", 3,3,1);   
     }	
     
     public void initDetector() {
@@ -158,6 +159,7 @@ public class ECMon extends DetectorMonitor {
         ecEng = new ECEngineApp("ECEngine",ecPix);
         ecEng.setMonitoringClass(this);
         ecEng.setApplicationClass(app);
+        ecEng.setConstantsManager(ccdb,10);
         
         ecGains = new ECGainsApp("Gains");
         ecGains.setMonitoringClass(this);
@@ -259,12 +261,7 @@ public class ECMon extends DetectorMonitor {
     } 
     
     public void dropBanks(DataEvent event) {    	
-        if(event.hasBank("ECAL::clusters")) event.removeBanks("ECAL::hits","ECAL::peaks","ECAL::clusters","ECAL::calib","ECAL::moments");
-        if(event.hasBank("ECAL::clusters")) event.removeBank("ECAL::clusters");
-        if(event.hasBank("ECAL::hits"))     event.removeBank("ECAL::hits");
-        if(event.hasBank("ECAL::peaks"))    event.removeBank("ECAL::peaks");
-        if(event.hasBank("ECAL::calib"))    event.removeBank("ECAL::calib");
-        if(event.hasBank("ECAL::moments"))  event.removeBank("ECAL::moments");  	
+        if(event.hasBank("ECAL::clusters")) event.removeBanks("ECAL::hits","ECAL::peaks","ECAL::clusters","ECAL::calib","ECAL::moments");	
     } 
 
     @Override
@@ -274,27 +271,25 @@ public class ECMon extends DetectorMonitor {
         	System.out.println(appname+".dataEventAction: First Event");
    	        initCCDB(calRun);
    	        firstevent=false;
-        }  
+        } 
         
-        if(!app.doEng) ecRecon.addEvent(de);
+        if(!ecEng.eng.repeatEv) de_copy = de;
+        if( ecEng.eng.repeatEv) de = de_copy; 
+        
+        if(!ecEng.eng.doEng) ecRecon.addEvent(de);
         ecTrig.addEvent(de);
       
-        if(app.doEng) {
-          ecEng.ecEngine.singleEvent = app.isSingleEvent() ; 
-          ecEng.ecEngine.debug       = app.debug; 
-          ecEng.ecEngine.setDebugSplit(app.debug);
-          ecEng.ecEngine.isMC        = app.isMC;       
-          if(de.hasBank("ECAL::hits")) {
-        	     de.removeBank("ECAL::hits");
-        	     de.removeBank("ECAL::peaks");
-        	     de.removeBank("ECAL::clusters");
-        	     de.removeBank("ECAL::calib");  
-          }
+        if(ecEng.eng.doEng) {
+          ecEng.eng.engine.setSingleEvent(app.isSingleEvent()) ; 
+          ecEng.eng.engine.setDebug(ecEng.eng.debug); 
+          ecEng.eng.engine.setDebugSplit(ecEng.eng.debug);
+          ecEng.eng.engine.setIsMC(ecEng.eng.isMC); 
           
-          dropBanks(de); ecEng.ecEngine.processDataEvent(de);  
+          dropBanks(de); ecEng.eng.engine.processDataEvent(de);  
           
           ecRecon.clear(0); ecRecon.clear(1); ecRecon.clear(2);
-          for (ECStrip strip : ecEng.ecEngine.getStrips()) {
+          
+          for (ECStrip strip : ecEng.eng.engine.getStrips()) {
         	  int is = strip.getDescriptor().getSector();
         	  int il = strip.getDescriptor().getLayer();
         	  int ip = strip.getDescriptor().getComponent();
@@ -316,6 +311,7 @@ public class ECMon extends DetectorMonitor {
           }
 
           if(app.doGain) ecGains.addEvent(de);
+          
           if(de instanceof EvioDataEvent && saveFile) writer.writeEvent(de);
         }
     }
