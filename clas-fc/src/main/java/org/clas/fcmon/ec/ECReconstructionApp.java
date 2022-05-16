@@ -121,7 +121,7 @@ public class ECReconstructionApp extends FCApplication {
               
        clear(0); clear(1); clear(2); tdcs.clear();
        
-       if (app.isMC)  {tdcmax=2000000; offset=200;}
+       if (eng.isMC)  {tdcmax=2000000; offset=200;}
        
        sca = (app.isCRT) ? 6.6:1; // For pre-installation PCAL CRT runs
        
@@ -134,7 +134,7 @@ public class ECReconstructionApp extends FCApplication {
                int  ip = bank.getShort("component",i);               
                tdcd    = bank.getInt("TDC",i)*tps-app.tdcOffset;
                if(isGoodSector(is)&&tdcd>0) {
-                   if(app.isMC&&tdcd<tdcmax) tdcmax=tdcd; //Find and save longest hit time for MC events            
+                   if(eng.isMC&&tdcd<tdcmax) tdcmax=tdcd; //Find and save longest hit time for MC events            
                    if(!tdcs.hasItem(is,il,ip)) tdcs.add(new ArrayList<Float>(),is,il,ip);
                        tdcs.getItem(is,il,ip).add(tdcd);       
                }
@@ -172,7 +172,7 @@ public class ECReconstructionApp extends FCApplication {
                }
                
                sca = (float) ((is==5)?ecc.SCALE5[il-1]:ecc.SCALE[il-1]);
-               if(app.isMC&&app.variation=="clas6") sca = 1;
+
                float sadc = (float) (adc / sca);               
                
                for (int ii=0 ; ii< 100 ; ii++) {
@@ -349,7 +349,7 @@ public class ECReconstructionApp extends FCApplication {
                      if(pcT<tmax){pcx=pcX; pcy=pcY; pcz=pcZ ; tmax = pcT;}
                   }
               }
-              if ((app.doEng)&&idet==0&&app.debug) System.out.println("PCAL x,y,z,t="+pcx+" "+pcy+" "+pcz+" "+tmax);
+              if ((eng.doEng)&&idet==0&&eng.debug) System.out.println("PCAL x,y,z,t="+pcx+" "+pcy+" "+pcz+" "+tmax);
           }
           
           if(event.hasBank(det[idet]+"::dgtz")==true) {            
@@ -408,6 +408,7 @@ public class ECReconstructionApp extends FCApplication {
             for (int il=0 ; il<3 ; il++) {
                 ecPix[idet].strips.hmap1.get("H1_Stra_Sevd").get(is+1,il+1,0).reset();
                 ecPix[idet].strips.hmap1.get("H1_Stra_Sevd").get(is+1,il+1,1).reset();
+                ecPix[idet].strips.hmap1.get("H1_Stra_Sevd").get(is+1,il+1,2).reset();
                 ecPix[idet].strips.hmap1.get("H1_Strt_Sevd").get(is+1,il+1,0).reset();
                 ecPix[idet].strips.hmap1.get("H1_Strt_Sevd").get(is+1,il+1,1).reset();
                 ecPix[idet].strips.hmap2.get("H2_Mode1_Hist").get(is+1,il+1,0).reset();
@@ -434,13 +435,14 @@ public class ECReconstructionApp extends FCApplication {
    
    public void fillSED(int idet, int is, int il, int ip, int adc, float[] tdc) {
        double sca = 10; int idil=idet*3+il;
-       if(!app.isMC||(app.isMC&&app.variation=="default")) sca  = ecc.AtoE[idil-1];
+       if(!eng.isMC) sca  = ecc.AtoE[idil-1];
        ecPix[idet].strips.hmap1.get("H1_Stra_Sevd").get(is,il,1).fill(ip,adc/sca);  //fill all hits with energy (MeV)    
+       ecPix[idet].strips.hmap1.get("H1_Stra_Sevd").get(is,il,2).fill(ip,1);        //fill all hits     
    }
         
    public void fill(int idet, int is, int il, int ip, float adc, float[] tdc, float tdcf, float adph, int ovf) {
 
-	   double thr = ecPix[idet].getStripThr(app.config,il)*ecc.AtoE[idet*3+il-1]/10;
+	   double thr = ecPix[idet].getStripThr(eng.config,il)*ecc.AtoE[idet*3+il-1]/10;
 	   
        for (int ii=0; ii<tdc.length; ii++) {
            
@@ -488,7 +490,7 @@ public class ECReconstructionApp extends FCApplication {
           for (int il=0; il<3; il++ ){               
               for (int n=0 ; n<ecPix[idet].nha[is][il] ; n++) {
                     double sca = 10; int idil=idet*3+il;
-                    if(!app.isMC||(app.isMC&&app.variation=="default")) sca  = ecc.AtoE[idil];
+                    if(!eng.isMC) sca  = ecc.AtoE[idil];
                     int ip =          ecPix[idet].strra[is][il][n]; 
                   float ad = (float) (ecPix[idet].adcr[is][il][n]/sca);
                   float ipp = (float) (ip+0.5);  //Because of stupid GROOT bug
