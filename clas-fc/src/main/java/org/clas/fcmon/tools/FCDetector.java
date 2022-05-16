@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.clas.fcmon.tools;
 
 import java.awt.Color;
@@ -30,6 +25,7 @@ import org.jlab.utils.groups.IndexedList;
  *
  * @author lcsmith
  */
+
 public class FCDetector {
     
     ColorPalette palette3 = new ColorPalette(3);
@@ -270,14 +266,15 @@ public class FCDetector {
         //System.out.println("ilmap,junk = "+ilmap+" "+junk[0]+" "+junk[1]+" "+junk[2]);
 
         if (app.getInProcess()>0&&!peakShapes) colorfraction = getcolor(dc.get(is,layer,opt),ic,mapz.getItem(layz,opt));
-                
+
         if (colorfraction<0.05) colorfraction = 0.05;
-        pal = palette3;
+        pal = palette3;      
         if (appName=="ECDet" && app.isSingleEvent() && !peakShapes) {
             shape.reset();
             pal=palette4;            
             List<double[]> clusterList = ecPix[ilmap].clusterXY.get(is);
             //draw pixel shape which overlaps with cluster x,y position
+//            System.out.println(is+" "+ilmap+" "+clusterList.size());
             for(int i=0; i<clusterList.size(); i++) {
                double dum[] = clusterList.get(i);
                if(shape.isContained(dum[0],dum[1])) shape.setCounter(i+1, dum[0], dum[1]); //draws blue dot at cluster x,y position
