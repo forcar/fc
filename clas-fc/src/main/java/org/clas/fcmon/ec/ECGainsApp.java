@@ -4,10 +4,13 @@ import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.ButtonGroup;
+import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JSplitPane;
@@ -40,7 +43,8 @@ public class ECGainsApp extends FCApplication implements ActionListener {
     EmbeddedCanvas               c = this.getCanvas(this.getName()); 
     ButtonGroup                bG1 = new ButtonGroup();
     ButtonGroup                bG2 = new ButtonGroup();
-    ButtonGroup                bG3 = new ButtonGroup();    
+    ButtonGroup                bG3 = new ButtonGroup();   
+    JCheckBox              gainBtn = null;
     public int        activeSector = 2;
     public int      activeDetector = 0;                
     public int         activeLayer = 0;    
@@ -130,6 +134,20 @@ public class ECGainsApp extends FCApplication implements ActionListener {
         JRadioButton bw = new JRadioButton("W"); buttonPane.add(bw); bw.setActionCommand("2"); bw.addActionListener(this); 
         bG3.add(bu); bG3.add(bv); bG3.add(bw);
         bu.setSelected(true);
+        
+        
+        gainBtn = new JCheckBox("ECGain");
+        gainBtn.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                if(e.getStateChange() == ItemEvent.SELECTED) {
+                    app.doGain = true;
+                } else {
+                    app.doGain = false;
+                };
+            }
+        });           
+        gainBtn.setSelected(false);
+        buttonPane.add(gainBtn);
         
         return buttonPane;
     }    
