@@ -18,6 +18,8 @@ import org.clas.fcmon.cnd.CNDPixels;
 import org.clas.fcmon.ec.ECPixels;
 import org.clas.fcmon.ftof.FTOFPixels;
 import org.clas.fcmon.htcc.HTCCPixels;
+import org.clas.service.ec.ECEngine;
+import org.clas.tools.EngineControl;
 import org.clas.fcmon.ctof.CTOFPixels;
 import org.jlab.detector.base.DetectorCollection;
 import org.jlab.detector.base.DetectorDescriptor;
@@ -94,6 +96,8 @@ public class FCApplication implements ActionListener  {
     public boolean isEvioDataEvent = false;
     
     TriggerDataDgtz         trig = null;
+    
+    public EngineControl eng = new EngineControl(new ECEngine());
     
     public FCApplication(ECPixels[] ecPix) {
         this.ecPix = ecPix;       
