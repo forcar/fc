@@ -371,7 +371,8 @@ public class ECPixels {
                 H2_t_Hist.add(is, il, 1, new H2F("b_pix_"+id+1, 100,   0., tmax[0], nstr, 1., nend));
                 
                 // Pedestal Noise  
-                H2_Peds_Hist.add(is, il, 0, new H2F("a_ped_"+id+0,  20, -10.,  10., nstr, 1., nend)); 
+//                H2_Peds_Hist.add(is, il, 0, new H2F("a_ped_"+id+0,  20, -10.,  10., nstr, 1., nend)); 
+                H2_Peds_Hist.add(is, il, 0, new H2F("a_ped_"+id+0,  50, -100.,  100., nstr, 1., nend)); 
                 H2_Peds_Hist.add(is, il, 1, new H2F("b_ped_"+id+1,  50,   0.,  10., nstr, 1., nend)); 
                 
                 // FADC - TDC  
