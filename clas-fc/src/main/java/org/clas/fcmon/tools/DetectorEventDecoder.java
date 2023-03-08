@@ -11,7 +11,7 @@ import org.jlab.utils.groups.IndexedTable;
 
 //lcs
 import org.jlab.detector.decode.DetectorDataDgtz;
-import org.jlab.detector.decode.BasicFADCFitter;
+//import org.jlab.detector.decode.BasicFADCFitter;
 import org.jlab.detector.decode.ExtendedFADCFitter;
 import org.jlab.detector.decode.MVTFitter;
 
@@ -33,7 +33,7 @@ public class DetectorEventDecoder {
     
     private  int  runNumber               = 10;
     
-    private  BasicFADCFitter      basicFitter     = new BasicFADCFitter();
+//    private  BasicFADCFitter      basicFitter     = new BasicFADCFitter();
     private  ExtendedFADCFitter   extendedFitter  = new ExtendedFADCFitter();
     private  MVTFitter            mvtFitter       = new MVTFitter();
     
