@@ -35,6 +35,7 @@ import org.jlab.groot.graphics.EmbeddedCanvas;
 import org.jlab.groot.base.GStyle;
 import org.jlab.groot.data.H1F;
 import org.jlab.groot.data.H2F;
+import org.clas.tools.EngineControl;
 
 public class FCApplication implements ActionListener  {
 	
@@ -97,7 +98,7 @@ public class FCApplication implements ActionListener  {
     
     TriggerDataDgtz         trig = null;
     
-    public EngineControl eng = new EngineControl(new ECEngine());
+    public EngineControl eng = new EngineControl();
     
     public FCApplication(ECPixels[] ecPix) {
         this.ecPix = ecPix;       
