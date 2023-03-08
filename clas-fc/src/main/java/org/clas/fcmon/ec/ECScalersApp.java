@@ -74,7 +74,7 @@ public class ECScalersApp extends FCEpics {
         layerSelected=1;
         channelSelected=1;
         initHistos(); 
-        getScalerMap(app.scalerPath+"ecal_occupancy_cut.txt");
+//        getScalerMap(app.scalerPath+"ecal_occupancy_cut.txt");
     }
     
     public void startEPICS() {
