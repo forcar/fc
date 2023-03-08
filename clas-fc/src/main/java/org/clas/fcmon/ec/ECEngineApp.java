@@ -35,7 +35,6 @@ import org.jlab.io.base.DataBank;
 import org.jlab.io.base.DataEvent;
 import org.jlab.rec.eb.SamplingFractions;
 
-import org.clas.service.ec.ECCommon;
 import org.clas.service.ec.ECPeak;
 
 import org.jlab.utils.groups.IndexedList;
@@ -431,11 +430,11 @@ public class ECEngineApp extends FCApplication implements CalibrationConstantsLi
       	
       for (DetectorParticle dp : par) { // make list of neutral Particle objects 
       	if(dbgAnalyzer) {
-    		System.out.println("Plist "+trsec+" "+dp.getSector(DetectorType.ECAL)+" "+ebmce.hasStartTime+" "+dp.getPid()+" "+dp.getBeta()+" "+dp.getEnergy(DetectorType.ECAL));
+    		System.out.println("Plist "+trsec+" "+dp.getSector(DetectorType.ECAL)+" "+ebmce.hasTriggerPID+" "+dp.getPid()+" "+dp.getBeta()+" "+dp.getEnergy(DetectorType.ECAL));
     	}
       	  int mcsec = dp.getSector(DetectorType.ECAL);
     	  if(mcsec!=trSEC && mcsec==mcSEC && dp.getPid()==mcPID) { npart++;
-		    	if(!ebmce.hasStartTime && dp.getPid()==2112) {// this repairs zero momentum neutrons from non-PCAL seeded neutrals
+		    	if(!ebmce.hasTriggerPID && dp.getPid()==2112) {// this repairs zero momentum neutrons from non-PCAL seeded neutrals
 	 				double e = dp.getEnergy(DetectorType.ECAL)/ebmce.getSF(dp); 		
 			    	Vector3D vec = new Vector3D() ; vec.copy(dp.getHit(DetectorType.ECAL).getPosition()); vec.unit(); 			    		
 			    	dp.vector().add(new Vector3(e*vec.x(),e*vec.y(),e*vec.z())); //track energy for neutrals in DetectorParticle
@@ -645,15 +644,15 @@ public class ECEngineApp extends FCApplication implements CalibrationConstantsLi
       // Single event strip hit plots for PCAL, ECinner, ECouter
       c = strips.getCanvas("Strips"); c.divide(3,3); 
       
-      int ii=0;
+      int ii=0; int[] thr1 = eng.getStripThresholds(); int[] thr2 = eng.getPeakThresholds();
             
-	  for(ilm=0; ilm<3; ilm++) {
-      for(int il=1;il<4;il++) {
+	  for(ilm=0; ilm<3; ilm++) {		
+      for(int il=1; il<4; il++) {
          f1 = new F1D("p0","[a]",0.,ecPix[ilm].ec_nstr[il-1]+1); 
-         f1.setParameter(0,0.1*ECCommon.stripThreshold[ilm]);
+         f1.setParameter(0,0.1*thr1[ilm]);
          f1.setLineColor(4);
          f2 = new F1D("p0","[a]",0.,ecPix[ilm].ec_nstr[il-1]+1); 
-         f2.setParameter(0,0.1*ECCommon.peakThreshold[ilm]);
+         f2.setParameter(0,0.1*thr2[ilm]);
          f2.setLineColor(2);
          h1 = ecPix[ilm].strips.hmap1.get("H1_Stra_Sevd").get(is,il,1); h1.setFillColor(1); // all hits
          h2 = ecPix[ilm].strips.hmap1.get("H1_Stra_Sevd").get(is,il,0); h2.setFillColor(4); // hits > strip threshold
