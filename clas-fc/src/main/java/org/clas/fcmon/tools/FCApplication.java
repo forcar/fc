@@ -18,8 +18,6 @@ import org.clas.fcmon.cnd.CNDPixels;
 import org.clas.fcmon.ec.ECPixels;
 import org.clas.fcmon.ftof.FTOFPixels;
 import org.clas.fcmon.htcc.HTCCPixels;
-import org.clas.service.ec.ECEngine;
-import org.clas.tools.EngineControl;
 import org.clas.fcmon.ctof.CTOFPixels;
 import org.jlab.detector.base.DetectorCollection;
 import org.jlab.detector.base.DetectorDescriptor;
@@ -35,6 +33,7 @@ import org.jlab.groot.graphics.EmbeddedCanvas;
 import org.jlab.groot.base.GStyle;
 import org.jlab.groot.data.H1F;
 import org.jlab.groot.data.H2F;
+
 import org.clas.tools.EngineControl;
 
 public class FCApplication implements ActionListener  {
