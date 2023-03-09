@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import org.jlab.detector.base.DetectorType;
 import org.jlab.detector.calib.utils.ConstantsManager;
-import org.jlab.detector.decode.BasicFADCFitter;
+//import org.jlab.detector.decode.BasicFADCFitter;
 import org.jlab.detector.decode.DetectorDataDgtz;
 import org.jlab.detector.decode.DetectorDataDgtz.ADCData;
 import org.jlab.detector.decode.ExtendedFADCFitter;
@@ -25,7 +25,7 @@ public class DetectorEventDecoderOld {
     
     private  int  runNumber               = 10;
     
-    private  BasicFADCFitter      basicFitter     = new BasicFADCFitter();
+//    private  BasicFADCFitter      basicFitter     = new BasicFADCFitter();
     private  ExtendedFADCFitter   extendedFitter  = new ExtendedFADCFitter();
     
     private  Boolean          useExtendedFitter   = false;
