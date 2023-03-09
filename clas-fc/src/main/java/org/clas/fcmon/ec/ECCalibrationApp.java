@@ -1422,7 +1422,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
         
         public void makeNewTable(int is1, int is2) {
             
-            calib = new CalibrationConstants(3,"status/I");
+            calib = new CalibrationConstants(3,"status/I"); 
             calib.setName(names[STATUS]);
 //            calib.setPrecision(3);
             
@@ -1582,7 +1582,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
             }
           
             calib.fireTableDataChanged();  
-            writeFile(getFileName(app.runNumber),1,7,1,10); //because CalibrationConstants.write does not work for integer tables
+//            writeFile(getFileName(app.runNumber),1,7,1,10); //because CalibrationConstants.write does not work for integer tables
         }
         
         @Override
