@@ -27,7 +27,7 @@ import org.jlab.io.evio.EvioDataEvent;
 import org.jlab.io.hipo.HipoDataSource;
 //import org.jlab.service.eb.EBConstants;
 import org.jlab.service.eb.EBEngine;
-import org.jlab.service.ec.ECEngine;
+import org.clas.service.ec.ECEngine;
 import org.jlab.service.eb.EventBuilder;
 import org.jlab.utils.groups.IndexedList;
 import org.jlab.rec.eb.EBCCDBConstants;
@@ -435,9 +435,9 @@ public class ECPart  {
         reader.open(evioPath+evioFile1);
         
         engine.init();
-        engine.isMC = true;
+//        engine.isMC = true;
         engine.setVariation("default");
-        engine.setCalRun(10);                
+//        engine.setCalRun(10);                
         part.setThresholds("Electron_hi",engine);
         part.setGeom("2.5");
         
@@ -562,9 +562,9 @@ public class ECPart  {
         }
               
         engine.init();
-        engine.isMC = true;
+//        engine.isMC = true;
         engine.setVariation("default"); // Use clas6 variation for legacy simulation 10k-s2-newgeom 
-        engine.setCalRun(2);
+//        engine.setCalRun(2);
         
         part.setThresholds("Pizero",engine);
         part.setGeom("2.5");
