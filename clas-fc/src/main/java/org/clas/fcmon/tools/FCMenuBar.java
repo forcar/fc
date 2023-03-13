@@ -193,7 +193,7 @@ public class FCMenuBar extends JMenuBar  {
 	
 	public class MenuSettings extends JMenu implements ActionListener {
 		
-		JMenuItem item1,item2,item3,item4;
+		JMenuItem item0,item1,item2,item3,item4;
 		
         public MenuSettings() {
             createMenu();
@@ -209,15 +209,30 @@ public class FCMenuBar extends JMenuBar  {
         }
         
         public void createMenu() {
+        	JCheckBoxMenuItem item0 = new JCheckBoxMenuItem("DEBUG");
+            item0.addItemListener(new ItemListener() {
+                public void itemStateChanged(ItemEvent e) {        	
+                    if(e.getStateChange() == ItemEvent.SELECTED) {
+             	          app.debug = true;
+                    } else {
+             	          app.debug = false;
+                    };
+                }
+                }); 
+            menu.add(item0);
+        	
             item1 = new JMenuItem("HISTO reset interval");
             item1.addActionListener(this);
             menu.add(item1);
+            
             item2 = new JMenuItem("TDC Offset");
             item2.addActionListener(this);
             menu.add(item2);
+            
             item3 = new JMenuItem("Phase Offset");
             item3.addActionListener(this);
             menu.add(item3);
+            
             JCheckBoxMenuItem item4 = new JCheckBoxMenuItem("Phase Correction");  
             item4.setSelected(true);
             item4.addItemListener(new ItemListener() {
@@ -287,6 +302,8 @@ public class FCMenuBar extends JMenuBar  {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 	        if(e.getActionCommand() == "HISTO reset interval") {
+	            this.chooseUpdateInterval();
+	        }	        if(e.getActionCommand() == "HISTO reset interval") {
 	            this.chooseUpdateInterval();
 	        } 			
 	        if(e.getActionCommand() == "TDC Offset") {

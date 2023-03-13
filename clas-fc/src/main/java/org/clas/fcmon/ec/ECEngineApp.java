@@ -81,44 +81,43 @@ public class ECEngineApp extends FCApplication implements CalibrationConstantsLi
 	static int trSEC=5, trPID=-211, mcSEC=2, mcPID=22;
 
     public ECEngineApp(String name, ECPixels[] ecPix) {
-      super(name,ecPix);
-      initCanvas();
-      createPopupMenu();
-      is1 = ECConstants.IS1;
-      is2 = ECConstants.IS2;
-      mcSEC = is1;
-      ebmce.getCCDB(10);
-      ebmce.setMCpid(mcPID); 
-      ebmce.setGeom("2.5");
-      initHist();
-   }
+    	super(name,ecPix);
+        initCanvas();
+        createPopupMenu();
+        is1 = ECConstants.IS1;
+        is2 = ECConstants.IS2;
+        mcSEC = is1;
+        ebmce.getCCDB(10);
+        ebmce.setMCpid(mcPID); 
+        ebmce.setGeom("2.5");
+        initHist();
+    }
     
     public void setConstantsManager(ConstantsManager ccdb, int run) {
-        this.ccdb = ccdb;
+    	this.ccdb = ccdb;
         ccdbrun = run;
         eng.setGeomVariation(app.geomVariation);
     }
    
-   public void initHist() {
-
-	   float xmin[] = {1.8f, 1, 0};
-	   float xmax[] = {12,   8, 1};
-	   for (int i=0; i<3; i++) {
+    public void initHist() {
+	    float xmin[] = {1.8f, 1, 0};
+	    float xmax[] = {12,   8, 1};
+	    for (int i=0; i<3; i++) {
 		   for (int j=0; j<6; j++) {
 			   eff[i][j] = new H1F("Efficiency"+i+j,50,xmin[i],xmax[i]);
 		   }
-	   }
-   }    
+	    }
+    }    
    
-   public void resetEffHist() {
+    public void resetEffHist() {
 	   for (int i=0; i<3; i++) {
 		   for (int j=0; j<6; j++) {
 			   eff[i][j].reset();
 		   }
 	   }	   
-   }
+    }
    
-   public JPanel getPanel() {        
+    public JPanel getPanel() {        
        engineView.setLayout(new BorderLayout());
        engineView.add(getCanvasPane(),BorderLayout.CENTER);
        engineView.add(eng.getECEnginePane(),BorderLayout.PAGE_END);
@@ -137,9 +136,9 @@ public class ECEngineApp extends FCApplication implements CalibrationConstantsLi
        mc.addCanvas("Map2");
        mc.addCanvas("Map3");
        return engineView;       
-   }  
+    }  
    
-   public JSplitPane getCanvasPane() {
+    public JSplitPane getCanvasPane() {
        
        JSplitPane    hPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT); 
        JSplitPane   vPaneL = new JSplitPane(JSplitPane.VERTICAL_SPLIT); 
@@ -154,9 +153,9 @@ public class ECEngineApp extends FCApplication implements CalibrationConstantsLi
        vPaneL.setResizeWeight(0.5);
        vPaneR.setResizeWeight(0.5);      
        return hPane;
-   }
+    }
    
-   private void createPopupMenu(){
+    private void createPopupMenu(){
        strips.popup = new JPopupMenu();
        JMenuItem itemCopy = new JMenuItem("Copy Canvas");
        itemCopy.addActionListener(strips.getCanvas("Strips"));
@@ -354,9 +353,9 @@ public class ECEngineApp extends FCApplication implements CalibrationConstantsLi
           }
       }
   	        	      
-      }
+   }
       
-      void fillEBMCHistos(DataEvent de) { // EBMCEngine
+   void fillEBMCHistos(DataEvent de) { // EBMCEngine
       
   	  List<Float>           GEN   = new ArrayList<Float>();
       List<Float>           REC   = new ArrayList<Float>();   
@@ -391,8 +390,6 @@ public class ECEngineApp extends FCApplication implements CalibrationConstantsLi
       	if(trsec==-1 && sec==trSEC && pid==trPID) trsec=sec;
       }
       
-      boolean dbgAnalyzer = false;
-      
       if(trsec==-1) return;
       
       //gamma-gamma phi angle    
@@ -407,7 +404,7 @@ public class ECEngineApp extends FCApplication implements CalibrationConstantsLi
       ggp=ggp-90;
       if(ggp<0) ggp=ggp+180;      
 
-      if (dbgAnalyzer) {
+      if (app.debug) {
       	System.out.println(" ");
       	System.out.println(getEventNumber(de)+" "+cal.size()+" "+par.size());
       	
@@ -424,12 +421,12 @@ public class ECEngineApp extends FCApplication implements CalibrationConstantsLi
             	  System.out.println(dr.getAssociation()+" "+dr.getDescriptor().getType()+" "+dr.getDescriptor().getLayer());       			
       		}
       	}
-      } //dbgAnalyzer
+      } //debug
       
       List<Particle> plist = new ArrayList<Particle>(); 
       	
       for (DetectorParticle dp : par) { // make list of neutral Particle objects 
-      	if(dbgAnalyzer) {
+      	if(app.debug) {
     		System.out.println("Plist "+trsec+" "+dp.getSector(DetectorType.ECAL)+" "+ebmce.hasTriggerPID+" "+dp.getPid()+" "+dp.getBeta()+" "+dp.getEnergy(DetectorType.ECAL));
     	}
       	  int mcsec = dp.getSector(DetectorType.ECAL);
@@ -522,7 +519,7 @@ public class ECEngineApp extends FCApplication implements CalibrationConstantsLi
  		float e1 = (float) (p1.getEnergy(DetectorType.ECAL)/ebmce.getSF(p1)), b1 = (float) p1.getBeta();
 		float e2 = (float) (p2.getEnergy(DetectorType.ECAL)/ebmce.getSF(p2)), b2 = (float) p2.getBeta();	
         
- 		if(dbgAnalyzer && npc[0]>1 && neci[0]>1 && opa>2.5) {
+ 		if(app.debug && npc[0]>1 && neci[0]>1 && opa>2.5) {
 				System.out.println(" "); int scaf = 2;
 				System.out.println(getEventNumber(de));
 				     				
