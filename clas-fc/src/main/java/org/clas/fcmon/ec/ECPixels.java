@@ -405,7 +405,7 @@ public class ECPixels {
                 H2_a_Hist.add(is, 4, 1, new H2F("a_reco_"+id+1, 50, 0., 3.5, 40, 0.15, 0.35));
                 H2_a_Hist.add(is, 4, 2, new H2F("a_reco_"+id+2, 50, 0., 1.0, 40, 0.15, 0.35));
                 H2_a_Hist.add(is, 4, 3, new H2F("a_reco_"+id+3, 50, 0., 1.0, 40, 0.15, 0.35));
-                H2_a_Hist.add(is, 4, 4, new H2F("a_reco_"+id+4, 50, -1.0, 1.0,40, 0., 20.));
+                H2_a_Hist.add(is, 4, 4, new H2F("a_reco_"+id+4, 60, 0,  20,  50,    0, 1));
                 
                 H1_a_Hist.add(is, 4, 0, new H1F("b_reco_"+id+0, 50, -300, 300.));
                 H1_a_Hist.add(is, 4, 1, new H1F("b_reco_"+id+1, 50, -2.0, 2.0));
@@ -423,7 +423,7 @@ public class ECPixels {
                 id="s"+Integer.toString(is)+"_l"+Integer.toString(7)+"_c";
 //              H2_a_Hist.add(is, 7, 0, new H2F("d_reco_"+id+0, 200, -600., 600., 200, -600., 600.));   
 //              H2_a_Hist.add(is, 7, 1, new H2F("d_reco_"+id+1, 200, -600., 600., 200, -600., 600.));                   
-                H2_a_Hist.add(is, 7, 2, new H2F("d_reco_"+id+2, 120, 0., 20., 120, 0., 12.0));   
+                H2_a_Hist.add(is, 7, 2, new H2F("d_reco_"+id+2, 120, 0, 20, 120, 0, 16));   
                 
                 id="s"+Integer.toString(is)+"_l"+Integer.toString(8)+"_c";                
                 H2_a_Hist.add(is, 8, 0, new H2F("f_reco_"+id+0, 50, -10., 10., 3, 1., 4.));                  
@@ -441,18 +441,18 @@ public class ECPixels {
                 if (is==simSector) {
                 	H2_a_Hist.add(is, 9,10, new H2F("g_reco_"+id+4, 60,  0,10,  4, 1,  5));  //PCAL-EC matching distance 
                 	H2_a_Hist.add(is, 9,11, new H2F("g_reco_"+id+5, 60,-10,10, 12, 1, 13));  //PCAL-EC matching x,y residuals
-                	H2_a_Hist.add(is, 9,20, new H2F("g_reco_"+id+6, 50,  0,5.2,50, 0.5,1.5));  
-                	H2_a_Hist.add(is, 9,21, new H2F("g_reco_"+id+7, 50,  0,5.2,50, 0.5,1.5)); 
-                	H2_a_Hist.add(is, 9,22, new H2F("g_reco_"+id+8, 50,  0,5.2,50,-1,  1));  
-                	H2_a_Hist.add(is, 9,23, new H2F("g_reco_"+id+9, 50,  0,5.2,50,-1,  1));  
-                	H2_a_Hist.add(is, 9,30, new H2F("g_reco_"+id+10,50,  0,5.2,50, 0.5,1.5));  
-                	H2_a_Hist.add(is, 9,31, new H2F("g_reco_"+id+11,50,  0,5.2,50, 0.5,1.5)); 
-                	H2_a_Hist.add(is, 9,32, new H2F("g_reco_"+id+12,50,  0,5.2,50,-1,  1));  
-                	H2_a_Hist.add(is, 9,33, new H2F("g_reco_"+id+13,50,  0,5.2,50,-1,  1));  
-                	H2_a_Hist.add(is, 9,40, new H2F("g_reco_"+id+14,50,  5,30, 50, 0.5,1.5));  
-                	H2_a_Hist.add(is, 9,41, new H2F("g_reco_"+id+15,50,  2,10, 50, 0.5,1.5)); 
+                	H2_a_Hist.add(is, 9,20, new H2F("g_reco_"+id+6, 50,  0,12.2,50, 0.,2.0));  
+                	H2_a_Hist.add(is, 9,21, new H2F("g_reco_"+id+7, 50,  0,12.2,50, 0.,2.0)); 
+                	H2_a_Hist.add(is, 9,22, new H2F("g_reco_"+id+8, 50,  0,12.2,50,-1,  1));  
+                	H2_a_Hist.add(is, 9,23, new H2F("g_reco_"+id+9, 50,  0,12.2,50,-1,  1));  
+                	H2_a_Hist.add(is, 9,30, new H2F("g_reco_"+id+10,50,  0,12.2,50, 0.,2.0));  
+                	H2_a_Hist.add(is, 9,31, new H2F("g_reco_"+id+11,50,  0,12.2,50, 0.,2.0)); 
+                	H2_a_Hist.add(is, 9,32, new H2F("g_reco_"+id+12,50,  0,12.2,50,-1,  1));  
+                	H2_a_Hist.add(is, 9,33, new H2F("g_reco_"+id+13,50,  0,12.2,50,-1,  1));  
+                	H2_a_Hist.add(is, 9,40, new H2F("g_reco_"+id+14,50,  5,30, 50, 0.,2.0));  
+                	H2_a_Hist.add(is, 9,41, new H2F("g_reco_"+id+15,50,  0,10, 50, 0.,2.0)); 
                 	H2_a_Hist.add(is, 9,42, new H2F("g_reco_"+id+16,50,  5,30, 50,-1,  1));  
-                	H2_a_Hist.add(is, 9,43, new H2F("g_reco_"+id+17,50,  2,10, 50,-1,  1));  
+                	H2_a_Hist.add(is, 9,43, new H2F("g_reco_"+id+17,50,  0,10, 50,-1,  1));  
                 }
 
                 if (is==simSector) {
@@ -475,6 +475,13 @@ public class ECPixels {
                 H1_a_Hist.add(is, 11, 4, new H1F("i_reco_"+id+4, 200, 5.,1100.));
                 H1_a_Hist.add(is, 11, 5, new H1F("i_reco_"+id+5, 200, 5.,1100.));
                 H1_a_Hist.add(is, 11, 6, new H1F("i_reco_"+id+6, 200, 5.,1100.));
+                id="s"+Integer.toString(is)+"_l"+Integer.toString(12)+"_c";
+                H2_a_Hist.add(is, 12, 1, new H2F("j_reco_"+id+1, 50,1,10,50,-1,0.6));
+                H2_a_Hist.add(is, 12, 2, new H2F("j_reco_"+id+2, 50,0,20,50,-1,0.6));
+                H2_a_Hist.add(is, 12, 3, new H2F("j_reco_"+id+3, 50,0,20,50,-1,0.6));
+                H2_a_Hist.add(is, 12, 4, new H2F("j_reco_"+id+4, 50,0,20,50,-1,0.6));
+                H2_a_Hist.add(is, 12, 5, new H2F("j_reco_"+id+5, 50,0,20,50,-1,0.6));
+                H2_a_Hist.add(is, 12, 6, new H2F("j_reco_"+id+6, 50,0,20,50,-1,0.6));
                 
             //Pixel based data
             for (int il=1; il<4 ; il++) { 

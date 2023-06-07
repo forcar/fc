@@ -246,6 +246,7 @@ public class ECEngineApp extends FCApplication implements CalibrationConstantsLi
               ecPix[0].strips.hmap1.get("H1_a_Hist").get(is,4,1).reset(); //Pizero theta error
               ecPix[0].strips.hmap1.get("H1_a_Hist").get(is,4,2).reset(); //X:(E1-E2)/(E1+E2)
               ecPix[0].strips.hmap1.get("H1_a_Hist").get(is,11,is).reset(); //IVM
+              ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,12,is).reset(); //IVM
           }
       }
        
@@ -375,7 +376,7 @@ public class ECEngineApp extends FCApplication implements CalibrationConstantsLi
 	  if (!goodev) return;
       	
       GEN   = getkin(ebmce.pmc);	
-      GENPZ = ebmce.getPizeroKinematics(ebmce.pmc); opa = GENPZ.get(3); x = GENPZ.get(4);	    		      
+      GENPZ = ebmce.getPizeroKinematics(ebmce.pmc.get(0),ebmce.pmc.get(1)); opa = GENPZ.get(3); x = GENPZ.get(4);	    		      
 	    
       if(!ebmce.processDataEvent(de)) return;
       	
@@ -410,15 +411,21 @@ public class ECEngineApp extends FCApplication implements CalibrationConstantsLi
       	
       	for (DetectorResponse drr : cal) {
       		CalorimeterResponse dr = (CalorimeterResponse) drr;
-      		System.out.println("Response "+dr.getAssociation()+" "+dr.getDescriptor().getType()+" "+dr.getDescriptor().getSector()+" "+dr.getDescriptor().getLayer()+" "
-      	                      +par.get(dr.getAssociation()).getPid());
+      		System.out.println("Response "+dr.getAssociation()+" "+
+      		                               dr.getDescriptor().getType()+" "+
+      				                       dr.getDescriptor().getSector()+" "+
+      		                               dr.getDescriptor().getLayer()+" "+
+      	                                   par.get(dr.getAssociation()).getPid());
       	}
       	
       	int nnn=0;
       	for (DetectorParticle dp : par) {
-      		System.out.println("Particle "+nnn+"  "+dp.getSector(DetectorType.ECAL)+" "+dp.getEnergy(DetectorType.ECAL));nnn++;
+      		System.out.println("Particle "+nnn+"  "+dp.getSector(DetectorType.ECAL)+" "+
+      	                                            dp.getEnergy(DetectorType.ECAL));nnn++;
       		for (DetectorResponse dr : dp.getDetectorResponses()) {
-            	  System.out.println(dr.getAssociation()+" "+dr.getDescriptor().getType()+" "+dr.getDescriptor().getLayer());       			
+            	  System.out.println(dr.getAssociation()+" "+
+      		                         dr.getDescriptor().getType()+" "+
+            			             dr.getDescriptor().getLayer());       			
       		}
       	}
       } //debug
@@ -427,19 +434,24 @@ public class ECEngineApp extends FCApplication implements CalibrationConstantsLi
       	
       for (DetectorParticle dp : par) { // make list of neutral Particle objects 
       	if(app.debug) {
-    		System.out.println("Plist "+trsec+" "+dp.getSector(DetectorType.ECAL)+" "+ebmce.hasTriggerPID+" "+dp.getPid()+" "+dp.getBeta()+" "+dp.getEnergy(DetectorType.ECAL));
+    		System.out.println("Plist "+trsec+" "+
+      	                        dp.getSector(DetectorType.ECAL)+" "+
+    				            ebmce.hasTriggerPID+" "+
+      	                        dp.getPid()+" "+
+    				            dp.getBeta()+" "+
+      	                        dp.getEnergy(DetectorType.ECAL));
     	}
       	  int mcsec = dp.getSector(DetectorType.ECAL);
     	  if(mcsec!=trSEC && mcsec==mcSEC && dp.getPid()==mcPID) { npart++;
-		    	if(!ebmce.hasTriggerPID && dp.getPid()==2112) {// this repairs zero momentum neutrons from non-PCAL seeded neutrals
-	 				double e = dp.getEnergy(DetectorType.ECAL)/ebmce.getSF(dp); 		
-			    	Vector3D vec = new Vector3D() ; vec.copy(dp.getHit(DetectorType.ECAL).getPosition()); vec.unit(); 			    		
-			    	dp.vector().add(new Vector3(e*vec.x(),e*vec.y(),e*vec.z())); //track energy for neutrals in DetectorParticle
-			    	dp.setPid(mcPID);
-			    }
+//		    	if(!ebmce.hasTriggerPID && dp.getPid()==2112) {// this repairs zero momentum neutrons from non-PCAL seeded neutrals
+//	 				double e = dp.getEnergy(DetectorType.ECAL)/ebmce.getSF(dp); 		
+//			    	Vector3D vec = new Vector3D() ; vec.copy(dp.getHit(DetectorType.ECAL).getPosition()); vec.unit(); 			    		
+//			    	dp.vector().add(new Vector3(e*vec.x(),e*vec.y(),e*vec.z())); //track energy for neutrals in DetectorParticle
+//			    	dp.setPid(mcPID);
+//			    }
 		    	//SF corrected Particle energy from DetectorParticle
 			    Particle p = dp.getPhysicsParticle(mcPID); p.setProperty("beta",dp.getBeta()); plist.add(p);
-		    }		    
+		  }		    
       }
       
 	  double X=0,tpi2=0;
@@ -452,6 +464,7 @@ public class ECEngineApp extends FCApplication implements CalibrationConstantsLi
           double cth1 = Math.cos(g1.theta());
           double cth2 = Math.cos(g2.theta());
           double  cth = g1.cosTheta(g2);
+          double ivm2 = 2*e1c*e2c*(1-cth);
                     X = Math.abs((e1c-e2c)/(e1c+e2c));
                  tpi2 = Math.sqrt(2*mpi0*mpi0/(1-cth)/(1-X*X));
           
@@ -469,6 +482,17 @@ public class ECEngineApp extends FCApplication implements CalibrationConstantsLi
 		  Vector3D[] r1 = new Vector3D[50]; Vector3[] c1 = new Vector3[50]; Vector3D[] d1 = new Vector3D[50];
 		  Vector3D[] r4 = new Vector3D[50]; Vector3[] c4 = new Vector3[50]; Vector3D[] d4 = new Vector3D[50];
 		  Vector3D[] r7 = new Vector3D[50]; Vector3[] c7 = new Vector3[50]; Vector3D[] d7 = new Vector3D[50]; 
+		  
+		  List<Float> pi0 = new ArrayList<Float>();
+		  for (int i=0; i<plist.size()-1; i++) {
+			  for (int j=i+1; j<plist.size(); j++) {
+				  pi0 = ebmce.getPizeroKinematics(plist.get(i),plist.get(j));
+				  double opang=pi0.get(3), e1e2=Math.pow(pi0.get(5),2);
+	              ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,7,2).fill(opang,e1e2,1.); // E1*E2 vs opening angle 
+	              ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,4).fill(opang,pi0.get(4));    
+	              ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,12,is).fill(opang,pi0.get(2));    
+			  }
+		  }
               			    	
 		  int npp = 0, ipp = 0;
 		  for (DetectorParticle dp : par) {
@@ -494,7 +518,7 @@ public class ECEngineApp extends FCApplication implements CalibrationConstantsLi
 		  
 	 	REC   = getkin(plist);
 	 	
- 		if(npc[0]==1) {
+ 		if(REC.size()>1 && npc[0]==1) {
  		ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,9,40).fill(GEN.get(1),REC.get(0)/GEN.get(0));
  		ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,9,41).fill(GEN.get(0),REC.get(0)/GEN.get(0));
  		ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,9,42).fill(GEN.get(1),REC.get(1)-GEN.get(1));
@@ -544,8 +568,8 @@ public class ECEngineApp extends FCApplication implements CalibrationConstantsLi
  		
         if (npc[0]==2)  {eff[0][3].fill(opa); eff[1][3].fill(tpi2); eff[2][3].fill(X);}                        
         if (neci[0]==2) {eff[0][4].fill(opa); eff[1][4].fill(tpi2); eff[2][4].fill(X);}                        
-        if (neco[0]==2) {eff[0][5].fill(opa); eff[1][5].fill(tpi2); eff[2][5].fill(X);}                        
-           		
+        if (neco[0]==2) {eff[0][5].fill(opa); eff[1][5].fill(tpi2); eff[2][5].fill(X);}     
+        
  		if(npc[0]>1 && neci[0]>1) {
  		ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,9,20).fill(opa,delE1);
  		ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,9,21).fill(opa,delE2);
@@ -740,9 +764,9 @@ public class ECEngineApp extends FCApplication implements CalibrationConstantsLi
 	  }
 	  
 	  ilm=0;
-      h1=ecEngHist.get(is,ilm+1,10); ; h1.setTitleX(dtab[ilm]+"Zone 0 Cluster Size (cm)"); h1.setFillColor(4);
+      h1=ecEngHist.get(is,ilm+1,10); ; h1.setTitleX(dtab[ilm]+"Zone 0 Cluster Size (cm)");  h1.setFillColor(4);
       c.cd(ii); ii++; c.draw(h1);  
-      h1=ecEngHist.get(is,ilm+1,11); ; h1.setTitleX(dtab[ilm]+"Zone 1 Cluster Size (cm)"); h1.setFillColor(4);
+      h1=ecEngHist.get(is,ilm+1,11); ; h1.setTitleX(dtab[ilm]+"Zone 1 Cluster Size (cm)");  h1.setFillColor(4);
       c.cd(ii); ii++; c.draw(h1);  
       h1=ecEngHist.get(is,ilm+1,12); ; h1.setTitleX(dtab[ilm]+"Zone 23 Cluster Size (cm)"); h1.setFillColor(4);
       c.cd(ii); ii++; c.draw(h1);  
@@ -859,9 +883,9 @@ public class ECEngineApp extends FCApplication implements CalibrationConstantsLi
       c.repaint();
       
       f1 = new F1D("p0","[a]",5,30); f1.setParameter(0, 1); f1.setLineColor(1); 
-      f2 = new F1D("p0","[a]",2,10); f2.setParameter(0, 1); f2.setLineColor(1);
+      f2 = new F1D("p0","[a]",0,10); f2.setParameter(0, 1); f2.setLineColor(1);
       f3 = new F1D("p0","[a]",5,30); f3.setParameter(0, 0); f3.setLineColor(1); 
-      f4 = new F1D("p0","[a]",2,10); f4.setParameter(0, 0); f4.setLineColor(1);
+      f4 = new F1D("p0","[a]",0,10); f4.setParameter(0, 0); f4.setLineColor(1);
       
       //N=1 TAB      
       ii=0;
@@ -876,12 +900,13 @@ public class ECEngineApp extends FCApplication implements CalibrationConstantsLi
       h2f.setTitleX("GEN E (GeV)");      h2f.setTitleY("REC-GEN #Theta"); c.cd(ii++);c.draw(h2f);c.draw(f4,"same");
       c.repaint(); 
       
-      f1 = new F1D("p0","[a]",0.,5.2); f1.setParameter(0, 1); f1.setLineColor(1); 
-      f2 = new F1D("p0","[a]",0.,5.2); f2.setParameter(0, 0); f2.setLineColor(1);
+      f1 = new F1D("p0","[a]",0.,12.2); f1.setParameter(0, 1); f1.setLineColor(1); 
+      f2 = new F1D("p0","[a]",0.,12.2); f2.setParameter(0, 0); f2.setLineColor(1);
       
       //N>1 TAB      
       ii=0;
       c = mc.getCanvas("N>1"); c.divide(2,2);  
+
       h2f=ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,9,20); 
       h2f.setTitleX("Opening Angle (deg)"); h2f.setTitleY("REC/GEN E #gamma 1");      c.cd(ii++);c.draw(h2f);c.draw(f1,"same");
       h2f=ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,9,21); 
@@ -895,6 +920,7 @@ public class ECEngineApp extends FCApplication implements CalibrationConstantsLi
       //N=2 TAB
       ii=0;
       c = mc.getCanvas("N=2"); c.divide(2,2); 	  
+
       h2f=ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,9,30); 
       h2f.setTitleX("Opening Angle (deg)"); h2f.setTitleY("REC/GEN E #gamma 1");      c.cd(ii++);c.draw(h2f);c.draw(f1,"same");
       h2f=ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,9,31); 
@@ -1009,23 +1035,26 @@ public class ECEngineApp extends FCApplication implements CalibrationConstantsLi
       
       ii=0;      
       c = mc.getCanvas("PI0"); c.divide(3,2);      
-      h = ecPix[0].strips.hmap1.get("H1_a_Hist").get(is,11,is) ; h.setTitleX("Two Photon Invariant Mass (MeV)"); h.setFillColor(2); 
-      h.setOptStat(Integer.parseInt("11001100")); 
-      c.cd(ii); c.getPad(ii).getAxisX().setRange(0.,400.); c.draw(h); ii++;
+//    h = ecPix[0].strips.hmap1.get("H1_a_Hist").get(is,11,is) ; h.setTitleX("Two Photon Invariant Mass (MeV)"); h.setFillColor(2); 
+//    h.setOptStat(Integer.parseInt("11001100")); 
+//    c.cd(ii); c.getPad(ii).getAxisX().setRange(0.,400.); c.draw(h); ii++;
+      h2f = ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,12,is);
+      h2f.setTitleX("Two Photon Opening Angle (deg)"); h2f.setTitleY("Inv Mass Error (%)");      
+      c.cd(ii); c.draw(h2f); ii++;
       
       h = ecPix[0].strips.hmap1.get("H1_a_Hist").get(is,4,2) ; h.setTitleX("X:(E1-E2)/(E1+E2)"); h.setFillColor(2); 
       h.setOptStat(Integer.parseInt("11001100")); 
       c.cd(ii); c.draw(h); ii++;
       
       h2f = ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,7,2) ; 
-      h2f.setTitleY("Two Photon Opening Angle (deg)"); h2f.setTitleX("E1*E2 (GeV^2)");      
+      h2f.setTitleX("Two Photon Opening Angle (deg)"); h2f.setTitleY("E1*E2 (GeV^2)");      
       c.cd(ii); c.getPad(ii).getAxisZ().setLog(true); c.getPad(ii).getAxisY().setRange(0., 12.);
       c.getPad(ii).getAxisZ().setAutoScale(true);
       if(app.isSingleEvent()) c.getPad(ii).getAxisZ().setRange(0.,3.2);
       c.draw(h2f);
-      f1 = new F1D("E1*E2/2/(1-COS(x))","0.13495*0.13495/2/(1-cos(x*3.14159/180.))",2.25,20.); f1.setLineColor(1); f1.setLineWidth(2);
-      f2 = new F1D("E1*E2/2/(1-COS(x))","0.12495*0.12495/2/(1-cos(x*3.14159/180.))",2.10,20.); f2.setLineColor(1); f2.setLineWidth(1);
-      f3 = new F1D("E1*E2/2/(1-COS(x))","0.14495*0.14495/2/(1-cos(x*3.14159/180.))",2.40,20.); f3.setLineColor(1); f3.setLineWidth(1);
+      f1 = new F1D("E1*E2/2/(1-COS(x))","0.13495*0.13495/2/(1-cos(x*3.14159/180.))",2.15,20.); f1.setLineColor(1); f1.setLineWidth(2);
+      f2 = new F1D("E1*E2/2/(1-COS(x))","0.12495*0.12495/2/(1-cos(x*3.14159/180.))",2.00,20.); f2.setLineColor(1); f2.setLineWidth(1);
+      f3 = new F1D("E1*E2/2/(1-COS(x))","0.14495*0.14495/2/(1-cos(x*3.14159/180.))",2.30,20.); f3.setLineColor(1); f3.setLineWidth(1);
       c.draw(f1,"same"); c.draw(f2,"same"); c.draw(f3,"same"); ii++;
       
       h2f = ecPix[0].strips.hmap2.get("H2_a_Hist").get(is,4,4) ; 
