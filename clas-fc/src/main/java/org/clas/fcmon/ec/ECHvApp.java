@@ -224,8 +224,8 @@ public class ECHvApp extends FCEpics implements ActionListener {
 //        int imon = (int)getCaValue(0,"imon",is, il, ic);
         double vset = app.fifo1.get(is,il,ic).getLast();
         double vmon = app.fifo2.get(is,il,ic).getLast(); 
-        double imon = app.fifo3.get(is,il,ic).getLast(); 
-        this.statuslabel.setText(" Sector:"+is+"  SuperLayer:" +il+"  PMT:"+ic+"  Vset:"+(int)vset+"  Vmon:"+(int)vmon+"  Imon:"+(int)imon);        
+        double imon = app.fifo3.get(is,il,ic).getLast();
+        this.statuslabel.setText(" S:"+is+"  SL:" +il+"  PMT:"+ic+"  Vset:"+(int)vset+"  Vmon:"+(int)vmon+"  Imon:"+(int)imon+"  Vgm: "+app.fifo6.get(is, il, ic).getLast());        
     }
     
     public void updateCanvas(DetectorDescriptor dd) {
