@@ -169,7 +169,7 @@ public class ECHvApp extends FCEpics implements ActionListener {
                     }                   
                     app.fifo1.get(is, il, ic).add(getCaValue(0,"vset",is, il, ic));
                     app.fifo2.get(is, il, ic).add(getCaValue(0,"vmon",is, il, ic));
-                    app.fifo3.get(is, il, ic).add(getCaValue(0,"imon",is, il, ic));                   
+                    app.fifo3.get(is, il, ic).add(getCaValue(0,"imon",is, il, ic));   
                 }
             }
          }
@@ -214,18 +214,15 @@ public class ECHvApp extends FCEpics implements ActionListener {
                     putCaValue(0,"vset",is,il,ic,app.fifo6.get(is, il, ic).getLast());  
                 }
             }
-        }
-        
+        }        
     }
     
     public void updateStatus(int is, int il, int ic) {
-//        int vset = (int)getCaValue(0,"vset",is, il, ic);
-//        int vmon = (int)getCaValue(0,"vmon",is, il, ic);
-//        int imon = (int)getCaValue(0,"imon",is, il, ic);
         double vset = app.fifo1.get(is,il,ic).getLast();
         double vmon = app.fifo2.get(is,il,ic).getLast(); 
         double imon = app.fifo3.get(is,il,ic).getLast();
-        this.statuslabel.setText(" S:"+is+"  SL:" +il+"  PMT:"+ic+"  Vset:"+(int)vset+"  Vmon:"+(int)vmon+"  Imon:"+(int)imon+"  Vgm: "+app.fifo6.get(is, il, ic).getLast());        
+        int vgm = (int) (app.fifo6.get(is, il, ic).isEmpty() ? 0: app.fifo6.get(is, il, ic).getLast());  
+        this.statuslabel.setText(" S:"+is+"  SL:" +il+"  PMT:"+ic+"  Vset:"+(int)vset+"  Vmon:"+(int)vmon+"  Imon:"+(int)imon+"  Vgm:" +vgm);        
     }
     
     public void updateCanvas(DetectorDescriptor dd) {
