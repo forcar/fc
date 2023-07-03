@@ -84,7 +84,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
     String[] names = {"/calibration/ec/attenuation","/calibration/ec/gain","/calibration/ec/status","/calibration/ec/hv"};
 
     String selectedDir = names[HV];
-       
+    
     int selectedSector = 1;
     int selectedLayer = 1;
     int selectedPaddle = 1;
@@ -474,16 +474,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
                     int ipmax = ip2>iptst ? iptst:ip2;
                     for (int ip=ip1; ip<ipmax; ip++) { 
                         int sl = 3*idet+il;  // Superlayer PCAL:1-3 ECinner: 4-6 ECouter: 7-9
-                        double  gain = gains.getDoubleValue("A", is,sl,ip)+gains.getDoubleValue("C", is,sl,ip);
-                        double hvold = calib.getDoubleValue("HVold", is,sl,ip);
-                        calib.setDoubleValue(gain,"Gain", is, sl, ip);                        
-                        if (gain<0.3||gain>12.0) gain=1.0;
-                        double ratio=Math.pow(gain, 1./HVEXP[idet]);
-                        double hvnew = (ratio>0.5) ? hvold/ratio:hvold;
-                        if((hvnew-hvold)>100) {gain=1.0; hvnew=hvold;}
-                        calib.setDoubleValue(hvnew,"HVnew", is, sl, ip);                           
-                        calib.setDoubleValue(hvnew-hvold,"DHV", is, sl, ip);  
-                        app.fifo6.get(is, sl, ip).add(hvnew);
+                        app.fifo6.get(is, sl, ip).add(getNewHV(idet,is,sl,ip));
                     }
                 }
             }
@@ -491,6 +482,20 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
             calib.fireTableDataChanged();     
         }
         
+        public double getNewHV(int idet, int is, int sl, int ip) {
+            CalibrationConstants gains = engines[0].calib;
+            double  gain = gains.getDoubleValue("A", is,sl,ip)+gains.getDoubleValue("C", is,sl,ip);
+            double hvold = calib.getDoubleValue("HVold", is,sl,ip);
+            calib.setDoubleValue(gain,"Gain", is, sl, ip);                        
+            if (gain<0.3||gain>12.0) gain=1.0;
+            double ratio=Math.pow(gain, 1./HVEXP[idet]);
+            double hvnew = (ratio>0.5) ? hvold/ratio:hvold;
+            if((hvnew-hvold)>100) {gain=1.0; hvnew=hvold;}  
+            calib.setDoubleValue(hvnew,"HVnew", is, sl, ip);                           
+            calib.setDoubleValue(hvnew-hvold,"DHV", is, sl, ip);              
+        	return hvnew;
+        }
+         
         @Override
         public void updateTable(String inputFile){
             
@@ -654,8 +659,8 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
         public void init(int is1, int is2) {
             System.out.println("ECCalibrationApp:ECAttenEventListener.init");
             
-            fileNamePrefix ="EC_CALIB_ATTEN";
-            filePath= app.calibPath;
+            fileNamePrefix = "EC_CALIB_ATTEN";
+            filePath = app.calibPath;
             
             getButtonGroup();
             getSliderPane();
