@@ -7,6 +7,7 @@ import java.util.TreeMap;
 //clas12
 import org.clas.fcmon.tools.FADCFitter;
 import org.clas.fcmon.tools.FCApplication;
+import org.clas.tools.EngineControl;
 import org.jlab.detector.base.DetectorCollection;
 
 
@@ -28,7 +29,7 @@ import org.clas.analysis.ECPart;
 public class ECReconstructionApp extends FCApplication {
     
    FADCFitter     fitter  = new FADCFitter(1,15);
-   String          mondet = null;
+//   String          mondet = null;
 
    String BankType        = null;
    int              detID = 0;
@@ -53,22 +54,24 @@ public class ECReconstructionApp extends FCApplication {
    
    short[] pulse = new short[100]; 
    
+   EngineControl eng = null;
+   
    public ECReconstructionApp(String name, ECPixels[] ecPix) {
        super(name,ecPix);
    }
    
-   public void init() {
+   public void init(EngineControl eng) {
        System.out.println("ECReconstruction.init()");
-       mondet =           (String) mon.getGlob().get("mondet");
-       DetectorCollection<H1F> ecEngHist = (DetectorCollection<H1F>) mon.getGlob().get("ecEng");
         is1 = ECConstants.IS1;
         is2 = ECConstants.IS2;
        iis1 = ECConstants.IS1-1;
        iis2 = ECConstants.IS2-1;
+       this.eng = eng;
+       eng.setUseCalibPass2(false);
    }
       
-   public void clearHistograms() {
-     
+   public void clearHistograms() {  
+	   
        for (int idet=0; idet<ecPix.length; idet++) {
            for (int is=is1 ; is<is2 ; is++) {
                for (int il=1 ; il<4 ; il++) {
@@ -442,7 +445,7 @@ public class ECReconstructionApp extends FCApplication {
         
    public void fill(int idet, int is, int il, int ip, float adc, float[] tdc, float tdcf, float adph, int ovf) {
 
-	   double thr = ecPix[idet].getStripThr(eng.config,il)*ecc.AtoE[idet*3+il-1]/10;
+	   double thr = eng.getStripThr(idet)*ecc.AtoE[idet*3+il-1]/10; 
 	   
        for (int ii=0; ii<tdc.length; ii++) {
            
@@ -575,7 +578,7 @@ public class ECReconstructionApp extends FCApplication {
                
                good_uvwa = good_ua && good_va && good_wa; //Multiplicity test (NU=NV=NW=1)
                
-               int thr = 35; 
+        	   double thr = eng.getStripThr(idet)*ecc.AtoE[idet*3]/10; 
                
                good_pix[0] = good_ua && ecPix[idet].adcr[is][1][0]>thr && ecPix[idet].adcr[is][2][0]>thr; // If single U strip, require V,W>35
                good_pix[1] = good_va && ecPix[idet].adcr[is][0][0]>thr && ecPix[idet].adcr[is][2][0]>thr; // If single V strip, require U,W>35
