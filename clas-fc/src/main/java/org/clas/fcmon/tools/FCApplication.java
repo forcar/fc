@@ -44,8 +44,9 @@ public class FCApplication implements ActionListener  {
     private String                                    appName = null;
     private List<EmbeddedCanvas>                     canvases = new ArrayList<EmbeddedCanvas>();
     private JPanel                                  radioPane = null;
-    public JPanel                                  buttonPane = null;  
-    private CalibrationEngineView                   calibPane = null;
+    public  JPanel                                 buttonPane = null;  
+    private CalibrationEngineView                   calibPane = null;    
+
     private List<String>                               fields = new ArrayList<String>();
 //    private List<FCParameter>                    parameters = new ArrayList<FCParameter>();
     
@@ -96,8 +97,6 @@ public class FCApplication implements ActionListener  {
     public boolean isEvioDataEvent = false;
     
     TriggerDataDgtz         trig = null;
-    
-    public EngineControl eng = new EngineControl();
     
     public FCApplication(ECPixels[] ecPix) {
         this.ecPix = ecPix;       
@@ -168,7 +167,7 @@ public class FCApplication implements ActionListener  {
     public void addEvent(DataEvent event) {
     	
     	// globals set here must go to app.* since this is called only in ReconstructionApp
-    	
+
         app.decoder.detectorDecoder.setTET(app.mode7Emulation.mode?0:app.mode7Emulation.tet);
         app.decoder.detectorDecoder.setNSA(app.mode7Emulation.mode?0:app.mode7Emulation.nsa);
         app.decoder.detectorDecoder.setNSB(app.mode7Emulation.mode?0:app.mode7Emulation.nsb);   
