@@ -43,10 +43,10 @@ public class ECMon extends DetectorMonitor {
     Boolean                saveFile = false;
     DataEvent              de_copy  = null;
     
-    public static int        calRun = 6603;
+    public static int        calRun = 15938;
     int                       detID = 0;
-    int                         is1 = 2;
-    int                         is2 = 3;  
+    int                         is1 = 5;
+    int                         is2 = 6;  
     int    nsa,nsb,tet,p1,p2,pedref = 0;
     double               PCMon_zmin = 0;
     double               PCMon_zmax = 0;
@@ -59,7 +59,7 @@ public class ECMon extends DetectorMonitor {
         
     ECConstants                 ecc = new ECConstants();
         
-    TreeMap<String,Object> glob = new TreeMap<String,Object>();
+    TreeMap<String,Object>     glob = new TreeMap<String,Object>();
    
     public ECMon(String det) {
         super(appname,"1.0","lcsmith");
@@ -84,8 +84,8 @@ public class ECMon extends DetectorMonitor {
         app.getEnv();
         monitor.initConstants();
         monitor.initCCDB(10);
-        monitor.initGlob();
         monitor.makeApps();
+        monitor.initGlob();
         monitor.addCanvas();
         monitor.init();
         monitor.initDetector();
@@ -125,6 +125,11 @@ public class ECMon extends DetectorMonitor {
     
     public void makeApps()  {
         System.out.println(appname+".makeApps()");   
+       
+        ecEng = new ECEngineApp("ECEngine",ecPix);
+        ecEng.setMonitoringClass(this);
+        ecEng.setApplicationClass(app);
+        ecEng.setConstantsManager(ccdb,10);
         
         ecRecon = new ECReconstructionApp("ECREC",ecPix);        
         ecRecon.setMonitoringClass(this);
@@ -155,11 +160,6 @@ public class ECMon extends DetectorMonitor {
         ecCalib.setApplicationClass(app);
         ecCalib.setConstantsManager(ccdb,calRun);
         ecCalib.init(); 
-        
-        ecEng = new ECEngineApp("ECEngine",ecPix);
-        ecEng.setMonitoringClass(this);
-        ecEng.setApplicationClass(app);
-        ecEng.setConstantsManager(ccdb,10);
         
         ecGains = new ECGainsApp("Gains");
         ecGains.setMonitoringClass(this);
@@ -195,29 +195,36 @@ public class ECMon extends DetectorMonitor {
         app.addFrame(ecHv.getName(),                   ecHv.getPanel());
         app.addFrame(ecScalers.getName(),         ecScalers.getPanel());     
         app.addFrame(ecTrig.getName(),               ecTrig.getPanel());
-    }
-	
+    }    
+    	
     public void init( ) {	    
         System.out.println(appname+".init()");	
         firstevent = true;
-        app.setInProcess(0);  
+        app.setInProcess(0);
+        initEcPix();
         initApps();
-        for (int i=0; i<ecPix.length; i++) ecPix[i].initHistograms(" ");
     }
 
     public void initApps() {
         System.out.println(appname+".initApps()");
-        for (int i=0; i<ecPix.length; i++)   ecPix[i].init();
-        ecRecon.init();
+        ecEng.init();
+        ecRecon.init(ecEng.eng);
         ecGains.init();
         ecTrig.init();
-        initEngine();
-        for (int i=0; i<ecPix.length; i++)   ecPix[i].Lmap_a.add(0,0,0, ecRecon.toTreeMap(ecPix[i].ec_cmap));
-        for (int i=0; i<ecPix.length; i++)   ecPix[i].Lmap_t.add(0,0,0, ecRecon.toTreeMap(ecPix[i].ec_cmap));
-        for (int i=0; i<ecPix.length; i++)   ecPix[i].Lmap_a.add(0,0,1, ecRecon.toTreeMap(ecPix[i].ec_zmap));
-        for (int i=0; i<ecPix.length; i++)   ecPix[i].getLmapMinMax(0,1,0,0); 
     }
     
+    public void initEcPix() {
+        System.out.println(appname+".initEcPix()");    	
+    	for (int i=0; i<ecPix.length; i++) {
+    		ecPix[i].init();
+    		ecPix[i].Lmap_a.add(0,0,0, ecRecon.toTreeMap(ecPix[i].ec_cmap));
+    		ecPix[i].Lmap_t.add(0,0,0, ecRecon.toTreeMap(ecPix[i].ec_cmap));
+    		ecPix[i].Lmap_a.add(0,0,1, ecRecon.toTreeMap(ecPix[i].ec_zmap));
+    		ecPix[i].getLmapMinMax(0,1,0,0);
+    		ecPix[i].initHistograms(" ");
+    	}
+    }
+   
     public void initEpics(Boolean doEpics) {
         System.out.println(appname+".initScalers():Initializing EPICS Channel Access");
         if (app.xMsgHost=="localhost") {ecHv.online=false ; ecScalers.online=false;}
