@@ -46,6 +46,7 @@ import org.clas.fcmon.ftof.TOFPaddle;
 import org.jlab.utils.groups.IndexedList.IndexGenerator;
 
 import org.clas.tools.EBMCEngine;
+import org.clas.tools.EngineControl;
 
 
 public class ECEngineApp extends FCApplication implements CalibrationConstantsListener,ActionListener {
@@ -62,6 +63,7 @@ public class ECEngineApp extends FCApplication implements CalibrationConstantsLi
 
     List<TOFPaddle>     paddleList = null;
     
+    EngineControl              eng = new EngineControl();    
     EBMCEngine               ebmce = new EBMCEngine();
     ConstantsManager          ccdb = new ConstantsManager();    
 	List<Float>                GEN = new ArrayList<Float>();
@@ -91,6 +93,10 @@ public class ECEngineApp extends FCApplication implements CalibrationConstantsLi
         ebmce.setMCpid(mcPID); 
         ebmce.setGeom("2.5");
         initHist();
+    }
+    
+    public void init() {
+    	eng.initEngine();
     }
     
     public void setConstantsManager(ConstantsManager ccdb, int run) {
@@ -666,6 +672,7 @@ public class ECEngineApp extends FCApplication implements CalibrationConstantsLi
       c = strips.getCanvas("Strips"); c.divide(3,3); 
       
       int ii=0; int[] thr1 = eng.getStripThresholds(); int[] thr2 = eng.getPeakThresholds();
+      System.out.println("ECEngineApp:"+eng.config+" "+thr1[0]+" "+thr1[1]+" "+thr1[2]);
             
 	  for(ilm=0; ilm<3; ilm++) {		
       for(int il=1; il<4; il++) {
