@@ -7,8 +7,9 @@ public class ECConstants {
     public static int IS1 = 0 ;
     public static int IS2 = 0 ;  
     public static float  TOFFSET = 125;                                 // FADC/TDC offset in ns
-    public static double[] AtoE  = {15,15,15,10,10,10,10,10,10};        // SCALED ADC to Energy in MeV
-    public static double[] AtoE5 = {15,15,15,5,5,5,5,5,5};              // For Sector 5 ECAL
+    
+    public static double[] AtoE   = {15,15,15,10,10,10,10,10,10};       // SCALED ADC to Energy in MeV
+    public static double[] AtoE5  = {15,15,15,5,5,5,5,5,5};             // For Sector 5 ECAL
     public static double[] SCALE  = {10,10,10,10,10,10,10,10,10};       // Fitter.ADC/SCALE is plotted and fitted in ECMon
     public static double[] SCALE5 = {10,10,10,5,5,5,5,5,5};             // Sector 5 ECAL uses EMI PMTs near max voltage
     public static double[] REF = {150,150,150,100,100,100,160,160,160}; // SCALE adjusted expected MIP position from FADC
