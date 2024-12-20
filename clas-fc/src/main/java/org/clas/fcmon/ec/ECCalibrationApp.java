@@ -215,7 +215,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
            JOptionPane.showMessageDialog(new JPanel(),
                    "Writing table " + engine.calib.getName() + " to "+outputFileName);
        }        
-       if (e.getActionCommand().compareTo("SAVE")==0) {           
+       if (e.getActionCommand().compareTo("SAVE")==0) { //saves current state of calib          
             String outputFileName = engine.getFileName(app.runNumber);
             engine.calib.save(outputFileName);
             JOptionPane.showMessageDialog(new JPanel(),
@@ -801,7 +801,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
         @Override
         public void writeDefaultTables(String runno) {
           System.out.println("Creating EC_CALIB_ATTEN tables for "+runno);
-          makeNewTable(1,7);         
+          makeNewTable(1,7);  //fill from CCDB       
           updateTable(app.calibPath+"EC_CALIB_ATTEN_s0_"+runno);   
           calib.save(app.calibPath+"EC_CALIB_ATTEN_r"+runno);   
         }
@@ -896,7 +896,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
                     }
                 }
             }
-            calib.fireTableDataChanged();
+            calib.fireTableDataChanged(); //update GUI table with current contents
         }
         
         @Override
@@ -946,7 +946,7 @@ public class ECCalibrationApp extends FCApplication implements CalibrationConsta
                   for (int ip=ip1 ; ip<ipmax ; ip++) { //Loop over strips
                      if (doCalibration) {
                          
-                        CalibrationData fits = new CalibrationData(is, sl, ip);
+                        CalibrationData fits = new CalibrationData(is, sl, ip); 
                         fits.getDescriptor().setType(DetectorType.ECAL);
                         if(ip==36||ip==68||ip==62) fits.ignorePixelStatus();
                         if(ip<4)                   fits.ignoreLoPixelStatus();
