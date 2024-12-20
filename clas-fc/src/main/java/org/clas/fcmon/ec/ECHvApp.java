@@ -222,7 +222,8 @@ public class ECHvApp extends FCEpics implements ActionListener {
         double vmon = app.fifo2.get(is,il,ic).getLast(); 
         double imon = app.fifo3.get(is,il,ic).getLast();
         int vgm = (int) (app.fifo6.get(is, il, ic).isEmpty() ? 0: app.fifo6.get(is, il, ic).getLast());  
-        this.statuslabel.setText(" S:"+is+"  SL:" +il+"  PMT:"+ic+"  Vset:"+(int)vset+"  Vmon:"+(int)vmon+"  Imon:"+(int)imon+"  Vgm:" +vgm);        
+        String  voi = String.format("%4.2f",imon>0 ? vmon/imon:0);
+        this.statuslabel.setText(" S:"+is+"  SL:" +il+"  PMT:"+ic+"  Vset:"+(int)vset+"  Vmon:"+(int)vmon+"  Imon:"+(int)imon+"  V/I:"+voi+"  Vgm:" +vgm);         
     }
     
     public void updateCanvas(DetectorDescriptor dd) {
